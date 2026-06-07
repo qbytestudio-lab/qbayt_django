@@ -28,7 +28,7 @@ def perfil_docente(request):
 def perfil_administrador(request):
     if request.user.perfil.rol != 'administrador':
         return redirect('inicio')
-    return render(request, 'web/perfil_administrador.html')
+    return render(request, 'web/perfil_admin.html')
 
 def registro(request):
     if request.method == 'POST':

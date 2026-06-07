@@ -1,0 +1,401 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QBYT — Panel Administrador</title>
+  <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+  <link rel="stylesheet" href="{% static 'web/css/perfil.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-content">
+      <a href="{% url 'index' %}" class="logo-area">
+        <div class="logo-box">
+          <img src="{% static 'web/img/logo.png' %}">
+        </div>
+        <h2 class="logo-text">QBYT</h2>
+      </a>
+      <div class="auth-buttons">
+        <a href="{% url 'login' %}" class="btn-login">
+          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROFILE HERO ADMIN -->
+  <section class="profile-hero admin">
+    <div class="profile-glow admin-glow"></div>
+    <div class="container">
+      <div class="profile-header">
+        <div class="avatar-ring admin">
+          <div class="avatar-inner">
+            <i class="bi bi-shield-fill-check"></i>
+          </div>
+        </div>
+        <div class="profile-info">
+          <span class="role-badge admin">
+            <i class="bi bi-shield-check me-1"></i> Administrador
+          </span>
+          <h1 class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+          <p class="profile-meta">
+            <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
+            <span class="sep">·</span>
+            <i class="bi bi-calendar3 me-1"></i>Admin desde {{ request.user.date_joined|date:"M Y" }}
+          </p>
+        </div>
+      </div>
+
+      <!-- QUICK STATS ADMIN -->
+      <div class="quick-stats">
+        <div class="stat-pill admin">
+          <i class="bi bi-people"></i>
+          <span class="stat-val">312</span>
+          <span class="stat-lbl">Usuarios</span>
+        </div>
+        <div class="stat-pill admin">
+          <i class="bi bi-collection"></i>
+          <span class="stat-val">24</span>
+          <span class="stat-lbl">Cursos</span>
+        </div>
+        <div class="stat-pill admin">
+          <i class="bi bi-mortarboard"></i>
+          <span class="stat-val">18</span>
+          <span class="stat-lbl">Docentes</span>
+        </div>
+        <div class="stat-pill admin">
+          <i class="bi bi-activity"></i>
+          <span class="stat-val">94%</span>
+          <span class="stat-lbl">Uptime</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS NAV -->
+  <div class="profile-tabs-bar">
+    <div class="container">
+      <ul class="profile-tabs">
+        <li><a class="ptab active" data-tab="stats"><i class="bi bi-graph-up me-1"></i>Estadísticas</a></li>
+        <li><a class="ptab" data-tab="usuarios"><i class="bi bi-people me-1"></i>Usuarios</a></li>
+        <li><a class="ptab" data-tab="cursos"><i class="bi bi-collection me-1"></i>Cursos</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT ADMIN -->
+  <main class="profile-body">
+    <div class="container">
+
+      <!-- ESTADÍSTICAS GENERALES -->
+      <div class="tab-pane active" id="tab-stats">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-graph-up me-2"></i>Estadísticas generales</h2>
+          </div>
+
+          <div class="stats-grid four-col">
+            <div class="stat-card">
+              <i class="bi bi-people-fill stat-icon" style="color:#50dc8c"></i>
+              <span class="stat-big">312</span>
+              <span class="stat-desc">Usuarios totales</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-person-check stat-icon" style="color:#7c6fff"></i>
+              <span class="stat-big">248</span>
+              <span class="stat-desc">Estudiantes activos</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-mortarboard-fill stat-icon" style="color:#b06fff"></i>
+              <span class="stat-big">18</span>
+              <span class="stat-desc">Docentes</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-collection-fill stat-icon" style="color:#ffcc55"></i>
+              <span class="stat-big">24</span>
+              <span class="stat-desc">Cursos publicados</span>
+            </div>
+          </div>
+
+          <div class="progress-courses mt-4">
+            <h3 class="subsection-title">Distribución de roles</h3>
+            <div class="prog-row">
+              <span class="prog-label">Estudiantes</span>
+              <div class="prog-track"><div class="prog-fill" style="width:79%"></div></div>
+              <span class="prog-num">248 (79%)</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Docentes</span>
+              <div class="prog-track"><div class="prog-fill docente" style="width:6%"></div></div>
+              <span class="prog-num">18 (6%)</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Admins</span>
+              <div class="prog-track"><div class="prog-fill admin" style="width:2%"></div></div>
+              <span class="prog-num">5 (2%)</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Sin rol asignado</span>
+              <div class="prog-track"><div class="prog-fill muted-fill" style="width:13%"></div></div>
+              <span class="prog-num">41 (13%)</span>
+            </div>
+          </div>
+
+          <div class="progress-courses mt-4">
+            <h3 class="subsection-title">Cursos más activos</h3>
+            <div class="prog-row">
+              <span class="prog-label">Entrenamiento auditivo I</span>
+              <div class="prog-track"><div class="prog-fill" style="width:85%"></div></div>
+              <span class="prog-num">85 estudiantes</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Solfeo y lectura musical</span>
+              <div class="prog-track"><div class="prog-fill" style="width:64%"></div></div>
+              <span class="prog-num">64 estudiantes</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Técnica y postura</span>
+              <div class="prog-track"><div class="prog-fill" style="width:52%"></div></div>
+              <span class="prog-num">52 estudiantes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LISTA DE USUARIOS -->
+      <div class="tab-pane" id="tab-usuarios">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-people me-2"></i>Lista de usuarios</h2>
+            <a href="#" class="btn-create admin">
+              <i class="bi bi-person-plus me-1"></i> Nuevo usuario
+            </a>
+          </div>
+
+          <div class="filter-bar">
+            <div class="search-bar">
+              <i class="bi bi-search"></i>
+              <input type="text" placeholder="Buscar usuario..." id="userSearch">
+            </div>
+            <div class="filter-pills">
+              <button class="fpill active" data-filter="all">Todos</button>
+              <button class="fpill" data-filter="estudiante">Estudiantes</button>
+              <button class="fpill" data-filter="docente">Docentes</button>
+              <button class="fpill" data-filter="admin">Admins</button>
+            </div>
+          </div>
+
+          <div class="user-table-wrap">
+            <table class="user-table">
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Correo</th>
+                  <th>Rol</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <tr data-role="estudiante">
+                  <td>
+                    <div class="table-user">
+                      <div class="student-avatar sm">AC</div>
+                      <span>Ana Cifuentes</span>
+                    </div>
+                  </td>
+                  <td class="muted-cell">ana@qbyt.com</td>
+                  <td><span class="badge-role estudiante">Estudiante</span></td>
+                  <td><span class="status-dot active"></span>Activo</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                      <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-role="docente">
+                  <td>
+                    <div class="table-user">
+                      <div class="student-avatar sm docente">MG</div>
+                      <span>Miguel García</span>
+                    </div>
+                  </td>
+                  <td class="muted-cell">miguel@qbyt.com</td>
+                  <td><span class="badge-role docente">Docente</span></td>
+                  <td><span class="status-dot active"></span>Activo</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                      <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-role="estudiante">
+                  <td>
+                    <div class="table-user">
+                      <div class="student-avatar sm">LM</div>
+                      <span>Luis Martínez</span>
+                    </div>
+                  </td>
+                  <td class="muted-cell">luis@qbyt.com</td>
+                  <td><span class="badge-role estudiante">Estudiante</span></td>
+                  <td><span class="status-dot inactive"></span>Inactivo</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                      <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+                <tr data-role="admin">
+                  <td>
+                    <div class="table-user">
+                      <div class="student-avatar sm admin">SO</div>
+                      <span>Sara Ospina</span>
+                    </div>
+                  </td>
+                  <td class="muted-cell">sara@qbyt.com</td>
+                  <td><span class="badge-role admin">Admin</span></td>
+                  <td><span class="status-dot active"></span>Activo</td>
+                  <td>
+                    <div class="table-actions">
+                      <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                      <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- GESTIÓN DE CURSOS -->
+      <div class="tab-pane" id="tab-cursos">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-collection me-2"></i>Gestión de cursos</h2>
+            <a href="#" class="btn-create admin">
+              <i class="bi bi-plus-circle me-1"></i> Nuevo curso
+            </a>
+          </div>
+          <div class="course-list">
+
+            <div class="course-item">
+              <div class="course-thumb admin">
+                <i class="bi bi-ear"></i>
+              </div>
+              <div class="course-info">
+                <h3>Entrenamiento auditivo I</h3>
+                <p>Prof. Miguel García · 85 inscritos · 8 lecciones</p>
+                <div class="course-tags">
+                  <span class="tag-pill">Básico</span>
+                  <span class="tag-pill active-tag">Publicado</span>
+                </div>
+              </div>
+              <div class="course-actions">
+                <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="btn-icon-action" title="Ver detalle"><i class="bi bi-eye"></i></a>
+                <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+              </div>
+            </div>
+
+            <div class="course-item">
+              <div class="course-thumb admin">
+                <i class="bi bi-music-note-list"></i>
+              </div>
+              <div class="course-info">
+                <h3>Solfeo y lectura musical</h3>
+                <p>Prof. Sara Oviedo · 64 inscritos · 12 lecciones</p>
+                <div class="course-tags">
+                  <span class="tag-pill">Intermedio</span>
+                  <span class="tag-pill active-tag">Publicado</span>
+                </div>
+              </div>
+              <div class="course-actions">
+                <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="btn-icon-action" title="Ver detalle"><i class="bi bi-eye"></i></a>
+                <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+              </div>
+            </div>
+
+            <div class="course-item">
+              <div class="course-thumb admin">
+                <i class="bi bi-lightbulb"></i>
+              </div>
+              <div class="course-info">
+                <h3>Improvisación creativa</h3>
+                <p>Prof. Miguel García · 24 inscritos · 10 lecciones</p>
+                <div class="course-tags">
+                  <span class="tag-pill">Avanzado</span>
+                  <span class="tag-pill draft-tag">Borrador</span>
+                </div>
+              </div>
+              <div class="course-actions">
+                <a href="#" class="btn-icon-action" title="Editar"><i class="bi bi-pencil"></i></a>
+                <a href="#" class="btn-icon-action" title="Ver detalle"><i class="bi bi-eye"></i></a>
+                <a href="#" class="btn-icon-action danger" title="Eliminar"><i class="bi bi-trash"></i></a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="footer-logo">QBYT</div>
+          <p>Entrenamiento musical para todos los niveles.</p>
+        </div>
+      </div>
+      <hr class="footer-divider">
+      <p class="text-center">&copy; 2026 QBYT. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll('.ptab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    document.getElementById('userSearch')?.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('#userTableBody tr').forEach(row => {
+        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+      });
+    });
+
+    document.querySelectorAll('.fpill').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.fpill').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const f = btn.dataset.filter;
+        document.querySelectorAll('#userTableBody tr').forEach(row => {
+          row.style.display = (f === 'all' || row.dataset.role === f) ? '' : 'none';
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,365 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QBYT — Mi Perfil</title>
+  <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+  <link rel="stylesheet" href="{% static 'web/css/perfil.css' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-content">
+      <a href="{% url 'index' %}" class="logo-area">
+        <div class="logo-box">
+          <img src="{% static 'web/img/logo.png' %}">
+        </div>
+        <h2 class="logo-text">QBYT</h2>
+      </a>
+      <div class="auth-buttons">
+        <a href="{% url 'login' %}" class="btn-login">
+          <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROFILE HERO -->
+  <section class="profile-hero">
+    <div class="profile-glow"></div>
+    <div class="container">
+      <div class="profile-header">
+        <div class="avatar-ring">
+          <div class="avatar-inner">
+            <i class="bi bi-person-fill"></i>
+          </div>
+        </div>
+        <div class="profile-info">
+          <span class="role-badge">
+            <i class="bi bi-person-arms-up me-1"></i> Estudiante
+          </span>
+          <h1 class="profile-name">{{ request.user.get_full_name|default:request.user.username }}</h1>
+          <p class="profile-meta">
+            <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
+            <span class="sep">·</span>
+            <i class="bi bi-calendar3 me-1"></i>Miembro desde {{ request.user.date_joined|date:"M Y" }}
+          </p>
+        </div>
+        <a href="#" class="btn-edit-profile">
+          <i class="bi bi-pencil me-1"></i> Editar perfil
+        </a>
+      </div>
+
+      <!-- QUICK STATS -->
+      <div class="quick-stats">
+        <div class="stat-pill">
+          <i class="bi bi-book"></i>
+          <span class="stat-val">4</span>
+          <span class="stat-lbl">Cursos</span>
+        </div>
+        <div class="stat-pill">
+          <i class="bi bi-trophy"></i>
+          <span class="stat-val">12</span>
+          <span class="stat-lbl">Logros</span>
+        </div>
+        <div class="stat-pill">
+          <i class="bi bi-lightning-charge"></i>
+          <span class="stat-val">68%</span>
+          <span class="stat-lbl">Progreso</span>
+        </div>
+        <div class="stat-pill">
+          <i class="bi bi-alarm"></i>
+          <span class="stat-val">3</span>
+          <span class="stat-lbl">Pendientes</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS NAV -->
+  <div class="profile-tabs-bar">
+    <div class="container">
+      <ul class="profile-tabs" id="profileTabs">
+        <li><a class="ptab active" data-tab="datos"><i class="bi bi-person me-1"></i>Datos personales</a></li>
+        <li><a class="ptab" data-tab="cursos"><i class="bi bi-journal-richtext me-1"></i>Mis cursos</a></li>
+        <li><a class="ptab" data-tab="clases"><i class="bi bi-camera-video me-1"></i>Mis clases</a></li>
+        <li><a class="ptab" data-tab="progreso"><i class="bi bi-bar-chart-line me-1"></i>Progreso</a></li>
+        <li><a class="ptab" data-tab="pendientes"><i class="bi bi-hourglass-split me-1"></i>Pendientes</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- TAB CONTENT -->
+  <main class="profile-body">
+    <div class="container">
+
+      <!-- DATOS PERSONALES -->
+      <div class="tab-pane active" id="tab-datos">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-person-vcard me-2"></i>Información personal</h2>
+            <a href="#" class="btn-link-accent"><i class="bi bi-pencil me-1"></i>Editar</a>
+          </div>
+          <div class="info-grid">
+            <div class="info-field">
+              <span class="info-label">Nombre completo</span>
+              <span class="info-value">{{ request.user.get_full_name|default:"—" }}</span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Usuario</span>
+              <span class="info-value">@{{ request.user.username }}</span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Correo electrónico</span>
+              <span class="info-value">{{ request.user.email }}</span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Rol</span>
+              <span class="info-value">
+                <span class="badge-role estudiante">Estudiante</span>
+              </span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Miembro desde</span>
+              <span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span>
+            </div>
+            <div class="info-field">
+              <span class="info-label">Último acceso</span>
+              <span class="info-value">{{ request.user.last_login|date:"d \d\e F, H:i" }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CURSOS INSCRITOS -->
+      <div class="tab-pane" id="tab-cursos">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-journal-richtext me-2"></i>Cursos inscritos</h2>
+            <a href="#" class="btn-link-accent">Ver catálogo <i class="bi bi-arrow-right ms-1"></i></a>
+          </div>
+          <div class="course-list">
+
+            <div class="course-item">
+              <div class="course-thumb">
+                <i class="bi bi-ear"></i>
+              </div>
+              <div class="course-info">
+                <h3>Entrenamiento auditivo I</h3>
+                <p>Intervalos, escalas y acordes básicos</p>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 72%"></div>
+                </div>
+                <span class="progress-pct">72% completado</span>
+              </div>
+              <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
+            </div>
+
+            <div class="course-item">
+              <div class="course-thumb">
+                <i class="bi bi-music-note-list"></i>
+              </div>
+              <div class="course-info">
+                <h3>Solfeo y lectura musical</h3>
+                <p>Notas, figuras y compases</p>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 45%"></div>
+                </div>
+                <span class="progress-pct">45% completado</span>
+              </div>
+              <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
+            </div>
+
+            <div class="course-item">
+              <div class="course-thumb">
+                <i class="bi bi-hand-index-thumb"></i>
+              </div>
+              <div class="course-info">
+                <h3>Técnica y postura</h3>
+                <p>Bases para tocar sin lesiones</p>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 10%"></div>
+                </div>
+                <span class="progress-pct">10% completado</span>
+              </div>
+              <a href="#" class="btn-course-action">Iniciar <i class="bi bi-play-fill"></i></a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- CLASES -->
+      <div class="tab-pane" id="tab-clases">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-camera-video me-2"></i>Mis clases</h2>
+          </div>
+          <div class="class-list">
+
+            <div class="class-item upcoming">
+              <div class="class-date-block">
+                <span class="class-day">12</span>
+                <span class="class-month">Jun</span>
+              </div>
+              <div class="class-details">
+                <h3>Clase de intervalos melódicos</h3>
+                <p><i class="bi bi-person me-1"></i>Prof. García · <i class="bi bi-clock me-1"></i>10:00 AM · 60 min</p>
+              </div>
+              <span class="class-badge upcoming">Próxima</span>
+            </div>
+
+            <div class="class-item done">
+              <div class="class-date-block done">
+                <span class="class-day">05</span>
+                <span class="class-month">Jun</span>
+              </div>
+              <div class="class-details">
+                <h3>Introducción al pentagrama</h3>
+                <p><i class="bi bi-person me-1"></i>Prof. García · <i class="bi bi-clock me-1"></i>10:00 AM · 60 min</p>
+              </div>
+              <span class="class-badge done">Completada</span>
+            </div>
+
+            <div class="class-item done">
+              <div class="class-date-block done">
+                <span class="class-day">29</span>
+                <span class="class-month">May</span>
+              </div>
+              <div class="class-details">
+                <h3>Ritmo y subdivisiones</h3>
+                <p><i class="bi bi-person me-1"></i>Prof. Martínez · <i class="bi bi-clock me-1"></i>2:00 PM · 45 min</p>
+              </div>
+              <span class="class-badge done">Completada</span>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- PROGRESO -->
+      <div class="tab-pane" id="tab-progreso">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-bar-chart-line me-2"></i>Estadísticas de progreso</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <i class="bi bi-fire stat-icon" style="color:#7c6fff"></i>
+              <span class="stat-big">14</span>
+              <span class="stat-desc">Días de racha</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-clock-history stat-icon" style="color:#b06fff"></i>
+              <span class="stat-big">32h</span>
+              <span class="stat-desc">Tiempo total</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-check2-circle stat-icon" style="color:#50dc8c"></i>
+              <span class="stat-big">48</span>
+              <span class="stat-desc">Ejercicios hechos</span>
+            </div>
+            <div class="stat-card">
+              <i class="bi bi-star-fill stat-icon" style="color:#ffcc55"></i>
+              <span class="stat-big">91%</span>
+              <span class="stat-desc">Precisión media</span>
+            </div>
+          </div>
+
+          <div class="progress-courses">
+            <h3 class="subsection-title">Progreso por curso</h3>
+            <div class="prog-row">
+              <span class="prog-label">Entrenamiento auditivo I</span>
+              <div class="prog-track"><div class="prog-fill" style="width:72%"></div></div>
+              <span class="prog-num">72%</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Solfeo y lectura musical</span>
+              <div class="prog-track"><div class="prog-fill" style="width:45%"></div></div>
+              <span class="prog-num">45%</span>
+            </div>
+            <div class="prog-row">
+              <span class="prog-label">Técnica y postura</span>
+              <div class="prog-track"><div class="prog-fill" style="width:10%"></div></div>
+              <span class="prog-num">10%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PENDIENTES -->
+      <div class="tab-pane" id="tab-pendientes">
+        <div class="section-card">
+          <div class="section-card-header">
+            <h2><i class="bi bi-hourglass-split me-2"></i>Ejercicios pendientes</h2>
+          </div>
+          <div class="pending-list">
+
+            <div class="pending-item">
+              <div class="pending-icon urgent"><i class="bi bi-exclamation-circle"></i></div>
+              <div class="pending-info">
+                <h3>Quiz: Intervalos mayores y menores</h3>
+                <p>Entrenamiento auditivo I · Vence <strong>hoy</strong></p>
+              </div>
+              <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="pending-item">
+              <div class="pending-icon"><i class="bi bi-music-note"></i></div>
+              <div class="pending-info">
+                <h3>Dictado rítmico — nivel 2</h3>
+                <p>Solfeo y lectura musical · Vence en 2 días</p>
+              </div>
+              <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+            <div class="pending-item">
+              <div class="pending-icon"><i class="bi bi-keyboard"></i></div>
+              <div class="pending-info">
+                <h3>Ejercicio de escalas — Teclado mágico</h3>
+                <p>Técnica y postura · Vence en 5 días</p>
+              </div>
+              <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer mt-5">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="footer-logo">QBYT</div>
+          <p>Entrenamiento musical para todos los niveles.</p>
+        </div>
+      </div>
+      <hr class="footer-divider">
+      <p class="text-center">&copy; 2026 QBYT. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.querySelectorAll('.ptab').forEach(tab => {
+      tab.addEventListener('click', e => {
+        e.preventDefault();
+        document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
