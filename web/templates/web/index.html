@@ -1,0 +1,282 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QBYT — Entrenamiento Musical</title>
+
+ <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-content">
+      <a href="{% url 'index' %}" class="logo-area">
+        <div class="logo-box">
+          <img src="{% static 'web/img/logo.png' %}">
+        </div>
+        <h2 class="logo-text">QBYT</h2>
+      </a>
+      <div class="auth-buttons">
+        <a href="{% url 'login' %}" class="btn-login">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+        </a>
+        <a href="{% url 'registro' %}" class="btn-register">
+          Registrarse
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV -->
+  <nav class="main-nav navbar navbar-expand-lg">
+    <div class="container">
+      <button class="navbar-toggler border-0 shadow-none ms-auto" type="button"
+        data-bs-toggle="collapse" data-bs-target="#menu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-center" id="menu">
+        <ul class="navbar-nav gap-lg-2 text-center">
+          <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
+          <li class="nav-item"><a class="nav-link" href="#programas">Programas</a></li>
+          <li class="nav-item"><a class="nav-link" href="#ultimos">Lo último</a></li>
+          <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
+          <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="container text-center">
+      <p class="eyebrow fade-up"><i class="bi bi-music-note-beamed"></i> Entrenamiento musical</p>
+      <h1 class="fade-up-2">
+        Mejora tu oído y técnica<br>
+        <span>con ritmo y estilo</span>
+      </h1>
+      <p class="fade-up-3">
+        Programas, práctica guiada y retos interactivos<br>
+        para músicos de todos los niveles.
+      </p>
+      <div class="fade-up-3">
+        <a href="#programas" class="music-btn-primary">
+          Explorar programas <i class="bi bi-arrow-down"></i>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- CAROUSEL -->
+  <section class="music-banner">
+    <div class="container">
+      <div id="musicCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+
+          <div class="carousel-item active">
+            <div class="banner-content">
+              <div class="banner-text">
+                <h3>Aprende música con nosotros</h3>
+                <p>Mejora tu capacidad para leer, escribir y tocar música mediante ejercicios interactivos.</p>
+                <a href="#programas" class="btn-banner">Comencemos <i class="bi bi-arrow-right"></i></a>
+              </div>
+              <div class="banner-image">
+                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800" alt="Piano">
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="banner-content">
+              <div class="banner-text">
+                <h3>Entrena tu oído musical</h3>
+                <p>Reconoce notas, intervalos y acordes con actividades dinámicas y progresivas.</p>
+                <a href="#ultimos" class="btn-banner">Ver cursos <i class="bi bi-arrow-right"></i></a>
+              </div>
+              <div class="banner-image">
+                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800" alt="Guitarra">
+              </div>
+            </div>
+          </div>
+
+          <div class="carousel-item">
+            <div class="banner-content">
+              <div class="banner-text">
+                <h3>Aprende a tu ritmo</h3>
+                <p>Accede a cursos, retos y ejercicios desde cualquier dispositivo, cuando quieras.</p>
+                <a href="{% url 'registro' %}" class="btn-banner">Registrarme <i class="bi bi-arrow-right"></i></a>
+              </div>
+              <div class="banner-image">
+                <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800" alt="Musica">
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="0" class="active"></button>
+          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="1"></button>
+          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="2"></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main>
+
+    <!-- PROGRAMAS -->
+    <section id="programas" class="prog-section">
+      <div class="container">
+        <p class="sec-title">Programas destacados</p>
+        <p class="sec-sub">Diseñados para llevarte del nivel básico al avanzado</p>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="music-card h-100">
+              <div class="card-icon"><i class="bi bi-ear"></i></div>
+              <h2>Entrenamiento auditivo</h2>
+              <p>Ejercicios diarios para entrenar intervalos, acordes y progresiones armónicas.</p>
+              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="music-card h-100">
+              <div class="card-icon"><i class="bi bi-hand-index-thumb"></i></div>
+              <h2>Técnica y postura</h2>
+              <p>Lecciones prácticas para dominar tu instrumento con precisión y sin lesiones.</p>
+              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="music-card h-100">
+              <div class="card-icon"><i class="bi bi-lightbulb"></i></div>
+              <h2>Improvisación creativa</h2>
+              <p>Retos pensados para liberar tu creatividad y hacer que tu música suene más natural.</p>
+              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LO ÚLTIMO -->
+    <section id="ultimos" class="feature-section">
+      <div class="container">
+        <p class="sec-title">Lo último agregado</p>
+        <p class="sec-sub">Contenido nuevo para seguir creciendo</p>
+        <div class="row g-4">
+
+          <div class="col-md-3">
+            <div class="feature-card h-100">
+              <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
+              <h3>Sol y Mi</h3>
+              <p>Aprende a reconocer notas básicas en el pentagrama.</p>
+              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="feature-card h-100">
+              <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?cb=thfc1falcon&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Nota La">
+              <h3>Nota La</h3>
+              <p>Mejora tu oído musical practicando nuevas notas y escalas.</p>
+              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="feature-card h-100">
+              <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350" alt="Simón Musical">
+              <h3>Simón Musical</h3>
+              <p>Pon a prueba tu memoria auditiva con sonidos y ritmo.</p>
+              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="feature-card h-100">
+              <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
+              <h3>Teclado Mágico</h3>
+              <p>Practica melodías y coordinación con ejercicios interactivos.</p>
+              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- BENEFICIOS -->
+    <section id="beneficios" class="feature-section">
+      <div class="container">
+        <p class="sec-title">Lo que obtienes</p>
+        <p class="sec-sub">Todo lo que necesitas para avanzar en tu camino musical</p>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="benefit-card">
+              <i class="bi bi-bullseye benefit-icon" style="color:#7c6fff"></i>
+              <h3>Aprende con claridad</h3>
+              <p>Contenidos claros, progresivos y orientados a resultados reales desde el día uno.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="benefit-card">
+              <i class="bi bi-lightning-charge benefit-icon" style="color:#b06fff"></i>
+              <h3>Ritmo y motivación</h3>
+              <p>Avanza con prácticas guiadas y feedback continuo sobre tus progresos.</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="benefit-card">
+              <i class="bi bi-phone benefit-icon" style="color:#50dc8c"></i>
+              <h3>Desde cualquier dispositivo</h3>
+              <p>Una experiencia visual moderna pensada para músicos digitales, en cualquier pantalla.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-box">
+          <h2>¿Listo para empezar?</h2>
+          <p>Únete a QBYT y lleva tu música al siguiente nivel.</p>
+          <a href="{% url 'registro' %}" class="btn-register" style="font-size:0.95rem; padding: 0.75rem 2rem;">
+            Crear cuenta gratis
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="contacto" class="footer">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-6">
+          <div class="footer-logo">QBYT</div>
+          <p>Entrenamiento musical para todos los niveles.</p>
+        </div>
+        <div class="col-md-6 text-md-end mt-3 mt-md-0">
+          <p>info@entrenamientomusical.com</p>
+          <p>Tel: +1 (555) 123-4567</p>
+        </div>
+      </div>
+      <hr class="footer-divider">
+      <p class="text-center">&copy; 2026 Entrenamiento Musical. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

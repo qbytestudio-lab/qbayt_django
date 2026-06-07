@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/css/auth.css' %}">
+</head>
+
+<body>
+
+    <div class="auth-wrapper">
+        <div class="auth-card">
+
+            <div class="auth-header">
+                <i class="bi bi-person-plus auth-icon"></i>
+                <h2>Crear cuenta</h2>
+                <p>Únete a Entrenamiento Musical</p>
+            </div>
+
+            {% if messages %}
+            {% for msg in messages %}
+            <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+                {{ msg }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="{% url 'registro' %}">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">Usuario</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <input type="text" name="username" class="form-control" placeholder="Elige un usuario" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Correo electrónico</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <input type="email" name="email" class="form-control" placeholder="correo@ejemplo.com" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" name="password1" class="form-control" placeholder="Mínimo 8 caracteres"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Confirmar contraseña</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" name="password2" class="form-control" placeholder="Repite la contraseña"
+                            required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Rol</label>
+                    <div class="rol-selector d-flex gap-2">
+
+                        <input type="radio" class="btn-check" name="rol" id="rol1" value="estudiante" checked>
+                        <label class="btn btn-rol flex-fill" for="rol1">
+                            <i class="bi bi-person-arms-up d-block fs-4 mb-1"></i>
+                            Estudiante
+                        </label>
+
+                        <input type="radio" class="btn-check" name="rol" id="rol2" value="docente">
+                        <label class="btn btn-rol flex-fill" for="rol2">
+                            <i class="bi bi-mortarboard d-block fs-4 mb-1"></i>
+                            Docente
+                        </label>
+
+                        <input type="radio" class="btn-check" name="rol" id="rol3" value="administrador">
+                        <label class="btn btn-rol flex-fill" for="rol3">
+                            <i class="bi bi-shield-check d-block fs-4 mb-1"></i>
+                            Administrador
+                        </label>
+
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-auth w-100">Crear cuenta</button>
+            </form>
+
+            <div class="auth-footer">
+                ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión</a>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>

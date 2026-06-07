@@ -1,0 +1,74 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib import messages
+from web.models import Perfil
+from django.contrib.auth.decorators import login_required
+
+def index(request):
+    return render(request, 'web/index.html')
+
+@login_required
+def inicio(request):
+    return render(request, 'web/inicio.html')
+
+@login_required
+def perfil_estudiante(request):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+    return render(request, 'web/perfil_estudiante.html')
+
+@login_required
+def perfil_docente(request):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    return render(request, 'web/perfil_docente.html')
+
+@login_required
+def perfil_administrador(request):
+    if request.user.perfil.rol != 'administrador':
+        return redirect('inicio')
+    return render(request, 'web/perfil_administrador.html')
+
+def registro(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        email = request.POST['email']
+        password1 = request.POST['password1']
+        password2 = request.POST['password2']
+        rol = request.POST['rol']
+
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return redirect('registro')
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'El usuario ya existe.')
+            return redirect('registro')
+
+        user = User.objects.create_user(username=username, email=email, password=password1)
+        user.save()
+        Perfil.objects.create(user=user, rol=rol)
+        messages.success(request, '¡Cuenta creada! Inicia sesión.')
+        return redirect('login')
+
+    return render(request, 'web/registro.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return redirect('inicio')
+        else:
+            messages.error(request, 'Usuario o contraseña incorrectos.')
+            return redirect('login')
+
+    return render(request, 'web/login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('index')
