@@ -1,282 +1,1195 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QBYT — Entrenamiento Musical</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QBYT — Entrenamiento Musical</title>
 
- <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
 
+    <style>
+        :root {
+            --bg: #080810;
+            --surface: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08);
+            --accent: #7c6fff;
+            --accent2: #b06fff;
+            --text: #eae8f5;
+            --muted: rgba(255, 255, 255, 0.42);
+        }
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        /* ── NOISE OVERLAY ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* ── TOPBAR ── */
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(8, 8, 16, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 0.9rem 0;
+        }
+
+        .topbar-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            text-decoration: none;
+        }
+
+        .logo-box {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .logo-box img {
+            width: 22px;
+            height: 22px;
+            object-fit: contain;
+            filter: brightness(10);
+        }
+
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.15rem;
+            letter-spacing: 0.08em;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+
+        .auth-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-login {
+            background: transparent;
+            border: 1px solid rgba(124, 111, 255, 0.35);
+            color: var(--accent);
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-login:hover {
+            background: rgba(124, 111, 255, 0.12);
+            color: var(--accent);
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            border: none;
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.15s;
+            font-family: 'DM Sans', sans-serif;
+        }
+
+        .btn-register:hover {
+            opacity: 0.88;
+            transform: translateY(-1px);
+            color: #fff;
+        }
+
+        /* ── NAV ── */
+        .main-nav {
+            background: rgba(15, 15, 28, 0.95);
+            border-bottom: 1px solid var(--border);
+            padding: 0.5rem 0;
+        }
+
+        .main-nav .nav-link {
+            color: var(--muted) !important;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .main-nav .nav-link:hover {
+            color: var(--text) !important;
+        }
+
+        /* ── HERO ── */
+        .hero {
+            position: relative;
+            padding: 7rem 0 5rem;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 600px;
+            background: radial-gradient(ellipse, rgba(124, 111, 255, 0.18) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(124, 111, 255, 0.1);
+            border: 1px solid rgba(124, 111, 255, 0.25);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            padding: 0.35rem 0.9rem;
+            border-radius: 100px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+        }
+
+        .hero h1 span {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            color: var(--muted);
+            font-size: 1.05rem;
+            max-width: 540px;
+            margin: 0 auto 2.5rem;
+            line-height: 1.7;
+        }
+
+        .music-btn-primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            padding: 0.85rem 2rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: opacity 0.2s, transform 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .music-btn-primary:hover {
+            opacity: 0.88;
+            transform: translateY(-2px);
+            color: #fff;
+        }
+
+        /* ── CAROUSEL ── */
+        .music-banner {
+            padding: 2rem 0 3rem;
+        }
+
+        .banner-content {
+            display: flex;
+            align-items: center;
+            gap: 2.5rem;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2.5rem;
+            min-height: 260px;
+        }
+
+        .banner-text {
+            flex: 1;
+        }
+
+        .banner-text h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .banner-text p {
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .banner-image {
+            flex-shrink: 0;
+            width: 220px;
+        }
+
+        .banner-image img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+
+        .btn-banner {
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            color: #fff;
+            padding: 0.55rem 1.3rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: opacity 0.2s;
+            display: inline-block;
+        }
+
+        .btn-banner:hover {
+            opacity: 0.85;
+            color: #fff;
+        }
+
+        .carousel-indicators {
+            position: static;
+            margin: 1.5rem 0 0;
+            justify-content: flex-start;
+            gap: 0.4rem;
+        }
+
+        .carousel-indicators button {
+            width: 28px;
+            height: 3px;
+            border-radius: 3px;
+            background: var(--border);
+            border: none;
+            opacity: 1;
+            transition: background 0.3s, width 0.3s;
+        }
+
+        .carousel-indicators button.active {
+            background: var(--accent);
+            width: 48px;
+        }
+
+        /* ── SECTION TITLES ── */
+        .sec-title {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .sec-sub {
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            margin-bottom: 3rem;
+        }
+
+        /* ── PROGRAM CARDS ── */
+        .prog-section {
+            padding: 4rem 0;
+        }
+
+        .music-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .music-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent2));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .music-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(124, 111, 255, 0.3);
+            box-shadow: 0 16px 48px rgba(124, 111, 255, 0.1);
+        }
+
+        .music-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            width: 46px;
+            height: 46px;
+            background: rgba(124, 111, 255, 0.12);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin-bottom: 1.25rem;
+        }
+
+        .music-card h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .music-card p {
+            color: var(--muted);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--accent);
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: gap 0.2s;
+        }
+
+        .card-link:hover {
+            gap: 0.65rem;
+            color: var(--accent);
+        }
+
+        /* ── FEATURE CARDS ── */
+        .feature-section {
+            padding: 4rem 0;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: border-color 0.25s, box-shadow 0.25s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(124, 111, 255, 0.25);
+            box-shadow: 0 8px 32px rgba(124, 111, 255, 0.08);
+        }
+
+        .feature-card img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        .btn-detail {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            background: rgba(124, 111, 255, 0.1);
+            border: 1px solid rgba(124, 111, 255, 0.2);
+            color: var(--accent);
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 0.45rem 0.9rem;
+            border-radius: 7px;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+            align-self: flex-end;
+            margin-top: 1rem;
+        }
+
+        .btn-detail:hover {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+
+        /* ── BENEFITS ── */
+        .benefit-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            transition: border-color 0.25s;
+        }
+
+        .benefit-card:hover {
+            border-color: rgba(124, 111, 255, 0.25);
+        }
+
+        .benefit-icon {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .benefit-card h3 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .benefit-card p {
+            color: var(--muted);
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        /* ── CTA ── */
+        .cta-section {
+            padding: 5rem 0;
+            text-align: center;
+            position: relative;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(124, 111, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-box {
+            background: rgba(124, 111, 255, 0.07);
+            border: 1px solid rgba(124, 111, 255, 0.2);
+            border-radius: 24px;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .cta-box h2 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.5rem, 3vw, 2.2rem);
+            margin-bottom: 1rem;
+        }
+
+        .cta-box p {
+            color: var(--muted);
+            margin-bottom: 2rem;
+        }
+
+        /* ── QUIÉNES SOMOS ── */
+        .quienes-section {
+            padding: 5rem 0;
+        }
+
+        .quienes-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .qstat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .qstat-val {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .qstat-label {
+            color: var(--muted);
+            font-size: 0.8rem;
+            margin-top: 0.2rem;
+        }
+
+        .quienes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .qcard {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.25rem;
+            transition: border-color 0.25s, transform 0.2s;
+        }
+
+        .qcard:hover {
+            border-color: rgba(124, 111, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .qcard i {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 0.75rem;
+        }
+
+        .qcard h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .qcard p {
+            color: var(--muted);
+            font-size: 0.8rem;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* ── FAQ ── */
+        .faq-section {
+            padding: 5rem 0;
+        }
+
+        .faq-list {
+            max-width: 760px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .faq-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            overflow: hidden;
+            transition: border-color 0.25s;
+        }
+
+        .faq-btn {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            padding: 1.1rem 1.5rem;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .faq-btn:hover {
+            color: var(--accent);
+        }
+
+        .faq-icon {
+            flex-shrink: 0;
+            font-size: 0.85rem;
+            color: var(--accent);
+            transition: transform 0.3s;
+        }
+
+        .faq-body {
+            padding: 0 1.5rem 1.25rem;
+        }
+
+        .faq-body p {
+            color: var(--muted);
+            font-size: 0.875rem;
+            line-height: 1.7;
+            margin: 0;
+        }
+
+        /* ── CTA FINAL ── */
+        .cta-icon {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .cta-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 200px;
+            background: radial-gradient(ellipse, rgba(124, 111, 255, 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* ── FOOTER ── */
+        .footer {
+            background: rgba(255, 255, 255, 0.02);
+            border-top: 1px solid var(--border);
+            padding: 3rem 0 2rem;
+        }
+
+        .footer-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer p {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin: 0;
+        }
+
+        .footer-divider {
+            border-color: var(--border);
+            margin: 1.5rem 0;
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(24px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-up {
+            animation: fadeUp 0.6s ease both;
+        }
+
+        .fade-up-2 {
+            animation: fadeUp 0.6s 0.15s ease both;
+        }
+
+        .fade-up-3 {
+            animation: fadeUp 0.6s 0.3s ease both;
+        }
+
+        @media (max-width: 768px) {
+            .banner-content {
+                flex-direction: column;
+            }
+
+            .banner-image {
+                width: 100%;
+            }
+
+            .hero {
+                padding: 4rem 0 3rem;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="container topbar-content">
-      <a href="{% url 'index' %}" class="logo-area">
-        <div class="logo-box">
-          <img src="{% static 'web/img/logo.png' %}">
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="container topbar-content">
+            <a href="{% url 'index' %}" class="logo-area">
+                <div class="logo-box">
+                    <img src="{% static 'web/img/logo.png' %}">
+                </div>
+                <h2 class="logo-text">QBYT</h2>
+            </a>
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="btn-login">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
+                </a>
+                <a href="{% url 'registro' %}" class="btn-register">
+                    Registrarse
+                </a>
+            </div>
         </div>
-        <h2 class="logo-text">QBYT</h2>
-      </a>
-      <div class="auth-buttons">
-        <a href="{% url 'login' %}" class="btn-login">
-          <i class="bi bi-box-arrow-in-right me-1"></i> Iniciar sesión
-        </a>
-        <a href="{% url 'registro' %}" class="btn-register">
-          Registrarse
-        </a>
-      </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- NAV -->
-  <nav class="main-nav navbar navbar-expand-lg">
-    <div class="container">
-      <button class="navbar-toggler border-0 shadow-none ms-auto" type="button"
-        data-bs-toggle="collapse" data-bs-target="#menu">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-center" id="menu">
-        <ul class="navbar-nav gap-lg-2 text-center">
-          <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
-          <li class="nav-item"><a class="nav-link" href="#programas">Programas</a></li>
-          <li class="nav-item"><a class="nav-link" href="#ultimos">Lo último</a></li>
-          <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
-          <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- HERO -->
-  <header class="hero">
-    <div class="container text-center">
-      <p class="eyebrow fade-up"><i class="bi bi-music-note-beamed"></i> Entrenamiento musical</p>
-      <h1 class="fade-up-2">
-        Mejora tu oído y técnica<br>
-        <span>con ritmo y estilo</span>
-      </h1>
-      <p class="fade-up-3">
-        Programas, práctica guiada y retos interactivos<br>
-        para músicos de todos los niveles.
-      </p>
-      <div class="fade-up-3">
-        <a href="#programas" class="music-btn-primary">
-          Explorar programas <i class="bi bi-arrow-down"></i>
-        </a>
-      </div>
-    </div>
-  </header>
-
-  <!-- CAROUSEL -->
-  <section class="music-banner">
-    <div class="container">
-      <div id="musicCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-inner">
-
-          <div class="carousel-item active">
-            <div class="banner-content">
-              <div class="banner-text">
-                <h3>Aprende música con nosotros</h3>
-                <p>Mejora tu capacidad para leer, escribir y tocar música mediante ejercicios interactivos.</p>
-                <a href="#programas" class="btn-banner">Comencemos <i class="bi bi-arrow-right"></i></a>
-              </div>
-              <div class="banner-image">
-                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800" alt="Piano">
-              </div>
+    <!-- NAV -->
+    <nav class="main-nav navbar navbar-expand-lg">
+        <div class="container">
+            <button class="navbar-toggler border-0 shadow-none ms-auto" type="button" data-bs-toggle="collapse"
+                data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-center" id="menu">
+                <ul class="navbar-nav gap-lg-2 text-center">
+                    <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#programas">Programas</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#ultimos">Lo último</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+                </ul>
             </div>
-          </div>
-
-          <div class="carousel-item">
-            <div class="banner-content">
-              <div class="banner-text">
-                <h3>Entrena tu oído musical</h3>
-                <p>Reconoce notas, intervalos y acordes con actividades dinámicas y progresivas.</p>
-                <a href="#ultimos" class="btn-banner">Ver cursos <i class="bi bi-arrow-right"></i></a>
-              </div>
-              <div class="banner-image">
-                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800" alt="Guitarra">
-              </div>
-            </div>
-          </div>
-
-          <div class="carousel-item">
-            <div class="banner-content">
-              <div class="banner-text">
-                <h3>Aprende a tu ritmo</h3>
-                <p>Accede a cursos, retos y ejercicios desde cualquier dispositivo, cuando quieras.</p>
-                <a href="{% url 'registro' %}" class="btn-banner">Registrarme <i class="bi bi-arrow-right"></i></a>
-              </div>
-              <div class="banner-image">
-                <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800" alt="Musica">
-              </div>
-            </div>
-          </div>
-
         </div>
-        <div class="carousel-indicators">
-          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="0" class="active"></button>
-          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="1"></button>
-          <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="2"></button>
-        </div>
-      </div>
-    </div>
-  </section>
+    </nav>
 
-  <main>
-
-    <!-- PROGRAMAS -->
-    <section id="programas" class="prog-section">
-      <div class="container">
-        <p class="sec-title">Programas destacados</p>
-        <p class="sec-sub">Diseñados para llevarte del nivel básico al avanzado</p>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="music-card h-100">
-              <div class="card-icon"><i class="bi bi-ear"></i></div>
-              <h2>Entrenamiento auditivo</h2>
-              <p>Ejercicios diarios para entrenar intervalos, acordes y progresiones armónicas.</p>
-              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+    <!-- HERO -->
+    <header class="hero">
+        <div class="container text-center">
+            <p class="eyebrow fade-up"><i class="bi bi-music-note-beamed"></i> Entrenamiento musical</p>
+            <h1 class="fade-up-2">
+                Mejora tu oído y técnica<br>
+                <span>con ritmo y estilo</span>
+            </h1>
+            <p class="fade-up-3">
+                Programas, práctica guiada y retos interactivos<br>
+                para músicos de todos los niveles.
+            </p>
+            <div class="fade-up-3">
+                <a href="#programas" class="music-btn-primary">
+                    Explorar programas <i class="bi bi-arrow-down"></i>
+                </a>
             </div>
-          </div>
-          <div class="col-md-4">
-            <div class="music-card h-100">
-              <div class="card-icon"><i class="bi bi-hand-index-thumb"></i></div>
-              <h2>Técnica y postura</h2>
-              <p>Lecciones prácticas para dominar tu instrumento con precisión y sin lesiones.</p>
-              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="music-card h-100">
-              <div class="card-icon"><i class="bi bi-lightbulb"></i></div>
-              <h2>Improvisación creativa</h2>
-              <p>Retos pensados para liberar tu creatividad y hacer que tu música suene más natural.</p>
-              <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
-            </div>
-          </div>
         </div>
-      </div>
+    </header>
+
+    <!-- CAROUSEL -->
+    <section class="music-banner">
+        <div class="container">
+            <div id="musicCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <div class="banner-content">
+                            <div class="banner-text">
+                                <h3>Aprende música con nosotros</h3>
+                                <p>Mejora tu capacidad para leer, escribir y tocar música mediante ejercicios
+                                    interactivos.</p>
+                                <a href="#programas" class="btn-banner">Comencemos <i class="bi bi-arrow-right"></i></a>
+                            </div>
+                            <div class="banner-image">
+                                <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800"
+                                    alt="Piano">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="banner-content">
+                            <div class="banner-text">
+                                <h3>Entrena tu oído musical</h3>
+                                <p>Reconoce notas, intervalos y acordes con actividades dinámicas y progresivas.</p>
+                                <a href="#ultimos" class="btn-banner">Ver cursos <i class="bi bi-arrow-right"></i></a>
+                            </div>
+                            <div class="banner-image">
+                                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800"
+                                    alt="Guitarra">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="banner-content">
+                            <div class="banner-text">
+                                <h3>Aprende a tu ritmo</h3>
+                                <p>Accede a cursos, retos y ejercicios desde cualquier dispositivo, cuando quieras.</p>
+                                <a href="{% url 'registro' %}" class="btn-banner">Registrarme <i
+                                        class="bi bi-arrow-right"></i></a>
+                            </div>
+                            <div class="banner-image">
+                                <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800"
+                                    alt="Musica">
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="0" class="active"></button>
+                    <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="1"></button>
+                    <button type="button" data-bs-target="#musicCarousel" data-bs-slide-to="2"></button>
+                </div>
+            </div>
+        </div>
     </section>
 
-    <!-- LO ÚLTIMO -->
-    <section id="ultimos" class="feature-section">
-      <div class="container">
-        <p class="sec-title">Lo último agregado</p>
-        <p class="sec-sub">Contenido nuevo para seguir creciendo</p>
-        <div class="row g-4">
+    <main>
 
-          <div class="col-md-3">
-            <div class="feature-card h-100">
-              <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
-              <h3>Sol y Mi</h3>
-              <p>Aprende a reconocer notas básicas en el pentagrama.</p>
-              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+        <!-- PROGRAMAS -->
+        <section id="programas" class="prog-section">
+            <div class="container">
+                <p class="sec-title">Programas destacados</p>
+                <p class="sec-sub">Diseñados para llevarte del nivel básico al avanzado</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="music-card h-100">
+                            <div class="card-icon"><i class="bi bi-ear"></i></div>
+                            <h2>Entrenamiento auditivo</h2>
+                            <p>Ejercicios diarios para entrenar intervalos, acordes y progresiones armónicas.</p>
+                            <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="music-card h-100">
+                            <div class="card-icon"><i class="bi bi-hand-index-thumb"></i></div>
+                            <h2>Técnica y postura</h2>
+                            <p>Lecciones prácticas para dominar tu instrumento con precisión y sin lesiones.</p>
+                            <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="music-card h-100">
+                            <div class="card-icon"><i class="bi bi-lightbulb"></i></div>
+                            <h2>Improvisación creativa</h2>
+                            <p>Retos pensados para liberar tu creatividad y hacer que tu música suene más natural.</p>
+                            <a href="#" class="card-link">Explorar <i class="bi bi-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
 
-          <div class="col-md-3">
-            <div class="feature-card h-100">
-              <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?cb=thfc1falcon&rs=1&pid=ImgDetMain&o=7&rm=3" alt="Nota La">
-              <h3>Nota La</h3>
-              <p>Mejora tu oído musical practicando nuevas notas y escalas.</p>
-              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+        <!-- LO ÚLTIMO -->
+        <section id="ultimos" class="feature-section">
+            <div class="container">
+                <p class="sec-title">Lo último agregado</p>
+                <p class="sec-sub">Contenido nuevo para seguir creciendo</p>
+                <div class="row g-4">
+
+                    <div class="col-md-3">
+                        <div class="feature-card h-100">
+                            <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
+                            <h3>Sol y Mi</h3>
+                            <p>Aprende a reconocer notas básicas en el pentagrama.</p>
+                            <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="feature-card h-100">
+                            <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?cb=thfc1falcon&rs=1&pid=ImgDetMain&o=7&rm=3"
+                                alt="Nota La">
+                            <h3>Nota La</h3>
+                            <p>Mejora tu oído musical practicando nuevas notas y escalas.</p>
+                            <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="feature-card h-100">
+                            <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350"
+                                alt="Simón Musical">
+                            <h3>Simón Musical</h3>
+                            <p>Pon a prueba tu memoria auditiva con sonidos y ritmo.</p>
+                            <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3">
+                        <div class="feature-card h-100">
+                            <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
+                            <h3>Teclado Mágico</h3>
+                            <p>Practica melodías y coordinación con ejercicios interactivos.</p>
+                            <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+                        </div>
+                    </div>
+
+                </div>
             </div>
-          </div>
+        </section>
 
-          <div class="col-md-3">
-            <div class="feature-card h-100">
-              <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350" alt="Simón Musical">
-              <h3>Simón Musical</h3>
-              <p>Pon a prueba tu memoria auditiva con sonidos y ritmo.</p>
-              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+        <!-- BENEFICIOS -->
+        <section id="beneficios" class="feature-section">
+            <div class="container">
+                <p class="sec-title">Lo que obtienes</p>
+                <p class="sec-sub">Todo lo que necesitas para avanzar en tu camino musical</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <i class="bi bi-bullseye benefit-icon" style="color:#7c6fff"></i>
+                            <h3>Aprende con claridad</h3>
+                            <p>Contenidos claros, progresivos y orientados a resultados reales desde el día uno.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <i class="bi bi-lightning-charge benefit-icon" style="color:#b06fff"></i>
+                            <h3>Ritmo y motivación</h3>
+                            <p>Avanza con prácticas guiadas y feedback continuo sobre tus progresos.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="benefit-card">
+                            <i class="bi bi-phone benefit-icon" style="color:#50dc8c"></i>
+                            <h3>Desde cualquier dispositivo</h3>
+                            <p>Una experiencia visual moderna pensada para músicos digitales, en cualquier pantalla.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
 
-          <div class="col-md-3">
-            <div class="feature-card h-100">
-              <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
-              <h3>Teclado Mágico</h3>
-              <p>Practica melodías y coordinación con ejercicios interactivos.</p>
-              <a href="#" class="btn-detail"><i class="bi bi-arrow-right"></i> Más detalles</a>
+        <!-- QUIÉNES SOMOS -->
+        <section id="nosotros" class="quienes-section">
+            <div class="container">
+                <div class="row align-items-center g-5">
+                    <div class="col-lg-6">
+                        <p class="eyebrow"><i class="bi bi-people-fill"></i> Quiénes somos</p>
+                        <h2 class="sec-title text-start mt-3 mb-3">Una plataforma hecha por músicos, para músicos</h2>
+                        <p style="color:var(--muted); line-height:1.8; margin-bottom:1.5rem;">
+                            En QBYT creemos que aprender música debe ser accesible, dinámico y motivador.
+                            Somos un equipo apasionado por la educación musical que combina pedagogía moderna
+                            con tecnología interactiva para llevar el entrenamiento al siguiente nivel.
+                        </p>
+                        <p style="color:var(--muted); line-height:1.8;">
+                            Nuestra misión es democratizar el aprendizaje musical, ofreciendo herramientas
+                            que se adaptan a cada nivel — desde el primer acorde hasta la improvisación avanzada.
+                        </p>
+                        <div class="quienes-stats">
+                            <div class="qstat">
+                                <span class="qstat-val">+500</span>
+                                <span class="qstat-label">Estudiantes</span>
+                            </div>
+                            <div class="qstat">
+                                <span class="qstat-val">20+</span>
+                                <span class="qstat-label">Cursos</span>
+                            </div>
+                            <div class="qstat">
+                                <span class="qstat-val">4.9★</span>
+                                <span class="qstat-label">Valoración</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="quienes-grid">
+                            <div class="qcard">
+                                <i class="bi bi-mortarboard-fill" style="color:var(--accent)"></i>
+                                <h4>Expertos en pedagogía</h4>
+                                <p>Metodologías probadas y adaptadas a cada etapa del aprendizaje.</p>
+                            </div>
+                            <div class="qcard">
+                                <i class="bi bi-controller" style="color:var(--accent2)"></i>
+                                <h4>Aprendizaje interactivo</h4>
+                                <p>Ejercicios gamificados que hacen que practicar sea adictivo.</p>
+                            </div>
+                            <div class="qcard">
+                                <i class="bi bi-globe2" style="color:#50dc8c"></i>
+                                <h4>Acceso global</h4>
+                                <p>Aprende desde cualquier lugar, a cualquier hora, en cualquier dispositivo.</p>
+                            </div>
+                            <div class="qcard">
+                                <i class="bi bi-heart-fill" style="color:#ff6b9d"></i>
+                                <h4>Comunidad activa</h4>
+                                <p>Comparte tu progreso y crece junto a una comunidad de músicos.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+        </section>
 
+        <!-- FAQ -->
+        <section id="faq" class="faq-section">
+            <div class="container">
+                <p class="sec-title">Preguntas frecuentes</p>
+                <p class="sec-sub">Todo lo que necesitas saber antes de empezar</p>
+                <div class="faq-list">
+
+                    <div class="faq-item">
+                        <button class="faq-btn" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            ¿Necesito experiencia previa en música?
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </button>
+                        <div id="faq1" class="collapse faq-body">
+                            <p>No, para nada. QBYT está diseñado para todos los niveles. Tenemos programas desde cero
+                                para quienes nunca han tocado un instrumento, hasta retos avanzados para músicos con
+                                experiencia.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-btn" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            ¿Necesito un instrumento para usar la plataforma?
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </button>
+                        <div id="faq2" class="collapse faq-body">
+                            <p>No es obligatorio. Muchos de nuestros ejercicios son de entrenamiento auditivo y teoría
+                                musical que puedes hacer sin instrumento. Sin embargo, tener uno potencia mucho tu
+                                aprendizaje.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-btn" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            ¿Cuánto tiempo debo dedicar por día?
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </button>
+                        <div id="faq3" class="collapse faq-body">
+                            <p>Con 15 a 30 minutos diarios es suficiente para ver progreso. La constancia es más
+                                importante que la duración. Nuestros ejercicios están diseñados para sesiones cortas
+                                pero efectivas.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-btn" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            ¿La plataforma es gratuita?
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </button>
+                        <div id="faq4" class="collapse faq-body">
+                            <p>Puedes crear una cuenta gratis y acceder a contenido introductorio sin costo. Los
+                                programas completos y funciones avanzadas están disponibles con una suscripción.</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-btn" data-bs-toggle="collapse" data-bs-target="#faq5">
+                            ¿Puedo acceder desde el celular?
+                            <i class="bi bi-chevron-down faq-icon"></i>
+                        </button>
+                        <div id="faq5" class="collapse faq-body">
+                            <p>Sí, QBYT está completamente optimizado para móviles, tablets y computadoras. Tu progreso
+                                se sincroniza automáticamente en todos tus dispositivos.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA FINAL -->
+        <section class="cta-section">
+            <div class="container">
+                <div class="cta-box">
+                    <div class="cta-glow"></div>
+                    <i class="bi bi-music-note-beamed cta-icon"></i>
+                    <h2>¿Listo para transformar tu música?</h2>
+                    <p>Únete a más de 500 estudiantes que ya están entrenando con QBYT.<br>Empieza hoy, es gratis.</p>
+                    <div class="d-flex gap-3 justify-content-center flex-wrap">
+                        <a href="{% url 'registro' %}" class="btn-register"
+                            style="font-size:0.95rem; padding: 0.75rem 2rem;">
+                            <i class="bi bi-person-plus me-2"></i>Crear cuenta gratis
+                        </a>
+                        <a href="#programas" class="btn-login" style="font-size:0.95rem; padding: 0.75rem 2rem;">
+                            Ver programas
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer id="contacto" class="footer">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="footer-logo">QBYT</div>
+                    <p>Entrenamiento musical para todos los niveles.</p>
+                </div>
+                <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                    <p>info@entrenamientomusical.com</p>
+                    <p>Tel: +1 (555) 123-4567</p>
+                </div>
+            </div>
+            <hr class="footer-divider">
+            <p class="text-center">&copy; 2026 Entrenamiento Musical. Todos los derechos reservados.</p>
         </div>
-      </div>
-    </section>
+    </footer>
 
-    <!-- BENEFICIOS -->
-    <section id="beneficios" class="feature-section">
-      <div class="container">
-        <p class="sec-title">Lo que obtienes</p>
-        <p class="sec-sub">Todo lo que necesitas para avanzar en tu camino musical</p>
-        <div class="row g-4">
-          <div class="col-md-4">
-            <div class="benefit-card">
-              <i class="bi bi-bullseye benefit-icon" style="color:#7c6fff"></i>
-              <h3>Aprende con claridad</h3>
-              <p>Contenidos claros, progresivos y orientados a resultados reales desde el día uno.</p>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="benefit-card">
-              <i class="bi bi-lightning-charge benefit-icon" style="color:#b06fff"></i>
-              <h3>Ritmo y motivación</h3>
-              <p>Avanza con prácticas guiadas y feedback continuo sobre tus progresos.</p>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="benefit-card">
-              <i class="bi bi-phone benefit-icon" style="color:#50dc8c"></i>
-              <h3>Desde cualquier dispositivo</h3>
-              <p>Una experiencia visual moderna pensada para músicos digitales, en cualquier pantalla.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-box">
-          <h2>¿Listo para empezar?</h2>
-          <p>Únete a QBYT y lleva tu música al siguiente nivel.</p>
-          <a href="{% url 'registro' %}" class="btn-register" style="font-size:0.95rem; padding: 0.75rem 2rem;">
-            Crear cuenta gratis
-          </a>
-        </div>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer id="contacto" class="footer">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-md-6">
-          <div class="footer-logo">QBYT</div>
-          <p>Entrenamiento musical para todos los niveles.</p>
-        </div>
-        <div class="col-md-6 text-md-end mt-3 mt-md-0">
-          <p>info@entrenamientomusical.com</p>
-          <p>Tel: +1 (555) 123-4567</p>
-        </div>
-      </div>
-      <hr class="footer-divider">
-      <p class="text-center">&copy; 2026 Entrenamiento Musical. Todos los derechos reservados.</p>
-    </div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>
