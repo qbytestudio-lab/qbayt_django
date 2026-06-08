@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +10,23 @@
   <link rel="stylesheet" href="{% static 'web/css/perfil.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet">
 </head>
+
 <body>
 
   {% if messages %}
-    <div class="container mt-3" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1050; max-width: 500px;">
-      {% for message in messages %}
-        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
+  <div class="container mt-3"
+    style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1050; max-width: 500px;">
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
   <header class="topbar">
@@ -35,6 +40,11 @@
       <div class="auth-buttons">
         <a href="{% url 'logout' %}" class="btn-login">
           <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        </a>
+      </div>
+      <div class="auth-buttons">
+        <a href="{% url 'inicio' %}" class="btn-login">
+          <i class="bi bi-house me-1"></i> Inicio
         </a>
       </div>
     </div>
@@ -53,7 +63,8 @@
           <span class="role-badge">
             <i class="bi bi-person-arms-up me-1"></i> Estudiante
           </span>
-          <h1 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name|default:request.user.username }}</h1>
+          <h1 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name|default:request.user.username
+            }}</h1>
           <p class="profile-meta">
             <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
             <span class="sep">·</span>
@@ -109,7 +120,8 @@
         <div class="section-card">
           <div class="section-card-header">
             <h2><i class="bi bi-person-vcard me-2"></i>Información personal</h2>
-            <a href="#" class="btn-link-accent" data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil me-1"></i>Editar</a>
+            <a href="#" class="btn-link-accent" data-bs-toggle="modal" data-bs-target="#modalEditar"><i
+                class="bi bi-pencil me-1"></i>Editar</a>
           </div>
           <div class="info-grid">
             <div class="info-field">
@@ -146,7 +158,8 @@
 
           <div class="mt-5 pt-4 border-top border-secondary">
             <h4 class="text-danger fs-6 mb-2">Zona de Peligro</h4>
-            <p class="text-muted small mb-3">Si eliminas tu cuenta, se borrarán de forma permanente todos tus progresos e historial en la plataforma.</p>
+            <p class="text-muted small mb-3">Si eliminas tu cuenta, se borrarán de forma permanente todos tus progresos
+              e historial en la plataforma.</p>
             <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar">
               <i class="bi bi-trash me-1"></i> Eliminar mi cuenta permanentemente
             </button>
@@ -166,7 +179,9 @@
               <div class="course-info">
                 <h3>Entrenamiento auditivo I</h3>
                 <p>Intervalos, escalas y acordes básicos</p>
-                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 72%"></div></div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 72%"></div>
+                </div>
                 <span class="progress-pct">72% completado</span>
               </div>
               <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
@@ -176,7 +191,9 @@
               <div class="course-info">
                 <h3>Solfeo y lectura musical</h3>
                 <p>Notas, figuras y compases</p>
-                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 45%"></div></div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 45%"></div>
+                </div>
                 <span class="progress-pct">45% completado</span>
               </div>
               <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
@@ -186,7 +203,9 @@
               <div class="course-info">
                 <h3>Técnica y postura</h3>
                 <p>Bases para tocar sin lesiones</p>
-                <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 10%"></div></div>
+                <div class="progress-bar-wrap">
+                  <div class="progress-bar-fill" style="width: 10%"></div>
+                </div>
                 <span class="progress-pct">10% completado</span>
               </div>
               <a href="#" class="btn-course-action">Iniciar <i class="bi bi-play-fill"></i></a>
@@ -230,7 +249,8 @@
               </div>
               <div class="class-details">
                 <h3>Ritmo y subdivisiones</h3>
-                <p><i class="bi bi-person me-1"></i>Prof. Martínez · <i class="bi bi-clock me-1"></i>2:00 PM · 45 min</p>
+                <p><i class="bi bi-person me-1"></i>Prof. Martínez · <i class="bi bi-clock me-1"></i>2:00 PM · 45 min
+                </p>
               </div>
               <span class="class-badge done">Completada</span>
             </div>
@@ -269,17 +289,23 @@
             <h3 class="subsection-title">Progreso por curso</h3>
             <div class="prog-row">
               <span class="prog-label">Entrenamiento auditivo I</span>
-              <div class="prog-track"><div class="prog-fill" style="width:72%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:72%"></div>
+              </div>
               <span class="prog-num">72%</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Solfeo y lectura musical</span>
-              <div class="prog-track"><div class="prog-fill" style="width:45%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:45%"></div>
+              </div>
               <span class="prog-num">45%</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Técnica y postura</span>
-              <div class="prog-track"><div class="prog-fill" style="width:10%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:10%"></div>
+              </div>
               <span class="prog-num">10%</span>
             </div>
           </div>
@@ -403,4 +429,5 @@
     });
   </script>
 </body>
+
 </html>

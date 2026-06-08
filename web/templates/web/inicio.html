@@ -1,223 +1,308 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inicio - QBYT</title>
-
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'web/css/inicio.css' %}">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'web/css/inicio.css' %}">
 </head>
+
 <body>
+  <div class="wrapper">
 
-<div class="wrapper">
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-
-    <div class="logo-area">
-      <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
-      <h2>QBYT</h2>
-    </div>
-
-    <ul class="menu-list">
-      <li class="active">
-        <a href="{% url 'inicio' %}">
-          <i class="bi bi-house-door-fill"></i>
-          <span>Inicio</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <i class="bi bi-journal-music"></i>
-          <span>Cursos</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <i class="bi bi-book"></i>
-          <span>Mis clases</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <i class="bi bi-bar-chart-line"></i>
-          <span>Progreso</span>
-        </a>
-      </li>
-      <li>
-        <a href="#">
-          <i class="bi bi-gear"></i>
-          <span>Configuración</span>
-        </a>
-      </li>
-
-      <!-- Perfil dinámico según rol -->
-      {% if request.user.perfil.rol == 'estudiante' %}
-      <li>
-        <a href="{% url 'perfil_estudiante' %}">
-          <i class="bi bi-person-circle"></i>
-          <span>Mi perfil</span>
-        </a>
-      </li>
-      {% elif request.user.perfil.rol == 'docente' %}
-      <li>
-        <a href="{% url 'perfil_docente' %}">
-          <i class="bi bi-person-circle"></i>
-          <span>Mi perfil</span>
-        </a>
-      </li>
-      {% elif request.user.perfil.rol == 'administrador' %}
-      <li>
-        <a href="{% url 'perfil_administrador' %}">
-          <i class="bi bi-person-circle"></i>
-          <span>Mi perfil</span>
-        </a>
-      </li>
-      {% endif %}
-
-      <li class="logout" style="margin-top: auto;">
-        <a href="{% url 'logout' %}">
-          <i class="bi bi-box-arrow-left"></i>
-          <span>Salir</span>
-        </a>
-      </li>
-    </ul>
-
-  </aside>
-
-  <!-- MAIN -->
-  <div class="main-content" id="mainContent">
-
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <button class="menu-toggle" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i>
-      </button>
-      <span class="topbar-title">Inicio</span>
-      <div class="topbar-user">
-        <div class="user-avatar">
-          {{ request.user.username|first|upper }}
-        </div>
-        <div class="user-info">
-          <div class="user-name">{{ request.user.username }}</div>
-          <div class="user-rol">{{ request.user.perfil.rol }}</div>
-        </div>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="logo-area">
+        <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
+        <h2>QBYT</h2>
       </div>
-    </div>
-
-    <!-- CONTENT -->
-    <div class="content">
-
-      <!-- WELCOME BANNER -->
-      <div class="welcome-banner">
-        <div class="welcome-text">
-          <h2>¡Bienvenido, {{ request.user.username }}! 👋</h2>
-          <p>Continúa tu entrenamiento musical donde lo dejaste.</p>
-        </div>
-
+      <ul class="menu-list">
+        <li class="active"><a href="{% url 'inicio' %}"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        </li>
+        <li><a href="#cursos"><i class="bi bi-journal-music"></i><span>Cursos</span></a></li>
+        <li><a href="#mis-clases"><i class="bi bi-book"></i><span>Mis clases</span></a></li>
+        <li><a href="#progreso"><i class="bi bi-bar-chart-line"></i><span>Progreso</span></a></li>
+        <li><a href="#"><i class="bi bi-gear"></i><span>Configuración</span></a></li>
         {% if request.user.perfil.rol == 'estudiante' %}
-          <a href="{% url 'perfil_estudiante' %}" class="btn-perfil">
-            <i class="bi bi-person-arms-up"></i> Ver mi perfil
-          </a>
+        <li><a href="{% url 'perfil_estudiante' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a></li>
         {% elif request.user.perfil.rol == 'docente' %}
-          <a href="{% url 'perfil_docente' %}" class="btn-perfil">
-            <i class="bi bi-mortarboard"></i> Ver mi perfil
-          </a>
+        <li><a href="{% url 'perfil_docente' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a></li>
         {% elif request.user.perfil.rol == 'administrador' %}
-          <a href="{% url 'perfil_administrador' %}" class="btn-perfil">
-            <i class="bi bi-shield-check"></i> Panel admin
-          </a>
+        <li><a href="{% url 'perfil_administrador' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a>
+        </li>
         {% endif %}
-      </div>
+        <li class="logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-left"></i><span>Salir</span></a></li>
+      </ul>
+    </aside>
 
-      <!-- STATS -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-4">
-          <div class="stat-card">
-            <div class="stat-icon purple"><i class="bi bi-play-circle-fill"></i></div>
-            <div>
-              <div class="stat-value">3</div>
-              <div class="stat-label">Cursos activos</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="stat-card">
-            <div class="stat-icon pink"><i class="bi bi-trophy-fill"></i></div>
-            <div>
-              <div class="stat-value">12</div>
-              <div class="stat-label">Ejercicios completados</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="stat-card">
-            <div class="stat-icon green"><i class="bi bi-lightning-charge-fill"></i></div>
-            <div>
-              <div class="stat-value">5</div>
-              <div class="stat-label">Días de racha</div>
-            </div>
+    <!-- MAIN -->
+    <div class="main-content" id="mainContent">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <button class="menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+        <span class="topbar-title">Inicio</span>
+        <div class="topbar-user">
+          <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+          <div class="user-info">
+            <div class="user-name">{{ request.user.username }}</div>
+            <div class="user-rol">{{ request.user.perfil.rol }}</div>
           </div>
         </div>
       </div>
 
-      <!-- CURSOS -->
-      <div class="section-title">
-        <i class="bi bi-journal-music" style="color:var(--accent)"></i>
-        Cursos destacados
-      </div>
+      <!-- CONTENT -->
+      <div class="content">
 
-      <div class="row g-4">
+        <!-- WELCOME BANNER -->
+        <div class="welcome-banner">
+          <div class="welcome-text">
+            <h2>¡Bienvenido, {{ request.user.username }}! 👋</h2>
+            <p>Continúa tu entrenamiento musical donde lo dejaste.</p>
+          </div>
+          {% if request.user.perfil.rol == 'estudiante' %}
+          <a href="{% url 'perfil_estudiante' %}" class="btn-perfil"><i class="bi bi-person-arms-up"></i> Ver mi
+            perfil</a>
+          {% elif request.user.perfil.rol == 'docente' %}
+          <a href="{% url 'perfil_docente' %}" class="btn-perfil"><i class="bi bi-mortarboard"></i> Ver mi perfil</a>
+          {% elif request.user.perfil.rol == 'administrador' %}
+          <a href="{% url 'perfil_administrador' %}" class="btn-perfil"><i class="bi bi-shield-check"></i> Panel
+            admin</a>
+          {% endif %}
+        </div>
 
-        <div class="col-md-4">
-          <div class="course-card">
-            <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
-            <div class="course-card-body">
-              <h3>Sol y Mi</h3>
-              <p>Aprende a reconocer notas básicas en el pentagrama con ejercicios progresivos.</p>
-              <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+        <!-- STATS -->
+        <div class="row g-3 mb-4">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon purple"><i class="bi bi-play-circle-fill"></i></div>
+              <div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Cursos activos</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon pink"><i class="bi bi-trophy-fill"></i></div>
+              <div>
+                <div class="stat-value">12</div>
+                <div class="stat-label">Ejercicios completados</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon green"><i class="bi bi-lightning-charge-fill"></i></div>
+              <div>
+                <div class="stat-value">5</div>
+                <div class="stat-label">Días de racha</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <div class="stat-icon orange"><i class="bi bi-clock-fill"></i></div>
+              <div>
+                <div class="stat-value">8h</div>
+                <div class="stat-label">Horas de práctica</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- CURSOS POR CATEGORÍA — TEORÍA -->
+        <div id="cursos" class="section-title mt-4"><i class="bi bi-music-note-list" style="color:var(--accent)"></i>
+          Teoría Musical</div>
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 4h</span></div>
+                <h3>Sol y Mi</h3>
+                <p>Aprende a reconocer notas básicas en el pentagrama con ejercicios progresivos.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600" alt="Ritmo">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 3h</span></div>
+                <h3>Ritmo y Compás</h3>
+                <p>Entiende los compases, figuras rítmicas y cómo marcar el tiempo correctamente.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600" alt="Armonía">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span
+                    class="course-dur"><i class="bi bi-clock"></i> 6h</span></div>
+                <h3>Armonía Básica</h3>
+                <p>Construye acordes, progresiones y aprende a armonizar melodías simples.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="course-card">
-            <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
-            <div class="course-card-body">
-              <h3>Teclado Mágico</h3>
-              <p>Practica melodías y coordinación con ejercicios interactivos de teclado.</p>
-              <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+        <!-- CURSOS POR CATEGORÍA — ENTRENAMIENTO AUDITIVO -->
+        <div class="section-title mt-2"><i class="bi bi-ear" style="color:var(--accent2)"></i> Entrenamiento Auditivo
+        </div>
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg"
+                alt="Simón Musical">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 2h</span></div>
+                <h3>Simón Musical</h3>
+                <p>Pon a prueba tu memoria auditiva con sonidos y ritmos en secuencia.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600" alt="Intervalos">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span
+                    class="course-dur"><i class="bi bi-clock"></i> 5h</span></div>
+                <h3>Intervalos al Oído</h3>
+                <p>Reconoce intervalos musicales de forma auditiva con práctica intensiva.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img
+                src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?cb=thfc1falcon&rs=1&pid=ImgDetMain"
+                alt="Nota La">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel avanzado">Avanzado</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 8h</span></div>
+                <h3>Dictado Musical</h3>
+                <p>Transcribe melodías escuchando. El nivel más completo de entrenamiento auditivo.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="course-card">
-            <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg" alt="Simón Musical">
-            <div class="course-card-body">
-              <h3>Simón Musical</h3>
-              <p>Pon a prueba tu memoria auditiva con sonidos y ritmos en secuencia.</p>
-              <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+        <!-- CURSOS POR CATEGORÍA — INSTRUMENTO -->
+        <div class="section-title mt-2"><i class="bi bi-music-note-beamed" style="color:#50dc8c"></i> Instrumento</div>
+        <div class="row g-4 mb-4">
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 6h</span></div>
+                <h3>Teclado Mágico</h3>
+                <p>Practica melodías y coordinación con ejercicios interactivos de teclado.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600" alt="Guitarra">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span
+                    class="course-dur"><i class="bi bi-clock"></i> 10h</span></div>
+                <h3>Guitarra Creativa</h3>
+                <p>Domina acordes, escalas y técnicas de guitarra con un enfoque práctico y creativo.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="course-card">
+              <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600" alt="Piano">
+              <div class="course-card-body">
+                <div class="course-meta"><span class="badge-nivel avanzado">Avanzado</span><span class="course-dur"><i
+                      class="bi bi-clock"></i> 12h</span></div>
+                <h3>Piano Clásico</h3>
+                <p>Técnica avanzada de piano, lectura a primera vista y repertorio clásico seleccionado.</p>
+                <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+              </div>
             </div>
           </div>
         </div>
 
-      </div>
+        <!-- CALENDARIO DE CLASES -->
+        <div id="mis-clases" class="section-title mt-2"><i class="bi bi-calendar-week" style="color:#ff9f43"></i>
+          Próximas clases</div>
+        <div class="calendario-grid mb-4">
 
-    </div>
-  </div>
-</div>
+          <div class="clase-card">
+            <div class="clase-fecha"><span class="clase-dia">LUN</span><span class="clase-num">09</span></div>
+            <div class="clase-info">
+              <h4>Armonía Básica — Sesión 2</h4>
+              <p><i class="bi bi-clock"></i> 4:00 PM · 60 min</p>
+              <p><i class="bi bi-person"></i> Prof. García</p>
+            </div>
+            <span class="clase-badge proximа">Próxima</span>
+          </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('collapsed');
-  }
-</script>
+          <div class="clase-card">
+            <div class="clase-fecha"><span class="clase-dia">MIÉ</span><span class="clase-num">11</span></div>
+            <div class="clase-info">
+              <h4>Entrenamiento Auditivo — Intervalos</h4>
+              <p><i class="bi bi-clock"></i> 3:00 PM · 45 min</p>
+              <p><i class="bi bi-person"></i> Prof. Martínez</p>
+            </div>
+            <span class="clase-badge proxima">Próxima</span>
+          </div>
 
+          <div class="clase-card">
+            <div class="clase-fecha"><span class="clase-dia">VIE</span><span class="clase-num">13</span></div>
+            <div class="clase-info">
+              <h4>Teclado Mágico — Práctica libre</h4>
+              <p><i class="bi bi-clock"></i> 5:00 PM · 90 min</p>
+              <p><i class="bi bi-person"></i> Prof. López</p>
+            </div>
+            <span class="clase-badge proxima">Próxima</span>
+          </div>
+
+          <div class="clase-card">
+            <div class="clase-fecha"><span class="clase-dia">SÁB</span><span class="clase-num">14</span></div>
+            <div class="clase-info">
+              <h4>Ritmo y Compás — Evaluación</h4>
+              <p><i class="bi bi-clock"></i> 10:00 AM · 60 min</p>
+              <p><i class="bi bi-person"></i> Prof. García</p>
+            </div>
+            <span class="clase-badge evaluacion">Evaluación</span>
+          </div>
+
+        </div>
+
+      </div><!-- /content -->
+    </div><!-- /main-content -->
+  </div><!-- /wrapper -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+  </script>
 </body>
+
 </html>

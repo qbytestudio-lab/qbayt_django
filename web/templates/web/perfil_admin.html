@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,19 +10,23 @@
   <link rel="stylesheet" href="{% static 'web/css/perfil.css' %}">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+    rel="stylesheet">
 </head>
+
 <body>
 
   {% if messages %}
-    <div class="container mt-3" style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1050; max-width: 500px;">
-      {% for message in messages %}
-        <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
-          {{ message }}
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-      {% endfor %}
+  <div class="container mt-3"
+    style="position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1050; max-width: 500px;">
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
+    {% endfor %}
+  </div>
   {% endif %}
 
   <header class="topbar">
@@ -35,6 +40,11 @@
       <div class="auth-buttons">
         <a href="{% url 'logout' %}" class="btn-login">
           <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
+        </a>
+      </div>
+      <div class="auth-buttons">
+        <a href="{% url 'inicio' %}" class="btn-login">
+          <i class="bi bi-house me-1"></i> Inicio
         </a>
       </div>
     </div>
@@ -55,7 +65,8 @@
           </span>
           <h1 class="profile-name">
             {{ request.user.get_full_name|default:request.user.username }}
-            <a href="#" class="ms-2 fs-5 text-white opacity-75" data-bs-toggle="modal" data-bs-target="#modalEditar" title="Editar mis datos de administrador">
+            <a href="#" class="ms-2 fs-5 text-white opacity-75" data-bs-toggle="modal" data-bs-target="#modalEditar"
+              title="Editar mis datos de administrador">
               <i class="bi bi-pencil-square"></i>
             </a>
           </h1>
@@ -65,7 +76,8 @@
             <i class="bi bi-calendar3 me-1"></i>Admin desde {{ request.user.date_joined|date:"M Y" }}
           </p>
         </div>
-        <a href="#" class="btn btn-outline-danger btn-sm alignment-self-center ms-auto" data-bs-toggle="modal" data-bs-target="#modalEliminar">
+        <a href="#" class="btn btn-outline-danger btn-sm alignment-self-center ms-auto" data-bs-toggle="modal"
+          data-bs-target="#modalEliminar">
           <i class="bi bi-trash me-1"></i> Dar de baja cuenta
         </a>
       </div>
@@ -141,22 +153,30 @@
             <h3 class="subsection-title">Distribución de roles</h3>
             <div class="prog-row">
               <span class="prog-label">Estudiantes</span>
-              <div class="prog-track"><div class="prog-fill" style="width:79%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:79%"></div>
+              </div>
               <span class="prog-num">248 (79%)</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Docentes</span>
-              <div class="prog-track"><div class="prog-fill docente" style="width:6%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill docente" style="width:6%"></div>
+              </div>
               <span class="prog-num">18 (6%)</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Admins</span>
-              <div class="prog-track"><div class="prog-fill admin" style="width:2%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill admin" style="width:2%"></div>
+              </div>
               <span class="prog-num">5 (2%)</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Sin rol asignado</span>
-              <div class="prog-track"><div class="prog-fill muted-fill" style="width:13%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill muted-fill" style="width:13%"></div>
+              </div>
               <span class="prog-num">41 (13%)</span>
             </div>
           </div>
@@ -165,17 +185,23 @@
             <h3 class="subsection-title">Cursos más activos</h3>
             <div class="prog-row">
               <span class="prog-label">Entrenamiento auditivo I</span>
-              <div class="prog-track"><div class="prog-fill" style="width:85%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:85%"></div>
+              </div>
               <span class="prog-num">85 estudiantes</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Solfeo y lectura musical</span>
-              <div class="prog-track"><div class="prog-fill" style="width:64%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:64%"></div>
+              </div>
               <span class="prog-num">64 estudiantes</span>
             </div>
             <div class="prog-row">
               <span class="prog-label">Técnica y postura</span>
-              <div class="prog-track"><div class="prog-fill" style="width:52%"></div></div>
+              <div class="prog-track">
+                <div class="prog-fill" style="width:52%"></div>
+              </div>
               <span class="prog-num">52 estudiantes</span>
             </div>
           </div>
@@ -409,7 +435,8 @@
         </div>
         <div class="modal-body">
           <p class="fw-bold">¿Estás seguro de que deseas eliminar tu cuenta de administrador?</p>
-          <p class="text-muted small">Esta acción es irreversible. Se borrarán de forma permanente todos tus accesos y configuraciones administrativas en QBYT.</p>
+          <p class="text-muted small">Esta acción es irreversible. Se borrarán de forma permanente todos tus accesos y
+            configuraciones administrativas en QBYT.</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, cancelar</button>
@@ -444,7 +471,7 @@
       });
     });
 
-    document.getElementById('userSearch')?.addEventListener('input', function() {
+    document.getElementById('userSearch')?.addEventListener('input', function () {
       const q = this.value.toLowerCase();
       document.querySelectorAll('#userTableBody tr').forEach(row => {
         row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
@@ -463,4 +490,5 @@
     });
   </script>
 </body>
+
 </html>
