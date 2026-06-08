@@ -72,3 +72,28 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('index')
+# Al final de web/views.py
+
+@login_required
+def editar_perfil(request):
+    if request.method == 'POST':
+        usuario = request.user
+        # Capturamos los datos que el usuario edite en el formulario
+        usuario.username = request.POST.get('username')
+        usuario.email = request.POST.get('email')
+        usuario.first_name = request.POST.get('first_name')
+        usuario.last_name = request.POST.get('last_name')
+        usuario.save() # Se guarda directo en MySQL
+        
+        messages.success(request, '¡Tu perfil ha sido actualizado correctamente!')
+        return redirect('inicio')
+        
+    return redirect('inicio')
+
+@login_required
+def eliminar_perfil(request):
+    usuario = request.user
+    logout(request) # Cerramos la sesión antes de borrarlo para que Django no se enrede
+    usuario.delete() # Al borrar el User, el CASCADE borra también su Perfil automáticamente
+    messages.success(request, 'Tu cuenta ha sido eliminada permanentemente.')
+    return redirect('index')

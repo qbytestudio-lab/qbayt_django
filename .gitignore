@@ -4,3 +4,36 @@ __pycache__/
 db.sqlite3
 *.env
 .env
+# --- ENTORNOS VIRTUALES ---
+venv/
+ENV/
+env/
+ENV_DIR/
+
+# --- CACHÉ DE PYTHON ---
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# --- ARCHIVOS DE BASE DE DATOS LOCALES ---
+# Aunque uses MySQL, dejamos esto por seguridad si se genera algún archivo temporal
+*.sqlite3
+*.sqlite3-journal
+
+# --- CONFIGURACIONES SECRETAS Y VARIABLES DE ENTORNO ---
+# Aquí es donde esconderás tus contraseñas de MySQL y la SECRET_KEY de Django
+.env
+.env.local
+
+# --- MULTIMEDIA Y ESTÁTICOS RECOPILADOS ---
+# Si en el futuro tus usuarios suben fotos de perfil o archivos de audio
+/media/
+/staticfiles/
+
+# --- EDITORES DE CÓDIGO Y SISTEMA ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

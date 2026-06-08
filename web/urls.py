@@ -10,4 +10,7 @@ urlpatterns = [
     path('perfil/estudiante/', views.perfil_estudiante, name='perfil_estudiante'),
     path('perfil/docente/', views.perfil_docente, name='perfil_docente'),
     path('perfil/admin/', views.perfil_administrador, name='perfil_administrador'),
+    # --- RUTAS AGREGADAS PARA EL SELF-CRUD ---
+    path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
+    path('perfil/eliminar/', views.eliminar_perfil, name='eliminar_perfil'),
 ]
