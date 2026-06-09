@@ -63,8 +63,7 @@
           <span class="role-badge">
             <i class="bi bi-person-arms-up me-1"></i> Estudiante
           </span>
-          <h1 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name|default:request.user.username
-            }}</h1>
+          <h1>{{ request.user.get_full_name }}</h1>
           <p class="profile-meta">
             <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
             <span class="sep">·</span>

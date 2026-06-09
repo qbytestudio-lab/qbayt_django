@@ -97,3 +97,15 @@ def eliminar_perfil(request):
     usuario.delete() # Al borrar el User, el CASCADE borra también su Perfil automáticamente
     messages.success(request, 'Tu cuenta ha sido eliminada permanentemente.')
     return redirect('index')
+
+def cursos(request):
+    return render(request, 'web/cursos.html')
+
+def mis_clases(request):
+    return render(request, 'web/mis_clases.html')
+
+def progreso(request):
+    return render(request, 'web/progreso.html')
+
+def configuracion(request):
+    return render(request, 'web/configuracion.html')

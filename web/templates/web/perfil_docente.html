@@ -33,7 +33,7 @@
     <div class="container topbar-content">
       <a href="{% url 'index' %}" class="logo-area">
         <div class="logo-box">
-          <img src="{% static 'web/img/logo.png' %}">
+        <img src="{% static 'web/img/logo.png' %}">
         </div>
         <h2 class="logo-text">QBYT</h2>
       </a>
@@ -63,8 +63,7 @@
           <span class="role-badge docente">
             <i class="bi bi-mortarboard me-1"></i> Docente
           </span>
-          <h1 class="profile-name">{{ request.user.first_name }} {{ request.user.last_name|default:request.user.username
-            }}</h1>
+          <h1>{{ request.user.get_full_name }}</h1>
           <p class="profile-meta">
             <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
             <span class="sep">·</span>

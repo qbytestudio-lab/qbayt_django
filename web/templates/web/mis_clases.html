@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio - QBYT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/css/inicio.css' %}">
+</head>
+
+<body>
+    <div class="wrapper">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo-area">
+                <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
+                <h2>QBYT</h2>
+            </div>
+            <ul class="menu-list">
+                <li class="active">
+                    <a href="{% url 'inicio' %}">
+                        <i class="bi bi-house-door-fill"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'cursos' %}">
+                        <i class="bi bi-book"></i>
+                        <span>Cursos</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'mis_clases' %}">
+                        <i class="bi bi-journal-bookmark"></i>
+                        <span>Mis clases</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'progreso' %}">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Progreso</span>
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{% url 'configuracion' %}">
+                        <i class="bi bi-gear"></i>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+
+                {% if request.user.perfil.rol == 'estudiante' %}
+                <li>
+                    <a href="{% url 'perfil_estudiante' %}">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Mi perfil</span>
+                    </a>
+                </li>
+                {% elif request.user.perfil.rol == 'docente' %}
+                <li>
+                    <a href="{% url 'perfil_docente' %}">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Mi perfil</span>
+                    </a>
+                </li>
+                {% elif request.user.perfil.rol == 'administrador' %}
+                <li>
+                    <a href="{% url 'perfil_administrador' %}">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Mi perfil</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <li class="logout">
+                    <a href="{% url 'logout' %}">
+                        <i class="bi bi-box-arrow-left"></i>
+                        <span>Salir</span>
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- MAIN -->
+        <div class="main-content" id="mainContent">
+
+            <!-- TOPBAR -->
+            <div class="topbar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+                <span class="topbar-title">Inicio</span>
+                <div class="topbar-user">
+                    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
+                    <div class="user-info">
+                        <div class="user-name">{{ request.user.username }}</div>
+                        <div class="user-rol">{{ request.user.perfil.rol }}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+
+                <div class="welcome-banner">
+                    <div class="welcome-text">
+                        <h2>Mis Clases 📚</h2>
+                        <p>Revisa tus próximas sesiones.</p>
+                    </div>
+                </div>
+
+                <div class="stat-card mb-3">
+                    <h4>Clase de Piano</h4>
+                    <p>Lunes - 8:00 AM</p>
+                </div>
+
+                <div class="stat-card">
+                    <h4>Entrenamiento Auditivo</h4>
+                    <p>Miércoles - 10:00 AM</p>
+                </div>
+
+            </div>
+        </div><!-- /main-content -->
+    </div><!-- /wrapper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('collapsed');
+        }
+    </script>
+</body>
+
+</html>

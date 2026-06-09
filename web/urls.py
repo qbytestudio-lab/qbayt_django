@@ -13,4 +13,8 @@ urlpatterns = [
     # --- RUTAS AGREGADAS PARA EL SELF-CRUD ---
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
     path('perfil/eliminar/', views.eliminar_perfil, name='eliminar_perfil'),
+    path('cursos/', views.cursos, name='cursos'),
+    path('mis-clases/', views.mis_clases, name='mis_clases'),
+    path('progreso/', views.progreso, name='progreso'),
+    path('configuracion/', views.configuracion, name='configuracion'),
 ]

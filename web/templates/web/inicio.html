@@ -24,21 +24,70 @@
         <h2>QBYT</h2>
       </div>
       <ul class="menu-list">
-        <li class="active"><a href="{% url 'inicio' %}"><i class="bi bi-house-door-fill"></i><span>Inicio</span></a>
+        <li class="active">
+          <a href="{% url 'inicio' %}">
+            <i class="bi bi-house-door-fill"></i>
+            <span>Inicio</span>
+          </a>
         </li>
-        <li><a href="#cursos"><i class="bi bi-journal-music"></i><span>Cursos</span></a></li>
-        <li><a href="#mis-clases"><i class="bi bi-book"></i><span>Mis clases</span></a></li>
-        <li><a href="#progreso"><i class="bi bi-bar-chart-line"></i><span>Progreso</span></a></li>
-        <li><a href="#"><i class="bi bi-gear"></i><span>Configuración</span></a></li>
+
+        <li>
+          <a href="{% url 'cursos' %}">
+            <i class="bi bi-book"></i>
+            <span>Cursos</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="{% url 'mis_clases' %}">
+            <i class="bi bi-journal-bookmark"></i>
+            <span>Mis clases</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="{% url 'progreso' %}">
+            <i class="bi bi-bar-chart"></i>
+            <span>Progreso</span>
+          </a>
+        </li>
+
+        <li>
+          <a href="{% url 'configuracion' %}">
+            <i class="bi bi-gear"></i>
+            <span>Configuración</span>
+          </a>
+        </li>
+
         {% if request.user.perfil.rol == 'estudiante' %}
-        <li><a href="{% url 'perfil_estudiante' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a></li>
+        <li>
+          <a href="{% url 'perfil_estudiante' %}">
+            <i class="bi bi-person-circle"></i>
+            <span>Mi perfil</span>
+          </a>
+        </li>
         {% elif request.user.perfil.rol == 'docente' %}
-        <li><a href="{% url 'perfil_docente' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a></li>
+        <li>
+          <a href="{% url 'perfil_docente' %}">
+            <i class="bi bi-person-circle"></i>
+            <span>Mi perfil</span>
+          </a>
+        </li>
         {% elif request.user.perfil.rol == 'administrador' %}
-        <li><a href="{% url 'perfil_administrador' %}"><i class="bi bi-person-circle"></i><span>Mi perfil</span></a>
+        <li>
+          <a href="{% url 'perfil_administrador' %}">
+            <i class="bi bi-person-circle"></i>
+            <span>Mi perfil</span>
+          </a>
         </li>
         {% endif %}
-        <li class="logout"><a href="{% url 'logout' %}"><i class="bi bi-box-arrow-left"></i><span>Salir</span></a></li>
+
+        <li class="logout">
+          <a href="{% url 'logout' %}">
+            <i class="bi bi-box-arrow-left"></i>
+            <span>Salir</span>
+          </a>
+        </li>
       </ul>
     </aside>
 
@@ -117,7 +166,7 @@
             </div>
           </div>
         </div>
-        
+
         <!-- CURSOS POR CATEGORÍA — TEORÍA -->
         <div id="cursos" class="section-title mt-4"><i class="bi bi-music-note-list" style="color:var(--accent)"></i>
           Teoría Musical</div>
@@ -258,7 +307,7 @@
               <p><i class="bi bi-clock"></i> 4:00 PM · 60 min</p>
               <p><i class="bi bi-person"></i> Prof. García</p>
             </div>
-            <span class="clase-badge proximа">Próxima</span>
+            <span class="clase-badge proxima">Próxima</span>
           </div>
 
           <div class="clase-card">

@@ -12,6 +12,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
 
     <style>
         :root {
@@ -778,6 +779,36 @@
                 padding: 4rem 0 3rem;
             }
         }
+
+        #btnTop {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+
+            width: 50px;
+            height: 50px;
+
+            border: none;
+            border-radius: 50%;
+
+            background: #7c6fff;
+            color: white;
+
+            font-size: 22px;
+            cursor: pointer;
+
+            box-shadow: 0 4px 15px rgba(124, 111, 255, .4);
+
+            transition: .3s;
+        }
+
+        #btnTop:hover {
+            transform: translateY(-5px);
+        }
+
+        #btnTop {
+            display: none;
+        }
     </style>
 </head>
 
@@ -788,7 +819,7 @@
         <div class="container topbar-content">
             <a href="{% url 'index' %}" class="logo-area">
                 <div class="logo-box">
-                    <img src="{% static 'web/img/logo.png' %}">
+                   <img src="{% static 'web/img/logo.png' %}">
                 </div>
                 <h2 class="logo-text">QBYT</h2>
             </a>
@@ -1181,14 +1212,37 @@
                 </div>
                 <div class="col-md-6 text-md-end mt-3 mt-md-0">
                     <p>info@entrenamientomusical.com</p>
+                    <p>Colombia, Bogotá D.C</p>
                     <p>Tel: +1 (555) 123-4567</p>
                 </div>
             </div>
             <hr class="footer-divider">
-            <p class="text-center">&copy; 2026 Entrenamiento Musical. Todos los derechos reservados.</p>
+            <p class="text-center">&copy; 2026 Entrenamiento Musical.</p>
         </div>
     </footer>
+    <button id="btnTop">
+        ↑
+    </button>
+    <script>
+        const btnTop = document.getElementById("btnTop");
 
+        window.addEventListener("scroll", () => {
+
+            if (window.scrollY > 300) {
+                btnTop.style.display = "block";
+            } else {
+                btnTop.style.display = "none";
+            }
+
+        });
+
+        btnTop.addEventListener("click", () => {
+            window.scrollTo({
+                top: 0,
+                behavior: "smooth"
+            });
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
