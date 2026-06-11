@@ -122,15 +122,7 @@
             <a href="#" class="btn-link-accent docente" data-bs-toggle="modal" data-bs-target="#modalEditar"><i
                 class="bi bi-pencil me-1"></i>Editar</a>
           </div>
-          <div class="info-grid">
-            <div class="info-field">
-              <span class="info-label">Nombre</span>
-              <span class="info-value">{{ request.user.first_name|default:"—" }}</span>
-            </div>
-            <div class="info-field">
-              <span class="info-label">Apellido</span>
-              <span class="info-value">{{ request.user.last_name|default:"—" }}</span>
-            </div>
+          
             <div class="info-field">
               <span class="info-label">Usuario</span>
               <span class="info-value">@{{ request.user.username }}</span>
