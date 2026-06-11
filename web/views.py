@@ -16,19 +16,19 @@ def inicio(request):
 def perfil_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
-    return render(request, 'web/perfil_estudiante.html')
+    return render(request, 'perfil_estudiante.html')
 
 @login_required
 def perfil_docente(request):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
-    return render(request, 'web/perfil_docente.html')
+    return render(request, 'perfil_docente.html')
 
 @login_required
 def perfil_administrador(request):
     if request.user.perfil.rol != 'administrador':
         return redirect('inicio')
-    return render(request, 'web/perfil_admin.html')
+    return render(request, 'perfil_admin.html')
 
 def registro(request):
     if request.method == 'POST':
