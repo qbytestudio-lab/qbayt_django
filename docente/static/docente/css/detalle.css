@@ -1,0 +1,229 @@
+body {
+    background: #0b0b14;
+    color: #eae8f5;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.detail-header {
+    background: rgba(124, 111, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2rem 0;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: rgba(255, 255, 255, 0.5);
+    text-decoration: none;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+}
+
+.back-btn:hover {
+    color: #7c6fff;
+}
+
+.clase-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.clase-meta {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.clase-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.codigo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(124, 111, 255, 0.15);
+    border: 1px solid rgba(124, 111, 255, 0.3);
+    color: #a89fff;
+    padding: 0.4rem 1rem;
+    border-radius: 8px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.codigo-badge:hover {
+    background: rgba(124, 111, 255, 0.25);
+}
+
+.content-area {
+    padding: 2rem 0;
+}
+
+.card-section {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.card-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.solicitud-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.solicitud-row:last-child {
+    border-bottom: none;
+}
+
+.student-avatar {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #7c6fff, #b06fff);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.solicitud-info {
+    flex: 1;
+}
+
+.solicitud-info strong {
+    display: block;
+    font-size: 0.9rem;
+}
+
+.solicitud-info span {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
+}
+
+.student-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.student-row:last-child {
+    border-bottom: none;
+}
+
+.student-info {
+    flex: 1;
+}
+
+.student-info h4 {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin: 0 0 0.15rem;
+}
+
+.student-info p {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.78rem;
+    margin: 0;
+}
+
+.btn-danger-soft {
+    background: rgba(255, 80, 80, 0.1);
+    border: 1px solid rgba(255, 80, 80, 0.2);
+    color: #ff6b6b;
+    font-size: 0.78rem;
+    padding: 0.35rem 0.75rem;
+    border-radius: 7px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.btn-danger-soft:hover {
+    background: rgba(255, 80, 80, 0.2);
+    color: #ff6b6b;
+}
+
+.empty-msg {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 0.875rem;
+    text-align: center;
+    padding: 1.5rem 0;
+}
+
+.count-pill {
+    background: rgba(124, 111, 255, 0.15);
+    color: #a89fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+    margin-left: 0.5rem;
+}
+
+.btn-agregar {
+    background: linear-gradient(135deg, #7c6fff, #b06fff);
+    border: none;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 0.45rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.btn-agregar:hover {
+    opacity: 0.85;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.search-bar i {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #eae8f5;
+    font-size: 0.875rem;
+    width: 100%;
+}

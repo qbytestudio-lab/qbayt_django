@@ -1,0 +1,209 @@
+
+body {
+    background: #0b0b14;
+    color: #eae8f5;
+    font-family: 'DM Sans', sans-serif;
+}
+
+.page-header {
+    background: rgba(124, 111, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2.5rem 0;
+}
+
+.page-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.8rem;
+    margin-bottom: 0.4rem;
+}
+
+.page-sub {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.9rem;
+}
+
+.content-area {
+    padding: 2rem 0;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.search-bar i {
+    color: rgba(255, 255, 255, 0.3);
+    font-size: 1rem;
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: #eae8f5;
+    font-size: 0.9rem;
+    width: 100%;
+}
+
+.clase-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+    height: 100%;
+}
+
+.clase-card:hover {
+    border-color: rgba(124, 111, 255, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(124, 111, 255, 0.1);
+}
+
+.clase-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.clase-icon {
+    width: 44px;
+    height: 44px;
+    background: rgba(124, 111, 255, 0.15);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: #7c6fff;
+}
+
+.clase-nombre {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.clase-desc {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+}
+
+.clase-info {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+}
+
+.clase-info span {
+    color: rgba(255, 255, 255, 0.45);
+    font-size: 0.78rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.btn-solicitar {
+    width: 100%;
+    background: linear-gradient(135deg, #7c6fff, #b06fff);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.6rem;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+}
+
+.btn-solicitar:hover {
+    opacity: 0.85;
+    color: #fff;
+}
+
+.btn-pendiente {
+    width: 100%;
+    background: rgba(255, 159, 67, 0.12);
+    border: 1px solid rgba(255, 159, 67, 0.3);
+    color: #ff9f43;
+    font-size: 0.85rem;
+    padding: 0.6rem;
+    border-radius: 9px;
+    text-align: center;
+    cursor: default;
+}
+
+.btn-inscrito {
+    width: 100%;
+    background: rgba(80, 220, 140, 0.1);
+    border: 1px solid rgba(80, 220, 140, 0.25);
+    color: #50dc8c;
+    font-size: 0.85rem;
+    padding: 0.6rem;
+    border-radius: 9px;
+    text-align: center;
+}
+
+.docente-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(176, 111, 255, 0.1);
+    border: 1px solid rgba(176, 111, 255, 0.2);
+    color: #b06fff;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 100px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem 0;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.tabs-filter {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.tab-f {
+    padding: 0.45rem 1rem;
+    border-radius: 100px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tab-f.active,
+.tab-f:hover {
+    background: rgba(124, 111, 255, 0.15);
+    border-color: rgba(124, 111, 255, 0.3);
+    color: #a89fff;
+}
