@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .models import Clase, SolicitudClase
+from .models import Clase, SolicitudClase, Anuncio, Leccion
 
 @login_required
 def perfil_docente(request):
@@ -104,3 +104,69 @@ def eliminar_clase(request, clase_id):
     clase.delete()
     messages.success(request, 'Clase eliminada.')
     return redirect('perfil_docente')
+
+@login_required
+def detalle_clase(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    solicitudes = SolicitudClase.objects.filter(clase=clase, estado='pendiente')
+    anuncios = clase.anuncios.all().order_by('-fecha')
+    lecciones = clase.lecciones.all()
+    return render(request, 'detalle_clase.html', {
+        'clase': clase,
+        'solicitudes': solicitudes,
+        'anuncios': anuncios,
+        'lecciones': lecciones,
+    })
+
+@login_required
+def crear_anuncio(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    if request.method == 'POST':
+        texto = request.POST.get('texto', '').strip()
+        if texto:
+            Anuncio.objects.create(clase=clase, texto=texto)
+            messages.success(request, 'Anuncio publicado.')
+    return redirect('detalle_clase', clase_id=clase_id)
+
+@login_required
+def crear_leccion(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        disponible = request.POST.get('disponible') == 'on'
+        orden = clase.lecciones.count() + 1
+        if titulo:
+            Leccion.objects.create(
+                clase=clase,
+                titulo=titulo,
+                descripcion=descripcion,
+                disponible=disponible,
+                orden=orden
+            )
+            messages.success(request, 'Lección agregada.')
+    return redirect('detalle_clase', clase_id=clase_id)
+
+@login_required
+def eliminar_leccion(request, clase_id, leccion_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    leccion = get_object_or_404(Leccion, id=leccion_id, clase__docente=request.user)
+    leccion.delete()
+    messages.success(request, 'Lección eliminada.')
+    return redirect('detalle_clase', clase_id=clase_id)
+
+@login_required
+def eliminar_anuncio(request, clase_id, anuncio_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    anuncio = get_object_or_404(Anuncio, id=anuncio_id, clase__docente=request.user)
+    anuncio.delete()
+    messages.success(request, 'Anuncio eliminado.')
+    return redirect('detalle_clase', clase_id=clase_id)

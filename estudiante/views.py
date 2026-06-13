@@ -68,3 +68,10 @@ def explorar_clases(request):
         'clases': clases,
         'solicitudes_enviadas': solicitudes_enviadas,
     })
+
+@login_required
+def detalle_clase_estudiante(request, clase_id):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+    clase = get_object_or_404(Clase, id=clase_id, estudiantes=request.user)
+    return render(request, 'detalle_clase_estudiante.html', {'clase': clase})

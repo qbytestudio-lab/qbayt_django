@@ -6,21 +6,84 @@
 
 {% block content %}
 
-<div class="welcome-banner">
+  <div class="welcome-banner">
     <div class="welcome-text">
-        <h2>Mis Clases 📚</h2>
-        <p>Revisa tus próximas sesiones.</p>
+      <h2>Mis Clases 📚</h2>
+      <p>Clases en las que estás inscrito.</p>
     </div>
-</div>
+  </div>
 
-<div class="stat-card mb-3">
-    <h4>Clase de Piano</h4>
-    <p>Lunes - 8:00 AM</p>
-</div>
+  {% if clases %}
+  <div class="row g-4 mt-2">
+    {% for clase in clases %}
+    <div class="col-md-4">
+      <div style="
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        overflow: hidden;
+        transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      " onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='rgba(124,111,255,0.35)';this.style.boxShadow='0 12px 40px rgba(124,111,255,0.12)'"
+         onmouseout="this.style.transform='';this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow=''">
 
-<div class="stat-card">
-    <h4>Entrenamiento Auditivo</h4>
-    <p>Miércoles - 10:00 AM</p>
-</div>
+        <!-- Banner de la clase -->
+        <div style="
+          background: linear-gradient(135deg, rgba(124,111,255,0.3), rgba(176,111,255,0.2));
+          padding: 2rem 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 140px;
+          position: relative;
+        ">
+          <i class="bi bi-music-note-beamed" style="font-size: 3.5rem; color: rgba(255,255,255,0.15); position:absolute;"></i>
+          <i class="bi bi-camera-video-fill" style="font-size: 2rem; color: #a89fff; position:relative; z-index:1;"></i>
+        </div>
+
+        <!-- Info -->
+        <div style="padding: 1.25rem; flex:1; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Inscrito</span>
+          </div>
+          <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{ clase.nombre }}</h3>
+          {% if clase.descripcion %}
+          <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:0.75rem; flex:1;">{{ clase.descripcion }}</p>
+          {% endif %}
+          <div style="display:flex; gap:1rem; margin-bottom:1rem; font-size:0.78rem; color:rgba(255,255,255,0.4);">
+            <span><i class="bi bi-person me-1"></i>{{ clase.docente.get_full_name|default:clase.docente.username }}</span>
+            <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</span>
+          </div>
+          <div style="display:flex; gap:0.5rem; margin-top:auto;">
+            <a href="{% url 'detalle_clase_estudiante' clase.id %}" style="
+              flex:1; background:linear-gradient(135deg,#7c6fff,#b06fff);
+              border:none; color:#fff; font-weight:600; font-size:0.85rem;
+              padding:0.6rem; border-radius:9px; text-align:center;
+              text-decoration:none; display:block; transition:opacity 0.2s;
+            ">
+              <i class="bi bi-play-fill me-1"></i> Ver clase
+            </a>
+            <a href="{% url 'salir_clase' clase.id %}"
+               onclick="return confirm('¿Salir de {{ clase.nombre }}?')"
+               style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
+              <i class="bi bi-box-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <i class="bi bi-camera-video-off" style="font-size:3rem; color:rgba(255,255,255,0.15); display:block; margin-bottom:1rem;"></i>
+    <p style="color:rgba(255,255,255,0.4);">No estás inscrito en ninguna clase aún.</p>
+    <a href="{% url 'explorar_clases' %}" style="color:#7c6fff; font-size:0.875rem;">
+      <i class="bi bi-compass me-1"></i> Explorar clases disponibles
+    </a>
+  </div>
+  {% endif %}
 
 {% endblock %}

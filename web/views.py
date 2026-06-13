@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required
+from docente.models import Clase, SolicitudClase
 
 def index(request):
     return render(request, 'web/index.html')
@@ -109,3 +110,8 @@ def progreso(request):
 
 def configuracion(request):
     return render(request, 'web/configuracion.html')
+
+@login_required
+def mis_clases(request):
+    clases = request.user.clases_estudiante.all()
+    return render(request, 'web/mis_clases.html', {'clases': clases})

@@ -35,3 +35,26 @@ class SolicitudClase(models.Model):
 
     def __str__(self):
         return f"{self.estudiante.username} → {self.clase.nombre} ({self.estado})"
+    
+
+class Anuncio(models.Model):
+    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='anuncios')
+    texto = models.TextField()
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Anuncio en {self.clase.nombre}"
+
+
+class Leccion(models.Model):
+    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='lecciones')
+    titulo = models.CharField(max_length=100)
+    descripcion = models.CharField(max_length=200, blank=True)
+    orden = models.PositiveIntegerField(default=1)
+    disponible = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return f"{self.orden}. {self.titulo}"
