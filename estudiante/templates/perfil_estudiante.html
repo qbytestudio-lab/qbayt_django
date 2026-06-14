@@ -1,0 +1,362 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Mi Perfil — QBYT{% endblock %}
+{% block page_title %}Mi Perfil{% endblock %}
+{% block nav_perfil %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+<link rel="stylesheet" href="{% static 'estudiante/css/perfil_estudiante.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{% if messages %}
+<div class="container mt-3"
+  style="position:absolute; top:70px; left:50%; transform:translateX(-50%); z-index:1050; max-width:500px;">
+  {% for message in messages %}
+  <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<section class="profile-hero">
+  <div class="profile-glow"></div>
+  <div class="container">
+    <div class="profile-header">
+      <div class="avatar-ring">
+        <div class="avatar-inner"><i class="bi bi-person-fill"></i></div>
+      </div>
+      <div class="profile-info">
+        <span class="role-badge"><i class="bi bi-person-arms-up me-1"></i> Estudiante</span>
+        <h1>{{ request.user.get_full_name }}</h1>
+        <p class="profile-meta">
+          <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
+          <span class="sep">·</span>
+          <i class="bi bi-calendar3 me-1"></i>Miembro desde {{ request.user.date_joined|date:"M Y" }}
+        </p>
+      </div>
+      <a href="#" class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#modalEditar">
+        <i class="bi bi-pencil me-1"></i> Editar perfil
+      </a>
+    </div>
+    <div class="quick-stats">
+      <div class="stat-pill"><i class="bi bi-book"></i><span class="stat-val">4</span><span
+          class="stat-lbl">Cursos</span></div>
+      <div class="stat-pill"><i class="bi bi-trophy"></i><span class="stat-val">12</span><span
+          class="stat-lbl">Logros</span></div>
+      <div class="stat-pill"><i class="bi bi-lightning-charge"></i><span class="stat-val">68%</span><span
+          class="stat-lbl">Progreso</span></div>
+      <div class="stat-pill"><i class="bi bi-alarm"></i><span class="stat-val">3</span><span
+          class="stat-lbl">Pendientes</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="profile-tabs-bar">
+  <div class="container">
+    <ul class="profile-tabs" id="profileTabs">
+      <li><a class="ptab active" data-tab="datos"><i class="bi bi-person me-1"></i>Datos personales</a></li>
+      <li><a class="ptab" data-tab="cursos"><i class="bi bi-journal-richtext me-1"></i>Mis cursos</a></li>
+      <li><a class="ptab" data-tab="clases"><i class="bi bi-camera-video me-1"></i>Mis clases</a></li>
+      <li><a class="ptab" data-tab="progreso"><i class="bi bi-bar-chart-line me-1"></i>Progreso</a></li>
+      <li><a class="ptab" data-tab="pendientes"><i class="bi bi-hourglass-split me-1"></i>Pendientes</a></li>
+    </ul>
+  </div>
+</div>
+
+<main class="profile-body">
+  <div class="container">
+
+    <div class="tab-pane active" id="tab-datos">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-person-vcard me-2"></i>Información personal</h2>
+          <a href="#" class="btn-link-accent" data-bs-toggle="modal" data-bs-target="#modalEditar"><i
+              class="bi bi-pencil me-1"></i>Editar</a>
+        </div>
+        <div class="info-grid">
+          <div class="info-field"><span class="info-label">Nombre</span><span class="info-value">{{
+              request.user.first_name|default:"—" }}</span></div>
+          <div class="info-field"><span class="info-label">Apellido</span><span class="info-value">{{
+              request.user.last_name|default:"—" }}</span></div>
+          <div class="info-field"><span class="info-label">Usuario</span><span class="info-value">@{{
+              request.user.username }}</span></div>
+          <div class="info-field"><span class="info-label">Correo electrónico</span><span class="info-value">{{
+              request.user.email }}</span></div>
+          <div class="info-field"><span class="info-label">Rol</span><span class="info-value"><span
+                class="badge-role estudiante">Estudiante</span></span></div>
+          <div class="info-field"><span class="info-label">Miembro desde</span><span class="info-value">{{
+              request.user.date_joined|date:"d \d\e F \d\e Y" }}</span></div>
+          <div class="info-field"><span class="info-label">Último acceso</span><span class="info-value">{{
+              request.user.last_login|date:"d \d\e F, H:i" }}</span></div>
+        </div>
+        <div class="mt-5 pt-4 border-top border-secondary">
+          <h4 class="text-danger fs-6 mb-2">Zona de Peligro</h4>
+          <p class="text-muted small mb-3">Si eliminas tu cuenta, se borrarán de forma permanente todos tus progresos e
+            historial en la plataforma.</p>
+          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar">
+            <i class="bi bi-trash me-1"></i> Eliminar mi cuenta permanentemente
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-cursos">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-journal-richtext me-2"></i>Cursos inscritos</h2>
+          <a href="#" class="btn-link-accent">Ver catálogo <i class="bi bi-arrow-right ms-1"></i></a>
+        </div>
+        <div class="course-list">
+          <div class="course-item">
+            <div class="course-thumb"><i class="bi bi-ear"></i></div>
+            <div class="course-info">
+              <h3>Entrenamiento auditivo I</h3>
+              <p>Intervalos, escalas y acordes básicos</p>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:72%"></div>
+              </div>
+              <span class="progress-pct">72% completado</span>
+            </div>
+            <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
+          </div>
+          <div class="course-item">
+            <div class="course-thumb"><i class="bi bi-music-note-list"></i></div>
+            <div class="course-info">
+              <h3>Solfeo y lectura musical</h3>
+              <p>Notas, figuras y compases</p>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:45%"></div>
+              </div>
+              <span class="progress-pct">45% completado</span>
+            </div>
+            <a href="#" class="btn-course-action">Continuar <i class="bi bi-play-fill"></i></a>
+          </div>
+          <div class="course-item">
+            <div class="course-thumb"><i class="bi bi-hand-index-thumb"></i></div>
+            <div class="course-info">
+              <h3>Técnica y postura</h3>
+              <p>Bases para tocar sin lesiones</p>
+              <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" style="width:10%"></div>
+              </div>
+              <span class="progress-pct">10% completado</span>
+            </div>
+            <a href="#" class="btn-course-action">Iniciar <i class="bi bi-play-fill"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-clases">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-camera-video me-2"></i>Mis clases</h2>
+          <div class="d-flex gap-2">
+            <a href="{% url 'explorar_clases' %}" class="btn-link-accent"><i class="bi bi-compass me-1"></i> Explorar
+              clases</a>
+            <a href="#" class="btn-link-accent" data-bs-toggle="modal" data-bs-target="#modalUnirse"><i
+                class="bi bi-key me-1"></i> Tengo un código</a>
+          </div>
+        </div>
+        <div class="class-list">
+          {% for clase in clases %}
+          <div class="class-item upcoming">
+            <div class="class-date-block">
+              <span class="class-day">{{ clase.fecha_creacion|date:"d" }}</span>
+              <span class="class-month">{{ clase.fecha_creacion|date:"M" }}</span>
+            </div>
+            <div class="class-details">
+              <h3>{{ clase.nombre }}</h3>
+              <p><i class="bi bi-person me-1"></i>Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}
+                · <i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</p>
+            </div>
+            <a href="{% url 'salir_clase' clase.id %}" class="btn btn-sm btn-outline-danger"
+              onclick="return confirm('¿Salir de esta clase?')">
+              <i class="bi bi-box-arrow-right"></i>
+            </a>
+          </div>
+          {% empty %}
+          <div class="text-center py-4">
+            <i class="bi bi-camera-video-off fs-1" style="color:rgba(255,255,255,0.2)"></i>
+            <p style="color:rgba(255,255,255,0.3); margin-top:0.75rem;">No estás inscrito en ninguna clase aún.</p>
+            <a href="{% url 'explorar_clases' %}" class="btn-link-accent mt-2 d-inline-block">Explorar clases
+              disponibles</a>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-progreso">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-bar-chart-line me-2"></i>Estadísticas de progreso</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><i class="bi bi-fire stat-icon" style="color:#7c6fff"></i><span
+              class="stat-big">14</span><span class="stat-desc">Días de racha</span></div>
+          <div class="stat-card"><i class="bi bi-clock-history stat-icon" style="color:#b06fff"></i><span
+              class="stat-big">32h</span><span class="stat-desc">Tiempo total</span></div>
+          <div class="stat-card"><i class="bi bi-check2-circle stat-icon" style="color:#50dc8c"></i><span
+              class="stat-big">48</span><span class="stat-desc">Ejercicios hechos</span></div>
+          <div class="stat-card"><i class="bi bi-star-fill stat-icon" style="color:#ffcc55"></i><span
+              class="stat-big">91%</span><span class="stat-desc">Precisión media</span></div>
+        </div>
+        <div class="progress-courses">
+          <h3 class="subsection-title">Progreso por curso</h3>
+          <div class="prog-row"><span class="prog-label">Entrenamiento auditivo I</span>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:72%"></div>
+            </div><span class="prog-num">72%</span>
+          </div>
+          <div class="prog-row"><span class="prog-label">Solfeo y lectura musical</span>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:45%"></div>
+            </div><span class="prog-num">45%</span>
+          </div>
+          <div class="prog-row"><span class="prog-label">Técnica y postura</span>
+            <div class="prog-track">
+              <div class="prog-fill" style="width:10%"></div>
+            </div><span class="prog-num">10%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-pane" id="tab-pendientes">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-hourglass-split me-2"></i>Ejercicios pendientes</h2>
+        </div>
+        <div class="pending-list">
+          <div class="pending-item">
+            <div class="pending-icon urgent"><i class="bi bi-exclamation-circle"></i></div>
+            <div class="pending-info">
+              <h3>Quiz: Intervalos mayores y menores</h3>
+              <p>Entrenamiento auditivo I · Vence <strong>hoy</strong></p>
+            </div>
+            <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+          </div>
+          <div class="pending-item">
+            <div class="pending-icon"><i class="bi bi-music-note"></i></div>
+            <div class="pending-info">
+              <h3>Dictado rítmico — nivel 2</h3>
+              <p>Solfeo y lectura musical · Vence en 2 días</p>
+            </div>
+            <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+          </div>
+          <div class="pending-item">
+            <div class="pending-icon"><i class="bi bi-keyboard"></i></div>
+            <div class="pending-info">
+              <h3>Ejercicio de escalas — Teclado mágico</h3>
+              <p>Técnica y postura · Vence en 5 días</p>
+            </div>
+            <a href="#" class="btn-do-it">Hacer ahora <i class="bi bi-arrow-right"></i></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- Modal Editar -->
+<div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Actualizar mis Datos</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'editar_perfil' %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3"><label class="form-label small">Nombre de Usuario</label><input type="text"
+              class="form-control" name="username" value="{{ request.user.username }}" required></div>
+          <div class="mb-3"><label class="form-label small">Nombre</label><input type="text" class="form-control"
+              name="first_name" value="{{ request.user.first_name }}"></div>
+          <div class="mb-3"><label class="form-label small">Apellido</label><input type="text" class="form-control"
+              name="last_name" value="{{ request.user.last_name }}"></div>
+          <div class="mb-3"><label class="form-label small">Correo Electrónico</label><input type="email"
+              class="form-control" name="email" value="{{ request.user.email }}" required></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Eliminar -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger text-dark">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>¿Confirmar eliminación?</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p>Esta acción es irreversible. Se destruirán todos tus registros de la plataforma.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, cancelar</button>
+        <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger btn-sm">Sí, borrar de verdad</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Unirse con código -->
+<div class="modal fade" id="modalUnirse" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-dark">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-key me-2"></i>Unirse a una clase</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'unirse_clase' %}" method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <p class="text-muted small">Ingresa el código que te dio tu docente.</p>
+          <input type="text" class="form-control text-uppercase" name="codigo" placeholder="Ej: AB3X9K2M" maxlength="8"
+            required style="letter-spacing:0.2em; font-weight:600; font-size:1.1rem;">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Unirme</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<footer class="footer mt-5">
+  <div class="container">
+    <hr class="footer-divider">
+    <p class="text-center">&copy; 2026 QBYT. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.ptab').forEach(tab => {
+    tab.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+</script>
+{% endblock %}

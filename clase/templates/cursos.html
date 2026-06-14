@@ -1,0 +1,40 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Cursos - QBYT{% endblock %}
+{% block page_title %}Mis Cursos{% endblock %}
+{% block nav_cursos %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clase/css/curso.css' %}">
+{% endblock %}
+
+{% block content %}
+
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h2>Mis Cursos 🎵</h2>
+      <p>Consulta los cursos en los que estás inscrito.</p>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="course-card">
+        <div class="course-card-body">
+          <h3>Piano Básico</h3>
+          <p>Aprende acordes y melodías fundamentales.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="course-card">
+        <div class="course-card-body">
+          <h3>Teoría Musical</h3>
+          <p>Escalas, intervalos y armonía.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

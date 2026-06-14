@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required
+from docente.models import Clase, SolicitudClase
 
 def index(request):
     return render(request, 'web/index.html')
@@ -16,19 +17,19 @@ def inicio(request):
 def perfil_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
-    return render(request, 'web/perfil_estudiante.html')
+    return render(request, 'perfil_estudiante.html')
 
 @login_required
 def perfil_docente(request):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
-    return render(request, 'web/perfil_docente.html')
+    return render(request, 'perfil_docente.html')
 
 @login_required
 def perfil_administrador(request):
     if request.user.perfil.rol != 'administrador':
         return redirect('inicio')
-    return render(request, 'web/perfil_admin.html')
+    return render(request, 'perfil_admin.html')
 
 def registro(request):
     if request.method == 'POST':
@@ -99,7 +100,7 @@ def eliminar_perfil(request):
     return redirect('index')
 
 def cursos(request):
-    return render(request, 'web/cursos.html')
+    return render(request, 'cursos.html')
 
 def mis_clases(request):
     return render(request, 'web/mis_clases.html')
@@ -109,3 +110,8 @@ def progreso(request):
 
 def configuracion(request):
     return render(request, 'web/configuracion.html')
+
+@login_required
+def mis_clases(request):
+    clases = request.user.clases_estudiante.all()
+    return render(request, 'web/mis_clases.html', {'clases': clases})
