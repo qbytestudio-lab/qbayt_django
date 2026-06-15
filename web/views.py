@@ -108,8 +108,8 @@ def mis_clases(request):
 def progreso(request):
     return render(request, 'web/progreso.html')
 
-def configuracion(request):
-    return render(request, 'web/configuracion.html')
+def certificados(request):
+    return render(request, 'web/certificados.html')
 
 @login_required
 def mis_clases(request):

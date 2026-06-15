@@ -58,3 +58,105 @@ class Leccion(models.Model):
 
     def __str__(self):
         return f"{self.orden}. {self.titulo}"
+    
+class Actividad(models.Model):
+    TIPO_CHOICES = [
+        ('texto', 'Texto / Lectura'),
+        ('quiz', 'Quiz de selección múltiple'),
+    ]
+    leccion = models.ForeignKey(Leccion, on_delete=models.CASCADE, related_name='actividades')
+    titulo = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='texto')
+    contenido = models.TextField(blank=True)  # para tipo texto
+    imagen = models.ImageField(upload_to='actividades/', blank=True, null=True)
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.titulo
+
+
+class Pregunta(models.Model):
+    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE, related_name='preguntas')
+    texto = models.CharField(max_length=300)
+    imagen = models.ImageField(upload_to='preguntas/', blank=True, null=True)
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.texto
+
+
+class Opcion(models.Model):
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='opciones')
+    texto = models.CharField(max_length=200)
+    es_correcta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.texto
+
+
+class RespuestaEstudiante(models.Model):
+    estudiante = models.ForeignKey(User, on_delete=models.CASCADE)
+    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
+    opcion = models.ForeignKey(Opcion, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('estudiante', 'pregunta')
+
+class Actividad(models.Model):
+    TIPO_CHOICES = [
+        ('texto', 'Texto / Lectura'),
+        ('quiz', 'Quiz de selección múltiple'),
+    ]
+    leccion = models.ForeignKey(Leccion, on_delete=models.CASCADE, related_name='actividades')
+    titulo = models.CharField(max_length=100)
+    tipo = models.CharField(max_length=10, choices=TIPO_CHOICES, default='texto')
+    contenido = models.TextField(blank=True)  # para tipo texto
+    imagen = models.ImageField(upload_to='actividades/', blank=True, null=True)
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.titulo
+
+
+class Pregunta(models.Model):
+    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE, related_name='preguntas')
+    texto = models.CharField(max_length=300)
+    imagen = models.ImageField(upload_to='preguntas/', blank=True, null=True)
+    orden = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        ordering = ['orden']
+
+    def __str__(self):
+        return self.texto
+
+
+class Opcion(models.Model):
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE, related_name='opciones')
+    texto = models.CharField(max_length=200)
+    es_correcta = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.texto
+
+
+class RespuestaEstudiante(models.Model):
+    estudiante = models.ForeignKey(User, on_delete=models.CASCADE)
+    actividad = models.ForeignKey(Actividad, on_delete=models.CASCADE)
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
+    opcion = models.ForeignKey(Opcion, on_delete=models.CASCADE)
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('estudiante', 'pregunta')

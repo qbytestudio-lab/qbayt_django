@@ -1,304 +1,324 @@
- 
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{ clase.nombre }} — QBYT</title>
-  <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
-  <link rel="stylesheet" href="{% static 'docente/css/detalle.css' %}">
-  <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ clase.nombre }} — QBYT</title>
+    <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
+    <link rel="stylesheet" href="{% static 'docente/css/detalle.css' %}">
+    <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
 
-{% if messages %}
-<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
-  {% for message in messages %}
-  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-<!-- TOPBAR -->
-<header class="topbar">
-  <div class="container topbar-content">
-    <a href="{% url 'index' %}" class="logo-area">
-      <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
-      <h2 class="logo-text">QBYT</h2>
-    </a>
-    <div class="auth-buttons">
-      <a href="{% url 'perfil_docente' %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
-      <a href="{% url 'logout' %}" class="btn-login"><i class="bi bi-box-arrow-right me-1"></i> Salir</a>
-    </div>
-  </div>
-</header>
-
-<!-- HEADER CLASE -->
-<div class="detail-header">
-  <div class="container">
-    <a href="{% url 'perfil_docente' %}" class="back-btn">
-      <i class="bi bi-arrow-left"></i> Volver a mis clases
-    </a>
-    <h1 class="clase-title">{{ clase.nombre }}</h1>
-    {% if clase.descripcion %}<p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>{% endif %}
-    <div class="clase-meta mb-3">
-      <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
-      <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
-    </div>
-    <div class="d-flex align-items-center gap-3 flex-wrap">
-      <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
-        <i class="bi bi-key"></i> {{ clase.codigo }}
-        <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
-      </div>
-      <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código con tus estudiantes</span>
-    </div>
-  </div>
-</div>
-
-<!-- CONTENT -->
-<div class="content-area">
-  <div class="container">
-    <div class="row g-4">
-
-      <!-- COLUMNA IZQUIERDA -->
-      <div class="col-lg-5">
-
-        <!-- SOLICITUDES PENDIENTES -->
-        <div class="card-section mb-4">
-          <h3>
-            <i class="bi bi-bell-fill" style="color:#ff9f43"></i>
-            Solicitudes pendientes
-            {% if solicitudes %}<span class="count-pill">{{ solicitudes.count }}</span>{% endif %}
-          </h3>
-          {% if solicitudes %}
-            {% for sol in solicitudes %}
-            <div class="solicitud-row">
-              <div class="student-avatar">{{ sol.estudiante.username|first|upper }}</div>
-              <div class="solicitud-info">
-                <strong>{{ sol.estudiante.username }}</strong>
-                <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
-              </div>
-              <div class="d-flex gap-2">
-                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i></a>
-                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
-              </div>
-            </div>
-            {% endfor %}
-          {% else %}
-          <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
-          {% endif %}
+    {% if messages %}
+    <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-        <!-- AGREGAR POR USERNAME -->
-        <div class="card-section mb-4">
-          <h3><i class="bi bi-person-plus" style="color:#7c6fff"></i> Agregar directamente</h3>
-          <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
-            {% csrf_token %}
-            <div class="input-group">
-              <input type="text" class="form-control" name="username" placeholder="Usuario del estudiante" required
-                style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
-              <button type="submit" class="btn-agregar">Agregar</button>
-            </div>
-          </form>
-        </div>
-
-        <!-- LISTA DE ESTUDIANTES -->
-        <div class="card-section">
-          <h3>
-            <i class="bi bi-people" style="color:#7c6fff"></i>
-            Estudiantes inscritos
-            <span class="count-pill">{{ clase.estudiantes.count }}</span>
-          </h3>
-          <div class="search-bar">
-            <i class="bi bi-search"></i>
-            <input type="text" placeholder="Buscar estudiante..." id="searchInput">
-          </div>
-          {% if clase.estudiantes.all %}
-            {% for estudiante in clase.estudiantes.all %}
-            <div class="student-row">
-              <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
-              <div class="student-info">
-                <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
-                <p>@{{ estudiante.username }} · {{ estudiante.email }}</p>
-              </div>
-              <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft"
-                onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
-                <i class="bi bi-person-dash"></i> Remover
-              </a>
-            </div>
-            {% endfor %}
-          {% else %}
-          <p class="empty-msg"><i class="bi bi-people me-2"></i>No hay estudiantes inscritos aún</p>
-          {% endif %}
-        </div>
-
-      </div>
-
-      <!-- COLUMNA DERECHA -->
-      <div class="col-lg-7">
-
-        <!-- CONTENIDO / LECCIONES -->
-        <div class="card-section mb-4">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-              <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
-            </h3>
-            <button data-bs-toggle="modal" data-bs-target="#modalLeccion"
-              style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-              <i class="bi bi-plus-lg me-1"></i> Añadir lección
-            </button>
-          </div>
-
-          {% for leccion in lecciones %}
-          <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem; border-radius:10px;
-            background:{% if leccion.disponible %}rgba(124,111,255,0.08){% else %}rgba(255,255,255,0.03){% endif %};
-            border:1px solid {% if leccion.disponible %}rgba(124,111,255,0.15){% else %}rgba(255,255,255,0.06){% endif %};
-            margin-bottom:0.75rem;">
-            <div style="width:36px; height:36px;
-              background:{% if leccion.disponible %}linear-gradient(135deg,#7c6fff,#b06fff){% else %}rgba(255,255,255,0.08){% endif %};
-              border-radius:50%; display:flex; align-items:center; justify-content:center;
-              font-size:0.85rem; font-weight:700; flex-shrink:0;
-              color:{% if not leccion.disponible %}rgba(255,255,255,0.4){% endif %};">
-              {{ leccion.orden }}
-            </div>
-            <div style="flex:1;">
-              <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">{{ leccion.titulo }}</div>
-              {% if leccion.descripcion %}<div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{ leccion.descripcion }}</div>{% endif %}
-            </div>
-            {% if leccion.disponible %}
-            <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
-            {% else %}
-            <span style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
-            {% endif %}
-            <a href="{% url 'eliminar_leccion' clase.id leccion.id %}"
-               onclick="return confirm('¿Eliminar esta lección?')"
-               style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
-              <i class="bi bi-trash"></i>
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="container topbar-content">
+            <a href="{% url 'index' %}" class="logo-area">
+                <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
+                <h2 class="logo-text">QBYT</h2>
             </a>
-          </div>
-          {% empty %}
-          <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay lecciones aún. ¡Agrega la primera!</p>
-          {% endfor %}
-        </div>
-
-        <!-- ANUNCIOS -->
-        <div class="card-section">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-              <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
-            </h3>
-            <button data-bs-toggle="modal" data-bs-target="#modalAnuncio"
-              style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-              <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
-            </button>
-          </div>
-
-          {% for anuncio in anuncios %}
-          <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-              <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-                {{ clase.docente.username|first|upper }}
-              </div>
-              <div>
-                <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-              </div>
-              <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
-                 onclick="return confirm('¿Eliminar anuncio?')"
-                 style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
-                <i class="bi bi-trash"></i>
-              </a>
+            <div class="auth-buttons">
+                <a href="{% url 'perfil_docente' %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
+                <a href="{% url 'logout' %}" class="btn-login"><i class="bi bi-box-arrow-right me-1"></i> Salir</a>
             </div>
-            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
-          </div>
-          {% empty %}
-          <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
-          {% endfor %}
         </div>
+    </header>
 
-      </div>
+    <!-- HEADER CLASE -->
+    <div class="detail-header">
+        <div class="container">
+            <a href="{% url 'perfil_docente' %}" class="back-btn">
+                <i class="bi bi-arrow-left"></i> Volver a mis clases
+            </a>
+            <h1 class="clase-title">{{ clase.nombre }}</h1>
+            {% if clase.descripcion %}<p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion
+                }}</p>{% endif %}
+            <div class="clase-meta mb-3">
+                <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
+                <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
+                    <i class="bi bi-key"></i> {{ clase.codigo }}
+                    <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
+                </div>
+                <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código con tus
+                    estudiantes</span>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
-<!-- Modal Nueva Lección -->
-<div class="modal fade" id="modalLeccion" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Lección</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{% url 'crear_leccion' clase.id %}" method="POST">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label small">Título <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="titulo" placeholder="Ej: Introducción a la clase" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small">Descripción (opcional)</label>
-            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción del contenido">
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
-            <label class="form-check-label small" for="disponible">Disponible para estudiantes</label>
-          </div>
+    <!-- CONTENT -->
+    <div class="content-area">
+        <div class="container">
+            <div class="row g-4">
+
+                <!-- COLUMNA IZQUIERDA -->
+                <div class="col-lg-5">
+
+                    <!-- SOLICITUDES PENDIENTES -->
+                    <div class="card-section mb-4">
+                        <h3>
+                            <i class="bi bi-bell-fill" style="color:#ff9f43"></i>
+                            Solicitudes pendientes
+                            {% if solicitudes %}<span class="count-pill">{{ solicitudes.count }}</span>{% endif %}
+                        </h3>
+                        {% if solicitudes %}
+                        {% for sol in solicitudes %}
+                        <div class="solicitud-row">
+                            <div class="student-avatar">{{ sol.estudiante.username|first|upper }}</div>
+                            <div class="solicitud-info">
+                                <strong>{{ sol.estudiante.username }}</strong>
+                                <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i
+                                        class="bi bi-check-lg"></i></a>
+                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i
+                                        class="bi bi-x-lg"></i></a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
+                        {% endif %}
+                    </div>
+
+                    <!-- AGREGAR POR USERNAME -->
+                    <div class="card-section mb-4">
+                        <h3><i class="bi bi-person-plus" style="color:#7c6fff"></i> Agregar directamente</h3>
+                        <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
+                            {% csrf_token %}
+                            <div class="input-group">
+                                <input type="text" class="form-control" name="username"
+                                    placeholder="Usuario del estudiante" required
+                                    style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
+                                <button type="submit" class="btn-agregar">Agregar</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- LISTA DE ESTUDIANTES -->
+                    <div class="card-section">
+                        <h3>
+                            <i class="bi bi-people" style="color:#7c6fff"></i>
+                            Estudiantes inscritos
+                            <span class="count-pill">{{ clase.estudiantes.count }}</span>
+                        </h3>
+                        <div class="search-bar">
+                            <i class="bi bi-search"></i>
+                            <input type="text" placeholder="Buscar estudiante..." id="searchInput">
+                        </div>
+                        {% if clase.estudiantes.all %}
+                        {% for estudiante in clase.estudiantes.all %}
+                        <div class="student-row">
+                            <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
+                            <div class="student-info">
+                                <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
+                                <p>@{{ estudiante.username }} · {{ estudiante.email }}</p>
+                            </div>
+                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}"
+                                class="btn-danger-soft"
+                                onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
+                                <i class="bi bi-person-dash"></i> Remover
+                            </a>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="empty-msg"><i class="bi bi-people me-2"></i>No hay estudiantes inscritos aún</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <!-- COLUMNA DERECHA -->
+                <div class="col-lg-7">
+
+                    <!-- CONTENIDO / LECCIONES -->
+                    <div class="card-section mb-4">
+                        <div
+                            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+                                <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
+                            </h3>
+                            <button data-bs-toggle="modal" data-bs-target="#modalLeccion"
+                                style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                                <i class="bi bi-plus-lg me-1"></i> Añadir lección
+                            </button>
+                        </div>
+
+                        {% for leccion in lecciones %}
+                        <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">
+                            <a href="{% url 'detalle_leccion' clase.id leccion.id %}"
+                                style="color:#eae8f5; text-decoration:none;">
+                                {{ leccion.titulo }}
+                            </a>
+                        </div>
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">{{ leccion.titulo }}
+                            </div>
+                            {% if leccion.descripcion %}<div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{
+                                leccion.descripcion }}</div>{% endif %}
+                        </div>
+                        {% if leccion.disponible %}
+                        <span
+                            style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
+                        {% else %}
+                        <span
+                            style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
+                        {% endif %}
+                        <a href="{% url 'eliminar_leccion' clase.id leccion.id %}"
+                            onclick="return confirm('¿Eliminar esta lección?')"
+                            style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No
+                        hay lecciones aún. ¡Agrega la primera!</p>
+                    {% endfor %}
+                </div>
+
+                <!-- ANUNCIOS -->
+                <div class="card-section">
+                    <div
+                        style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                        <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+                            <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
+                        </h3>
+                        <button data-bs-toggle="modal" data-bs-target="#modalAnuncio"
+                            style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                            <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
+                        </button>
+                    </div>
+
+                    {% for anuncio in anuncios %}
+                    <div
+                        style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
+                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                            <div
+                                style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
+                                {{ clase.docente.username|first|upper }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600; font-size:0.85rem;">{{
+                                    clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ anuncio.fecha|date:"d M
+                                    Y, H:i" }}</div>
+                            </div>
+                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
+                                onclick="return confirm('¿Eliminar anuncio?')"
+                                style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{
+                            anuncio.texto }}</p>
+                    </div>
+                    {% empty %}
+                    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No
+                        hay anuncios aún.</p>
+                    {% endfor %}
+                </div>
+
+            </div>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary btn-sm">Agregar lección</button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
-
-<!-- Modal Nuevo Anuncio -->
-<div class="modal fade" id="modalAnuncio" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-megaphone me-2"></i>Publicar Anuncio</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{% url 'crear_anuncio' clase.id %}" method="POST">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label small">Mensaje <span class="text-danger">*</span></label>
-            <textarea class="form-control" name="texto" rows="4"
-              placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-warning btn-sm">Publicar</button>
-        </div>
-      </form>
     </div>
-  </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  function copiarCodigo() {
-    navigator.clipboard.writeText('{{ clase.codigo }}');
-    alert('Código copiado: {{ clase.codigo }}');
-  }
-  document.getElementById('searchInput').addEventListener('input', function() {
-    const q = this.value.toLowerCase();
-    document.querySelectorAll('.student-row').forEach(row => {
-      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-  });
-</script>
+    <!-- Modal Nueva Lección -->
+    <div class="modal fade" id="modalLeccion" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Lección</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'crear_leccion' clase.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small">Título <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="titulo"
+                                placeholder="Ej: Introducción a la clase" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Descripción (opcional)</label>
+                            <input type="text" class="form-control" name="descripcion"
+                                placeholder="Breve descripción del contenido">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
+                            <label class="form-check-label small" for="disponible">Disponible para estudiantes</label>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Agregar lección</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Anuncio -->
+    <div class="modal fade" id="modalAnuncio" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-megaphone me-2"></i>Publicar Anuncio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'crear_anuncio' clase.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small">Mensaje <span class="text-danger">*</span></label>
+                            <textarea class="form-control" name="texto" rows="4"
+                                placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-warning btn-sm">Publicar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function copiarCodigo() {
+            navigator.clipboard.writeText('{{ clase.codigo }}');
+            alert('Código copiado: {{ clase.codigo }}');
+        }
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.student-row').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+    </script>
 </body>
+
 </html>

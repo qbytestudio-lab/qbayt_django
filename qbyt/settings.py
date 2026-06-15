@@ -135,3 +135,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 LOGIN_URL = '/ingreso/'
 LOGIN_REDIRECT_URL = '/inicio/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
