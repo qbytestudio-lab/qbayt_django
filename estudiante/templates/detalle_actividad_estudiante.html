@@ -1,0 +1,180 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ actividad.titulo }} — QBYT{% endblock %}
+{% block page_title %}{{ actividad.titulo }}{% endblock %}
+{% block nav_clases %}active{% endblock %}
+
+{% block content %}
+
+{% if ya_respondio %}
+<!-- ── RESULTADOS ── -->
+<div style="margin-bottom:2rem;">
+  <a href="{% url 'detalle_clase_estudiante' clase.id %}" style="color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.85rem;">
+    <i class="bi bi-arrow-left me-1"></i> Volver a la clase
+  </a>
+</div>
+
+<!-- BANNER RESULTADO -->
+<div style="
+  background:{% if puntaje >= 70 %}rgba(80,220,140,0.1){% else %}rgba(255,80,80,0.08){% endif %};
+  border:1px solid {% if puntaje >= 70 %}rgba(80,220,140,0.25){% else %}rgba(255,80,80,0.2){% endif %};
+  border-radius:20px; padding:2rem; text-align:center; margin-bottom:2rem;
+">
+  <div style="font-size:3.5rem; margin-bottom:0.5rem;">
+    {% if puntaje >= 70 %}🎉{% elif puntaje >= 50 %}😊{% else %}📚{% endif %}
+  </div>
+  <h2 style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; margin-bottom:0.5rem;">
+    {% if puntaje >= 70 %}¡Excelente trabajo!{% elif puntaje >= 50 %}¡Buen intento!{% else %}Sigue practicando{% endif %}
+  </h2>
+  <p style="color:rgba(255,255,255,0.5); margin-bottom:1.5rem;">{{ actividad.titulo }}</p>
+  <div style="display:inline-flex; align-items:center; gap:2rem; background:rgba(255,255,255,0.05); border-radius:14px; padding:1rem 2rem; flex-wrap:wrap; justify-content:center;">
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:2.5rem; color:{% if puntaje >= 70 %}#50dc8c{% else %}#ff9f43{% endif %};">{{ puntaje }}%</div>
+      <div style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Puntaje</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:2.5rem; color:#50dc8c;">{{ correctas }}</div>
+      <div style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Correctas</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:2.5rem; color:#ff6b6b;">{{ incorrectas }}</div>
+      <div style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Incorrectas</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:2.5rem; color:rgba(255,255,255,0.6);">{{ total }}</div>
+      <div style="color:rgba(255,255,255,0.4); font-size:0.8rem;">Total</div>
+    </div>
+  </div>
+</div>
+
+<!-- REVISIÓN DE PREGUNTAS -->
+<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
+  <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
+    <i class="bi bi-clipboard-check" style="color:#7c6fff"></i> Revisión detallada
+  </h3>
+
+  {% for item in revision %}
+  <div style="background:{% if item.es_correcta %}rgba(80,220,140,0.07){% else %}rgba(255,80,80,0.07){% endif %}; border:1px solid {% if item.es_correcta %}rgba(80,220,140,0.2){% else %}rgba(255,80,80,0.2){% endif %}; border-radius:14px; padding:1.25rem; margin-bottom:1rem;">
+
+    <div style="display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:1rem;">
+      <div style="width:32px; height:32px; border-radius:50%; background:{% if item.es_correcta %}rgba(80,220,140,0.2){% else %}rgba(255,80,80,0.2){% endif %}; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+        {% if item.es_correcta %}
+        <i class="bi bi-check-lg" style="color:#50dc8c;"></i>
+        {% else %}
+        <i class="bi bi-x-lg" style="color:#ff6b6b;"></i>
+        {% endif %}
+      </div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:0.25rem;">{{ item.pregunta.texto }}</div>
+        {% if item.pregunta.imagen %}
+        <img src="{{ item.pregunta.imagen.url }}" class="img-fluid rounded mb-2" style="max-height:150px;">
+        {% endif %}
+      </div>
+    </div>
+
+    {% for opcion in item.pregunta.opciones.all %}
+    <div style="display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0.85rem; border-radius:8px; margin-bottom:0.35rem;
+      background:{% if opcion.es_correcta %}rgba(80,220,140,0.1){% elif opcion == item.respuesta and not opcion.es_correcta %}rgba(255,80,80,0.1){% else %}rgba(255,255,255,0.03){% endif %};
+      border:1px solid {% if opcion.es_correcta %}rgba(80,220,140,0.25){% elif opcion == item.respuesta and not opcion.es_correcta %}rgba(255,80,80,0.2){% else %}rgba(255,255,255,0.06){% endif %};">
+      {% if opcion.es_correcta %}
+      <i class="bi bi-check-circle-fill" style="color:#50dc8c; flex-shrink:0;"></i>
+      {% elif opcion == item.respuesta and not opcion.es_correcta %}
+      <i class="bi bi-x-circle-fill" style="color:#ff6b6b; flex-shrink:0;"></i>
+      {% else %}
+      <i class="bi bi-circle" style="opacity:0.2; flex-shrink:0;"></i>
+      {% endif %}
+      <span style="font-size:0.875rem; color:{% if opcion.es_correcta %}#50dc8c{% elif opcion == item.respuesta and not opcion.es_correcta %}#ff6b6b{% else %}rgba(255,255,255,0.6){% endif %};">
+        {{ opcion.texto }}
+      </span>
+      {% if opcion == item.respuesta and not opcion.es_correcta %}
+      <span style="margin-left:auto; font-size:0.7rem; color:#ff6b6b; font-weight:600;">Tu respuesta</span>
+      {% elif opcion.es_correcta %}
+      <span style="margin-left:auto; font-size:0.7rem; color:#50dc8c; font-weight:600;">Correcta</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+<!-- ── FORMULARIO DEL QUIZ ── -->
+<div style="margin-bottom:2rem;">
+  <a href="{% url 'detalle_clase_estudiante' clase.id %}" style="color:rgba(255,255,255,0.4); text-decoration:none; font-size:0.85rem;">
+    <i class="bi bi-arrow-left me-1"></i> Volver a la clase
+  </a>
+</div>
+
+{% if actividad.tipo == 'texto' %}
+<!-- CONTENIDO TEXTO -->
+<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:2rem; margin-bottom:1.5rem;">
+  <h2 style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.4rem; margin-bottom:1.5rem;">{{ actividad.titulo }}</h2>
+  {% if actividad.imagen %}
+  <img src="{{ actividad.imagen.url }}" class="img-fluid rounded mb-3" style="max-height:300px; object-fit:cover; width:100%; border:1px solid rgba(255,255,255,0.1);">
+  {% endif %}
+  <p style="color:rgba(255,255,255,0.75); line-height:1.9; font-size:1rem;">{{ actividad.contenido }}</p>
+</div>
+
+{% elif actividad.tipo == 'quiz' %}
+<!-- QUIZ -->
+{% if actividad.imagen %}
+<div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; text-align:center;">
+  <p style="color:rgba(255,255,255,0.4); font-size:0.8rem; margin-bottom:0.75rem;"><i class="bi bi-image me-1"></i>Imagen de referencia</p>
+  <img src="{{ actividad.imagen.url }}" class="img-fluid rounded" style="max-height:300px; object-fit:contain; border:1px solid rgba(255,255,255,0.1);">
+</div>
+{% endif %}
+
+<form action="{% url 'responder_actividad' actividad.id %}" method="POST">
+  {% csrf_token %}
+
+  {% for pregunta in actividad.preguntas.all %}
+  <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1rem;">
+    <div style="display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:1.25rem;">
+      <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0;">
+        {{ pregunta.orden }}
+      </div>
+      <div>
+        <div style="font-weight:600; font-size:0.95rem;">{{ pregunta.texto }}</div>
+        {% if pregunta.imagen %}
+        <img src="{{ pregunta.imagen.url }}" class="img-fluid rounded mt-2" style="max-height:200px; object-fit:cover; border:1px solid rgba(255,255,255,0.1);">
+        {% endif %}
+      </div>
+    </div>
+
+    {% for opcion in pregunta.opciones.all %}
+    <label style="display:flex; align-items:center; gap:0.75rem; padding:0.65rem 1rem; border-radius:10px; margin-bottom:0.4rem; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); cursor:pointer; transition:border-color 0.2s;" class="opcion-label">
+      <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required style="accent-color:#7c6fff; width:16px; height:16px; flex-shrink:0;">
+      <span style="font-size:0.875rem; color:rgba(255,255,255,0.8);">{{ opcion.texto }}</span>
+    </label>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  <div style="text-align:center; margin-top:1.5rem;">
+    <button type="submit" style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; padding:0.85rem 3rem; border-radius:12px; cursor:pointer; transition:opacity 0.2s;">
+      <i class="bi bi-send-fill me-2"></i> Enviar respuestas
+    </button>
+  </div>
+</form>
+{% endif %}
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.querySelectorAll('.opcion-label').forEach(label => {
+    label.addEventListener('click', function() {
+      const name = this.querySelector('input').name;
+      document.querySelectorAll(`input[name="${name}"]`).forEach(inp => {
+        inp.closest('label').style.borderColor = 'rgba(255,255,255,0.08)';
+        inp.closest('label').style.background = 'rgba(255,255,255,0.04)';
+      });
+      this.style.borderColor = 'rgba(124,111,255,0.4)';
+      this.style.background = 'rgba(124,111,255,0.08)';
+    });
+  });
+</script>
+{% endblock %}

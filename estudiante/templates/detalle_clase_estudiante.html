@@ -1,3 +1,5 @@
+
+
 {% extends 'web/base.html' %}
 {% load static %}
 
@@ -11,137 +13,185 @@
 
 {% block content %}
 
-  <!-- HEADER DE LA CLASE -->
+  <!-- HEADER CON BANNER -->
   <div style="
-    background: linear-gradient(135deg, rgba(124,111,255,0.15), rgba(176,111,255,0.08));
-    border: 1px solid rgba(124,111,255,0.2);
-    border-radius: 20px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
+    border:1px solid rgba(124,111,255,0.2); border-radius:20px;
+    padding:0; margin-bottom:2rem;
+    position:relative; overflow:hidden; min-height:180px;
+    {% if clase.imagen %}
+      background-image: url('{{ clase.imagen.url }}');
+      background-size: cover;
+      background-position: center;
+    {% else %}
+      background: linear-gradient(135deg, rgba(124,111,255,0.2), rgba(176,111,255,0.1));
+    {% endif %}
   ">
-    <div>
-      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-        <div style="width:48px; height:48px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-          <i class="bi bi-camera-video-fill"></i>
+    <!-- OVERLAY -->
+    <div style="position:absolute; inset:0; background:rgba(8,8,20,0.65); border-radius:20px; z-index:0;"></div>
+
+    <!-- CONTENIDO -->
+    <div style="position:relative; z-index:1; padding:2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+      <div>
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <div style="width:48px; height:48px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
+            <i class="bi bi-camera-video-fill"></i>
+          </div>
+          <span style="background:rgba(124,111,255,0.3); color:#c4baff; font-size:0.75rem; font-weight:600; padding:0.25rem 0.75rem; border-radius:100px; border:1px solid rgba(124,111,255,0.4); backdrop-filter:blur(8px);">
+            <i class="bi bi-check-circle me-1"></i> Inscrito
+          </span>
         </div>
-        <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.75rem; font-weight:600; padding:0.25rem 0.75rem; border-radius:100px; border:1px solid rgba(124,111,255,0.25);">
-          <i class="bi bi-check-circle me-1"></i> Inscrito
-        </span>
+        <h1 style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.5);">{{ clase.nombre }}</h1>
+        {% if clase.descripcion %}
+        <p style="color:rgba(255,255,255,0.7); margin-bottom:0.75rem; text-shadow:0 1px 4px rgba(0,0,0,0.5);">{{ clase.descripcion }}</p>
+        {% endif %}
+        <div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.82rem; color:rgba(255,255,255,0.65);">
+          <span><i class="bi bi-mortarboard me-1"></i>Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}</span>
+          <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</span>
+          <span><i class="bi bi-calendar3 me-1"></i>Desde {{ clase.fecha_creacion|date:"d M Y" }}</span>
+        </div>
       </div>
-      <h1 style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; margin-bottom:0.5rem;">{{ clase.nombre }}</h1>
-      {% if clase.descripcion %}
-      <p style="color:rgba(255,255,255,0.5); margin-bottom:0.75rem;">{{ clase.descripcion }}</p>
-      {% endif %}
-      <div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.82rem; color:rgba(255,255,255,0.45);">
-        <span><i class="bi bi-mortarboard me-1"></i>Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}</span>
-        <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</span>
-        <span><i class="bi bi-calendar3 me-1"></i>Desde {{ clase.fecha_creacion|date:"d M Y" }}</span>
-      </div>
+      <a href="{% url 'salir_clase' clase.id %}"
+         onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
+         style="background:rgba(255,80,80,0.2); border:1px solid rgba(255,80,80,0.35); color:#ff8080; font-size:0.85rem; font-weight:600; padding:0.65rem 1.25rem; border-radius:10px; text-decoration:none; display:flex; align-items:center; gap:0.5rem; backdrop-filter:blur(8px); transition:background 0.2s;">
+        <i class="bi bi-box-arrow-right"></i> Salir de la clase
+      </a>
     </div>
-    <a href="{% url 'salir_clase' clase.id %}"
-       onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
-       style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; font-weight:600; padding:0.65rem 1.25rem; border-radius:10px; text-decoration:none; display:flex; align-items:center; gap:0.5rem; transition:background 0.2s;">
-      <i class="bi bi-box-arrow-right"></i> Salir de la clase
-    </a>
   </div>
 
   <div class="row g-4">
 
-    <!-- COLUMNA IZQUIERDA: CONTENIDO -->
+    <!-- LECCIONES Y ACTIVIDADES -->
     <div class="col-lg-8">
 
-      <!-- LECCIONES / CONTENIDO -->
+      <!-- ANUNCIOS -->
+      {% if clase.anuncios.all %}
       <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
-        </h3>
-
-        <!-- Lección 1 -->
-        <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem; border-radius:10px; background:rgba(124,111,255,0.08); border:1px solid rgba(124,111,255,0.15); margin-bottom:0.75rem;">
-          <div style="width:36px; height:36px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; flex-shrink:0;">1</div>
-          <div style="flex:1;">
-            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">Introducción a la clase</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">Bienvenida y objetivos del curso</div>
-          </div>
-          <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
-        </div>
-
-        <!-- Lección 2 -->
-        <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); margin-bottom:0.75rem;">
-          <div style="width:36px; height:36px; background:rgba(255,255,255,0.08); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; flex-shrink:0; color:rgba(255,255,255,0.4);">2</div>
-          <div style="flex:1;">
-            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">Material de estudio</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">Recursos y ejercicios de práctica</div>
-          </div>
-          <span style="background:rgba(255,159,67,0.12); color:#ff9f43; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Próximamente</span>
-        </div>
-
-        <!-- Lección 3 -->
-        <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem; border-radius:10px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);">
-          <div style="width:36px; height:36px; background:rgba(255,255,255,0.08); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; flex-shrink:0; color:rgba(255,255,255,0.4);">3</div>
-          <div style="flex:1;">
-            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">Evaluación final</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">Quiz y actividades de cierre</div>
-          </div>
-          <span style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
-        </div>
-
-      </div>
-
-      <!-- ANUNCIOS DEL DOCENTE -->
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
         <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
           <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios del docente
         </h3>
-        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
+        {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
+        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
+          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
             <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
               {{ clase.docente.username|first|upper }}
             </div>
             <div>
               <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-              <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ clase.fecha_creacion|date:"d M Y" }}</div>
+              <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
             </div>
           </div>
-          <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">
-            ¡Bienvenidos a <strong>{{ clase.nombre }}</strong>! Estamos listos para comenzar. Revisa el material de la primera lección y cualquier duda puedes consultarla en la próxima sesión.
-          </p>
+          <p style="color:rgba(255,255,255,0.6); font-size:0.875rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
         </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- LECCIONES -->
+      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
+        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
+          <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
+        </h3>
+
+        {% for leccion in clase.lecciones.all %}
+        <div style="background:rgba(255,255,255,0.03); border:1px solid {% if leccion.disponible %}rgba(124,111,255,0.15){% else %}rgba(255,255,255,0.06){% endif %}; border-radius:14px; margin-bottom:1rem; overflow:hidden;">
+
+          <div style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem; background:{% if leccion.disponible %}rgba(124,111,255,0.08){% else %}rgba(255,255,255,0.02){% endif %};">
+            <div style="width:36px; height:36px; background:{% if leccion.disponible %}linear-gradient(135deg,#7c6fff,#b06fff){% else %}rgba(255,255,255,0.08){% endif %}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; flex-shrink:0; color:{% if not leccion.disponible %}rgba(255,255,255,0.3){% endif %};">
+              {{ leccion.orden }}
+            </div>
+            <div style="flex:1;">
+              <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; color:{% if leccion.disponible %}#eae8f5{% else %}rgba(255,255,255,0.35){% endif %};">{{ leccion.titulo }}</div>
+              {% if leccion.descripcion %}
+              <div style="font-size:0.75rem; color:rgba(255,255,255,0.35);">{{ leccion.descripcion }}</div>
+              {% endif %}
+            </div>
+            {% if leccion.disponible %}
+            <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">Disponible</span>
+            {% else %}
+            <i class="bi bi-lock" style="color:rgba(255,255,255,0.2); flex-shrink:0;"></i>
+            {% endif %}
+          </div>
+
+          {% if leccion.disponible and leccion.actividades.all %}
+          <div style="padding:0.75rem 1.25rem;">
+            {% for act in leccion.actividades.all %}
+            <a href="{% url 'detalle_actividad_estudiante' act.id %}" style="
+              display:flex; align-items:center; gap:0.85rem;
+              padding:0.75rem 0.85rem; border-radius:10px; margin-bottom:0.4rem;
+              background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
+              text-decoration:none; color:#eae8f5;
+              transition:border-color 0.2s, background 0.2s;
+            " onmouseover="this.style.borderColor='rgba(124,111,255,0.3)';this.style.background='rgba(124,111,255,0.06)'"
+               onmouseout="this.style.borderColor='rgba(255,255,255,0.06)';this.style.background='rgba(255,255,255,0.03)'">
+              <div style="width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; background:{% if act.tipo == 'quiz' %}rgba(80,220,140,0.12){% else %}rgba(124,111,255,0.12){% endif %}; color:{% if act.tipo == 'quiz' %}#50dc8c{% else %}#a89fff{% endif %};">
+                {% if act.tipo == 'quiz' %}
+                <i class="bi bi-patch-question-fill"></i>
+                {% else %}
+                <i class="bi bi-file-text-fill"></i>
+                {% endif %}
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:0.875rem; font-weight:600; margin-bottom:0.1rem;">{{ act.titulo }}</div>
+                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">
+                  {{ act.get_tipo_display }}{% if act.tipo == 'quiz' %} · {{ act.preguntas.count }} preguntas{% endif %}
+                </div>
+              </div>
+              {% if act.id in completadas %}
+              <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">
+                <i class="bi bi-check-lg me-1"></i>Completado
+              </span>
+              {% else %}
+              <span style="background:rgba(124,111,255,0.1); color:#a89fff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">
+                Pendiente
+              </span>
+              {% endif %}
+              <i class="bi bi-chevron-right" style="color:rgba(255,255,255,0.2); flex-shrink:0;"></i>
+            </a>
+            {% endfor %}
+          </div>
+          {% elif leccion.disponible %}
+          <div style="padding:0.75rem 1.25rem; font-size:0.8rem; color:rgba(255,255,255,0.25);">
+            <i class="bi bi-inbox me-1"></i> Sin actividades aún
+          </div>
+          {% endif %}
+
+        </div>
+        {% empty %}
+        <div style="text-align:center; padding:2rem 0; color:rgba(255,255,255,0.25);">
+          <i class="bi bi-collection" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
+          <p>El docente aún no ha agregado contenido.</p>
+        </div>
+        {% endfor %}
       </div>
 
     </div>
 
-    <!-- COLUMNA DERECHA: INFO -->
+    <!-- COLUMNA DERECHA -->
     <div class="col-lg-4">
 
       <!-- COMPAÑEROS -->
       <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
         <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
           <i class="bi bi-people" style="color:#7c6fff"></i> Compañeros
-          <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.72rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:100px; margin-left:auto;">{{ clase.estudiantes.count }}</span>
+          <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:100px; margin-left:auto;">{{ clase.estudiantes.count }}</span>
         </h3>
         {% for estudiante in clase.estudiantes.all %}
         <div style="display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
           <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0;">
             {{ estudiante.username|first|upper }}
           </div>
-          <div>
+          <div style="flex:1;">
             <div style="font-size:0.85rem; font-weight:500;">{{ estudiante.get_full_name|default:estudiante.username }}</div>
             <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">@{{ estudiante.username }}</div>
           </div>
           {% if estudiante == request.user %}
-          <span style="margin-left:auto; font-size:0.65rem; color:#a89fff; font-weight:600;">Tú</span>
+          <span style="font-size:0.65rem; color:#a89fff; font-weight:600;">Tú</span>
           {% endif %}
         </div>
         {% endfor %}
       </div>
 
-      <!-- INFO DEL DOCENTE -->
+      <!-- DOCENTE -->
       <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
         <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
           <i class="bi bi-mortarboard" style="color:#b06fff"></i> Docente
@@ -161,3 +211,7 @@
   </div>
 
 {% endblock %}
+
+
+
+

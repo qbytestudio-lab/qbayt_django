@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from docente.models import Clase, SolicitudClase
+from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
 
 @login_required
 def perfil_estudiante(request):
@@ -74,4 +74,87 @@ def detalle_clase_estudiante(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
     clase = get_object_or_404(Clase, id=clase_id, estudiantes=request.user)
-    return render(request, 'detalle_clase_estudiante.html', {'clase': clase})
+      # IDs de actividades ya completadas por el estudiante
+    completadas = RespuestaEstudiante.objects.filter(
+        estudiante=request.user,
+        actividad__leccion__clase=clase
+    ).values_list('actividad_id', flat=True).distinct()
+
+    return render(request, 'detalle_clase_estudiante.html', {
+        'clase': clase,
+        'completadas': list(completadas),
+    })
+
+@login_required
+def detalle_actividad_estudiante(request, actividad_id):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+    actividad = get_object_or_404(Actividad, id=actividad_id)
+    clase = actividad.leccion.clase
+
+    # Verificar que el estudiante está en la clase
+    if request.user not in clase.estudiantes.all():
+        return redirect('inicio')
+
+    ya_respondio = RespuestaEstudiante.objects.filter(
+        estudiante=request.user, actividad=actividad
+    ).exists()
+
+    revision = []
+    correctas = incorrectas = total = puntaje = 0
+
+    if ya_respondio:
+        respuestas = RespuestaEstudiante.objects.filter(
+            estudiante=request.user, actividad=actividad
+        ).select_related('pregunta', 'opcion')
+        total = respuestas.count()
+        for resp in respuestas:
+            es_correcta = resp.opcion.es_correcta
+            if es_correcta:
+                correctas += 1
+            else:
+                incorrectas += 1
+            revision.append({
+                'pregunta': resp.pregunta,
+                'respuesta': resp.opcion,
+                'es_correcta': es_correcta,
+            })
+        puntaje = round((correctas / total) * 100) if total > 0 else 0
+
+    return render(request, 'detalle_actividad_estudiante.html', {
+        'actividad': actividad,
+        'clase': clase,
+        'ya_respondio': ya_respondio,
+        'revision': revision,
+        'correctas': correctas,
+        'incorrectas': incorrectas,
+        'total': total,
+        'puntaje': puntaje,
+    })
+
+
+@login_required
+def responder_actividad(request, actividad_id):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+    actividad = get_object_or_404(Actividad, id=actividad_id)
+    clase = actividad.leccion.clase
+
+    if request.user not in clase.estudiantes.all():
+        return redirect('inicio')
+
+    if request.method == 'POST':
+        preguntas = actividad.preguntas.all()
+        for pregunta in preguntas:
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_id:
+                opcion = get_object_or_404(Opcion, id=opcion_id, pregunta=pregunta)
+                RespuestaEstudiante.objects.get_or_create(
+                    estudiante=request.user,
+                    actividad=actividad,
+                    pregunta=pregunta,
+                    defaults={'opcion': opcion}
+                )
+        messages.success(request, '¡Respuestas enviadas!')
+
+    return redirect('detalle_actividad_estudiante', actividad_id=actividad_id)
