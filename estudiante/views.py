@@ -9,7 +9,9 @@ def perfil_estudiante(request):
         return redirect('inicio')
     clases = request.user.clases_estudiante.all()
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
-    return render(request, 'perfil_estudiante.html', {
+    
+    # Se agrega el prefijo 'estudiante/' antes del nombre del archivo
+    return render(request, 'estudiante/perfil_estudiante.html', {
         'clases': clases,
         'solicitudes': solicitudes,
     })
@@ -64,7 +66,7 @@ def explorar_clases(request):
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=request.user
     ).values_list('clase_id', flat=True)
-    return render(request, 'explorar_clases.html', {
+    return render(request, 'estudiante/explorar_clases.html', {
         'clases': clases,
         'solicitudes_enviadas': solicitudes_enviadas,
     })
