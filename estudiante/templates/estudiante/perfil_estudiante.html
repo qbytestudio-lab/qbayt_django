@@ -80,20 +80,13 @@
               class="bi bi-pencil me-1"></i>Editar</a>
         </div>
         <div class="info-grid">
-          <div class="info-field"><span class="info-label">Nombre</span><span class="info-value">{{
-              request.user.first_name|default:"—" }}</span></div>
-          <div class="info-field"><span class="info-label">Apellido</span><span class="info-value">{{
-              request.user.last_name|default:"—" }}</span></div>
-          <div class="info-field"><span class="info-label">Usuario</span><span class="info-value">@{{
-              request.user.username }}</span></div>
-          <div class="info-field"><span class="info-label">Correo electrónico</span><span class="info-value">{{
-              request.user.email }}</span></div>
-          <div class="info-field"><span class="info-label">Rol</span><span class="info-value"><span
-                class="badge-role estudiante">Estudiante</span></span></div>
-          <div class="info-field"><span class="info-label">Miembro desde</span><span class="info-value">{{
-              request.user.date_joined|date:"d \d\e F \d\e Y" }}</span></div>
-          <div class="info-field"><span class="info-label">Último acceso</span><span class="info-value">{{
-              request.user.last_login|date:"d \d\e F, H:i" }}</span></div>
+          <div class="info-field"><span class="info-label">Nombre</span><span class="info-value">{{ request.user.first_name|default:"—" }}</span></div>
+          <div class="info-field"><span class="info-label">Apellido</span><span class="info-value">{{ request.user.last_name|default:"—" }}</span></div>
+          <div class="info-field"><span class="info-label">Usuario</span><span class="info-value">@{{ request.user.username }}</span></div>
+          <div class="info-field"><span class="info-label">Correo electrónico</span><span class="info-value">{{ request.user.email }}</span></div>
+          <div class="info-field"><span class="info-label">Rol</span><span class="info-value"><span class="badge-role estudiante">Estudiante</span></span></div>
+          <div class="info-field"><span class="info-label">Miembro desde</span><span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span></div>
+          <div class="info-field"><span class="info-label">Último acceso</span><span class="info-value">{{ request.user.last_login|date:"d \d\e F, H:i" }}</span></div>
         </div>
         <div class="mt-5 pt-4 border-top border-secondary">
           <h4 class="text-danger fs-6 mb-2">Zona de Peligro</h4>

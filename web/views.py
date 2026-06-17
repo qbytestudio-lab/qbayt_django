@@ -13,11 +13,7 @@ def index(request):
 def inicio(request):
     return render(request, 'web/inicio.html')
 
-@login_required
-def perfil_estudiante(request):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    return render(request, 'perfil_estudiante.html')
+
 
 @login_required
 def perfil_docente(request):
@@ -79,18 +75,23 @@ def logout_view(request):
 def editar_perfil(request):
     if request.method == 'POST':
         usuario = request.user
-        # Capturamos los datos que el usuario edite en el formulario
         usuario.username = request.POST.get('username')
         usuario.email = request.POST.get('email')
         usuario.first_name = request.POST.get('first_name')
         usuario.last_name = request.POST.get('last_name')
-        usuario.save() # Se guarda directo en MySQL
+        usuario.save() # Guarda los cambios en MySQL
         
         messages.success(request, '¡Tu perfil ha sido actualizado correctamente!')
-        return redirect('inicio')
+        
+        # Redirección inteligente según el rol del usuario que edita
+        if usuario.perfil.rol == 'estudiante':
+            return redirect('perfil_estudiante')
+        elif usuario.perfil.rol == 'docente':
+            return redirect('perfil_docente')
+        else:
+            return redirect('perfil_administrador')
         
     return redirect('inicio')
-
 @login_required
 def eliminar_perfil(request):
     usuario = request.user

@@ -2,7 +2,8 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('perfil/', views.perfil_estudiante, name='perfil_estudiante'),
+    # Al dejarlo vacío '', se combina con 'perfil/estudiante/' de la app web
+    path('', views.perfil_estudiante, name='perfil_estudiante'),
     path('unirse-clase/', views.unirse_clase, name='unirse_clase'),
     path('solicitar-clase/', views.solicitar_clase, name='solicitar_clase'),
     path('salir-clase/<int:clase_id>/', views.salir_clase, name='salir_clase'),
