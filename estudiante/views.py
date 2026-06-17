@@ -9,6 +9,8 @@ def perfil_estudiante(request):
         return redirect('inicio')
     clases = request.user.clases_estudiante.all()
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
+    
+    # Se agrega el prefijo 'estudiante/' antes del nombre del archivo
     return render(request, 'perfil_estudiante.html', {
         'clases': clases,
         'solicitudes': solicitudes,
@@ -29,7 +31,7 @@ def unirse_clase(request):
                 messages.success(request, f'¡Te uniste a "{clase.nombre}"!')
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
-    return redirect('perfil_estudiante')
+    return redirect('estudiante/perfil_estudiante')
 
 @login_required
 def solicitar_clase(request):

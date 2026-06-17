@@ -14,18 +14,6 @@ def inicio(request):
     return render(request, 'web/inicio.html')
 
 @login_required
-def perfil_estudiante(request):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    return render(request, 'perfil_estudiante.html')
-
-@login_required
-def perfil_docente(request):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    return render(request, 'perfil_docente.html')
-
-@login_required
 def perfil_administrador(request):
     if request.user.perfil.rol != 'administrador':
         return redirect('inicio')
