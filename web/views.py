@@ -88,7 +88,7 @@ def eliminar_perfil(request):
     return redirect('index')
 
 def cursos(request):
-    return render(request, 'cursos.html')
+    return render(request, 'clase/cursos.html')
 
 def mis_clases(request):
     return render(request, 'web/mis_clases.html')
