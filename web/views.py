@@ -21,6 +21,8 @@ def perfil_administrador(request):
 
 def registro(request):
     if request.method == 'POST':
+        first_name = request.POST ['first_name']
+        last_name = request.POST['last_name']
         username = request.POST['username']
         email = request.POST['email']
         password1 = request.POST['password1']
@@ -35,7 +37,8 @@ def registro(request):
             messages.error(request, 'El usuario ya existe.')
             return redirect('registro')
 
-        user = User.objects.create_user(username=username, email=email, password=password1)
+        user = User.objects.create_user(username=username, email=email, password=password1, first_name=first_name,
+    last_name=last_name)
         user.save()
         Perfil.objects.create(user=user, rol=rol)
         messages.success(request, '¡Cuenta creada! Inicia sesión.')

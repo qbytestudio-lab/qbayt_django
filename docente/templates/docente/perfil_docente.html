@@ -32,7 +32,7 @@
         </div>
         <div class="profile-info">
           <span class="role-badge docente"><i class="bi bi-mortarboard me-1"></i> Docente</span>
-          <h1>{{ request.user.get_full_name }}</h1>
+          <h1>{{ request.user.username }}</h1>
           <p class="profile-meta">
             <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
             <span class="sep">·</span>
