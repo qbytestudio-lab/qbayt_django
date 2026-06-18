@@ -5,13 +5,28 @@ from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required
 from docente.models import Clase, SolicitudClase
+from .models import Curso
 
 def index(request):
     return render(request, 'web/index.html')
 
 @login_required
 def inicio(request):
-    return render(request, 'web/inicio.html')
+    # Traemos todos los cursos de la base de datos
+    cursos = Curso.objects.all()
+    
+    # También puedes separarlos por categoría desde aquí si lo prefieres:
+    cursos_teoria = Curso.objects.filter(categoria='teoria')
+    cursos_auditivo = Curso.objects.filter(categoria='auditivo')
+    cursos_instrumento = Curso.objects.filter(categoria='instrumento')
+
+    context = {
+        'cursos_teoria': cursos_teoria,
+        'cursos_auditivo': cursos_auditivo,
+        'cursos_instrumento': cursos_instrumento,
+    }
+    return render(request, 'web/inicio.html', context)
+
 
 @login_required
 def perfil_administrador(request):
