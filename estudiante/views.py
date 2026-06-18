@@ -66,7 +66,7 @@ def explorar_clases(request):
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=request.user
     ).values_list('clase_id', flat=True)
-    return render(request, 'explorar_clases.html', {
+    return render(request, 'estudiante/explorar_clases.html', {
         'clases': clases,
         'solicitudes_enviadas': solicitudes_enviadas,
     })
