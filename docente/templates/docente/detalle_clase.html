@@ -50,12 +50,15 @@
                 <i class="bi bi-arrow-left"></i> Volver a mis clases
             </a>
             <h1 class="clase-title">{{ clase.nombre }}</h1>
-            {% if clase.descripcion %}<p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion
-                }}</p>{% endif %}
-            <div class="clase-meta mb-3">
-                <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
-                <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
-            </div>
+
+{% if clase.descripcion %}
+    <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
+{% endif %}
+
+<div class="clase-meta mb-3">
+    <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
+    <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
+</div>
             <div class="d-flex align-items-center gap-3 flex-wrap">
                 <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key"></i> {{ clase.codigo }}
@@ -199,46 +202,39 @@
                 </div>
 
                 <!-- ANUNCIOS -->
+                
                 <div class="card-section">
-                    <div
-                        style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
                         <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                             <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
                         </h3>
                         <button data-bs-toggle="modal" data-bs-target="#modalAnuncio"
-                            style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                            <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
-                        </button>
-                    </div>
-
-                    {% for anuncio in anuncios %}
-                    <div
-                        style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-                        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-                            <div
-                                style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-                                {{ clase.docente.username|first|upper }}
-                            </div>
-                            <div>
-                                <div style="font-weight:600; font-size:0.85rem;">{{
-                                    clase.docente.get_full_name|default:clase.docente.username }}</div>
-                                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ anuncio.fecha|date:"d M
-                                    Y, H:i" }}</div>
-                            </div>
-                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
-                                onclick="return confirm('¿Eliminar anuncio?')"
-                                style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{
-                            anuncio.texto }}</p>
-                    </div>
-                    {% empty %}
-                    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No
-                        hay anuncios aún.</p>
-                    {% endfor %}
+                        style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                        <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
+                    </button>
                 </div>
+                {% for anuncio in anuncios %}
+                <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
+                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                        <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
+                {{ clase.docente.username|first|upper }}
+            </div>
+            <div>
+                <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)" >{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+            </div>
+            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
+                onclick="return confirm('¿Eliminar anuncio?')"
+                style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
+                <i class="bi bi-trash"></i>
+            </a>
+        </div>
+        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
+    </div>
+    {% empty %}
+    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
+    {% endfor %}
+</div>
 
             </div>
         </div>

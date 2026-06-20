@@ -6,6 +6,7 @@
 
 {% block content %}
 
+  <!-- BANNER DE BIENVENIDA (Fijo / Dinámico por usuario) -->
   <div class="welcome-banner">
     <div class="welcome-text">
       <h2>¡Bienvenido, {{ request.user.username }}! 👋</h2>
@@ -20,6 +21,7 @@
     {% endif %}
   </div>
 
+  <!-- ESTADÍSTICAS (Fijas por ahora) -->
   <div class="row g-3 mb-4">
     <div class="col-md-3">
       <div class="stat-card">
@@ -47,117 +49,202 @@
     </div>
   </div>
 
+
+  <!-- ========================================================== -->
+  <!-- SECCIÓN 1: TEORÍA MUSICAL (Dinámica desde el Admin)        -->
+  <!-- ========================================================== -->
   <div id="cursos" class="section-title mt-4"><i class="bi bi-music-note-list" style="color:var(--accent)"></i> Teoría Musical</div>
   <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i class="bi bi-clock"></i> 4h</span></div>
-          <h3>Sol y Mi</h3>
-          <p>Aprende a reconocer notas básicas en el pentagrama con ejercicios progresivos.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+    {% for curso in cursos_teoria %}
+      <!-- Card Cliqueable -->
+      <div class="col-md-4">
+        <div class="course-card position-relative h-100 shadow-sm content-hover">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
+            </div>
+            <h3>{{ curso.titulo }}</h3>
+            <p>{{ curso.descripcion|truncatewords:15 }}</p>
+            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=600" alt="Ritmo">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i class="bi bi-clock"></i> 3h</span></div>
-          <h3>Ritmo y Compás</h3>
-          <p>Entiende los compases, figuras rítmicas y cómo marcar el tiempo correctamente.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+
+      <!-- Ventana emergente (Modal) con descripción y contenido -->
+      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
+            <div class="position-relative">
+              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
+              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
+              <h2>{{ curso.titulo }}</h2>
+              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
+              <hr>
+              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
+              
+              <div class="accordion" id="accCurso{{ curso.id }}">
+                {% for modulo in curso.modulos.all %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
+                      {{ modulo.titulo }}
+                    </button>
+                  </h2>
+                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
+                    <div class="accordion-body">{{ modulo.contenido }}</div>
+                  </div>
+                </div>
+                {% empty %}
+                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
+                {% endfor %}
+              </div>
+              <div class="text-end mt-4">
+                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=600" alt="Armonía">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span class="course-dur"><i class="bi bi-clock"></i> 6h</span></div>
-          <h3>Armonía Básica</h3>
-          <p>Construye acordes, progresiones y aprende a armonizar melodías simples.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
-        </div>
-      </div>
-    </div>
+    {% empty %}
+      <div class="col-12"><p class="text-muted">No hay cursos de Teoría Musical disponibles todavía.</p></div>
+    {% endfor %}
   </div>
 
+
+  <!-- ========================================================== -->
+  <!-- SECCIÓN 2: ENTRENAMIENTO AUDITIVO (Dinámica desde el Admin)-->
+  <!-- ========================================================== -->
   <div class="section-title mt-2"><i class="bi bi-ear" style="color:var(--accent2)"></i> Entrenamiento Auditivo</div>
   <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg" alt="Simón Musical">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i class="bi bi-clock"></i> 2h</span></div>
-          <h3>Simón Musical</h3>
-          <p>Pon a prueba tu memoria auditiva con sonidos y ritmos en secuencia.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+    {% for curso in cursos_auditivo %}
+      <div class="col-md-4">
+        <div class="course-card position-relative h-100 shadow-sm content-hover">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
+            </div>
+            <h3>{{ curso.titulo }}</h3>
+            <p>{{ curso.descripcion|truncatewords:15 }}</p>
+            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600" alt="Intervalos">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span class="course-dur"><i class="bi bi-clock"></i> 5h</span></div>
-          <h3>Intervalos al Oído</h3>
-          <p>Reconoce intervalos musicales de forma auditiva con práctica intensiva.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+
+      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
+            <div class="position-relative">
+              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
+              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
+              <h2>{{ curso.titulo }}</h2>
+              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
+              <hr>
+              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
+              
+              <div class="accordion" id="accCurso{{ curso.id }}">
+                {% for modulo in curso.modulos.all %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
+                      {{ modulo.titulo }}
+                    </button>
+                  </h2>
+                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
+                    <div class="accordion-body">{{ modulo.contenido }}</div>
+                  </div>
+                </div>
+                {% empty %}
+                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
+                {% endfor %}
+              </div>
+              <div class="text-end mt-4">
+                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?cb=thfc1falcon&rs=1&pid=ImgDetMain" alt="Dictado">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel avanzado">Avanzado</span><span class="course-dur"><i class="bi bi-clock"></i> 8h</span></div>
-          <h3>Dictado Musical</h3>
-          <p>Transcribe melodías escuchando. El nivel más completo de entrenamiento auditivo.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
-        </div>
-      </div>
-    </div>
+    {% empty %}
+      <div class="col-12"><p class="text-muted">No hay cursos de Entrenamiento Auditivo disponibles todavía.</p></div>
+    {% endfor %}
   </div>
 
+
+  <!-- ========================================================== -->
+  <!-- SECCIÓN 3: INSTRUMENTO (Dinámica desde el Admin)          -->
+  <!-- ========================================================== -->
   <div class="section-title mt-2"><i class="bi bi-music-note-beamed" style="color:#50dc8c"></i> Instrumento</div>
   <div class="row g-4 mb-4">
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel basico">Básico</span><span class="course-dur"><i class="bi bi-clock"></i> 6h</span></div>
-          <h3>Teclado Mágico</h3>
-          <p>Practica melodías y coordinación con ejercicios interactivos de teclado.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+    {% for curso in cursos_instrumento %}
+      <div class="col-md-4">
+        <div class="course-card position-relative h-100 shadow-sm content-hover">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <div class="course-card-body">
+            <div class="course-meta">
+              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
+            </div>
+            <h3>{{ curso.titulo }}</h3>
+            <p>{{ curso.descripcion|truncatewords:15 }}</p>
+            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=600" alt="Guitarra">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel intermedio">Intermedio</span><span class="course-dur"><i class="bi bi-clock"></i> 10h</span></div>
-          <h3>Guitarra Creativa</h3>
-          <p>Domina acordes, escalas y técnicas de guitarra con un enfoque práctico y creativo.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
+
+      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
+            <div class="position-relative">
+              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
+              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
+              <h2>{{ curso.titulo }}</h2>
+              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
+              <hr>
+              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
+              
+              <div class="accordion" id="accCurso{{ curso.id }}">
+                {% for modulo in curso.modulos.all %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
+                      {{ modulo.titulo }}
+                    </button>
+                  </h2>
+                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
+                    <div class="accordion-body">{{ modulo.contenido }}</div>
+                  </div>
+                </div>
+                {% empty %}
+                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
+                {% endfor %}
+              </div>
+              <div class="text-end mt-4">
+                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="col-md-4">
-      <div class="course-card">
-        <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600" alt="Piano">
-        <div class="course-card-body">
-          <div class="course-meta"><span class="badge-nivel avanzado">Avanzado</span><span class="course-dur"><i class="bi bi-clock"></i> 12h</span></div>
-          <h3>Piano Clásico</h3>
-          <p>Técnica avanzada de piano, lectura a primera vista y repertorio clásico seleccionado.</p>
-          <a href="#" class="course-btn"><i class="bi bi-play-fill"></i> Entrar al curso</a>
-        </div>
-      </div>
-    </div>
+    {% empty %}
+      <div class="col-12"><p class="text-muted">No hay cursos de Instrumentos disponibles todavía.</p></div>
+    {% endfor %}
   </div>
 
+
+  <!-- PRÓXIMAS CLASES (Fijo) -->
   <div id="mis-clases" class="section-title mt-2"><i class="bi bi-calendar-week" style="color:#ff9f43"></i> Próximas clases</div>
   <div class="calendario-grid mb-4">
     <div class="clase-card">

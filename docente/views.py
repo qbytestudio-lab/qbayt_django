@@ -14,7 +14,7 @@ def perfil_docente(request):
         clase__docente=request.user,
         estado='pendiente'
     )
-    return render(request, 'perfil_docente.html', {
+    return render(request, 'docente/perfil_docente.html', {
         'clases': clases,
         'total_estudiantes': total_estudiantes,
         'solicitudes_pendientes': solicitudes_pendientes,
@@ -27,13 +27,14 @@ def crear_clase(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
-        if not nombre:
-            messages.error(request, 'El nombre es obligatorio.')
-            return redirect('perfil_docente')
-        Clase.objects.create(nombre=nombre, descripcion=descripcion, docente=request.user)
-        messages.success(request, f'¡Clase "{nombre}" creada!')
-        return redirect('perfil_docente')
-    return redirect('perfil_docente')
+        imagen = request.FILES.get('imagen')
+        if nombre:
+            Clase.objects.create(
+                nombre=nombre, descripcion=descripcion,
+                docente=request.user, imagen=imagen
+            )
+            messages.success(request, 'Clase creada exitosamente.')
+    return redirect('mis_clases')
 
 @login_required
 def agregar_estudiante(request, clase_id):
@@ -113,7 +114,7 @@ def detalle_clase(request, clase_id):
     solicitudes = SolicitudClase.objects.filter(clase=clase, estado='pendiente')
     anuncios = clase.anuncios.all().order_by('-fecha')
     lecciones = clase.lecciones.all()
-    return render(request, 'detalle_clase.html', {
+    return render(request, 'docente/detalle_clase.html', {
         'clase': clase,
         'solicitudes': solicitudes,
         'anuncios': anuncios,
@@ -196,7 +197,7 @@ def detalle_leccion(request, clase_id, leccion_id):
         return redirect('inicio')
     leccion = get_object_or_404(Leccion, id=leccion_id, clase__docente=request.user)
     actividades = leccion.actividades.all()
-    return render(request, 'detalle_leccion.html', {
+    return render(request, 'docente/detalle_leccion.html', {
         'leccion': leccion,
         'actividades': actividades,
         'clase': leccion.clase,
@@ -207,7 +208,7 @@ def detalle_actividad(request, clase_id, leccion_id, actividad_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
     actividad = get_object_or_404(Actividad, id=actividad_id, leccion__clase__docente=request.user)
-    return render(request, 'detalle_actividad_docente.html', {
+    return render(request, 'docente/detalle_actividad_docente.html', {
         'actividad': actividad,
         'leccion': actividad.leccion,
         'clase': actividad.leccion.clase,

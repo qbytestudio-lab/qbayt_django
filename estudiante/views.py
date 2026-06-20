@@ -2,18 +2,55 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
+from docente.utils import calcular_progreso_clase
+
+def calcular_progreso_clase(estudiante, clase):
+    """Devuelve el % de actividades completadas en una clase."""
+    total_actividades = Actividad.objects.filter(leccion__clase=clase).count()
+    if total_actividades == 0:
+        return 0
+    completadas = RespuestaEstudiante.objects.filter(
+        estudiante=estudiante,
+        actividad__leccion__clase=clase
+    ).values('actividad').distinct().count()
+    return round((completadas / total_actividades) * 100)
+
 
 @login_required
 def perfil_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
+
     clases = request.user.clases_estudiante.all()
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
-    
-    # Se agrega el prefijo 'estudiante/' antes del nombre del archivo
+
+    # Progreso por cada clase
+    progreso_clases = []
+    for clase in clases:
+        progreso_clases.append({
+            'clase': clase,
+            'porcentaje': calcular_progreso_clase(request.user, clase)
+        })
+
+    # Progreso general (promedio de todas las clases)
+    if progreso_clases:
+        progreso_general = round(sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases))
+    else:
+        progreso_general = 0
+
+    # Totales reales
+    total_actividades = Actividad.objects.filter(leccion__clase__in=clases).count()
+    ejercicios_hechos = RespuestaEstudiante.objects.filter(
+        estudiante=request.user
+    ).values('actividad').distinct().count()
+
     return render(request, 'estudiante/perfil_estudiante.html', {
         'clases': clases,
         'solicitudes': solicitudes,
+        'progreso_clases': progreso_clases,
+        'progreso_general': progreso_general,
+        'ejercicios_hechos': ejercicios_hechos,
+        'total_actividades': total_actividades,
     })
 
 @login_required
@@ -31,7 +68,7 @@ def unirse_clase(request):
                 messages.success(request, f'¡Te uniste a "{clase.nombre}"!')
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
-    return redirect('perfil_estudiante')
+    return redirect('detalle_clase_estudiante', clase_id=clase.id if 'clase' in locals() else None)
 
 @login_required
 def solicitar_clase(request):
@@ -82,7 +119,7 @@ def detalle_clase_estudiante(request, clase_id):
         actividad__leccion__clase=clase
     ).values_list('actividad_id', flat=True).distinct()
 
-    return render(request, 'detalle_clase_estudiante.html', {
+    return render(request, 'estudiante/detalle_clase_estudiante.html', {
         'clase': clase,
         'completadas': list(completadas),
     })

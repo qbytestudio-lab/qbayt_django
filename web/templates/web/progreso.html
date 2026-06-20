@@ -9,13 +9,80 @@
   <div class="welcome-banner">
     <div class="welcome-text">
       <h2>Mi Progreso 📈</h2>
-      <p>Visualiza tu avance.</p>
+      <p>Visualiza tu avance en cada clase.</p>
     </div>
   </div>
 
-  <div class="stat-card">
-    <h3>Progreso General</h3>
-    <div class="stat-value">68%</div>
+  <!-- RESUMEN GENERAL -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon purple"><i class="bi bi-lightning-charge-fill"></i></div>
+        <div><div class="stat-value">{{ progreso_general }}%</div><div class="stat-label">Progreso general</div></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-check2-circle"></i></div>
+        <div><div class="stat-value">{{ ejercicios_hechos }}</div><div class="stat-label">Ejercicios hechos</div></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-clipboard-x"></i></div>
+        <div><div class="stat-value">{{ pendientes_count }}</div><div class="stat-label">Pendientes</div></div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="stat-card">
+        <div class="stat-icon pink"><i class="bi bi-book"></i></div>
+        <div><div class="stat-value">{{ clases.count }}</div><div class="stat-label">Clases activas</div></div>
+      </div>
+    </div>
   </div>
+
+  <!-- PROGRESO POR CLASE -->
+  <div class="section-title mt-4"><i class="bi bi-bar-chart-line" style="color:var(--accent)"></i> Progreso por clase</div>
+
+  {% if progreso_clases %}
+  <div class="stat-card" style="margin-top:1rem;">
+    {% for item in progreso_clases %}
+    <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem 0; {% if not forloop.last %}border-bottom:1px solid rgba(255,255,255,0.06);{% endif %}">
+      <div style="flex:0 0 180px; font-weight:600; font-size:0.9rem;">{{ item.clase.nombre }}</div>
+      <div style="flex:1; height:8px; background:rgba(255,255,255,0.06); border-radius:100px; overflow:hidden;">
+        <div style="height:100%; width:{{ item.porcentaje }}%; background:linear-gradient(90deg,#7c6fff,#b06fff); border-radius:100px; transition:width 0.4s;"></div>
+      </div>
+      <div style="flex:0 0 50px; text-align:right; font-weight:700; color:#a89fff; font-size:0.9rem;">{{ item.porcentaje }}%</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="stat-card text-center py-4" style="margin-top:1rem;">
+    <i class="bi bi-bar-chart" style="font-size:2.5rem; color:rgba(255,255,255,0.15); display:block; margin-bottom:0.75rem;"></i>
+    <p style="color:rgba(255,255,255,0.35);">No estás inscrito en ninguna clase aún.</p>
+    <a href="{% url 'explorar_clases' %}" style="color:#7c6fff; font-size:0.875rem;">
+      <i class="bi bi-compass me-1"></i> Explorar clases disponibles
+    </a>
+  </div>
+  {% endif %}
+
+  <!-- DETALLE POR ACTIVIDAD COMPLETADA -->
+  {% if actividades_completadas %}
+  <div class="section-title mt-4"><i class="bi bi-clipboard-check" style="color:#50dc8c"></i> Últimas actividades completadas</div>
+  <div class="stat-card" style="margin-top:1rem;">
+    {% for act in actividades_completadas %}
+    <div style="display:flex; align-items:center; gap:1rem; padding:0.85rem 0; {% if not forloop.last %}border-bottom:1px solid rgba(255,255,255,0.06);{% endif %}">
+      <div style="width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1rem; flex-shrink:0; background:{% if act.puntaje >= 70 %}rgba(80,220,140,0.12){% else %}rgba(255,159,67,0.12){% endif %}; color:{% if act.puntaje >= 70 %}#50dc8c{% else %}#ff9f43{% endif %};">
+        <i class="bi bi-patch-question-fill"></i>
+      </div>
+      <div style="flex:1;">
+        <div style="font-weight:600; font-size:0.9rem;">{{ act.titulo }}</div>
+        <div style="font-size:0.78rem; color:rgba(255,255,255,0.4);">{{ act.clase_nombre }}</div>
+      </div>
+      <div style="font-weight:700; font-size:1.1rem; color:{% if act.puntaje >= 70 %}#50dc8c{% else %}#ff9f43{% endif %};">{{ act.puntaje }}%</div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
 {% endblock %}
