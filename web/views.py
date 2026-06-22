@@ -5,7 +5,7 @@ from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required
 from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
-from .models import Curso
+from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
 
 def index(request):
@@ -109,8 +109,32 @@ def eliminar_perfil(request):
     messages.success(request, 'Tu cuenta ha sido eliminada permanentemente.')
     return redirect('index')
 
+@login_required
 def cursos(request):
-    return render(request, 'clase/cursos.html')
+    if request.user.perfil.rol == 'estudiante':
+        inscripciones = InscripcionCurso.objects.filter(estudiante=request.user).select_related('curso')
+        cursos_inscritos_ids = inscripciones.values_list('curso_id', flat=True)
+        catalogo = Curso.objects.exclude(id__in=cursos_inscritos_ids)
+        return render(request, 'clase/cursos.html', {
+            'inscripciones': inscripciones,
+            'catalogo': catalogo,
+        })
+    return render(request, 'clase/cursos.html', {})
+
+
+@login_required
+def agregar_curso(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
+    InscripcionCurso.objects.get_or_create(estudiante=request.user, curso=curso)
+    messages.success(request, f'Te uniste a "{curso.nombre}".')
+    return redirect('cursos')
+
+
+@login_required
+def eliminar_curso(request, curso_id):
+    InscripcionCurso.objects.filter(estudiante=request.user, curso_id=curso_id).delete()
+    messages.success(request, 'Dejaste de seguir el curso.')
+    return redirect('cursos')
 
 
 @login_required

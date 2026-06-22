@@ -7,7 +7,7 @@ class ModuloInline(admin.TabularInline):
 
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
-    list_display = ('titulo', 'categoria', 'nivel', 'duracion_horas')
+    list_display = ('nombre', 'categoria', 'nivel', 'duracion_horas')
     list_filter = ('categoria', 'nivel')
-    search_fields = ('titulo', 'descripcion')
+    search_fields = ('nombre', 'descripcion')
     inlines = [ModuloInline]  # <-- Esto permite meter el contenido adentro del curso

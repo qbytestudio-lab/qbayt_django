@@ -21,23 +21,34 @@ class Curso(models.Model):
         ('intermedio', 'Intermedio'),
         ('avanzado', 'Avanzado'),
     ]
-    
     CATEGORIA_CHOICES = [
         ('teoria', 'Teoría Musical'),
         ('auditivo', 'Entrenamiento Auditivo'),
         ('instrumento', 'Instrumento'),
     ]
-
-    titulo = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    portada = models.ImageField(upload_to='cursos/portadas/', null=True, blank=True)
-    url_portada_respaldo = models.URLField(blank=True, help_text="Por si usas links de Unsplash")
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True)
+    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES)
     nivel = models.CharField(max_length=20, choices=NIVEL_CHOICES, default='basico')
-    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES, default='teoria')
-    duracion_horas = models.IntegerField(default=0)
+    duracion_horas = models.PositiveIntegerField(default=1)
+    imagen_url = models.URLField(blank=True)  # para usar las imágenes que ya tienes
+    icono = models.CharField(max_length=50, default='bi-music-note')
 
     def __str__(self):
-        return self.titulo
+        return self.nombre
+
+
+class InscripcionCurso(models.Model):
+    estudiante = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cursos_inscritos')
+    curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='inscritos')
+    fecha_inscripcion = models.DateTimeField(auto_now_add=True)
+    progreso = models.PositiveIntegerField(default=0)  # % manual o calculado luego
+
+    class Meta:
+        unique_together = ('estudiante', 'curso')
+
+    def __str__(self):
+        return f"{self.estudiante.username} - {self.curso.nombre}"
 
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
