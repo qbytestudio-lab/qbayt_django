@@ -43,32 +43,43 @@
         </div>
     </header>
 
+    
     <!-- HEADER CLASE -->
-    <div class="detail-header">
-        <div class="container">
-            <a href="{% url 'perfil_docente' %}" class="back-btn">
-                <i class="bi bi-arrow-left"></i> Volver a mis clases
-            </a>
-            <h1 class="clase-title">{{ clase.nombre }}</h1>
+<div class="detail-header">
+    <div class="container">
+        <a href="{% url 'perfil_docente' %}" class="back-btn">
+            <i class="bi bi-arrow-left"></i> Volver a mis clases
+        </a>
+        <h1 class="clase-title">{{ clase.nombre }}</h1>
 
-{% if clase.descripcion %}
-    <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
-{% endif %}
+        {% if clase.descripcion %}
+            <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
+        {% endif %}
 
-<div class="clase-meta mb-3">
-    <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
-    <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
-</div>
-            <div class="d-flex align-items-center gap-3 flex-wrap">
-                <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
-                    <i class="bi bi-key"></i> {{ clase.codigo }}
-                    <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
-                </div>
-                <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código con tus
-                    estudiantes</span>
+        <div class="clase-meta mb-3">
+            <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
+            <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
+        </div>
+
+        <!-- ⚡ NUEVOS BOTONES DE ACCIÓN PARA LA CLASE ⚡ -->
+        <div class="d-flex gap-2 mb-4">
+            <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
+                <i class="bi bi-pencil-square me-1"></i> Editar clase
+            </button>
+            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
+                <i class="bi bi-trash me-1"></i> Eliminar clase
+            </button>
+        </div>
+
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
+                <i class="bi bi-key"></i> {{ clase.codigo }}
+                <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
             </div>
+            <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código con tus estudiantes</span>
         </div>
     </div>
+</div>
 
     <!-- CONTENT -->
     <div class="content-area">
@@ -316,5 +327,59 @@
         });
     </script>
 </body>
+<!-- Modal Editar Clase -->
+    <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Información de la Clase</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <!-- Apunta a la vista editar_clase enviando el ID -->
+                <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small">Nombre de la clase <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="nombre" value="{{ clase.nombre }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Descripción</label>
+                            <textarea class="form-control" name="descripcion" rows="3">{{ clase.descripcion }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Imagen de la clase (Opcional)</label>
+                            <input type="file" class="form-control" name="imagen" accept="image/*">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
+    <!-- Modal Eliminar Clase -->
+    <div class="modal fade" id="modalEliminarClase" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger text-dark">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>¿Confirmar eliminación?</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-start">
+                    <p>Esta acción es irreversible. Se eliminará la clase <strong>{{ clase.nombre }}</strong> y se perderán todas las lecciones, anuncios y actividades registradas.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, cancelar</button>
+                    <!-- Enlace directo a tu vista eliminar_clase pasando el ID -->
+                    <a href="{% url 'eliminar_clase' clase.id %}" class="btn btn-danger btn-sm">Sí, borrar de verdad</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </html>

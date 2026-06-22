@@ -5,6 +5,30 @@ from django.contrib.auth.models import User
 from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion
 
 @login_required
+def editar_clase(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        imagen = request.FILES.get('imagen')
+        
+        if nombre:
+            clase.nombre = nombre
+            clase.descripcion = descripcion
+            if imagen:
+                clase.imagen = imagen
+            clase.save()
+            messages.success(request, 'Clase actualizada exitosamente.')
+            # Redireccionamos a detalle_clase para ver los cambios de inmediato:
+            return redirect('detalle_clase', clase_id=clase.id)
+            
+    return render(request, 'docente/editar_clase.html', {'clase': clase})
+
+@login_required
 def perfil_docente(request):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
