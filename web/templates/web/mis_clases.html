@@ -60,17 +60,18 @@
       <!-- Info -->
       <div style="padding: 1.25rem; flex:1; display:flex; flex-direction:column;">
         <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-          <span
-            style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Inscrito</span>
+          <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Inscrito</span>
         </div>
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{
-          clase.nombre }}</h3>
+        
+        <!-- 🛠️ CORREGIDO EN UNA SOLA LÍNEA SIN SALTOS ENTER 🛠️ -->
+        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{ clase.nombre }}</h3>
+        
         {% if clase.descripcion %}
-        <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:0.75rem; flex:1;">{{
-          clase.descripcion|truncatechars:90 }}</p>
+          <!-- 🛠️ CORREGIDO EN UNA SOLA LÍNEA SIN SALTOS ENTER 🛠️ -->
+          <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:0.75rem; flex:1;">{{ clase.descripcion|truncatechars:90 }}</p>
         {% endif %}
-        <div
-          style="display:flex; gap:1rem; margin-bottom:1rem; font-size:0.78rem; color:rgba(255,255,255,0.4); flex-wrap:wrap;">
+        
+        <div style="display:flex; gap:1rem; margin-bottom:1rem; font-size:0.78rem; color:rgba(255,255,255,0.4); flex-wrap:wrap;">
           <span><i class="bi bi-person me-1"></i>{{ clase.docente.get_full_name|default:clase.docente.username }}</span>
           <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</span>
         </div>

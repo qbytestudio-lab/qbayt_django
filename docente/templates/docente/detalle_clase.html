@@ -44,42 +44,44 @@
     </header>
 
     
-    <!-- HEADER CLASE -->
-<div class="detail-header">
-    <div class="container">
-        <a href="{% url 'perfil_docente' %}" class="back-btn">
-            <i class="bi bi-arrow-left"></i> Volver a mis clases
-        </a>
-        <h1 class="clase-title">{{ clase.nombre }}</h1>
+   <!-- HEADER CLASE -->
+    <div class="detail-header">
+        <div class="container">
+            <a href="{% url 'perfil_docente' %}" class="back-btn">
+                <i class="bi bi-arrow-left"></i> Volver a mis clases
+            </a>
+            <h1 class="clase-title">{{ clase.nombre }}</h1>
 
-        {% if clase.descripcion %}
-            <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
-        {% endif %}
+            {% if clase.descripcion %}
+                <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
+            {% endif %}
 
-        <div class="clase-meta mb-3">
-            <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
-            <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
-        </div>
-
-        <!-- ⚡ NUEVOS BOTONES DE ACCIÓN PARA LA CLASE ⚡ -->
-        <div class="d-flex gap-2 mb-4">
-            <button class="btn btn-sm btn-outline-light" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
-                <i class="bi bi-pencil-square me-1"></i> Editar clase
-            </button>
-            <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
-                <i class="bi bi-trash me-1"></i> Eliminar clase
-            </button>
-        </div>
-
-        <div class="d-flex align-items-center gap-3 flex-wrap">
-            <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
-                <i class="bi bi-key"></i> {{ clase.codigo }}
-                <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
+            <div class="clase-meta mb-3">
+                <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
+                <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
             </div>
-            <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código con tus estudiantes</span>
+            
+            <!-- ⚡ ALINEACIÓN COMPACTA EN UNA SOLA LÍNEA ⚡ -->
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
+                    <i class="bi bi-key"></i> {{ clase.codigo }}
+                    <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
+                </div>
+                
+                <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código</span>
+
+                <!-- Botones agregados aquí al final del flex-container -->
+                <div class="d-flex gap-2 ms-lg-auto"> 
+                    <button class="btn btn-sm btn-outline-light" style="border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.05);" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
+                        <i class="bi bi-pencil-square me-1"></i> Editar clase
+                    </button>
+                    <button class="btn btn-sm btn-danger" style="background-color: #ff4d4d; border: none;" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
+                        <i class="bi bi-trash me-1"></i> Eliminar clase
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
 
     <!-- CONTENT -->
     <div class="content-area">

@@ -8,6 +8,18 @@ from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, R
 from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
 
+@login_required
+def mis_clases(request):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+        
+    clases_inscritas = Clase.objects.filter(estudiantes=request.user)
+    
+    # 🛠️ CORRECCIÓN DE LA RUTA AQUÍ:
+    return render(request, 'web/mis_clases.html', {
+        'clases': clases_inscritas
+    })
+
 def index(request):
     return render(request, 'web/index.html')
 
