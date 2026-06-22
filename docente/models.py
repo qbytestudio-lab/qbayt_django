@@ -8,6 +8,11 @@ class Clase(models.Model):
     estudiantes = models.ManyToManyField(User, related_name='clases_estudiante', blank=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     codigo = models.CharField(max_length=8, unique=True, blank=True)
+    imagen = models.ImageField(
+        upload_to='clases/',
+        blank=True,
+        null=True
+    )
 
     def save(self, *args, **kwargs):
         if not self.codigo:
@@ -109,3 +114,7 @@ class RespuestaEstudiante(models.Model):
 
     class Meta:
         unique_together = ('estudiante', 'pregunta')
+
+
+
+
