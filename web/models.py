@@ -31,7 +31,7 @@ class Curso(models.Model):
     categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES)
     nivel = models.CharField(max_length=20, choices=NIVEL_CHOICES, default='basico')
     duracion_horas = models.PositiveIntegerField(default=1)
-    imagen_url = models.URLField(blank=True)  # para usar las imágenes que ya tienes
+    imagen_url = models.URLField(blank=True) 
     icono = models.CharField(max_length=50, default='bi-music-note')
 
     def __str__(self):

@@ -37,7 +37,7 @@
                 <h2 class="logo-text">QBYT</h2>
             </a>
             <div class="auth-buttons">
-                <a href="{% url 'perfil_docente' %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
+                <a href="{% url 'mis_clases' %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
                 <a href="{% url 'logout' %}" class="btn-login"><i class="bi bi-box-arrow-right me-1"></i> Salir</a>
             </div>
         </div>
@@ -47,7 +47,7 @@
    <!-- HEADER CLASE -->
     <div class="detail-header">
         <div class="container">
-            <a href="{% url 'perfil_docente' %}" class="back-btn">
+            <a href="{% url 'mis_clases' %}" class="back-btn">
                 <i class="bi bi-arrow-left"></i> Volver a mis clases
             </a>
             <h1 class="clase-title">{{ clase.nombre }}</h1>
