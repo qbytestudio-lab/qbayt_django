@@ -52,8 +52,8 @@ class InscripcionCurso(models.Model):
 
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
-    titulo = models.CharField(max_length=150)
+    nombre = models.CharField(max_length=150)
     contenido = models.TextField(help_text="Qué se enseñará en este módulo")
 
     def __str__(self):
-        return f"{self.curso.titulo} - {self.titulo}"
+        return f"{self.curso.nombre} - {self.nombre}"

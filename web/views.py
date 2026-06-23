@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
 from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
+from django.shortcuts import get_object_or_404
 
 @login_required
 def mis_clases(request):

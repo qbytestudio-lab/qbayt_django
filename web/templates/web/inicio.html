@@ -59,13 +59,13 @@
       <!-- Card Cliqueable -->
       <div class="col-md-4">
         <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
           <div class="course-card-body">
             <div class="course-meta">
               <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
               <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
             </div>
-            <h3>{{ curso.titulo }}</h3>
+            <h3>{{ curso.nombre }}</h3>
             <p>{{ curso.descripcion|truncatewords:15 }}</p>
             <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
           </div>
@@ -77,12 +77,12 @@
         <div class="modal-dialog modal-dialog-centered modal-lg">
           <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
             <div class="position-relative">
-              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
+              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.nombre }}">
               <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-4">
               <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
-              <h2>{{ curso.titulo }}</h2>
+              <h2>{{ curso.nombre}}</h2>
               <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
               <hr>
               <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
@@ -124,7 +124,7 @@
     {% for curso in cursos_auditivo %}
       <div class="col-md-4">
         <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
           <div class="course-card-body">
             <div class="course-meta">
               <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
@@ -188,7 +188,7 @@
     {% for curso in cursos_instrumento %}
       <div class="col-md-4">
         <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.titulo }}" style="height: 160px; object-fit: cover; width: 100%;">
+          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
           <div class="course-card-body">
             <div class="course-meta">
               <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>

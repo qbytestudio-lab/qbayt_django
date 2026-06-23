@@ -6,33 +6,32 @@
 
 {% block content %}
 
-<div class="welcome-banner">
-  <div class="welcome-text">
-    <h2>Cursos</h2>
-    <p>Sigue cursos y avanza a tu propio ritmo.</p>
+  <div class="welcome-banner">
+    <div class="welcome-text">
+      <h2>Cursos 🎵</h2>
+      <p>Sigue cursos y avanza a tu propio ritmo.</p>
+    </div>
   </div>
-</div>
 
-{% if messages %}
-<div class="mb-3">
-  {% for message in messages %}
-  <div class="alert alert-success alert-dismissible fade show" role="alert"
-    style="background:rgba(80,220,140,0.1); border:1px solid rgba(80,220,140,0.25); color:#50dc8c;">
-    {{ message }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  {% if messages %}
+  <div class="mb-3">
+    {% for message in messages %}
+    <div class="alert alert-success alert-dismissible fade show" role="alert" style="background:rgba(80,220,140,0.1); border:1px solid rgba(80,220,140,0.25); color:#50dc8c;">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
-{% endif %}
+  {% endif %}
 
-<!-- MIS CURSOS -->
-<div class="section-title mt-2"><i class="bi bi-bookmark-star" style="color:var(--accent)"></i> Mis cursos</div>
+  <!-- MIS CURSOS -->
+  <div class="section-title mt-2"><i class="bi bi-bookmark-star" style="color:var(--accent)"></i> Mis cursos</div>
 
-{% if inscripciones %}
-<div class="row g-4 mb-4">
-  {% for insc in inscripciones %}
-  <div class="col-md-4">
-    <div style="
+  {% if inscripciones %}
+  <div class="row g-4 mb-4">
+    {% for insc in inscripciones %}
+    <div class="col-md-4">
+      <div style="
         background: rgba(255,255,255,0.04);
         border: 1px solid rgba(124,111,255,0.2);
         border-radius: 16px;
@@ -42,87 +41,100 @@
         flex-direction: column;
         transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
       " onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(124,111,255,0.12)'"
-      onmouseout="this.style.transform='';this.style.boxShadow=''">
+         onmouseout="this.style.transform='';this.style.boxShadow=''">
 
-      <div style="position:relative;">
-        <img src="{{ insc.curso.imagen_url }}" alt="{{ insc.curso.nombre }}"
-          style="width:100%; height:140px; object-fit:cover; display:block;">
-        <span
-          style="position:absolute; top:0.75rem; right:0.75rem; background:rgba(124,111,255,0.85); color:#fff; font-size:0.7rem; font-weight:600; padding:0.25rem 0.7rem; border-radius:100px; backdrop-filter:blur(8px);">
-          <i class="bi bi-bookmark-check-fill me-1"></i> Siguiendo
-        </span>
-      </div>
-
-      <div style="padding:1.25rem; flex:1; display:flex; flex-direction:column;">
-        <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
-          <span class="badge-nivel {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
-          <span style="color:rgba(255,255,255,0.4); font-size:0.78rem;"><i class="bi bi-clock"></i> {{
-            insc.curso.duracion_horas }}h</span>
+        <div style="position:relative; height:140px; {% if not insc.curso.imagen_url %}background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15)); display:flex; align-items:center; justify-content:center;{% endif %}">
+          {% if insc.curso.imagen_url %}
+          <img src="{{ insc.curso.imagen_url }}" alt="{{ insc.curso.nombre }}" style="width:100%; height:140px; object-fit:cover; display:block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <div style="display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
+            <i class="bi {{ insc.curso.icono }}" style="font-size:2.5rem; color:rgba(255,255,255,0.3);"></i>
+          </div>
+          {% else %}
+          <i class="bi {{ insc.curso.icono }}" style="font-size:2.5rem; color:rgba(255,255,255,0.3);"></i>
+          {% endif %}
+          <span style="position:absolute; top:0.75rem; right:0.75rem; background:rgba(124,111,255,0.85); color:#fff; font-size:0.7rem; font-weight:600; padding:0.25rem 0.7rem; border-radius:100px; backdrop-filter:blur(8px);">
+            <i class="bi bi-bookmark-check-fill me-1"></i> Siguiendo
+          </span>
         </div>
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{
-          insc.curso.nombre }}</h3>
-        <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:1rem; flex:1;">{{
-          insc.curso.descripcion|truncatechars:90 }}</p>
 
-        <div style="display:flex; gap:0.5rem; margin-top:auto;">
-          <a href="#" style="
+        <div style="padding:1.25rem; flex:1; display:flex; flex-direction:column;">
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
+            <span style="background:rgba(176,111,255,0.12); color:#c4baff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">{{ insc.curso.get_categoria_display }}</span>
+            <span class="badge-nivel {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
+            <span style="color:rgba(255,255,255,0.4); font-size:0.78rem;"><i class="bi bi-clock"></i> {{ insc.curso.duracion_horas }}h</span>
+          </div>
+          <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{ insc.curso.nombre }}</h3>
+          <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:1rem; flex:1;">{{ insc.curso.descripcion|truncatechars:90 }}</p>
+
+          <div style="display:flex; gap:0.5rem; margin-top:auto;">
+            <a href="#" style="
               flex:1; background:linear-gradient(135deg,#7c6fff,#b06fff);
               border:none; color:#fff; font-weight:600; font-size:0.85rem;
               padding:0.6rem; border-radius:9px; text-align:center;
               text-decoration:none; display:block;
             ">
-            <i class="bi bi-play-fill me-1"></i> Continuar
-          </a>
-          <a href="{% url 'eliminar_curso' insc.curso.id %}"
-            onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')"
-            style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
-            <i class="bi bi-trash"></i>
-          </a>
+              <i class="bi bi-play-fill me-1"></i> Continuar
+            </a>
+            <a href="{% url 'eliminar_curso' insc.curso.id %}"
+               onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')"
+               style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
-{% else %}
-<div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3); margin-bottom:2rem;">
-  <i class="bi bi-bookmark-star" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-  <p>Aún no sigues ningún curso. ¡Elige uno del catálogo abajo!</p>
-</div>
-{% endif %}
+  {% else %}
+  <div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3); margin-bottom:2rem;">
+    <i class="bi bi-bookmark-star" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
+    <p>Aún no sigues ningún curso. ¡Elige uno del catálogo abajo!</p>
+  </div>
+  {% endif %}
 
-<!-- CATÁLOGO DISPONIBLE -->
-<div class="section-title mt-4"><i class="bi bi-grid" style="color:#ff9f43"></i> Catálogo de cursos</div>
+  <!-- CATÁLOGO DISPONIBLE -->
+  <div class="section-title mt-4"><i class="bi bi-grid" style="color:#ff9f43"></i> Catálogo de cursos</div>
 
-{% if catalogo %}
-<div class="row g-4">
-  {% for curso in catalogo %}
-  <div class="col-md-4">
-    <div class="course-card">
-      <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}">
-      <div class="course-card-body">
-        <div class="course-meta">
-          <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-          <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
+  {% if catalogo %}
+  <div class="row g-4">
+    {% for curso in catalogo %}
+    <div class="col-md-4">
+      <div class="course-card">
+        {% if curso.imagen_url %}
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <div style="display:none; height:180px; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
+          <i class="bi {{ curso.icono }}" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i>
         </div>
-        <h3>{{ curso.nombre }}</h3>
-        <p>{{ curso.descripcion }}</p>
-        <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="margin:0;">
-          {% csrf_token %}
-          <button type="submit" class="course-btn" style="width:100%; border:none; cursor:pointer;">
-            <i class="bi bi-plus-circle me-1"></i> Agregar a mis cursos
-          </button>
-        </form>
+        {% else %}
+        <div style="height:180px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
+          <i class="bi {{ curso.icono }}" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i>
+        </div>
+        {% endif %}
+        <div class="course-card-body">
+          <div class="course-meta" style="flex-wrap:wrap; gap:0.4rem;">
+            <span style="background:rgba(176,111,255,0.12); color:#c4baff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">{{ curso.get_categoria_display }}</span>
+            <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+            <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
+          </div>
+          <h3>{{ curso.nombre }}</h3>
+          <p>{{ curso.descripcion }}</p>
+          <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="course-btn" style="width:100%; border:none; cursor:pointer;">
+              <i class="bi bi-plus-circle me-1"></i> Agregar a mis cursos
+            </button>
+          </form>
+        </div>
       </div>
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
-</div>
-{% else %}
-<div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3);">
-  <i class="bi bi-check-circle" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-  <p>¡Ya sigues todos los cursos disponibles!</p>
-</div>
-{% endif %}
+  {% else %}
+  <div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3);">
+    <i class="bi bi-check-circle" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
+    <p>¡Ya sigues todos los cursos disponibles!</p>
+  </div>
+  {% endif %}
 
 {% endblock %}
