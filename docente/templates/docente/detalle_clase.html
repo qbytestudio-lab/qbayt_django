@@ -9,11 +9,9 @@
     <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
     <link rel="stylesheet" href="{% static 'docente/css/detalle.css' %}">
     <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -29,7 +27,6 @@
     </div>
     {% endif %}
 
-    <!-- TOPBAR -->
     <header class="topbar">
         <div class="container topbar-content">
             <a href="{% url 'index' %}" class="logo-area">
@@ -43,8 +40,6 @@
         </div>
     </header>
 
-    
-   <!-- HEADER CLASE -->
     <div class="detail-header">
         <div class="container">
             <a href="{% url 'mis_clases' %}" class="back-btn">
@@ -61,7 +56,6 @@
                 <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
             </div>
             
-            <!-- ⚡ ALINEACIÓN COMPACTA EN UNA SOLA LÍNEA ⚡ -->
             <div class="d-flex align-items-center gap-3 flex-wrap">
                 <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key"></i> {{ clase.codigo }}
@@ -70,32 +64,56 @@
                 
                 <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código</span>
 
-                <!-- Botones agregados aquí al final del flex-container -->
-                <div class="d-flex gap-2 ms-lg-auto"> 
-                    <button class="btn btn-sm btn-outline-light" style="border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.05);" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
-                        <i class="bi bi-pencil-square me-1"></i> Editar clase
+                <div class="dropdown ms-lg-auto">
+                    <button class="btn btn-sm btn-outline-light d-flex align-items-center justify-content-center" 
+                            type="button" 
+                            id="dropdownConfigClase" 
+                            data-bs-toggle="dropdown" 
+                            aria-expanded="false"
+                            style="border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); width: 38px; height: 38px; border-radius: 50%;">
+                        <i class="bi bi-gear-fill" style="font-size: 1.1rem;"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" style="background-color: #ff4d4d; border: none;" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
-                        <i class="bi bi-trash me-1"></i> Eliminar clase
-                    </button>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end" 
+                        aria-labelledby="dropdownConfigClase"
+                        style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
+                        
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2" 
+                                    type="button"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEditarClase"
+                                    style="color: #fff; border-radius: 8px; padding: 0.5rem 1rem; transition: background 0.2s;">
+                                <i class="bi bi-pencil-square text-muted"></i> Editar clase
+                            </button>
+                        </li>
+                        
+                        <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.08);"></li>
+                        
+                        <li>
+                            <button class="dropdown-item d-flex align-items-center gap-2" 
+                                    type="button"
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#modalEliminarClase"
+                                    style="color: #ff4d4d; border-radius: 8px; padding: 0.5rem 1rem; transition: background 0.2s;">
+                                <i class="bi bi-trash-fill"></i> Eliminar clase
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- CONTENT -->
     <div class="content-area">
         <div class="container">
             <div class="row g-4">
 
-                <!-- COLUMNA IZQUIERDA -->
                 <div class="col-lg-5">
 
-                    <!-- SOLICITUDES PENDIENTES -->
                     <div class="card-section mb-4">
                         <h3>
-                            <i class="bi bi-bell-fill" style="color:#ff9f43"></i>
-                            Solicitudes pendientes
+                            <i class="bi bi-bell-fill" style="color:#ff9f43"></i> Solicitudes pendientes
                             {% if solicitudes %}<span class="count-pill">{{ solicitudes.count }}</span>{% endif %}
                         </h3>
                         {% if solicitudes %}
@@ -107,10 +125,8 @@
                                 <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i
-                                        class="bi bi-check-lg"></i></a>
-                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i
-                                        class="bi bi-x-lg"></i></a>
+                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i></a>
+                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
                             </div>
                         </div>
                         {% endfor %}
@@ -119,25 +135,20 @@
                         {% endif %}
                     </div>
 
-                    <!-- AGREGAR POR USERNAME -->
                     <div class="card-section mb-4">
                         <h3><i class="bi bi-person-plus" style="color:#7c6fff"></i> Agregar directamente</h3>
                         <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
                             {% csrf_token %}
                             <div class="input-group">
-                                <input type="text" class="form-control" name="username"
-                                    placeholder="Usuario del estudiante" required
-                                    style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
+                                <input type="text" class="form-control" name="username" placeholder="Usuario del estudiante" required style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
                                 <button type="submit" class="btn-agregar">Agregar</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- LISTA DE ESTUDIANTES -->
                     <div class="card-section">
                         <h3>
-                            <i class="bi bi-people" style="color:#7c6fff"></i>
-                            Estudiantes inscritos
+                            <i class="bi bi-people" style="color:#7c6fff"></i> Estudiantes inscritos
                             <span class="count-pill">{{ clase.estudiantes.count }}</span>
                         </h3>
                         <div class="search-bar">
@@ -152,9 +163,7 @@
                                 <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
                                 <p>@{{ estudiante.username }} · {{ estudiante.email }}</p>
                             </div>
-                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}"
-                                class="btn-danger-soft"
-                                onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
+                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft" onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
                                 <i class="bi bi-person-dash"></i> Remover
                             </a>
                         </div>
@@ -166,95 +175,82 @@
 
                 </div>
 
-                <!-- COLUMNA DERECHA -->
                 <div class="col-lg-7">
 
-                    <!-- CONTENIDO / LECCIONES -->
                     <div class="card-section mb-4">
-                        <div
-                            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
                             <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                                 <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
                             </h3>
-                            <button data-bs-toggle="modal" data-bs-target="#modalLeccion"
-                                style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                            <button data-bs-toggle="modal" data-bs-target="#modalLeccion" style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
                                 <i class="bi bi-plus-lg me-1"></i> Añadir lección
                             </button>
                         </div>
 
                         {% for leccion in lecciones %}
-                        <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">
-                            <a href="{% url 'detalle_leccion' clase.id leccion.id %}"
-                                style="color:#eae8f5; text-decoration:none;">
-                                {{ leccion.titulo }}
-                            </a>
-                        </div>
-                        <div style="flex:1;">
-                            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">{{ leccion.titulo }}
+                        <div class="mb-3 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px;">
+                            <div style="flex:1;">
+                                <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">
+                                    <a href="{% url 'detalle_leccion' clase.id leccion.id %}" style="color:#eae8f5; text-decoration:none;">
+                                        {{ leccion.titulo }}
+                                    </a>
+                                </div>
+                                {% if leccion.descripcion %}
+                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{ leccion.descripcion }}</div>
+                                {% endif %}
                             </div>
-                            {% if leccion.descripcion %}<div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{
-                                leccion.descripcion }}</div>{% endif %}
+                            <div class="d-flex align-items-center gap-2">
+                                {% if leccion.disponible %}
+                                <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
+                                {% else %}
+                                <span style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
+                                {% endif %}
+                                <a href="{% url 'eliminar_leccion' clase.id leccion.id %}" onclick="return confirm('¿Eliminar esta lección?')" style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
                         </div>
-                        {% if leccion.disponible %}
-                        <span
-                            style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
-                        {% else %}
-                        <span
-                            style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
-                        {% endif %}
-                        <a href="{% url 'eliminar_leccion' clase.id leccion.id %}"
-                            onclick="return confirm('¿Eliminar esta lección?')"
-                            style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        {% empty %}
+                        <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay lecciones aún. ¡Agrega la primera!</p>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No
-                        hay lecciones aún. ¡Agrega la primera!</p>
-                    {% endfor %}
-                </div>
 
-                <!-- ANUNCIOS -->
-                
-                <div class="card-section">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-                        <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-                            <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
-                        </h3>
-                        <button data-bs-toggle="modal" data-bs-target="#modalAnuncio"
-                        style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                        <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
-                    </button>
+                    <div class="card-section">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+                                <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
+                            </h3>
+                            <button data-bs-toggle="modal" data-bs-target="#modalAnuncio" style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                                <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
+                            </button>
+                        </div>
+                        {% for anuncio in anuncios %}
+                        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
+                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                                <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
+                                    {{ clase.docente.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                    <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+                                </div>
+                                <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" onclick="return confirm('¿Eliminar anuncio?')" style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
+                        </div>
+                        {% empty %}
+                        <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
+                        {% endfor %}
+                    </div>
+
                 </div>
-                {% for anuncio in anuncios %}
-                <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-                        <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-                {{ clase.docente.username|first|upper }}
-            </div>
-            <div>
-                <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)" >{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-            </div>
-            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
-                onclick="return confirm('¿Eliminar anuncio?')"
-                style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
-                <i class="bi bi-trash"></i>
-            </a>
-        </div>
-        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
-    </div>
-    {% empty %}
-    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
-    {% endfor %}
-</div>
 
             </div>
         </div>
     </div>
-    </div>
 
-    <!-- Modal Nueva Lección -->
     <div class="modal fade" id="modalLeccion" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-dark">
@@ -267,13 +263,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small">Título <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="titulo"
-                                placeholder="Ej: Introducción a la clase" required>
+                            <input type="text" class="form-control" name="titulo" placeholder="Ej: Introducción a la clase" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Descripción (opcional)</label>
-                            <input type="text" class="form-control" name="descripcion"
-                                placeholder="Breve descripción del contenido">
+                            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción del contenido">
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
@@ -289,7 +283,6 @@
         </div>
     </div>
 
-    <!-- Modal Nuevo Anuncio -->
     <div class="modal fade" id="modalAnuncio" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-dark">
@@ -302,8 +295,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small">Mensaje <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="texto" rows="4"
-                                placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
+                            <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -315,7 +307,63 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+    <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-labelledby="modalEditarClaseLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff;">
+                <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data" style="margin: 0; padding: 1.5rem;">
+                    {% csrf_token %}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                        <h5 id="modalEditarClaseLabel" style="font-family: 'Syne', sans-serif; font-weight: 700; margin: 0;">Editar Clase 📝</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Nombre de la clase</label>
+                        <input type="text" name="nombre" class="form-control" value="{{ clase.nombre }}" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Descripción</label>
+                        <textarea name="descripcion" class="form-control" rows="3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">{{ clase.descripcion }}</textarea>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Cambiar imagen de portada (opcional)</label>
+                        <input type="file" name="imagen" class="form-control" accept="image/*" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
+                        <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg,#7c6fff,#b06fff); color: #fff; border: none; font-weight: 600; border-radius: 8px; padding: 0.5rem 1rem;">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEliminarClase" tabindex="-1" aria-labelledby="modalEliminarClaseLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff; text-align: center;">
+                <form action="{% url 'eliminar_clase' clase.id %}" method="POST" style="margin: 0; padding: 2rem;">
+                    {% csrf_token %}
+                    <div style="font-size: 3.5rem; color: #ff4d4d; margin-bottom: 1rem;">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <h5 id="modalEliminarClaseLabel" style="font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.5rem;">¿Eliminar la clase?</h5>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 2rem;">
+                        Esta acción borrará la clase <strong>{{ clase.nombre }}</strong> de forma definitiva. Se perderán todos los datos y los alumnos serán desvinculados de la plataforma.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; justify-content: center;">
+                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1rem;">No, cancelar</button>
+                        <button type="submit" class="btn btn-sm btn-danger" style="background-color: #ff4d4d; border: none; font-weight: 600; border-radius: 8px; padding: 0.5rem 1rem;">Sí, eliminar clase</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function copiarCodigo() {
             navigator.clipboard.writeText('{{ clase.codigo }}');
@@ -329,59 +377,5 @@
         });
     </script>
 </body>
-<!-- Modal Editar Clase -->
-    <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Información de la Clase</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <!-- Apunta a la vista editar_clase enviando el ID -->
-                <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label small">Nombre de la clase <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="nombre" value="{{ clase.nombre }}" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3">{{ clase.descripcion }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label small">Imagen de la clase (Opcional)</label>
-                            <input type="file" class="form-control" name="imagen" accept="image/*">
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Guardar cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
-    <!-- Modal Eliminar Clase -->
-    <div class="modal fade" id="modalEliminarClase" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-danger text-dark">
-                <div class="modal-header bg-danger text-white">
-                    <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>¿Confirmar eliminación?</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-start">
-                    <p>Esta acción es irreversible. Se eliminará la clase <strong>{{ clase.nombre }}</strong> y se perderán todas las lecciones, anuncios y actividades registradas.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, cancelar</button>
-                    <!-- Enlace directo a tu vista eliminar_clase pasando el ID -->
-                    <a href="{% url 'eliminar_clase' clase.id %}" class="btn btn-danger btn-sm">Sí, borrar de verdad</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 </html>

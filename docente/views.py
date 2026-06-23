@@ -6,15 +6,12 @@ from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta
 
 @login_required
 def editar_clase(request, clase_id):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
     if request.method == 'POST':
-        nombre = request.POST.get('nombre', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        imagen = request.FILES.get('imagen')
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        imagen = request.FILES.get('imagen')  # Por si cambian el banner
         
         if nombre:
             clase.nombre = nombre
@@ -22,12 +19,28 @@ def editar_clase(request, clase_id):
             if imagen:
                 clase.imagen = imagen
             clase.save()
-            messages.success(request, 'Clase actualizada exitosamente.')
-            # Redireccionamos a detalle_clase para ver los cambios de inmediato:
-            return redirect('detalle_clase', clase_id=clase.id)
+            messages.success(request, "¡Clase actualizada correctamente!")
+            # Redirige inmediatamente tras un POST exitoso
+            return redirect('detalle_clase', clase_id=clase.id)  
+        else:
+            messages.error(request, "El nombre de la clase no puede estar vacío.")
             
-    return render(request, 'docente/editar_clase.html', {'clase': clase})
+    # Si entra por GET (o si falla el nombre), vuelve al detalle
+    return redirect('detalle_clase', clase_id=clase.id)  
 
+
+@login_required
+def eliminar_clase(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    if request.method == 'POST':
+        clase.delete()
+        messages.success(request, "La clase fue eliminada para siempre.")
+        # Nota: Asegúrate de tener una URL llamada 'mis_clases_docente' en el urls.py principal o de esta app
+        return redirect('mis_clases_docente')  
+        
+    return redirect('detalle_clase', clase_id=clase.id)
+    
 @login_required
 def perfil_docente(request):
     if request.user.perfil.rol != 'docente':
