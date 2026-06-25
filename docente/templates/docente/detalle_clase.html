@@ -6,18 +6,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ clase.nombre }} — QBYT</title>
+    <!-- ==========================================================================
+         ESTILOS Y FUENTES
+         ========================================================================== -->
     <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
     <link rel="stylesheet" href="{% static 'docente/css/detalle.css' %}">
     <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
+    <!-- ==========================================================================
+         MENSAJES DE ALERTA / FLASHLIGHTS
+         ========================================================================== -->
     {% if messages %}
     <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
         {% for message in messages %}
@@ -29,7 +33,9 @@
     </div>
     {% endif %}
 
-    <!-- TOPBAR -->
+    <!-- ==========================================================================
+         TOPBAR / BARRA DE NAVEGACIÓN SUPERIOR
+         ========================================================================== -->
     <header class="topbar">
         <div class="container topbar-content">
             <a href="{% url 'index' %}" class="logo-area">
@@ -43,8 +49,9 @@
         </div>
     </header>
 
-    
-   <!-- HEADER CLASE -->
+    <!-- ==========================================================================
+         HEADER DE LA CLASE (Título, Métricas, Acciones Principales)
+         ========================================================================== -->
     <div class="detail-header">
         <div class="container">
             <a href="{% url 'perfil_docente' %}" class="back-btn">
@@ -61,8 +68,8 @@
                 <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
             </div>
             
-            <!-- ⚡ ALINEACIÓN COMPACTA EN UNA SOLA LÍNEA ⚡ -->
             <div class="d-flex align-items-center gap-3 flex-wrap">
+                <!-- Código de la Clase -->
                 <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key"></i> {{ clase.codigo }}
                     <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
@@ -70,7 +77,7 @@
                 
                 <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código</span>
 
-                <!-- Botones agregados aquí al final del flex-container -->
+                <!-- Botones de Gestión (Editar y Eliminar) -->
                 <div class="d-flex gap-2 ms-lg-auto"> 
                     <button class="btn btn-sm btn-outline-light" style="border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.05);" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
                         <i class="bi bi-pencil-square me-1"></i> Editar clase
@@ -83,15 +90,19 @@
         </div>
     </div>
 
-    <!-- CONTENT -->
+    <!-- ==========================================================================
+         CONTENIDO PRINCIPAL (Estructura de Columnas)
+         ========================================================================== -->
     <div class="content-area">
         <div class="container">
             <div class="row g-4">
 
-                <!-- COLUMNA IZQUIERDA -->
+                <!-- ==========================================================
+                     COLUMNA IZQUIERDA: GESTIÓN DE ESTUDIANTES
+                     ========================================================== -->
                 <div class="col-lg-5">
 
-                    <!-- SOLICITUDES PENDIENTES -->
+                    <!-- Solicitudes Pendientes -->
                     <div class="card-section mb-4">
                         <h3>
                             <i class="bi bi-bell-fill" style="color:#ff9f43"></i>
@@ -107,10 +118,8 @@
                                 <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i
-                                        class="bi bi-check-lg"></i></a>
-                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i
-                                        class="bi bi-x-lg"></i></a>
+                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i></a>
+                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
                             </div>
                         </div>
                         {% endfor %}
@@ -119,21 +128,19 @@
                         {% endif %}
                     </div>
 
-                    <!-- AGREGAR POR USERNAME -->
+                    <!-- Agregar por Username -->
                     <div class="card-section mb-4">
                         <h3><i class="bi bi-person-plus" style="color:#7c6fff"></i> Agregar directamente</h3>
                         <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
                             {% csrf_token %}
                             <div class="input-group">
-                                <input type="text" class="form-control" name="username"
-                                    placeholder="Usuario del estudiante" required
-                                    style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
+                                <input type="text" class="form-control" name="username" placeholder="Usuario del estudiante" required style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
                                 <button type="submit" class="btn-agregar">Agregar</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- LISTA DE ESTUDIANTES -->
+                    <!-- Lista de Estudiantes Inscritos -->
                     <div class="card-section">
                         <h3>
                             <i class="bi bi-people" style="color:#7c6fff"></i>
@@ -152,9 +159,7 @@
                                 <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
                                 <p>@{{ estudiante.username }} · {{ estudiante.email }}</p>
                             </div>
-                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}"
-                                class="btn-danger-soft"
-                                onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
+                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft" onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
                                 <i class="bi bi-person-dash"></i> Remover
                             </a>
                         </div>
@@ -166,95 +171,103 @@
 
                 </div>
 
-                <!-- COLUMNA DERECHA -->
+                <!-- ==========================================================
+                     COLUMNA DERECHA: ACTIVIDADES, CONTENIDO Y ANUNCIOS
+                     ========================================================== -->
                 <div class="col-lg-7">
 
-                    <!-- CONTENIDO / LECCIONES -->
+                    <!-- Contenido / Ejercicios de Oído -->
                     <div class="card-section mb-4">
-                        <div
-                            style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
                             <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
                                 <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
                             </h3>
-                            <button data-bs-toggle="modal" data-bs-target="#modalLeccion"
-                                style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                                <i class="bi bi-plus-lg me-1"></i> Añadir lección
+                            <div>
+                                <a href="{% url 'ejercicios:crear_ejercicio' clase.id %}" style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1.2rem; border-radius:8px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:0.5rem;">
+                                    <i class="bi bi-file-music"></i> Crear Ejercicio de Oído
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="ejercicios-lista mt-3">
+                            {% if clase.ejercicios.all %}
+                                {% for ejercicio in clase.ejercicios.all %}
+                                <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between;">
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <div style="width: 40px; height: 40px; background: rgba(124, 111, 255, 0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #7c6fff; font-size: 1.2rem;">
+                                            <i class="bi bi-file-earmark-music-fill"></i>
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 600; font-size: 0.9rem; color: #fff;">{{ ejercicio.titulo }}</div>
+                                            <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); display: flex; gap: 0.75rem; margin-top: 0.15rem;">
+                                                <span><i class="bi bi-list-task text-primary"></i> {{ ejercicio.preguntas.count }} ítems</span>
+                                                <span><i class="bi bi-calendar-event"></i> {{ ejercicio.fecha_creacion|date:"d M Y" }}</span>
+                                                {% if not ejercicio.visible %}
+                                                    <span class="text-warning"><i class="bi bi-eye-slash-fill"></i> Oculto</span>
+                                                {% else %}
+                                                    <span class="text-success"><i class="bi bi-eye-fill"></i> Visible</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <a href="#" class="btn btn-sm btn-outline-light" style="font-size: 0.75rem; border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.02);">
+                                            <i class="bi bi-bar-chart-line"></i> Notas
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div style="border: 2px dashed rgba(255,255,255,0.05); border-radius: 12px; padding: 2rem 1rem; text-align: center; color: rgba(255,255,255,0.3); font-size: 0.85rem;">
+                                    <i class="bi bi-music-note-list d-block mb-2" style="font-size: 1.8rem; color: rgba(255,255,255,0.15);"></i>
+                                    No has publicado ejercicios de oído en esta clase todavía.
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Sección de Anuncios -->
+                    <div class="card-section">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
+                                <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
+                            </h3>
+                            <button data-bs-toggle="modal" data-bs-target="#modalAnuncio" style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
+                                <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
                             </button>
                         </div>
-
-                        {% for leccion in lecciones %}
-                        <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">
-                            <a href="{% url 'detalle_leccion' clase.id leccion.id %}"
-                                style="color:#eae8f5; text-decoration:none;">
-                                {{ leccion.titulo }}
-                            </a>
-                        </div>
-                        <div style="flex:1;">
-                            <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">{{ leccion.titulo }}
+                        {% for anuncio in anuncios %}
+                        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
+                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+                                <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
+                                    {{ clase.docente.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                    <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+                                </div>
+                                <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" onclick="return confirm('¿Eliminar anuncio?')" style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
+                                    <i class="bi bi-trash"></i>
+                                </a>
                             </div>
-                            {% if leccion.descripcion %}<div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{
-                                leccion.descripcion }}</div>{% endif %}
+                            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
                         </div>
-                        {% if leccion.disponible %}
-                        <span
-                            style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
-                        {% else %}
-                        <span
-                            style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
-                        {% endif %}
-                        <a href="{% url 'eliminar_leccion' clase.id leccion.id %}"
-                            onclick="return confirm('¿Eliminar esta lección?')"
-                            style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        {% empty %}
+                        <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
+                        {% endfor %}
                     </div>
-                    {% empty %}
-                    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No
-                        hay lecciones aún. ¡Agrega la primera!</p>
-                    {% endfor %}
-                </div>
 
-                <!-- ANUNCIOS -->
-                
-                <div class="card-section">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-                        <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-                            <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
-                        </h3>
-                        <button data-bs-toggle="modal" data-bs-target="#modalAnuncio"
-                        style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                        <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
-                    </button>
                 </div>
-                {% for anuncio in anuncios %}
-                <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-                    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-                        <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-                {{ clase.docente.username|first|upper }}
-            </div>
-            <div>
-                <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)" >{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-            </div>
-            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
-                onclick="return confirm('¿Eliminar anuncio?')"
-                style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
-                <i class="bi bi-trash"></i>
-            </a>
-        </div>
-        <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
-    </div>
-    {% empty %}
-    <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
-    {% endfor %}
-</div>
-
             </div>
         </div>
     </div>
-    </div>
 
-    <!-- Modal Nueva Lección -->
+    <!-- ==========================================================================
+         VENTANAS MODALES (Bootstrap Modals)
+         ========================================================================== -->
+
+    <!-- Modal: Nueva Lección -->
     <div class="modal fade" id="modalLeccion" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-dark">
@@ -267,13 +280,11 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small">Título <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="titulo"
-                                placeholder="Ej: Introducción a la clase" required>
+                            <input type="text" class="form-control" name="titulo" placeholder="Ej: Introducción a la clase" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label small">Descripción (opcional)</label>
-                            <input type="text" class="form-control" name="descripcion"
-                                placeholder="Breve descripción del contenido">
+                            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción del contenido">
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
@@ -289,7 +300,7 @@
         </div>
     </div>
 
-    <!-- Modal Nuevo Anuncio -->
+    <!-- Modal: Nuevo Anuncio -->
     <div class="modal fade" id="modalAnuncio" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-dark">
@@ -302,8 +313,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label small">Mensaje <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="texto" rows="4"
-                                placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
+                            <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -315,21 +325,74 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function copiarCodigo() {
-            navigator.clipboard.writeText('{{ clase.codigo }}');
-            alert('Código copiado: {{ clase.codigo }}');
-        }
-        document.getElementById('searchInput').addEventListener('input', function () {
-            const q = this.value.toLowerCase();
-            document.querySelectorAll('.student-row').forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
-            });
-        });
-    </script>
-</body>
-<!-- Modal Editar Clase -->
+    <!-- Modal: Crear Ejercicio de Oído -->
+    <div class="modal fade" id="modalEjercicio" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content text-dark">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-file-earmark-music me-2"></i>Nuevo Ejercicio</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'crear_ejercicio' clase.id %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                        
+                        <!-- Configuración Base -->
+                        <div class="bg-light p-3 rounded mb-4">
+                            <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-info-circle-fill me-1"></i> Configuración de la Pregunta</h6>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Título del Ejercicio *</label>
+                                {{ ejercicio_form.titulo }}
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Instrucciones o Enunciado *</label>
+                                {{ ejercicio_form.enunciado }}
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label small fw-semibold">Imagen / Partitura de contexto (Opcional)</label>
+                                {{ ejercicio_form.imagen_contexto }}
+                            </div>
+                        </div>
+
+                        {{ opciones_formset.management_form }}
+
+                        <!-- Opciones Dinámicas -->
+                        <div>
+                            <h6 class="fw-bold mb-3 text-secondary"><i class="bi bi-list-check me-1"></i> Opciones de Respuesta (Marca la Correcta)</h6>
+                            <div class="row g-3">
+                                {% for form_opcion in opciones_formset %}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded d-flex align-items-center gap-3 bg-white shadow-sm">
+                                        <div class="flex-grow-1">
+                                            <label class="form-label small text-muted mb-1">Opción {{ forloop.counter }}</label>
+                                            {{ form_opcion.texto_opcion }}
+                                        </div>
+                                        <div class="text-center pt-3">
+                                            <label class="form-label small text-success d-block mb-1">¿Correcta?</label>
+                                            <div class="form-check form-switch d-inline-block">
+                                                {{ form_opcion.es_correcta }}
+                                            </div>
+                                        </div>
+                                        {% for hidden in form_opcion.hidden_fields %}
+                                            {{ hidden }}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer bg-light">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">Publicar Ejercicio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Editar Clase -->
     <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content text-dark">
@@ -337,7 +400,6 @@
                     <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Editar Información de la Clase</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <!-- Apunta a la vista editar_clase enviando el ID -->
                 <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div class="modal-body">
@@ -363,7 +425,7 @@
         </div>
     </div>
 
-    <!-- Modal Eliminar Clase -->
+    <!-- Modal: Eliminar Clase -->
     <div class="modal fade" id="modalEliminarClase" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-danger text-dark">
@@ -376,12 +438,41 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, cancelar</button>
-                    <!-- Enlace directo a tu vista eliminar_clase pasando el ID -->
                     <a href="{% url 'eliminar_clase' clase.id %}" class="btn btn-danger btn-sm">Sí, borrar de verdad</a>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- ==========================================================================
+         SCRIPTS DE CONTROL (JavaScript)
+         ========================================================================== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Función para copiar código de clase al portapapeles
+        function copiarCodigo() {
+            navigator.clipboard.writeText('{{ clase.codigo }}');
+            alert('Código copiado: {{ clase.codigo }}');
+        }
+
+        // Filtro de búsqueda en tiempo real de estudiantes
+        document.getElementById('searchInput').addEventListener('input', function () {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('.student-row').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        });
+
+        // Asegurar que solo una opción sea marcada como correcta (Modo Switch)
+        document.querySelectorAll('#modalEjercicio .form-check-input').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                if (this.checked) {
+                    document.querySelectorAll('#modalEjercicio .form-check-input').forEach(other => {
+                        if (other !== this) other.checked = false;
+                    });
+                }
+            });
+        });
+    </script>
+</body>
 </html>

@@ -1,0 +1,167 @@
+{% extends 'web/base.html' %}
+{% block content %}
+<div class="container py-5" style="max-width: 900px; color: #eae8f5;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <span class="text-uppercase tracking-wider text-muted small" style="font-size: 0.75rem; font-weight: 700; letter-spacing: 1px;">Clase: {{ clase.nombre }}</span>
+            <h2 class="h3 mb-0 text-white" style="font-weight: 700;">
+                <i class="bi bi-file-earmark-music text-primary me-2"></i>Diseñar Ejercicio de Entrenamiento Auditivo
+            </h2>
+        </div>
+        <a href="{% url 'detalle_clase' clase.id %}" class="btn btn-outline-secondary btn-sm" style="border-radius: 8px;">
+            <i class="bi bi-arrow-left me-1"></i> Cancelar
+        </a>
+    </div>
+
+    <form action="{% url 'crear_ejercicio' clase.id %}" method="POST" enctype="multipart/form-data" id="form-ejercicio">
+        {% csrf_token %}
+        
+        <div class="card p-4 mb-4 border-0" style="background: rgba(255,255,255,0.03); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);">
+            <h5 class="fw-bold mb-3 text-white-50"><i class="bi bi-info-circle-fill me-2 text-info"></i>Configuración de la Actividad</h5>
+            
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-white">Título del Ejercicio *</label>
+                {{ ejercicio_form.titulo }}
+            </div>
+            <div class="mb-3">
+                <label class="form-label small fw-semibold text-white">Instrucciones o Enunciado General *</label>
+                {{ ejercicio_form.enunciado }}
+            </div>
+            <div class="row align-items-center">
+                <div class="col-md-7 mb-3 mb-md-0">
+                    <label class="form-label small fw-semibold text-white">Imagen / Partitura de contexto (Opcional)</label>
+                    {{ ejercicio_form.imagen_contexto }}
+                </div>
+                <div class="col-md-5 pt-4">
+                    <div class="form-check form-switch">
+                        {{ ejercicio_form.visible }}
+                        <label class="form-check-label small text-white ms-2" for="{{ ejercicio_form.visible.id_for_label }}">Hacer visible inmediatamente</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <h5 class="fw-bold mb-3 text-white-50"><i class="bi bi-list-task me-2 text-primary"></i>Preguntas del Ejercicio</h5>
+            
+            {{ opciones_formset.management_form }}
+            
+            <div id="contenedor-preguntas">
+                {% for form_opcion in opciones_formset %}
+                <div class="pregunta-card card p-4 mb-3 text-dark border-0 shadow-sm" style="border-radius: 12px; background: #ffffff;">
+                    <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                        <h6 class="fw-bold mb-0 text-secondary">
+                            <i class="bi bi-question-circle-fill me-1 text-primary"></i> Pregunta <span class="numero-pregunta">{{ forloop.counter }}</span>
+                        </h6>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-remover border-0" style="display: none;">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small text-muted fw-bold mb-1">Enunciado de la Pregunta</label>
+                            {{ form_opcion.texto_pregunta }}
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small text-muted fw-bold mb-1">Tipo de Respuesta</label>
+                            {{ form_opcion.tipo }}
+                        </div>
+                    </div>
+                    
+                    {% for hidden in form_opcion.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="button" id="btn-agregar-pregunta" class="btn btn-sm w-100 py-2 btn-outline-light" style="border-style: dashed; background: rgba(255,255,255,0.02); border-color: rgba(255,255,255,0.2);">
+                <i class="bi bi-plus-lg me-1"></i> Añadir otra pregunta
+            </button>
+        </div>
+
+        <div class="card p-3 bg-transparent border-0 text-end">
+            <button type="submit" class="btn btn-primary px-5 fw-bold" style="background: linear-gradient(135deg,#7c6fff,#b06fff); border: none; border-radius: 8px;">
+                <i class="bi bi-cloud-arrow-up-fill me-2"></i>Publicar Ejercicio en la Clase
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const contenedor = document.getElementById('contenedor-preguntas');
+        const btnAgregar = document.getElementById('btn-agregar-pregunta');
+        const totalForms = document.getElementById('id_preguntas-TOTAL_FORMS');
+
+        // Mostrar botones de eliminar si hay más de 1 pregunta inicial
+        actualizarBotonesEliminar();
+
+        btnAgregar.addEventListener('click', function() {
+            const tarjetasPregunta = contenedor.getElementsByClassName('pregunta-card');
+            const conteoFormularios = tarjetasPregunta.length;
+            
+            // Clonamos la primera tarjeta de pregunta existente
+            const nuevaTarjeta = tarjetasPregunta[0].cloneNode(true);
+            
+            // Limpiamos los valores internos de los inputs clonados y actualizamos los índices
+            const inputs = nuevaTarjeta.querySelectorAll('input, textarea, select');
+            inputs.forEach(input => {
+                if (input.type !== 'hidden') input.value = '';
+                
+                // Reemplazamos los índices viejos (ej: preguntas-0-tipo por preguntas-1-tipo)
+                if (input.name) input.name = input.name.replace(/-0-/g, `-${conteoFormularios}-`);
+                if (input.id) input.id = input.id.replace(/-0-/g, `-${conteoFormularios}-`);
+            });
+
+            // Actualizamos el número visual en el título de la tarjeta
+            nuevaTarjeta.querySelector('.numero-pregunta').textContent = conteoFormularios + 1;
+
+            // Añadimos la nueva tarjeta al árbol DOM
+            contenedor.appendChild(nuevaTarjeta);
+            
+             #Actualizamos el contador oficial que Django lee en el POST
+            totalForms.value = conteoFormularios + 1;
+
+            actualizarBotonesEliminar();
+        });
+
+        // Event delegation para los botones de eliminar individuales
+        contenedor.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-remover')) {
+                const tarjeta = e.target.closest('.pregunta-card');
+                tarjeta.remove();
+                
+                // Re-indexar todos los formularios restantes para que Django no pierda el orden numérico
+                const tarjetasRestantes = contenedor.getElementsByClassName('pregunta-card');
+                totalForms.value = tarjetasRestantes.length;
+
+                Array.from(tarjetasRestantes).forEach((tarjeta, index) => {
+                    tarjeta.querySelector('.numero-pregunta').textContent = index + 1;
+                    const inputs = tarjeta.querySelectorAll('input, textarea, select');
+                    inputs.forEach(input => {
+                        if (input.name) input.name = input.name.replace(/-\d+-/g, `-${index}-`);
+                        if (input.id) input.id = input.id.replace(/-\d+-/g, `-${index}-`);
+                    });
+                });
+
+                actualizarBotonesEliminar();
+            }
+        });
+
+        function actualizarBotonesEliminar() {
+            const tarjetas = contenedor.getElementsByClassName('pregunta-card');
+            Array.from(tarjetas).forEach(tarjeta => {
+                const btn = tarjeta.querySelector('.btn-remover');
+                if (tarjetas.length > 1) {
+                    btn.style.display = 'block';
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
