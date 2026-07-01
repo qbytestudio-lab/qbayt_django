@@ -1,5 +1,5 @@
 /* ============================================ */
-/*      LOGIN & REGISTER - SPOTIFY EPIC STYLE  */
+/*         LOGIN - SPOTIFY EPIC STYLE          */
 /* ============================================ */
 
 :root {
@@ -11,7 +11,6 @@
   --spotify-subtext: #b3b3b3;
   --spotify-muted: #6a6a6a;
   --spotify-danger: #e91429;
-  --spotify-purple: #7c6fff;
 }
 
 * {
@@ -43,19 +42,11 @@ body::before {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(ellipse at 20% 50%, rgba(124, 111, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(176, 111, 255, 0.05) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(124, 111, 255, 0.06) 0%, transparent 50%);
+    radial-gradient(ellipse at 20% 50%, rgba(29, 185, 84, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(29, 185, 84, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(29, 185, 84, 0.06) 0%, transparent 50%);
   z-index: 0;
   animation: bgPulse 8s ease-in-out infinite alternate;
-}
-
-/* Register page gradient */
-body.register-page::before {
-  background: 
-    radial-gradient(ellipse at 20% 50%, rgba(124, 111, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(ellipse at 80% 20%, rgba(176, 111, 255, 0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 80%, rgba(29, 185, 84, 0.06) 0%, transparent 50%);
 }
 
 @keyframes bgPulse {
@@ -80,17 +71,10 @@ body.register-page::before {
 
 .particle {
   position: absolute;
-  border-radius: 50%;
-  opacity: 0.12;
-  animation: float 6s ease-in-out infinite;
-}
-
-body .particle {
   background: #1db954;
-}
-
-body.register-page .particle {
-  background: #7c6fff;
+  border-radius: 50%;
+  opacity: 0.15;
+  animation: float 6s ease-in-out infinite;
 }
 
 .particle:nth-child(1) {
@@ -133,22 +117,6 @@ body.register-page .particle {
   animation-delay: 4s;
 }
 
-.particle:nth-child(6) {
-  width: 45px;
-  height: 45px;
-  top: 50%;
-  left: 40%;
-  animation-delay: 2.5s;
-}
-
-.particle:nth-child(7) {
-  width: 35px;
-  height: 35px;
-  top: 30%;
-  left: 30%;
-  animation-delay: 1.5s;
-}
-
 @keyframes float {
   0%, 100% {
     transform: translateY(0) translateX(0) scale(1);
@@ -172,14 +140,9 @@ body.register-page .particle {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 460px;
+  max-width: 440px;
   padding: 1.5rem;
   animation: fadeInUp 0.8s ease;
-}
-
-/* Register form is wider */
-.auth-wrapper.register {
-  max-width: 520px;
 }
 
 @keyframes fadeInUp {
@@ -203,7 +166,7 @@ body.register-page .particle {
   -webkit-backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  padding: 2.5rem 2.5rem;
+  padding: 3rem 2.5rem;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(255, 255, 255, 0.05) inset;
@@ -213,7 +176,7 @@ body.register-page .particle {
 .auth-card:hover {
   box-shadow: 
     0 12px 48px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(124, 111, 255, 0.1) inset;
+    0 0 0 1px rgba(29, 185, 84, 0.1) inset;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -222,22 +185,15 @@ body.register-page .particle {
 
 .auth-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
 }
 
 .auth-icon {
-  font-size: 3.2rem;
-  display: block;
-  margin-bottom: 0.75rem;
-  animation: bounceIcon 2s ease-in-out infinite;
-}
-
-.auth-icon.login-icon {
+  font-size: 3.5rem;
   color: #1db954;
-}
-
-.auth-icon.register-icon {
-  color: #7c6fff;
+  display: block;
+  margin-bottom: 1rem;
+  animation: bounceIcon 2s ease-in-out infinite;
 }
 
 @keyframes bounceIcon {
@@ -272,8 +228,8 @@ body.register-page .particle {
 .form-label {
   color: #b3b3b3;
   font-weight: 600;
-  font-size: 0.82rem;
-  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
   letter-spacing: 0.3px;
 }
 
@@ -286,8 +242,8 @@ body.register-page .particle {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-right: none !important;
   color: #6a6a6a !important;
-  padding: 0.7rem 0.9rem;
-  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  font-size: 1.1rem;
   transition: all 0.3s ease;
 }
 
@@ -296,8 +252,8 @@ body.register-page .particle {
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-left: none !important;
   color: #ffffff !important;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.9rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
   transition: all 0.3s ease;
 }
@@ -310,110 +266,16 @@ body.register-page .particle {
 .form-control::placeholder {
   color: #535353;
   font-weight: 400;
-  font-size: 0.85rem;
 }
 
-body .input-group:focus-within .input-group-text {
+.input-group:focus-within .input-group-text {
   border-color: #1db954 !important;
   color: #1db954 !important;
   background: rgba(29, 185, 84, 0.1) !important;
 }
 
-body .input-group:focus-within .form-control {
+.input-group:focus-within .form-control {
   border-color: #1db954 !important;
-}
-
-body.register-page .input-group:focus-within .input-group-text {
-  border-color: #7c6fff !important;
-  color: #7c6fff !important;
-  background: rgba(124, 111, 255, 0.1) !important;
-}
-
-body.register-page .input-group:focus-within .form-control {
-  border-color: #7c6fff !important;
-}
-
-/* ═══════════════════════════════════════════ */
-/*         ROLE SELECTOR                     */
-/* ═══════════════════════════════════════════ */
-
-.rol-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-.btn-rol {
-  background: rgba(255, 255, 255, 0.04) !important;
-  border: 2px solid rgba(255, 255, 255, 0.08) !important;
-  color: #6a6a6a !important;
-  padding: 1rem !important;
-  border-radius: 12px !important;
-  font-weight: 600 !important;
-  font-size: 0.85rem !important;
-  transition: all 0.3s ease !important;
-  cursor: pointer;
-  text-align: center;
-}
-
-.btn-rol i {
-  font-size: 1.5rem;
-  margin-bottom: 0.3rem;
-  transition: all 0.3s ease;
-}
-
-.btn-rol:hover {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.15) !important;
-  color: #b3b3b3 !important;
-}
-
-.btn-check:checked + .btn-rol {
-  background: rgba(124, 111, 255, 0.12) !important;
-  border-color: #7c6fff !important;
-  color: #c4baff !important;
-  box-shadow: 0 0 20px rgba(124, 111, 255, 0.15);
-}
-
-.btn-check:checked + .btn-rol i {
-  color: #7c6fff;
-  transform: scale(1.1);
-}
-
-/* ═══════════════════════════════════════════ */
-/*         STRENGTH METER (Password)         */
-/* ═══════════════════════════════════════════ */
-
-.password-strength {
-  margin-top: 0.5rem;
-  display: flex;
-  gap: 4px;
-}
-
-.strength-bar {
-  flex: 1;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 3px;
-  transition: background 0.3s ease;
-}
-
-.strength-bar.weak {
-  background: #e91429;
-}
-
-.strength-bar.medium {
-  background: #ff9f43;
-}
-
-.strength-bar.strong {
-  background: #1db954;
-}
-
-.strength-text {
-  font-size: 0.7rem;
-  margin-top: 0.3rem;
-  color: #6a6a6a;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -421,6 +283,9 @@ body.register-page .input-group:focus-within .form-control {
 /* ═══════════════════════════════════════════ */
 
 .btn-auth {
+  background: #1db954 !important;
+  color: #000000 !important;
+  border: none !important;
   padding: 0.85rem !important;
   border-radius: 25px !important;
   font-weight: 700 !important;
@@ -429,17 +294,6 @@ body.register-page .input-group:focus-within .form-control {
   transition: all 0.3s ease !important;
   position: relative;
   overflow: hidden;
-  border: none !important;
-}
-
-.btn-auth-login {
-  background: #1db954 !important;
-  color: #000000 !important;
-}
-
-.btn-auth-register {
-  background: #7c6fff !important;
-  color: #ffffff !important;
 }
 
 .btn-auth::before {
@@ -453,16 +307,10 @@ body.register-page .input-group:focus-within .form-control {
   transition: left 0.5s;
 }
 
-.btn-auth-login:hover {
+.btn-auth:hover {
   background: #1ed760 !important;
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
-}
-
-.btn-auth-register:hover {
-  background: #9b8fff !important;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 111, 255, 0.3);
 }
 
 .btn-auth:hover::before {
@@ -480,7 +328,7 @@ body.register-page .input-group:focus-within .form-control {
 .alert {
   border-radius: 10px !important;
   padding: 0.75rem 1rem !important;
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   border: none !important;
   animation: slideDown 0.3s ease;
 }
@@ -532,18 +380,11 @@ body.register-page .input-group:focus-within .form-control {
 }
 
 .auth-footer a {
+  color: #1db954;
   text-decoration: none;
   font-weight: 700;
   transition: all 0.2s;
   position: relative;
-}
-
-.auth-footer .login-link {
-  color: #1db954;
-}
-
-.auth-footer .register-link {
-  color: #7c6fff;
 }
 
 .auth-footer a::after {
@@ -553,27 +394,16 @@ body.register-page .input-group:focus-within .form-control {
   left: 0;
   width: 0;
   height: 2px;
+  background: #1db954;
   transition: width 0.3s ease;
 }
 
-.auth-footer .login-link::after {
-  background: #1db954;
-}
-
-.auth-footer .register-link::after {
-  background: #7c6fff;
+.auth-footer a:hover {
+  color: #1ed760;
 }
 
 .auth-footer a:hover::after {
   width: 100%;
-}
-
-.auth-footer .login-link:hover {
-  color: #1ed760;
-}
-
-.auth-footer .register-link:hover {
-  color: #9b8fff;
 }
 
 .auth-footer-divider {
@@ -591,50 +421,6 @@ body.register-page .input-group:focus-within .form-control {
   flex: 1;
   height: 1px;
   background: rgba(255, 255, 255, 0.08);
-}
-
-/* ═══════════════════════════════════════════ */
-/*         MUSIC WAVES                       */
-/* ═══════════════════════════════════════════ */
-
-.music-waves {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 3px;
-  height: 24px;
-  margin-top: 1.5rem;
-}
-
-.wave-bar {
-  width: 3px;
-  border-radius: 3px;
-  animation: wave 1.2s ease-in-out infinite;
-}
-
-.music-waves.login-waves .wave-bar {
-  background: #1db954;
-}
-
-.music-waves.register-waves .wave-bar {
-  background: #7c6fff;
-}
-
-.wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
-.wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
-.wave-bar:nth-child(3) { height: 8px; animation-delay: 0.2s; }
-.wave-bar:nth-child(4) { height: 24px; animation-delay: 0.3s; }
-.wave-bar:nth-child(5) { height: 16px; animation-delay: 0.4s; }
-.wave-bar:nth-child(6) { height: 20px; animation-delay: 0.5s; }
-.wave-bar:nth-child(7) { height: 10px; animation-delay: 0.6s; }
-
-@keyframes wave {
-  0%, 100% {
-    transform: scaleY(1);
-  }
-  50% {
-    transform: scaleY(0.4);
-  }
 }
 
 /* ═══════════════════════════════════════════ */
@@ -663,10 +449,6 @@ body.register-page .input-group:focus-within .form-control {
     padding: 0.75rem !important;
     font-size: 0.9rem !important;
   }
-  
-  .rol-selector {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 360px) {
@@ -684,46 +466,38 @@ body.register-page .input-group:focus-within .form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         FORM GRID (Register)              */
+/*         MUSIC WAVES (Optional)            */
 /* ═══════════════════════════════════════════ */
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.75rem;
-}
-
-@media (max-width: 480px) {
-  .form-row {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ═══════════════════════════════════════════ */
-/*         STEP INDICATOR (Register)         */
-/* ═══════════════════════════════════════════ */
-
-.step-indicator {
+.music-waves {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
+  gap: 3px;
+  height: 24px;
+  margin-top: 1.5rem;
 }
 
-.step-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.step-dot.active {
-  background: #7c6fff;
-  box-shadow: 0 0 8px rgba(124, 111, 255, 0.5);
-}
-
-.step-dot.completed {
+.wave-bar {
+  width: 3px;
   background: #1db954;
+  border-radius: 3px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) { height: 12px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 20px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 8px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 24px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 16px; animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { height: 20px; animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { height: 10px; animation-delay: 0.6s; }
+
+@keyframes wave {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.4);
+  }
 }

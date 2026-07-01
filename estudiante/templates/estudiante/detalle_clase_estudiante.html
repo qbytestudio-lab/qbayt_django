@@ -6,210 +6,307 @@
 {% block nav_clases %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'estudiante/css/perfil_estudiante.css' %}">
+<link rel="stylesheet" href="{% static 'estudiante/css/detalle_clase.css' %}">
 {% endblock %}
 
 {% block content %}
 
-  <!-- HEADER CON BANNER -->
-  <div style="
-    border:1px solid rgba(124,111,255,0.2); border-radius:20px;
-    padding:0; margin-bottom:2rem;
-    position:relative; overflow:hidden; min-height:180px;
-    {% if clase.imagen %}
-      background-image: url('{{ clase.imagen.url }}');
-      background-size: cover;
-      background-position: center;
-    {% else %}
-      background: linear-gradient(135deg, rgba(124,111,255,0.2), rgba(176,111,255,0.1));
-    {% endif %}
-  ">
-    <!-- OVERLAY -->
-    <div style="position:absolute; inset:0; background:rgba(8,8,20,0.65); border-radius:20px; z-index:0;"></div>
-
-    <!-- CONTENIDO -->
-    <div style="position:relative; z-index:1; padding:2rem; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-      <div>
-        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-          <div style="width:48px; height:48px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;">
-            <i class="bi bi-camera-video-fill"></i>
-          </div>
-          <span style="background:rgba(124,111,255,0.3); color:#c4baff; font-size:0.75rem; font-weight:600; padding:0.25rem 0.75rem; border-radius:100px; border:1px solid rgba(124,111,255,0.4); backdrop-filter:blur(8px);">
-            <i class="bi bi-check-circle me-1"></i> Inscrito
-          </span>
-        </div>
-        <h1 style="font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; margin-bottom:0.5rem; text-shadow:0 2px 8px rgba(0,0,0,0.5);">{{ clase.nombre }}</h1>
-        {% if clase.descripcion %}
-        <p style="color:rgba(255,255,255,0.7); margin-bottom:0.75rem; text-shadow:0 1px 4px rgba(0,0,0,0.5);">{{ clase.descripcion }}</p>
-        {% endif %}
-        <div style="display:flex; gap:1.5rem; flex-wrap:wrap; font-size:0.82rem; color:rgba(255,255,255,0.65);">
-          <span><i class="bi bi-mortarboard me-1"></i>Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}</span>
-          <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} compañeros</span>
-          <span><i class="bi bi-calendar3 me-1"></i>Desde {{ clase.fecha_creacion|date:"d M Y" }}</span>
-        </div>
+<!-- CLASS HERO BANNER -->
+<div class="class-hero">
+  <div class="class-hero-bg {% if not clase.imagen %}no-image{% endif %}"
+       {% if clase.imagen %}style="background-image: url('{{ clase.imagen.url }}');"{% endif %}>
+  </div>
+  <div class="class-hero-overlay"></div>
+  
+  <div class="class-hero-content">
+    <div class="class-hero-info">
+      <span class="class-hero-badge">
+        <i class="bi bi-check-circle-fill"></i> Inscrito
+      </span>
+      <h1 class="class-hero-title">{{ clase.nombre }}</h1>
+      
+      {% if clase.descripcion %}
+      <p class="class-hero-description">{{ clase.descripcion }}</p>
+      {% endif %}
+      
+      <div class="class-hero-meta">
+        <span class="class-hero-meta-item">
+          <i class="bi bi-mortarboard-fill"></i>
+          {{ clase.docente.get_full_name|default:clase.docente.username }}
+        </span>
+        <span class="class-hero-meta-item">
+          <i class="bi bi-people-fill"></i>
+          {{ clase.estudiantes.count }} compañeros
+        </span>
+        <span class="class-hero-meta-item">
+          <i class="bi bi-calendar3"></i>
+          {{ clase.fecha_creacion|date:"d M Y" }}
+        </span>
       </div>
+    </div>
+    
+    <div class="class-hero-actions">
       <a href="{% url 'salir_clase' clase.id %}"
          onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
-         style="background:rgba(255,80,80,0.2); border:1px solid rgba(255,80,80,0.35); color:#ff8080; font-size:0.85rem; font-weight:600; padding:0.65rem 1.25rem; border-radius:10px; text-decoration:none; display:flex; align-items:center; gap:0.5rem; backdrop-filter:blur(8px); transition:background 0.2s;">
+         class="btn-leave-class">
         <i class="bi bi-box-arrow-right"></i> Salir de la clase
       </a>
     </div>
   </div>
+</div>
 
-  <div class="row g-4">
-
-    <!-- LECCIONES Y ACTIVIDADES -->
-    <div class="col-lg-8">
-
-      <!-- ANUNCIOS -->
-      {% if clase.anuncios.all %}
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios del docente
+<!-- MAIN CONTENT -->
+<div class="class-content">
+  
+  <!-- LEFT COLUMN: Lessons & Announcements -->
+  <div class="class-main">
+    
+    <!-- ANNOUNCEMENTS -->
+    {% if clase.anuncios.all %}
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-megaphone-fill icon-orange"></i>
+          Anuncios del docente
         </h3>
-        {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
-        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-          <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-            <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-              {{ clase.docente.username|first|upper }}
-            </div>
-            <div>
-              <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-              <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-            </div>
-          </div>
-          <p style="color:rgba(255,255,255,0.6); font-size:0.875rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
-        </div>
-        {% endfor %}
+        <span class="section-badge">{{ clase.anuncios.all|length }}</span>
       </div>
-      {% endif %}
-
-      <!-- LECCIONES -->
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
-        </h3>
-
-        {% for leccion in clase.lecciones.all %}
-        <div style="background:rgba(255,255,255,0.03); border:1px solid {% if leccion.disponible %}rgba(124,111,255,0.15){% else %}rgba(255,255,255,0.06){% endif %}; border-radius:14px; margin-bottom:1rem; overflow:hidden;">
-
-          <div style="display:flex; align-items:center; gap:1rem; padding:1rem 1.25rem; background:{% if leccion.disponible %}rgba(124,111,255,0.08){% else %}rgba(255,255,255,0.02){% endif %};">
-            <div style="width:36px; height:36px; background:{% if leccion.disponible %}linear-gradient(135deg,#7c6fff,#b06fff){% else %}rgba(255,255,255,0.08){% endif %}; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.85rem; font-weight:700; flex-shrink:0; color:{% if not leccion.disponible %}rgba(255,255,255,0.3){% endif %};">
-              {{ leccion.orden }}
-            </div>
-            <div style="flex:1;">
-              <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; color:{% if leccion.disponible %}#eae8f5{% else %}rgba(255,255,255,0.35){% endif %};">{{ leccion.titulo }}</div>
-              {% if leccion.descripcion %}
-              <div style="font-size:0.75rem; color:rgba(255,255,255,0.35);">{{ leccion.descripcion }}</div>
-              {% endif %}
-            </div>
-            {% if leccion.disponible %}
-            <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">Disponible</span>
-            {% else %}
-            <i class="bi bi-lock" style="color:rgba(255,255,255,0.2); flex-shrink:0;"></i>
-            {% endif %}
-          </div>
-
-          {% if leccion.disponible and leccion.actividades.all %}
-          <div style="padding:0.75rem 1.25rem;">
-            {% for act in leccion.actividades.all %}
-            <a href="{% url 'detalle_actividad_estudiante' act.id %}" style="
-              display:flex; align-items:center; gap:0.85rem;
-              padding:0.75rem 0.85rem; border-radius:10px; margin-bottom:0.4rem;
-              background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06);
-              text-decoration:none; color:#eae8f5;
-              transition:border-color 0.2s, background 0.2s;
-            " onmouseover="this.style.borderColor='rgba(124,111,255,0.3)';this.style.background='rgba(124,111,255,0.06)'"
-               onmouseout="this.style.borderColor='rgba(255,255,255,0.06)';this.style.background='rgba(255,255,255,0.03)'">
-              <div style="width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:0.9rem; flex-shrink:0; background:{% if act.tipo == 'quiz' %}rgba(80,220,140,0.12){% else %}rgba(124,111,255,0.12){% endif %}; color:{% if act.tipo == 'quiz' %}#50dc8c{% else %}#a89fff{% endif %};">
-                {% if act.tipo == 'quiz' %}
-                <i class="bi bi-patch-question-fill"></i>
-                {% else %}
-                <i class="bi bi-file-text-fill"></i>
-                {% endif %}
-              </div>
-              <div style="flex:1;">
-                <div style="font-size:0.875rem; font-weight:600; margin-bottom:0.1rem;">{{ act.titulo }}</div>
-                <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">
-                  {{ act.get_tipo_display }}{% if act.tipo == 'quiz' %} · {{ act.preguntas.count }} preguntas{% endif %}
-                </div>
-              </div>
-              {% if act.id in completadas %}
-              <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">
-                <i class="bi bi-check-lg me-1"></i>Completado
-              </span>
-              {% else %}
-              <span style="background:rgba(124,111,255,0.1); color:#a89fff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; flex-shrink:0;">
-                Pendiente
-              </span>
-              {% endif %}
-              <i class="bi bi-chevron-right" style="color:rgba(255,255,255,0.2); flex-shrink:0;"></i>
-            </a>
-            {% endfor %}
-          </div>
-          {% elif leccion.disponible %}
-          <div style="padding:0.75rem 1.25rem; font-size:0.8rem; color:rgba(255,255,255,0.25);">
-            <i class="bi bi-inbox me-1"></i> Sin actividades aún
-          </div>
-          {% endif %}
-
-        </div>
-        {% empty %}
-        <div style="text-align:center; padding:2rem 0; color:rgba(255,255,255,0.25);">
-          <i class="bi bi-collection" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-          <p>El docente aún no ha agregado contenido.</p>
-        </div>
-        {% endfor %}
-      </div>
-
-    </div>
-
-    <!-- COLUMNA DERECHA -->
-    <div class="col-lg-4">
-
-      <!-- COMPAÑEROS -->
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem;">
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="bi bi-people" style="color:#7c6fff"></i> Compañeros
-          <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:100px; margin-left:auto;">{{ clase.estudiantes.count }}</span>
-        </h3>
-        {% for estudiante in clase.estudiantes.all %}
-        <div style="display:flex; align-items:center; gap:0.75rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-          <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700; flex-shrink:0;">
-            {{ estudiante.username|first|upper }}
-          </div>
-          <div style="flex:1;">
-            <div style="font-size:0.85rem; font-weight:500;">{{ estudiante.get_full_name|default:estudiante.username }}</div>
-            <div style="font-size:0.72rem; color:rgba(255,255,255,0.35);">@{{ estudiante.username }}</div>
-          </div>
-          {% if estudiante == request.user %}
-          <span style="font-size:0.65rem; color:#a89fff; font-weight:600;">Tú</span>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-
-      <!-- DOCENTE -->
-      <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:1.5rem;">
-        <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-          <i class="bi bi-mortarboard" style="color:#b06fff"></i> Docente
-        </h3>
-        <div style="display:flex; align-items:center; gap:0.75rem;">
-          <div style="width:44px; height:44px; background:linear-gradient(135deg,#b06fff,#7c6fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1rem; font-weight:700; flex-shrink:0;">
+      
+      {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
+      <div class="announcement-item">
+        <div class="announcement-header">
+          <div class="announcement-avatar">
             {{ clase.docente.username|first|upper }}
           </div>
           <div>
-            <div style="font-weight:600; font-size:0.9rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-            <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{ clase.docente.email }}</div>
+            <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+            <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
           </div>
         </div>
+        <p class="announcement-text">{{ anuncio.texto }}</p>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- LESSONS -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-collection-play-fill icon-purple"></i>
+          Contenido de la clase
+        </h3>
+        <span class="section-badge">{{ clase.lecciones.all|length }} lecciones</span>
       </div>
 
+      {% for leccion in clase.lecciones.all %}
+      <div class="lesson-item {% if not leccion.disponible %}disabled{% endif %}">
+        
+        <!-- Lesson Header -->
+        <div class="lesson-header" {% if leccion.disponible %}onclick="toggleLesson(this)"{% endif %}>
+          <div class="lesson-number {% if leccion.disponible %}available{% else %}locked{% endif %}">
+            {% if leccion.disponible %}
+            {{ leccion.orden }}
+            {% else %}
+            <i class="bi bi-lock-fill"></i>
+            {% endif %}
+          </div>
+          
+          <div class="lesson-info">
+            <div class="lesson-title">{{ leccion.titulo }}</div>
+            {% if leccion.descripcion %}
+            <div class="lesson-description">{{ leccion.descripcion|truncatechars:60 }}</div>
+            {% endif %}
+          </div>
+          
+          <div class="lesson-status">
+            {% if leccion.disponible %}
+            <span class="status-badge available-badge">
+              <i class="bi bi-unlock-fill"></i> Disponible
+            </span>
+            {% else %}
+            <span class="status-badge locked-badge">
+              <i class="bi bi-lock-fill"></i> Bloqueado
+            </span>
+            {% endif %}
+          </div>
+          
+          {% if leccion.disponible %}
+          <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
+          {% endif %}
+        </div>
+
+        <!-- Activities -->
+        {% if leccion.disponible and leccion.actividades.all %}
+        <div class="lesson-activities" style="display: none;">
+          {% for act in leccion.actividades.all %}
+          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="activity-item">
+            <div class="activity-icon {% if act.tipo == 'quiz' %}quiz{% else %}document{% endif %}">
+              {% if act.tipo == 'quiz' %}
+              <i class="bi bi-patch-question-fill"></i>
+              {% else %}
+              <i class="bi bi-file-text-fill"></i>
+              {% endif %}
+            </div>
+            
+            <div class="activity-info">
+              <div class="activity-title">{{ act.titulo }}</div>
+              <div class="activity-type">
+                {{ act.get_tipo_display }}
+                {% if act.tipo == 'quiz' %} · {{ act.preguntas.count }} preguntas{% endif %}
+              </div>
+            </div>
+            
+            <span class="activity-badge {% if act.id in completadas %}completed{% else %}pending{% endif %}">
+              {% if act.id in completadas %}
+              <i class="bi bi-check-lg"></i> Completado
+              {% else %}
+              Pendiente
+              {% endif %}
+            </span>
+            
+            <i class="bi bi-chevron-right activity-arrow"></i>
+          </a>
+          {% endfor %}
+        </div>
+        {% elif leccion.disponible %}
+        <div class="lesson-activities" style="display: none;">
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-inbox"></i>
+            </div>
+            <p class="empty-text">Sin actividades aún</p>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+      {% empty %}
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="bi bi-collection"></i>
+        </div>
+        <p class="empty-text">El docente aún no ha agregado contenido</p>
+      </div>
+      {% endfor %}
     </div>
+
   </div>
+
+  <!-- RIGHT COLUMN: Sidebar -->
+  <div class="class-sidebar">
+    
+    <!-- CLASSMATES -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-people-fill icon-purple"></i>
+          Compañeros
+        </h3>
+        <span class="section-badge">{{ clase.estudiantes.count }}</span>
+      </div>
+      
+      <div class="classmates-list">
+        {% for estudiante in clase.estudiantes.all %}
+        <div class="classmate-item">
+          <div class="classmate-avatar color-{{ forloop.counter|add:1 }}">
+            {{ estudiante.username|first|upper }}
+          </div>
+          <div class="classmate-info">
+            <div class="classmate-name">{{ estudiante.get_full_name|default:estudiante.username }}</div>
+            <div class="classmate-username">@{{ estudiante.username }}</div>
+          </div>
+          {% if estudiante == request.user %}
+          <span class="classmate-you">Tú</span>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- TEACHER -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-mortarboard-fill icon-pink"></i>
+          Docente
+        </h3>
+      </div>
+      
+      <div class="teacher-card">
+        <div class="teacher-avatar">
+          {{ clase.docente.username|first|upper }}
+        </div>
+        <div class="teacher-info">
+          <div class="teacher-name">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+          <div class="teacher-email">
+            <i class="bi bi-envelope"></i>
+            {{ clase.docente.email }}
+          </div>
+          <span class="teacher-badge">
+            <i class="bi bi-patch-check-fill"></i> Docente
+          </span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
 
 {% endblock %}
 
+{% block extra_js %}
+<script>
+  // Toggle lesson accordion
+  function toggleLesson(header) {
+    const lessonItem = header.parentElement;
+    const activities = lessonItem.querySelector('.lesson-activities');
+    const chevron = header.querySelector('.bi-chevron-down');
+    
+    if (activities) {
+      const isHidden = activities.style.display === 'none' || activities.style.display === '';
+      
+      // Close all other lessons
+      document.querySelectorAll('.lesson-activities').forEach(el => {
+        el.style.display = 'none';
+      });
+      document.querySelectorAll('.bi-chevron-down').forEach(el => {
+        el.style.transform = 'rotate(0deg)';
+      });
+      
+      // Toggle current
+      if (isHidden) {
+        activities.style.display = 'block';
+        if (chevron) chevron.style.transform = 'rotate(180deg)';
+      } else {
+        activities.style.display = 'none';
+        if (chevron) chevron.style.transform = 'rotate(0deg)';
+      }
+    }
+  }
 
+  // Animation on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px'
+  };
 
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.lesson-item, .announcement-item').forEach((item, index) => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(15px)';
+    item.style.transition = `all 0.4s ease ${index * 0.05}s`;
+    observer.observe(item);
+  });
+</script>
+{% endblock %}
 

@@ -57,18 +57,27 @@ def perfil_estudiante(request):
 def unirse_clase(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
+
     if request.method == 'POST':
         codigo = request.POST.get('codigo', '').strip().upper()
+
         try:
             clase = Clase.objects.get(codigo=codigo)
+
             if request.user in clase.estudiantes.all():
                 messages.warning(request, 'Ya estás en esta clase.')
             else:
                 clase.estudiantes.add(request.user)
                 messages.success(request, f'¡Te uniste a "{clase.nombre}"!')
+
+            # Solo redirige si la clase existe
+            return redirect('detalle_clase_estudiante', clase_id=clase.id)
+
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
-    return redirect('detalle_clase_estudiante', clase_id=clase.id if 'clase' in locals() else None)
+            return redirect('explorar_clases')  # o la página donde está el formulario
+
+    return redirect('explorar_clases')
 
 @login_required
 def solicitar_clase(request):

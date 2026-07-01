@@ -6,225 +6,340 @@
 {% block nav_clases %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
+<link rel="stylesheet" href="{% static 'web/css/mis_clases_docente.css' %}">
 {% endblock %}
 
 {% block content %}
 
-  {% if messages %}
-  <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-    {% endfor %}
+{% if messages %}
+<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"
+    style="background: {% if message.tags == 'success' %}#1db954{% else %}#e91429{% endif %}; color: #fff; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <i
+      class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}-fill me-2"></i>
+    {{ message }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
   </div>
-  {% endif %}
+  {% endfor %}
+</div>
+{% endif %}
 
-  <div class="welcome-banner">
-    <div class="welcome-text">
-      <h2>Mis Clases 🎓</h2>
-      <p>Gestiona tus clases, estudiantes y solicitudes.</p>
+<!-- HERO SECTION -->
+<div class="classes-hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Mis Clases</h1>
+    <p class="hero-subtitle">Gestiona tus clases, estudiantes y solicitudes de ingreso</p>
+  </div>
+
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">{{ clases.count }}</div>
+      <div class="hero-stat-label">Clases</div>
     </div>
-    <a href="#" class="btn-perfil" data-bs-toggle="modal" data-bs-target="#modalCrearClase">
+    <div class="hero-stat">
+      <div class="hero-stat-value">{{ total_estudiantes }}</div>
+      <div class="hero-stat-label">Estudiantes</div>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat-value">{{ solicitudes_pendientes.count }}</div>
+      <div class="hero-stat-label">Solicitudes</div>
+    </div>
+  </div>
+
+  <div class="hero-actions">
+    <button class="btn-hero btn-hero-primary" data-bs-toggle="modal" data-bs-target="#modalCrearClase">
       <i class="bi bi-plus-circle"></i> Nueva clase
-    </a>
+    </button>
   </div>
+</div>
 
-  <!-- RESUMEN RÁPIDO -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-4">
-      <div class="stat-card">
-        <div class="stat-icon purple"><i class="bi bi-camera-video-fill"></i></div>
-        <div><div class="stat-value">{{ clases.count }}</div><div class="stat-label">Clases creadas</div></div>
-      </div>
+<!-- STATS CARDS -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-purple">
+      <i class="bi bi-camera-video-fill"></i>
     </div>
-    <div class="col-md-4">
-      <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-people-fill"></i></div>
-        <div><div class="stat-value">{{ total_estudiantes }}</div><div class="stat-label">Estudiantes totales</div></div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-bell-fill"></i></div>
-        <div><div class="stat-value">{{ solicitudes_pendientes.count }}</div><div class="stat-label">Solicitudes pendientes</div></div>
-      </div>
+    <div class="stat-content">
+      <div class="stat-value">{{ clases.count }}</div>
+      <div class="stat-label">Clases activas</div>
     </div>
   </div>
 
-  <!-- SOLICITUDES PENDIENTES -->
-  {% if solicitudes_pendientes %}
-  <div class="section-title mt-4"><i class="bi bi-bell-fill" style="color:#ff9f43"></i> Solicitudes pendientes</div>
-  <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.2); border-radius:16px; padding:1.25rem; margin-bottom:2rem;">
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-green">
+      <i class="bi bi-people-fill"></i>
+    </div>
+    <div class="stat-content">
+      <div class="stat-value">{{ total_estudiantes }}</div>
+      <div class="stat-label">Estudiantes totales</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon-wrapper stat-icon-orange">
+      <i class="bi bi-bell-fill"></i>
+    </div>
+    <div class="stat-content">
+      <div class="stat-value">{{ solicitudes_pendientes.count }}</div>
+      <div class="stat-label">Solicitudes pendientes</div>
+    </div>
+  </div>
+</div>
+
+<!-- SOLICITUDES PENDIENTES -->
+{% if solicitudes_pendientes %}
+<div class="solicitudes-section">
+  <div class="solicitudes-header">
+    <h2 class="solicitudes-title">
+      <i class="bi bi-bell-fill"></i>
+      Solicitudes de ingreso
+    </h2>
+    <span class="solicitudes-count">{{ solicitudes_pendientes.count }} pendiente{{
+      solicitudes_pendientes.count|pluralize:"s" }}</span>
+  </div>
+
+  <div class="solicitudes-list">
     {% for sol in solicitudes_pendientes %}
-    <div style="display:flex; align-items:center; gap:1rem; padding:0.75rem 0; {% if not forloop.last %}border-bottom:1px solid rgba(255,255,255,0.06);{% endif %}">
-      <div style="width:38px; height:38px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; flex-shrink:0;">
+    <div class="solicitud-item">
+      <div class="solicitud-avatar">
         {{ sol.estudiante.username|first|upper }}
       </div>
-      <div style="flex:1;">
-        <strong>{{ sol.estudiante.username }}</strong>
-        <span style="color:rgba(255,255,255,0.4); font-size:0.85rem;"> quiere unirse a <em>{{ sol.clase.nombre }}</em></span>
+      <div class="solicitud-info">
+        <div class="solicitud-student">{{ sol.estudiante.get_full_name|default:sol.estudiante.username }}</div>
+        <div class="solicitud-class">
+          <i class="bi bi-folder-fill"></i>
+          {{ sol.clase.nombre }}
+        </div>
       </div>
-      <div class="d-flex gap-2">
-        <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success">
+      <div class="solicitud-actions">
+        <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept">
           <i class="bi bi-check-lg"></i> Aceptar
         </a>
-        <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger">
+        <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject">
           <i class="bi bi-x-lg"></i> Rechazar
         </a>
       </div>
     </div>
     {% endfor %}
   </div>
-  {% endif %}
+</div>
+{% endif %}
 
-  <!-- LISTA DE CLASES -->
-  <div class="section-title mt-2"><i class="bi bi-camera-video" style="color:var(--accent)"></i> Clases creadas</div>
+<!-- CLASSES SECTION -->
+<div class="section-header">
+  <h2 class="section-title">
+    <i class="bi bi-collection-play-fill"></i>
+    Clases creadas
+  </h2>
+</div>
 
-  {% if clases %}
-  <div class="row g-4">
-    {% for clase in clases %}
-    <div class="col-md-4">
-      <div style="
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 16px;
-        overflow: hidden;
-        transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-      " onmouseover="this.style.transform='translateY(-4px)';this.style.borderColor='rgba(124,111,255,0.35)';this.style.boxShadow='0 12px 40px rgba(124,111,255,0.12)'"
-         onmouseout="this.style.transform='';this.style.borderColor='rgba(255,255,255,0.08)';this.style.boxShadow=''">
+{% if clases %}
+<div class="classes-grid">
+  {% for clase in clases %}
+  <div class="class-card">
 
-        <div style="
-          {% if clase.imagen %}
-            background-image: url('{{ clase.imagen.url }}');
-            background-size: cover;
-            background-position: center;
-          {% else %}
-            background: linear-gradient(135deg, rgba(124,111,255,0.3), rgba(176,111,255,0.2));
-          {% endif %}
-          padding: 2rem 1.5rem;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 130px;
-          position: relative;
-        ">
-          {% if not clase.imagen %}
-          <i class="bi bi-music-note-beamed" style="font-size: 3rem; color: rgba(255,255,255,0.15); position:absolute;"></i>
-          {% endif %}
-          <i class="bi bi-camera-video-fill" style="font-size: 1.8rem; color: #fff; position:relative; z-index:1; {% if clase.imagen %}text-shadow:0 2px 8px rgba(0,0,0,0.6);{% endif %}"></i>
-        </div>
+    <!-- Card Image -->
+    <div class="class-card-image {% if clase.imagen %}has-image{% endif %}" {% if clase.imagen %}
+      style="background-image:url('{{ clase.imagen.url }}');" {% endif %}>
+      {% if not clase.imagen %}
+      <i class="bi bi-music-note-beamed"></i>
+      {% endif %}
 
-        <div style="padding: 1.25rem; flex:1; display:flex; flex-direction:column;">
-          <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{ clase.nombre }}</h3>
-          {% if clase.descripcion %}
-          <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:0.75rem; flex:1;">{{ clase.descripcion|truncatechars:80 }}</p>
-          {% endif %}
-          <div style="display:flex; gap:1rem; margin-bottom:0.75rem; font-size:0.78rem; color:rgba(255,255,255,0.4); flex-wrap:wrap;">
-            <span><i class="bi bi-people me-1"></i>{{ clase.estudiantes.count }} estudiantes</span>
-            <span><i class="bi bi-calendar3 me-1"></i>{{ clase.fecha_creacion|date:"d M Y" }}</span>
-          </div>
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; background:rgba(124,111,255,0.08); border:1px solid rgba(124,111,255,0.15); border-radius:8px; padding:0.5rem 0.75rem;">
-            <i class="bi bi-key" style="color:#a89fff; font-size:0.8rem;"></i>
-            <span style="font-weight:700; letter-spacing:0.1em; font-size:0.85rem; color:#a89fff;">{{ clase.codigo }}</span>
-          </div>
-          <div style="display:flex; gap:0.5rem; margin-top:auto;">
-            <a href="{% url 'detalle_clase' clase.id %}" style="
-              flex:1; background:linear-gradient(135deg,#7c6fff,#b06fff);
-              border:none; color:#fff; font-weight:600; font-size:0.85rem;
-              padding:0.6rem; border-radius:9px; text-align:center;
-              text-decoration:none; display:block;
-            ">
-              <i class="bi bi-gear-fill me-1"></i> Gestionar
-            </a>
-            <a href="#" data-bs-toggle="modal" data-bs-target="#modalAgregar{{ clase.id }}"
-               style="background:rgba(124,111,255,0.1); border:1px solid rgba(124,111,255,0.2); color:#a89fff; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
-              <i class="bi bi-person-plus"></i>
-            </a>
-            <a href="{% url 'eliminar_clase' clase.id %}"
-               onclick="return confirm('¿Eliminar la clase {{ clase.nombre }}? Esta acción es irreversible.')"
-               style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
-              <i class="bi bi-trash"></i>
-            </a>
-          </div>
-        </div>
+      <div class="class-card-overlay"></div>
+
+      <div class="students-count">
+        <i class="bi bi-people-fill"></i>
+        {{ clase.estudiantes.count }} estudiante{{ clase.estudiantes.count|pluralize:"s" }}
       </div>
     </div>
 
-    <!-- Modal agregar estudiante por clase -->
-    <div class="modal fade" id="modalAgregar{{ clase.id }}" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content text-dark">
-          <div class="modal-header">
-            <h5 class="modal-title">Agregar a "{{ clase.nombre }}"</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
-            {% csrf_token %}
-            <div class="modal-body">
-              <label class="form-label small">Usuario del estudiante</label>
-              <input type="text" class="form-control" name="username" placeholder="Ej: juan123" required>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-              <button type="submit" class="btn btn-primary btn-sm">Agregar</button>
-            </div>
-          </form>
-        </div>
+    <!-- Card Body -->
+    <div class="class-card-body">
+      <h3 class="class-card-title">{{ clase.nombre }}</h3>
+
+      {% if clase.descripcion %}
+      <p class="class-card-description">{{ clase.descripcion|truncatechars:80 }}</p>
+      {% endif %}
+
+      <!-- Meta -->
+      <div class="class-card-meta">
+        <span class="class-card-meta-item">
+          <i class="bi bi-calendar3"></i>
+          {{ clase.fecha_creacion|date:"d M Y" }}
+        </span>
+        <span class="class-card-meta-item">
+          <i class="bi bi-people"></i>
+          {{ clase.estudiantes.count }} inscritos
+        </span>
+      </div>
+
+      <!-- Code -->
+      <div class="class-code">
+        <i class="bi bi-key-fill"></i>
+        <span>{{ clase.codigo }}</span>
+        <button class="copy-btn" onclick="copyCode('{{ clase.codigo }}')" title="Copiar código">
+          <i class="bi bi-clipboard"></i>
+        </button>
+      </div>
+
+      <!-- Footer -->
+      <div class="class-card-footer">
+        <a href="{% url 'detalle_clase' clase.id %}" class="btn-class-primary">
+          <i class="bi bi-gear-fill"></i> Gestionar
+        </a>
+        <a href="#" data-bs-toggle="modal" data-bs-target="#modalAgregar{{ clase.id }}"
+          class="btn-class-icon btn-add-student" title="Agregar estudiante">
+          <i class="bi bi-person-plus-fill"></i>
+        </a>
+        <a href="{% url 'eliminar_clase' clase.id %}"
+          onclick="return confirm('¿Eliminar la clase {{ clase.nombre }}? Esta acción es irreversible.')"
+          class="btn-class-icon btn-delete" title="Eliminar clase">
+          <i class="bi bi-trash-fill"></i>
+        </a>
       </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <div class="text-center py-5">
-    <i class="bi bi-camera-video-off" style="font-size:3rem; color:rgba(255,255,255,0.15); display:block; margin-bottom:1rem;"></i>
-    <p style="color:rgba(255,255,255,0.4);">Aún no has creado ninguna clase.</p>
-    <a href="#" data-bs-toggle="modal" data-bs-target="#modalCrearClase" style="color:#7c6fff; font-size:0.875rem;">
-      <i class="bi bi-plus-circle me-1"></i> Crear tu primera clase
-    </a>
-  </div>
-  {% endif %}
 
-  <!-- MODAL CREAR CLASE -->
-  <div class="modal fade" id="modalCrearClase" tabindex="-1" aria-hidden="true">
+  <!-- Modal Agregar Estudiante -->
+  <div class="modal fade" id="modalAgregar{{ clase.id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content text-dark">
+      <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Clase</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <h5 class="modal-title">
+            <i class="bi bi-person-plus me-2" style="color: #7c6fff;"></i>
+            Agregar estudiante
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data">
+        <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
           {% csrf_token %}
           <div class="modal-body">
+            <p style="color: #b3b3b3; font-size: 0.9rem; margin-bottom: 1rem;">
+              Agregar a <strong style="color: #fff;">{{ clase.nombre }}</strong>
+            </p>
             <div class="mb-3">
-              <label class="form-label small">Nombre de la clase <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" name="nombre" placeholder="Ej: Entrenamiento auditivo I" required>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small">Descripción</label>
-              <textarea class="form-control" name="descripcion" rows="3" placeholder="Describe de qué trata esta clase..."></textarea>
-            </div>
-            <div class="mb-3">
-              <label class="form-label small">Imagen de portada (opcional)</label>
-              <input type="file" class="form-control" name="imagen" accept="image/*">
-            </div>
-            <div class="alert alert-info small p-2">
-              <i class="bi bi-info-circle me-1"></i>
-              Se generará un código automático para que los estudiantes puedan unirse.
+              <label class="form-label">Nombre de usuario del estudiante</label>
+              <input type="text" class="form-control" name="username" placeholder="Ej: juan123" required>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-primary btn-sm">Crear clase</button>
+            <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="submit" class="btn-spotify-purple">Agregar</button>
           </div>
         </form>
       </div>
     </div>
   </div>
+  {% endfor %}
+</div>
+{% else %}
+<!-- Empty State -->
+<div class="empty-state">
+  <div class="empty-icon">
+    <i class="bi bi-camera-video-off"></i>
+  </div>
+  <h3 class="empty-title">Aún no has creado ninguna clase</h3>
+  <p class="empty-text">Crea tu primera clase y comparte el código con tus estudiantes</p>
+  <button class="btn-spotify-purple" data-bs-toggle="modal" data-bs-target="#modalCrearClase">
+    <i class="bi bi-plus-circle"></i> Crear primera clase
+  </button>
+</div>
+{% endif %}
 
+<!-- MODAL CREAR CLASE -->
+<div class="modal fade" id="modalCrearClase" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle me-2" style="color: #7c6fff;"></i>
+          Nueva clase
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nombre de la clase <span style="color: #e91429;">*</span></label>
+            <input type="text" class="form-control" name="nombre" placeholder="Ej: Entrenamiento auditivo I" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" name="descripcion" rows="3"
+              placeholder="Describe de qué trata esta clase..."></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Imagen de portada (opcional)</label>
+            <input type="file" class="form-control" name="imagen" accept="image/*" style="padding: 0.5rem !important;">
+          </div>
+          <div class="alert-info-spotify">
+            <i class="bi bi-info-circle"></i>
+            Se generará un código único automáticamente para que los estudiantes puedan unirse.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn-spotify-purple">Crear clase</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Copiar código al portapapeles
+  function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() => {
+      // Mostrar feedback visual
+      const btns = document.querySelectorAll('.copy-btn');
+      btns.forEach(btn => {
+        const icon = btn.querySelector('i');
+        if (btn.onclick.toString().includes(code)) {
+          icon.className = 'bi bi-check-lg';
+          setTimeout(() => {
+            icon.className = 'bi bi-clipboard';
+          }, 2000);
+        }
+      });
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+    });
+  }
+
+  // Animación de cards al hacer scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.class-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+    observer.observe(card);
+  });
+
+  // Auto-dismiss alerts
+  setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 4000);
+</script>
 {% endblock %}

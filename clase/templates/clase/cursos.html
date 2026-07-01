@@ -1,140 +1,294 @@
 {% extends 'web/base.html' %}
+{% load static %}
 
 {% block title %}Cursos - QBYT{% endblock %}
 {% block page_title %}Cursos{% endblock %}
 {% block nav_cursos %}active{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clase/css/curso.css' %}">
+{% endblock %}
+
 {% block content %}
 
-  <div class="welcome-banner">
-    <div class="welcome-text">
-      <h2>Cursos 🎵</h2>
-      <p>Sigue cursos y avanza a tu propio ritmo.</p>
-    </div>
+<!-- HERO SECTION -->
+<div class="cursos-hero">
+  <div class="hero-content">
+    <h1 class="hero-title">Cursos</h1>
+    <p class="hero-subtitle">Descubre y sigue cursos a tu propio ritmo</p>
   </div>
 
-  {% if messages %}
-  <div class="mb-3">
-    {% for message in messages %}
-    <div class="alert alert-success alert-dismissible fade show" role="alert" style="background:rgba(80,220,140,0.1); border:1px solid rgba(80,220,140,0.25); color:#50dc8c;">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  <div class="hero-stats">
+    <div class="hero-stat">
+      <div class="hero-stat-value">{{ inscripciones|length }}</div>
+      <div class="hero-stat-label">Siguiendo</div>
     </div>
-    {% endfor %}
+    <div class="hero-stat">
+      <div class="hero-stat-value">{{ catalogo|length }}</div>
+      <div class="hero-stat-label">Disponibles</div>
+    </div>
   </div>
-  {% endif %}
+</div>
 
-  <!-- MIS CURSOS -->
-  <div class="section-title mt-2"><i class="bi bi-bookmark-star" style="color:var(--accent)"></i> Mis cursos</div>
+<!-- ALERT MESSAGES -->
+{% if messages %}
+<div class="mb-3">
+  {% for message in messages %}
+  <div class="alert-spotify alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill"></i>
+    {{ message }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="margin-left: auto;"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
 
+<!-- ═══════════════════════════════════════════ -->
+<!--           MIS CURSOS                     -->
+<!-- ═══════════════════════════════════════════ -->
+
+<div class="section-header">
+  <h2 class="section-title">
+    <i class="bi bi-bookmark-star icon-purple"></i>
+    Mis cursos
+  </h2>
   {% if inscripciones %}
-  <div class="row g-4 mb-4">
-    {% for insc in inscripciones %}
-    <div class="col-md-4">
-      <div style="
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(124,111,255,0.2);
-        border-radius: 16px;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-      " onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 40px rgba(124,111,255,0.12)'"
-         onmouseout="this.style.transform='';this.style.boxShadow=''">
+  <span class="section-count">{{ inscripciones|length }} curso{{ inscripciones|length|pluralize:"s" }}</span>
+  {% endif %}
+</div>
 
-        <div style="position:relative; height:140px; {% if not insc.curso.imagen_url %}background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15)); display:flex; align-items:center; justify-content:center;{% endif %}">
-          {% if insc.curso.imagen_url %}
-          <img src="{{ insc.curso.imagen_url }}" alt="{{ insc.curso.nombre }}" style="width:100%; height:140px; object-fit:cover; display:block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div style="display:none; position:absolute; inset:0; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
-            <i class="bi {{ insc.curso.icono }}" style="font-size:2.5rem; color:rgba(255,255,255,0.3);"></i>
-          </div>
-          {% else %}
-          <i class="bi {{ insc.curso.icono }}" style="font-size:2.5rem; color:rgba(255,255,255,0.3);"></i>
-          {% endif %}
-          <span style="position:absolute; top:0.75rem; right:0.75rem; background:rgba(124,111,255,0.85); color:#fff; font-size:0.7rem; font-weight:600; padding:0.25rem 0.7rem; border-radius:100px; backdrop-filter:blur(8px);">
-            <i class="bi bi-bookmark-check-fill me-1"></i> Siguiendo
-          </span>
+{% if inscripciones %}
+<div class="courses-grid">
+  {% for insc in inscripciones %}
+  <div class="course-card my-course">
+
+    <!-- Card Image -->
+    <div class="class-card-image {% if clase.imagen %}has-image{% endif %}" {% if clase.imagen %}
+      style="background-image:url('{{ clase.imagen.url }}');" {% endif %}>
+      {% if not insc.curso.imagen_url %}
+      <i class="bi {{ insc.curso.icono }}"></i>
+      {% endif %}
+
+      <div class="course-card-overlay"></div>
+
+      <!-- Status Badge -->
+      <span class="course-status following">
+        <i class="bi bi-bookmark-check-fill"></i> Siguiendo
+      </span>
+
+      <!-- Play Button -->
+      <a href="#" class="course-play-btn">
+        <i class="bi bi-play-fill"></i>
+      </a>
+    </div>
+
+    <!-- Card Body -->
+    <div class="course-card-body">
+      <div class="course-meta">
+        <span class="course-category">{{ insc.curso.get_categoria_display }}</span>
+        <span class="course-level {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
+        <span class="course-duration">
+          <i class="bi bi-clock"></i> {{ insc.curso.duracion_horas }}h
+        </span>
+      </div>
+
+      <h3 class="course-title">{{ insc.curso.nombre }}</h3>
+
+      {% if insc.curso.descripcion %}
+      <p class="course-description">{{ insc.curso.descripcion|truncatechars:90 }}</p>
+      {% endif %}
+
+      <!-- Progress Bar -->
+      <div class="course-progress">
+        <div class="course-progress-info">
+          <span class="course-progress-text">Progreso</span>
+          <span class="course-progress-percent">45%</span>
         </div>
-
-        <div style="padding:1.25rem; flex:1; display:flex; flex-direction:column;">
-          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem; flex-wrap:wrap;">
-            <span style="background:rgba(176,111,255,0.12); color:#c4baff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">{{ insc.curso.get_categoria_display }}</span>
-            <span class="badge-nivel {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
-            <span style="color:rgba(255,255,255,0.4); font-size:0.78rem;"><i class="bi bi-clock"></i> {{ insc.curso.duracion_horas }}h</span>
-          </div>
-          <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:0.5rem;">{{ insc.curso.nombre }}</h3>
-          <p style="color:rgba(255,255,255,0.45); font-size:0.82rem; line-height:1.5; margin-bottom:1rem; flex:1;">{{ insc.curso.descripcion|truncatechars:90 }}</p>
-
-          <div style="display:flex; gap:0.5rem; margin-top:auto;">
-            <a href="#" style="
-              flex:1; background:linear-gradient(135deg,#7c6fff,#b06fff);
-              border:none; color:#fff; font-weight:600; font-size:0.85rem;
-              padding:0.6rem; border-radius:9px; text-align:center;
-              text-decoration:none; display:block;
-            ">
-              <i class="bi bi-play-fill me-1"></i> Continuar
-            </a>
-            <a href="{% url 'eliminar_curso' insc.curso.id %}"
-               onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')"
-               style="background:rgba(255,80,80,0.1); border:1px solid rgba(255,80,80,0.2); color:#ff6b6b; font-size:0.85rem; padding:0.6rem 0.75rem; border-radius:9px; text-decoration:none; display:flex; align-items:center;">
-              <i class="bi bi-trash"></i>
-            </a>
-          </div>
+        <div class="progress-bar">
+          <div class="progress-bar-fill" style="width: 45%;"></div>
         </div>
       </div>
+
+      <!-- Footer -->
+      <div class="course-card-footer">
+        <a href="#" class="btn-course-primary">
+          <i class="bi bi-play-fill"></i> Continuar
+        </a>
+        <a href="{% url 'eliminar_curso' insc.curso.id %}"
+          onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')" class="btn-course-danger"
+          title="Dejar de seguir">
+          <i class="bi bi-trash-fill"></i>
+        </a>
+      </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3); margin-bottom:2rem;">
-    <i class="bi bi-bookmark-star" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-    <p>Aún no sigues ningún curso. ¡Elige uno del catálogo abajo!</p>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">
+    <i class="bi bi-bookmark-star"></i>
   </div>
-  {% endif %}
+  <p class="empty-text">Aún no sigues ningún curso. ¡Explora el catálogo y elige uno!</p>
+</div>
+{% endif %}
 
-  <!-- CATÁLOGO DISPONIBLE -->
-  <div class="section-title mt-4"><i class="bi bi-grid" style="color:#ff9f43"></i> Catálogo de cursos</div>
+<!-- ═══════════════════════════════════════════ -->
+<!--         CATÁLOGO DE CURSOS               -->
+<!-- ═══════════════════════════════════════════ -->
 
+<div class="section-header">
+  <h2 class="section-title">
+    <i class="bi bi-grid-fill icon-orange"></i>
+    Catálogo de cursos
+  </h2>
   {% if catalogo %}
-  <div class="row g-4">
-    {% for curso in catalogo %}
-    <div class="col-md-4">
-      <div class="course-card">
-        {% if curso.imagen_url %}
-        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        <div style="display:none; height:180px; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
-          <i class="bi {{ curso.icono }}" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i>
-        </div>
-        {% else %}
-        <div style="height:180px; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, rgba(124,111,255,0.25), rgba(176,111,255,0.15));">
-          <i class="bi {{ curso.icono }}" style="font-size:3rem; color:rgba(255,255,255,0.3);"></i>
-        </div>
-        {% endif %}
-        <div class="course-card-body">
-          <div class="course-meta" style="flex-wrap:wrap; gap:0.4rem;">
-            <span style="background:rgba(176,111,255,0.12); color:#c4baff; font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">{{ curso.get_categoria_display }}</span>
-            <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-            <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
-          </div>
-          <h3>{{ curso.nombre }}</h3>
-          <p>{{ curso.descripcion }}</p>
-          <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="margin:0;">
-            {% csrf_token %}
-            <button type="submit" class="course-btn" style="width:100%; border:none; cursor:pointer;">
-              <i class="bi bi-plus-circle me-1"></i> Agregar a mis cursos
-            </button>
-          </form>
-        </div>
+  <span class="section-count">{{ catalogo|length }} disponible{{ catalogo|length|pluralize:"s" }}</span>
+  {% endif %}
+</div>
+
+{% if catalogo %}
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <button class="filter-pill active" onclick="filterCourses('all', this)">
+    <i class="bi bi-grid-fill"></i> Todos
+  </button>
+  <button class="filter-pill" onclick="filterCourses('teoria', this)">
+    <i class="bi bi-music-note-list"></i> Teoría
+  </button>
+  <button class="filter-pill" onclick="filterCourses('auditivo', this)">
+    <i class="bi bi-ear"></i> Auditivo
+  </button>
+  <button class="filter-pill" onclick="filterCourses('instrumento', this)">
+    <i class="bi bi-music-note-beamed"></i> Instrumento
+  </button>
+
+  <div class="search-bar-mini">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="Buscar curso..." id="courseSearch">
+  </div>
+</div>
+
+<div class="courses-grid" id="catalogGrid">
+  {% for curso in catalogo %}
+  <div class="course-card" data-category="{{ curso.categoria }}">
+
+    <!-- Card Image -->
+    <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+     {% if curso.imagen_url %}
+     style="background-image: url('{{ curso.imagen_url }}');"
+     {% endif %}>
+
+      {% if not curso.imagen_url %}
+      <i class="bi {{ curso.icono }}"></i>
+      {% endif %}
+
+      <div class="course-card-overlay"></div>
+
+      <!-- Status Badge -->
+      <span class="course-status available">
+        <i class="bi bi-plus-circle"></i> Disponible
+      </span>
+    </div>
+
+    <!-- Card Body -->
+    <div class="course-card-body">
+      <div class="course-meta">
+        <span class="course-category">{{ curso.get_categoria_display }}</span>
+        <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+        <span class="course-duration">
+          <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+        </span>
+      </div>
+
+      <h3 class="course-title">{{ curso.nombre }}</h3>
+
+      {% if curso.descripcion %}
+      <p class="course-description">{{ curso.descripcion|truncatechars:90 }}</p>
+      {% endif %}
+
+      <!-- Footer -->
+      <div class="course-card-footer">
+        <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="flex:1; display:flex;">
+          {% csrf_token %}
+          <button type="submit" class="btn-course-add" style="width:100%;">
+            <i class="bi bi-plus-circle"></i> Agregar a mis cursos
+          </button>
+        </form>
       </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <div style="text-align:center; padding:2.5rem 0; color:rgba(255,255,255,0.3);">
-    <i class="bi bi-check-circle" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-    <p>¡Ya sigues todos los cursos disponibles!</p>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">
+    <i class="bi bi-check-circle"></i>
   </div>
-  {% endif %}
+  <p class="empty-text">¡Ya sigues todos los cursos disponibles!</p>
+</div>
+{% endif %}
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Search functionality
+  document.getElementById('courseSearch')?.addEventListener('input', function () {
+    const query = this.value.toLowerCase().trim();
+    document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(query) ? '' : 'none';
+    });
+  });
+
+  // Filter pills
+  function filterCourses(category, btn) {
+    // Update active pill
+    document.querySelectorAll('.filter-pill').forEach(pill => {
+      pill.classList.remove('active');
+    });
+    btn.classList.add('active');
+
+    // Filter cards
+    document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
+      if (category === 'all') {
+        card.style.display = '';
+      } else {
+        card.style.display = card.dataset.category === category ? '' : 'none';
+      }
+    });
+  }
+
+  // Animation on scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.course-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+    observer.observe(card);
+  });
+
+  // Auto-dismiss alerts
+  setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert-spotify');
+    alerts.forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 4000);
+</script>
 {% endblock %}
