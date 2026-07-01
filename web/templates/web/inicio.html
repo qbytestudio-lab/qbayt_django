@@ -1,254 +1,384 @@
 {% extends 'web/base.html' %}
+{% load static %}
 
 {% block title %}Inicio - QBYT{% endblock %}
 {% block page_title %}Inicio{% endblock %}
 {% block nav_inicio %}active{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'web/css/inicio1.css' %}">
+{% endblock %}
+
 {% block content %}
 
-  <!-- BANNER DE BIENVENIDA (Fijo / Dinámico por usuario) -->
-  <div class="welcome-banner">
-    <div class="welcome-text">
-      <h2>¡Bienvenido, {{ request.user.username }}! 👋</h2>
-      <p>Continúa tu entrenamiento musical donde lo dejaste.</p>
-    </div>
-    {% if request.user.perfil.rol == 'estudiante' %}
-    <a href="{% url 'perfil_estudiante' %}" class="btn-perfil"><i class="bi bi-person-arms-up"></i> Ver mi perfil</a>
-    {% elif request.user.perfil.rol == 'docente' %}
-    <a href="{% url 'perfil_docente' %}" class="btn-perfil"><i class="bi bi-mortarboard"></i> Ver mi perfil</a>
-    {% elif request.user.perfil.rol == 'administrador' %}
-    <a href="{% url 'perfil_administrador' %}" class="btn-perfil"><i class="bi bi-shield-check"></i> Panel admin</a>
-    {% endif %}
-  </div>
+<div class="inicio-container">
 
-  <!-- ESTADÍSTICAS (Fijas por ahora) -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-icon purple"><i class="bi bi-play-circle-fill"></i></div>
-        <div><div class="stat-value">3</div><div class="stat-label">Cursos activos</div></div>
-      </div>
+  <!-- HERO BANNER -->
+  <div class="hero-banner">
+    <div class="hero-content">
+      <h1 class="hero-greeting">¡Hola, {{ request.user.first_name|default:request.user.username }}! 👋</h1>
+      <p class="hero-subtitle">Continúa tu viaje musical justo donde lo dejaste</p>
     </div>
-    <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-icon pink"><i class="bi bi-trophy-fill"></i></div>
-        <div><div class="stat-value">12</div><div class="stat-label">Ejercicios completados</div></div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-icon green"><i class="bi bi-lightning-charge-fill"></i></div>
-        <div><div class="stat-value">5</div><div class="stat-label">Días de racha</div></div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="stat-card">
-        <div class="stat-icon orange"><i class="bi bi-clock-fill"></i></div>
-        <div><div class="stat-value">8h</div><div class="stat-label">Horas de práctica</div></div>
-      </div>
+    <div class="hero-actions">
+      {% if request.user.perfil.rol == 'estudiante' %}
+      <a href="{% url 'perfil_estudiante' %}" class="btn-hero btn-hero-primary">
+        <i class="bi bi-person-arms-up"></i> Mi perfil
+      </a>
+      <a href="{% url 'explorar_clases' %}" class="btn-hero">
+        <i class="bi bi-compass"></i> Explorar
+      </a>
+      {% elif request.user.perfil.rol == 'docente' %}
+      <a href="{% url 'perfil_docente' %}" class="btn-hero btn-hero-primary">
+        <i class="bi bi-mortarboard-fill"></i> Mi perfil
+      </a>
+      <a href="#" class="btn-hero">
+        <i class="bi bi-plus-circle"></i> Nueva clase
+      </a>
+      {% elif request.user.perfil.rol == 'administrador' %}
+      <a href="{% url 'perfil_administrador' %}" class="btn-hero btn-hero-primary">
+        <i class="bi bi-shield-check"></i> Panel admin
+      </a>
+      {% endif %}
     </div>
   </div>
 
+  <!-- STATISTICS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon-wrapper stat-icon-green">
+        <i class="bi bi-play-circle-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Cursos activos</div>
+      </div>
+    </div>
 
-  <!-- ========================================================== -->
-  <!-- SECCIÓN 1: TEORÍA MUSICAL (Dinámica desde el Admin)        -->
-  <!-- ========================================================== -->
-  <div id="cursos" class="section-title mt-4"><i class="bi bi-music-note-list" style="color:var(--accent)"></i> Teoría Musical</div>
-  <div class="row g-4 mb-4">
+    <div class="stat-card">
+      <div class="stat-icon-wrapper stat-icon-purple">
+        <i class="bi bi-trophy-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">12</div>
+        <div class="stat-label">Ejercicios completados</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper stat-icon-pink">
+        <i class="bi bi-lightning-charge-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">5</div>
+        <div class="stat-label">Días de racha</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon-wrapper stat-icon-orange">
+        <i class="bi bi-clock-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">8h</div>
+        <div class="stat-label">Horas de práctica</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN: TEORÍA MUSICAL -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-music-note-list icon-purple"></i>
+      Teoría Musical
+    </h2>
+    <a href="#" class="see-all-link">Ver todo</a>
+  </div>
+
+  <div class="courses-grid">
     {% for curso in cursos_teoria %}
-      <!-- Card Cliqueable -->
-      <div class="col-md-4">
-        <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
-          <div class="course-card-body">
-            <div class="course-meta">
-              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
-            </div>
-            <h3>{{ curso.nombre }}</h3>
-            <p>{{ curso.descripcion|truncatewords:15 }}</p>
-            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
-          </div>
-        </div>
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
+      <div style="position: relative;">
+        <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+          alt="{{ curso.nombre }}" class="course-card-img">
+        <div class="course-card-img-overlay"></div>
+        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
+          <i class="bi bi-play-fill"></i>
+        </a>
       </div>
+      <div class="course-card-body">
+        <div class="course-meta">
+          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-duration">
+            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+          </span>
+        </div>
+        <h3 class="course-title">{{ curso.nombre }}</h3>
+        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+      </div>
+    </div>
 
-      <!-- Ventana emergente (Modal) con descripción y contenido -->
-      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
-            <div class="position-relative">
-              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.nombre }}">
-              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
-              <h2>{{ curso.nombre}}</h2>
-              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
-              <hr>
-              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
-              
-              <div class="accordion" id="accCurso{{ curso.id }}">
-                {% for modulo in curso.modulos.all %}
-                <div class="accordion-item">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
-                      {{ modulo.titulo }}
-                    </button>
-                  </h2>
-                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
-                    <div class="accordion-body">{{ modulo.contenido }}</div>
-                  </div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ curso.nombre }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <img
+              src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+              alt="{{ curso.nombre }}" class="modal-image">
+
+            <span class="course-category-badge">
+              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+            </span>
+
+            <p class="course-description-full">{{ curso.descripcion }}</p>
+
+            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
+              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            </h5>
+
+            <div class="accordion" id="accCurso{{ curso.id }}">
+              {% for modulo in curso.modulos.all %}
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#mod-{{ modulo.id }}">
+                    {{ modulo.titulo }}
+                  </button>
+                </h2>
+                <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse"
+                  data-bs-parent="#accCurso{{ curso.id }}">
+                  <div class="accordion-body">{{ modulo.contenido }}</div>
                 </div>
-                {% empty %}
-                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
-                {% endfor %}
               </div>
-              <div class="text-end mt-4">
-                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
-              </div>
+              {% empty %}
+              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
+              {% endfor %}
+            </div>
+
+            <div style="text-align: right; margin-top: 1.5rem;">
+              <a href="#" class="btn-spotify-success">
+                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
+              </a>
             </div>
           </div>
         </div>
       </div>
+    </div>
     {% empty %}
-      <div class="col-12"><p class="text-muted">No hay cursos de Teoría Musical disponibles todavía.</p></div>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-music-note-list"></i>
+      </div>
+      <p class="empty-text">No hay cursos de Teoría Musical disponibles todavía</p>
+    </div>
     {% endfor %}
   </div>
 
+  <!-- SECCIÓN: ENTRENAMIENTO AUDITIVO -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-ear icon-green"></i>
+      Entrenamiento Auditivo
+    </h2>
+    <a href="#" class="see-all-link">Ver todo</a>
+  </div>
 
-  <!-- ========================================================== -->
-  <!-- SECCIÓN 2: ENTRENAMIENTO AUDITIVO (Dinámica desde el Admin)-->
-  <!-- ========================================================== -->
-  <div class="section-title mt-2"><i class="bi bi-ear" style="color:var(--accent2)"></i> Entrenamiento Auditivo</div>
-  <div class="row g-4 mb-4">
+  <div class="courses-grid">
     {% for curso in cursos_auditivo %}
-      <div class="col-md-4">
-        <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
-          <div class="course-card-body">
-            <div class="course-meta">
-              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
-            </div>
-            <h3>{{ curso.titulo }}</h3>
-            <p>{{ curso.descripcion|truncatewords:15 }}</p>
-            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
-          </div>
-        </div>
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
+      <div style="position: relative;">
+        <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+          alt="{{ curso.titulo }}" class="course-card-img">
+        <div class="course-card-img-overlay"></div>
+        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
+          <i class="bi bi-play-fill"></i>
+        </a>
       </div>
+      <div class="course-card-body">
+        <div class="course-meta">
+          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-duration">
+            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+          </span>
+        </div>
+        <h3 class="course-title">{{ curso.titulo }}</h3>
+        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+      </div>
+    </div>
 
-      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
-            <div class="position-relative">
-              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
-              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
-              <h2>{{ curso.titulo }}</h2>
-              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
-              <hr>
-              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
-              
-              <div class="accordion" id="accCurso{{ curso.id }}">
-                {% for modulo in curso.modulos.all %}
-                <div class="accordion-item">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
-                      {{ modulo.titulo }}
-                    </button>
-                  </h2>
-                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
-                    <div class="accordion-body">{{ modulo.contenido }}</div>
-                  </div>
+    <!-- Modal (misma estructura que arriba) -->
+    <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ curso.titulo }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <img
+              src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+              alt="{{ curso.titulo }}" class="modal-image">
+
+            <span class="course-category-badge">
+              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+            </span>
+
+            <p class="course-description-full">{{ curso.descripcion }}</p>
+
+            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
+              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            </h5>
+
+            <div class="accordion" id="accCursoAud{{ curso.id }}">
+              {% for modulo in curso.modulos.all %}
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#mod-{{ modulo.id }}">
+                    {{ modulo.titulo }}
+                  </button>
+                </h2>
+                <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse"
+                  data-bs-parent="#accCursoAud{{ curso.id }}">
+                  <div class="accordion-body">{{ modulo.contenido }}</div>
                 </div>
-                {% empty %}
-                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
-                {% endfor %}
               </div>
-              <div class="text-end mt-4">
-                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
-              </div>
+              {% empty %}
+              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
+              {% endfor %}
+            </div>
+
+            <div style="text-align: right; margin-top: 1.5rem;">
+              <a href="#" class="btn-spotify-success">
+                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
+              </a>
             </div>
           </div>
         </div>
       </div>
+    </div>
     {% empty %}
-      <div class="col-12"><p class="text-muted">No hay cursos de Entrenamiento Auditivo disponibles todavía.</p></div>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-ear"></i>
+      </div>
+      <p class="empty-text">No hay cursos de Entrenamiento Auditivo disponibles todavía</p>
+    </div>
     {% endfor %}
   </div>
 
+  <!-- SECCIÓN: INSTRUMENTO -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-music-note-beamed icon-pink"></i>
+      Instrumento
+    </h2>
+    <a href="#" class="see-all-link">Ver todo</a>
+  </div>
 
-  <!-- ========================================================== -->
-  <!-- SECCIÓN 3: INSTRUMENTO (Dinámica desde el Admin)          -->
-  <!-- ========================================================== -->
-  <div class="section-title mt-2"><i class="bi bi-music-note-beamed" style="color:#50dc8c"></i> Instrumento</div>
-  <div class="row g-4 mb-4">
+  <div class="courses-grid">
     {% for curso in cursos_instrumento %}
-      <div class="col-md-4">
-        <div class="course-card position-relative h-100 shadow-sm content-hover">
-          <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" alt="{{ curso.nombre }}" style="height: 160px; object-fit: cover; width: 100%;">
-          <div class="course-card-body">
-            <div class="course-meta">
-              <span class="badge-nivel {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-              <span class="course-dur"><i class="bi bi-clock"></i> {{ curso.duracion_horas }}h</span>
-            </div>
-            <h3>{{ curso.titulo }}</h3>
-            <p>{{ curso.descripcion|truncatewords:15 }}</p>
-            <a href="#" class="course-btn stretched-link" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}"><i class="bi bi-eye-fill"></i> Ver detalles</a>
-          </div>
-        </div>
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCursoInst{{ curso.id }}">
+      <div style="position: relative;">
+        <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+          alt="{{ curso.titulo }}" class="course-card-img">
+        <div class="course-card-img-overlay"></div>
+        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCursoInst{{ curso.id }}">
+          <i class="bi bi-play-fill"></i>
+        </a>
       </div>
+      <div class="course-card-body">
+        <div class="course-meta">
+          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-duration">
+            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+          </span>
+        </div>
+        <h3 class="course-title">{{ curso.titulo }}</h3>
+        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+      </div>
+    </div>
 
-      <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-          <div class="modal-content text-dark" style="border-radius: 16px; overflow: hidden;">
-            <div class="position-relative">
-              <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" class="w-100" style="height: 220px; object-fit: cover;" alt="{{ curso.titulo }}">
-              <button type="button" class="btn-close position-absolute top-0 end-0 m-3 bg-white p-2 rounded-circle" data-bs-close="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-              <span class="badge bg-primary mb-2">{{ curso.get_categoria_display }}</span>
-              <h2>{{ curso.titulo }}</h2>
-              <p class="text-muted mt-3"><strong>Descripción:</strong> {{ curso.descripcion }}</p>
-              <hr>
-              <h5 class="mb-3"><i class="bi bi-journal-text text-primary"></i> Contenido del Curso</h5>
-              
-              <div class="accordion" id="accCurso{{ curso.id }}">
-                {% for modulo in curso.modulos.all %}
-                <div class="accordion-item">
-                  <h2 class="accordion-header">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#mod-{{ modulo.id }}">
-                      {{ modulo.titulo }}
-                    </button>
-                  </h2>
-                  <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse" data-bs-parent="#accCurso{{ curso.id }}">
-                    <div class="accordion-body">{{ modulo.contenido }}</div>
-                  </div>
+    <!-- Modal -->
+    <div class="modal fade" id="modalCursoInst{{ curso.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ curso.titulo }}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <img
+              src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
+              alt="{{ curso.titulo }}" class="modal-image">
+
+            <span class="course-category-badge">
+              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+            </span>
+
+            <p class="course-description-full">{{ curso.descripcion }}</p>
+
+            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
+              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            </h5>
+
+            <div class="accordion" id="accCursoInst{{ curso.id }}">
+              {% for modulo in curso.modulos.all %}
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#modinst-{{ modulo.id }}">
+                    {{ modulo.titulo }}
+                  </button>
+                </h2>
+                <div id="modinst-{{ modulo.id }}" class="accordion-collapse collapse"
+                  data-bs-parent="#accCursoInst{{ curso.id }}">
+                  <div class="accordion-body">{{ modulo.contenido }}</div>
                 </div>
-                {% empty %}
-                <p class="text-muted ps-2">Próximamente se añadirá el contenido de este curso.</p>
-                {% endfor %}
               </div>
-              <div class="text-end mt-4">
-                <a href="#" class="btn btn-success px-4 py-2" style="border-radius: 8px;"><i class="bi bi-play-circle-fill me-2"></i> Unirse y Empezar Curso</a>
-              </div>
+              {% empty %}
+              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
+              {% endfor %}
+            </div>
+
+            <div style="text-align: right; margin-top: 1.5rem;">
+              <a href="#" class="btn-spotify-success">
+                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
+              </a>
             </div>
           </div>
         </div>
       </div>
+    </div>
     {% empty %}
-      <div class="col-12"><p class="text-muted">No hay cursos de Instrumentos disponibles todavía.</p></div>
+    <div class="empty-state">
+      <div class="empty-icon">
+        <i class="bi bi-music-note-beamed"></i>
+      </div>
+      <p class="empty-text">No hay cursos de Instrumento disponibles todavía</p>
+    </div>
     {% endfor %}
   </div>
 
+  <!-- PRÓXIMAS CLASES -->
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-calendar-week icon-orange"></i>
+      Próximas clases
+    </h2>
+    <a href="#" class="see-all-link">Calendario completo</a>
+  </div>
 
-  <!-- PRÓXIMAS CLASES (Fijo) -->
-  <div id="mis-clases" class="section-title mt-2"><i class="bi bi-calendar-week" style="color:#ff9f43"></i> Próximas clases</div>
-  <div class="calendario-grid mb-4">
+  <div class="calendar-grid">
     <div class="clase-card">
-      <div class="clase-fecha"><span class="clase-dia">LUN</span><span class="clase-num">09</span></div>
+      <div class="clase-fecha">
+        <span class="clase-dia">LUN</span>
+        <span class="clase-num">09</span>
+      </div>
       <div class="clase-info">
         <h4>Armonía Básica — Sesión 2</h4>
         <p><i class="bi bi-clock"></i> 4:00 PM · 60 min</p>
@@ -256,8 +386,12 @@
       </div>
       <span class="clase-badge proxima">Próxima</span>
     </div>
+
     <div class="clase-card">
-      <div class="clase-fecha"><span class="clase-dia">MIÉ</span><span class="clase-num">11</span></div>
+      <div class="clase-fecha">
+        <span class="clase-dia">MIÉ</span>
+        <span class="clase-num">11</span>
+      </div>
       <div class="clase-info">
         <h4>Entrenamiento Auditivo — Intervalos</h4>
         <p><i class="bi bi-clock"></i> 3:00 PM · 45 min</p>
@@ -265,8 +399,12 @@
       </div>
       <span class="clase-badge proxima">Próxima</span>
     </div>
+
     <div class="clase-card">
-      <div class="clase-fecha"><span class="clase-dia">VIE</span><span class="clase-num">13</span></div>
+      <div class="clase-fecha">
+        <span class="clase-dia">VIE</span>
+        <span class="clase-num">13</span>
+      </div>
       <div class="clase-info">
         <h4>Teclado Mágico — Práctica libre</h4>
         <p><i class="bi bi-clock"></i> 5:00 PM · 90 min</p>
@@ -274,8 +412,12 @@
       </div>
       <span class="clase-badge proxima">Próxima</span>
     </div>
+
     <div class="clase-card">
-      <div class="clase-fecha"><span class="clase-dia">SÁB</span><span class="clase-num">14</span></div>
+      <div class="clase-fecha">
+        <span class="clase-dia">SÁB</span>
+        <span class="clase-num">14</span>
+      </div>
       <div class="clase-info">
         <h4>Ritmo y Compás — Evaluación</h4>
         <p><i class="bi bi-clock"></i> 10:00 AM · 60 min</p>
@@ -285,4 +427,42 @@
     </div>
   </div>
 
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Animación de las tarjetas al hacer scroll
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px'
+  };
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, observerOptions);
+
+  document.querySelectorAll('.course-card, .clase-card').forEach((card, index) => {
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(20px)';
+    card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+    observer.observe(card);
+  });
+
+  // Efecto hover en play button
+  document.querySelectorAll('.course-play-btn').forEach(btn => {
+    btn.addEventListener('mouseenter', function () {
+      this.style.transform = 'scale(1.1)';
+    });
+    btn.addEventListener('mouseleave', function () {
+      this.style.transform = 'scale(1)';
+    });
+  });
+</script>
 {% endblock %}

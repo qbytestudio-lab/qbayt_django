@@ -6,16 +6,17 @@
 {% block nav_perfil %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
 <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
 {% endblock %}
 
 {% block content %}
 
 {% if messages %}
-<div class="container mt-3" style="position:absolute; top:70px; left:50%; transform:translateX(-50%); z-index:1050; max-width:500px;">
+<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
   {% for message in messages %}
-  <div class="alert alert-success alert-dismissible fade show bg-success text-white border-0" role="alert">
+  <div class="alert alert-success alert-dismissible fade show" role="alert"
+    style="background: var(--docente-accent); color: #fff; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
+    <i class="bi bi-check-circle-fill me-2"></i>
     {{ message }}
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
   </div>
@@ -23,177 +24,332 @@
 </div>
 {% endif %}
 
+<!-- PROFILE HERO - DOCENTE -->
 <section class="profile-hero docente">
-  <div class="profile-glow docente-glow"></div>
-  <div class="container">
-    <div class="profile-header">
-      <div class="avatar-ring docente">
-        <div class="avatar-inner"><i class="bi bi-person-fill"></i></div>
+  <div class="profile-hero-content">
+    <!-- Avatar -->
+    <div class="avatar-container">
+      <div class="avatar-circle">
+        <i class="bi bi-person-fill"></i>
       </div>
-      <div class="profile-info">
-        <span class="role-badge docente"><i class="bi bi-mortarboard me-1"></i> Docente</span>
-        <h1>{{ request.user.get_full_name }}</h1>
-        <p class="profile-meta">
-          <i class="bi bi-envelope me-1"></i>{{ request.user.email }}
-          <span class="sep">·</span>
-          <i class="bi bi-calendar3 me-1"></i>Docente desde {{ request.user.date_joined|date:"M Y" }}
-        </p>
+      <div class="avatar-edit-badge" data-bs-toggle="modal" data-bs-target="#modalEditar" title="Editar foto de perfil">
+        <i class="bi bi-camera-fill" style="color: #fff; font-size: 1rem;"></i>
       </div>
-      <a href="#" class="btn-edit-profile docente" data-bs-toggle="modal" data-bs-target="#modalEditar">
-        <i class="bi bi-pencil me-1"></i> Editar perfil
-      </a>
     </div>
-    <div class="quick-stats">
-      <div class="stat-pill docente"><i class="bi bi-camera-video"></i><span class="stat-val">{{ clases.count }}</span><span class="stat-lbl">Clases</span></div>
-      <div class="stat-pill docente"><i class="bi bi-people"></i><span class="stat-val">{{ total_estudiantes }}</span><span class="stat-lbl">Estudiantes</span></div>
-      <div class="stat-pill docente"><i class="bi bi-bell"></i><span class="stat-val">{{ solicitudes_pendientes.count }}</span><span class="stat-lbl">Solicitudes</span></div>
-      <div class="stat-pill docente"><i class="bi bi-star-fill"></i><span class="stat-val">4.8</span><span class="stat-lbl">Valoración</span></div>
+
+    <!-- Info -->
+    <div class="profile-info">
+      <span class="role-badge docente">
+        <i class="bi bi-mortarboard-fill"></i> Docente
+      </span>
+      <h1 class="profile-username">{{ request.user.get_full_name }}</h1>
+      <div class="profile-meta">
+        <span><i class="bi bi-at"></i> {{ request.user.username }}</span>
+        <span class="meta-separator">·</span>
+        <span><i class="bi bi-envelope"></i> {{ request.user.email }}</span>
+        <span class="meta-separator">·</span>
+        <span><i class="bi bi-calendar3"></i> Docente desde {{ request.user.date_joined|date:"M Y" }}</span>
+      </div>
+    </div>
+
+    <!-- Edit Button -->
+    <a href="#" class="btn-edit-profile docente" data-bs-toggle="modal" data-bs-target="#modalEditar">
+      <i class="bi bi-pencil"></i> Editar perfil
+    </a>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="quick-stats">
+    <div class="stat-pill docente">
+      <i class="bi bi-camera-video-fill"></i>
+      <span class="stat-value">{{ clases.count }}</span>
+      <span class="stat-label">Clases activas</span>
+    </div>
+    <div class="stat-pill docente">
+      <i class="bi bi-people-fill"></i>
+      <span class="stat-value">{{ total_estudiantes }}</span>
+      <span class="stat-label">Estudiantes</span>
+    </div>
+    <div class="stat-pill docente">
+      <i class="bi bi-bell-fill"></i>
+      <span class="stat-value">{{ solicitudes_pendientes.count }}</span>
+      <span class="stat-label">Solicitudes</span>
+    </div>
+    <div class="stat-pill docente">
+      <i class="bi bi-star-fill"></i>
+      <span class="stat-value">4.8</span>
+      <span class="stat-label">
+        <div class="star-rating">
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-fill"></i>
+          <i class="bi bi-star-half"></i>
+        </div>
+      </span>
     </div>
   </div>
 </section>
 
-<div class="profile-tabs-bar">
-  <div class="container">
-    <ul class="profile-tabs" id="profileTabs">
-      <li><a class="ptab active" data-tab="datos"><i class="bi bi-person me-1"></i>Datos personales</a></li>
-      <li><a class="ptab" data-tab="estudiantes"><i class="bi bi-people me-1"></i>Estudiantes</a></li>
-    </ul>
+<!-- TABS -->
+<nav class="profile-tabs-bar">
+  <div class="profile-tabs">
+    <a class="ptab active" data-tab="datos" href="#">
+      <i class="bi bi-person"></i> Datos personales
+    </a>
+    <a class="ptab" data-tab="estudiantes" href="#">
+      <i class="bi bi-people-fill"></i> Mis estudiantes
+      <span
+        style="background: var(--docente-accent); color: #fff; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.7rem; font-weight: 800;">
+        {{ total_estudiantes }}
+      </span>
+    </a>
   </div>
-</div>
+</nav>
 
+<!-- MAIN CONTENT -->
 <main class="profile-body">
-  <div class="container">
 
-    <!-- TAB: DATOS PERSONALES -->
-    <div class="tab-pane active" id="tab-datos">
-      <div class="section-card">
-        <div class="section-card-header">
-          <h2><i class="bi bi-person-vcard me-2"></i>Información personal</h2>
-          <a href="#" class="btn-link-accent docente" data-bs-toggle="modal" data-bs-target="#modalEditar"><i class="bi bi-pencil me-1"></i>Editar</a>
+  <!-- TAB: DATOS PERSONALES -->
+  <div class="tab-pane active" id="tab-datos">
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2><i class="bi bi-person-vcard"></i> Información personal</h2>
+        <a href="#" class="btn-link-accent docente" data-bs-toggle="modal" data-bs-target="#modalEditar">
+          <i class="bi bi-pencil"></i> Editar
+        </a>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-field">
+          <span class="info-label">Nombre</span>
+          <span class="info-value">{{ request.user.first_name|default:"—" }}</span>
         </div>
-        <div class="info-grid">
-          <div class="info-field"><span class="info-label">Nombre</span><span class="info-value">{{ request.user.first_name|default:"—" }}</span></div>
-          <div class="info-field"><span class="info-label">Apellido</span><span class="info-value">{{ request.user.last_name|default:"—" }}</span></div>
-          <div class="info-field"><span class="info-label">Usuario</span><span class="info-value">@{{ request.user.username }}</span></div>
-          <div class="info-field"><span class="info-label">Correo electrónico</span><span class="info-value">{{ request.user.email }}</span></div>
-          <div class="info-field"><span class="info-label">Rol</span><span class="info-value"><span class="badge-role docente">Docente</span></span></div>
-          <div class="info-field"><span class="info-label">Miembro desde</span><span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span></div>
+        <div class="info-field">
+          <span class="info-label">Apellido</span>
+          <span class="info-value">{{ request.user.last_name|default:"—" }}</span>
         </div>
-        <div class="mt-5 pt-4 border-top border-secondary">
-          <h4 class="text-danger fs-6 mb-2">Zona de Peligro</h4>
-          <p class="text-muted small mb-3">Si eliminas tu cuenta de docente, se desvincularán tus cursos creados permanentemente.</p>
-          <button class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-            <i class="bi bi-trash me-1"></i> Eliminar mi cuenta permanentemente
-          </button>
+        <div class="info-field">
+          <span class="info-label">Nombre de usuario</span>
+          <span class="info-value">@{{ request.user.username }}</span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">Correo electrónico</span>
+          <span class="info-value">{{ request.user.email }}</span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">Rol</span>
+          <span class="info-value">
+            <span class="badge-role docente">
+              <i class="bi bi-mortarboard-fill me-1"></i> Docente
+            </span>
+          </span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">Miembro desde</span>
+          <span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span>
+        </div>
+        <div class="info-field">
+          <span class="info-label">Último acceso</span>
+          <span class="info-value">{{ request.user.last_login|date:"d \d\e F, H:i" }}</span>
         </div>
       </div>
-    </div>
 
-    <!-- TAB: ESTUDIANTES -->
-    <div class="tab-pane" id="tab-estudiantes">
-      <div class="section-card">
-        <div class="section-card-header">
-          <h2><i class="bi bi-people me-2"></i>Lista de estudiantes</h2>
-          <span class="count-badge">{{ total_estudiantes }} total</span>
-        </div>
-        <div class="search-bar">
-          <i class="bi bi-search"></i>
-          <input type="text" placeholder="Buscar estudiante..." id="studentSearch">
-        </div>
-        <div class="student-list">
-          {% for clase in clases %}
-          {% for estudiante in clase.estudiantes.all %}
-          <div class="student-row">
-            <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
-            <div class="student-info">
-              <h3>{{ estudiante.get_full_name|default:estudiante.username }}</h3>
-              <p>{{ clase.nombre }}</p>
-            </div>
-            <span class="class-badge upcoming" style="font-size:0.7rem">Activo</span>
-          </div>
-          {% endfor %}
-          {% empty %}
-          <p class="text-muted text-center py-3">No hay estudiantes inscritos aún.</p>
-          {% endfor %}
-        </div>
+      <!-- Danger Zone -->
+      <div class="danger-zone">
+        <h4 class="danger-title">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          Zona de Peligro
+        </h4>
+        <p class="danger-text">Si eliminas tu cuenta de docente, se desvincularán permanentemente todas tus clases
+          creadas y perderás el acceso a los datos de tus estudiantes.</p>
+        <button class="btn-danger-spotify" data-bs-toggle="modal" data-bs-target="#modalEliminar">
+          <i class="bi bi-trash"></i> Eliminar mi cuenta permanentemente
+        </button>
       </div>
     </div>
-
   </div>
+
+  <!-- TAB: ESTUDIANTES -->
+  <div class="tab-pane" id="tab-estudiantes">
+    <div class="section-card">
+      <div class="section-card-header">
+        <h2><i class="bi bi-people-fill"></i> Mis estudiantes</h2>
+        <span class="count-badge">{{ total_estudiantes }} total</span>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar estudiante por nombre o clase..." id="studentSearch">
+      </div>
+
+      <!-- Students List -->
+      <div class="student-list">
+        {% for clase in clases %}
+        {% for estudiante in clase.estudiantes.all %}
+        <div class="student-row">
+          <div class="student-avatar">
+            {{ estudiante.first_name|first|upper }}{{ estudiante.last_name|first|upper }}
+          </div>
+          <div class="student-info">
+            <h3>{{ estudiante.get_full_name|default:estudiante.username }}</h3>
+            <p>
+              <i class="bi bi-folder-fill"></i>
+              {{ clase.nombre }}
+              <span class="meta-separator">·</span>
+              <i class="bi bi-calendar-check"></i>
+              {{ estudiante.date_joined|date:"d M Y" }}
+            </p>
+          </div>
+          <span class="class-badge upcoming">
+            <i class="bi bi-check-circle-fill me-1"></i> Activo
+          </span>
+          <div class="student-actions">
+            <button class="btn-action message" title="Enviar mensaje">
+              <i class="bi bi-chat-dots"></i>
+            </button>
+            <button class="btn-action view" title="Ver progreso">
+              <i class="bi bi-graph-up"></i>
+            </button>
+          </div>
+        </div>
+        {% endfor %}
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <p class="empty-text">Aún no tienes estudiantes inscritos en tus clases</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
 </main>
 
-<!-- Modal Editar -->
+<!-- MODAL: EDITAR PERFIL -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark">
+    <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Actualizar Datos del Docente</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title">
+          <i class="bi bi-pencil-square me-2" style="color: var(--docente-accent);"></i>
+          Actualizar datos del docente
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <form action="{% url 'editar_perfil' %}" method="POST">
         {% csrf_token %}
         <div class="modal-body">
-          <div class="mb-3"><label class="form-label small">Nombre de Usuario</label><input type="text" class="form-control" name="username" value="{{ request.user.username }}" required></div>
-          <div class="mb-3"><label class="form-label small">Nombre</label><input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}"></div>
-          <div class="mb-3"><label class="form-label small">Apellido</label><input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}"></div>
-          <div class="mb-3"><label class="form-label small">Correo Electrónico</label><input type="email" class="form-control" name="email" value="{{ request.user.email }}" required></div>
+          <div class="mb-3">
+            <label class="form-label">Nombre de usuario</label>
+            <input type="text" class="form-control" name="username" value="{{ request.user.username }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" class="form-control" name="first_name" value="{{ request.user.first_name }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Apellido</label>
+            <input type="text" class="form-control" name="last_name" value="{{ request.user.last_name }}">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" name="email" value="{{ request.user.email }}" required>
+          </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary btn-sm">Guardar Cambios</button>
+          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn-spotify-primary">Guardar cambios</button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
-<!-- Modal Eliminar -->
+<!-- MODAL: ELIMINAR CUENTA -->
 <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-danger text-dark">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill me-2"></i>¿Confirmar acción?</h5>
+    <div class="modal-content">
+      <div class="modal-header bg-danger">
+        <h5 class="modal-title" style="color: #fff;">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          ¿Confirmar eliminación?
+        </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <p>Se borrarán tus registros de docente de manera permanente del sistema de QBYT.</p>
+        <p style="color: var(--spotify-text); margin-bottom: 0.5rem;">
+          <strong>Esta acción es irreversible.</strong>
+        </p>
+        <p style="color: var(--spotify-subtext); margin-bottom: 0;">
+          Se eliminarán permanentemente todas tus clases creadas, datos de estudiantes y registros como docente en la
+          plataforma QBYT.
+        </p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">No, regresar</button>
-        <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger btn-sm">Sí, eliminar cuenta</a>
+        <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">
+          No, cancelar
+        </button>
+        <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger" style="border-radius: 20px; font-weight: 700;">
+          Sí, eliminar cuenta
+        </a>
       </div>
     </div>
   </div>
 </div>
 
-<footer class="footer mt-5">
-  <div class="container">
-    <hr class="footer-divider">
-    <p class="text-center">&copy; 2026 QBYT. Todos los derechos reservados.</p>
-  </div>
-</footer>
-
 {% endblock %}
 
 {% block extra_js %}
 <script>
+  // Tab switching
   document.querySelectorAll('.ptab').forEach(tab => {
-    tab.addEventListener('click', e => {
+    tab.addEventListener('click', function (e) {
       e.preventDefault();
+
       document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+
+      this.classList.add('active');
+
+      const tabId = 'tab-' + this.dataset.tab;
+      document.getElementById(tabId).classList.add('active');
     });
   });
+
+  // Student search functionality
   const searchInput = document.getElementById('studentSearch');
   if (searchInput) {
-    searchInput.addEventListener('input', function() {
-      const q = this.value.toLowerCase();
+    searchInput.addEventListener('input', function () {
+      const q = this.value.toLowerCase().trim();
       document.querySelectorAll('.student-row').forEach(row => {
-        row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
       });
     });
   }
+
+  // Avatar edit badge hover effect
+  const avatarBadge = document.querySelector('.avatar-edit-badge');
+  if (avatarBadge) {
+    avatarBadge.addEventListener('mouseenter', function () {
+      this.style.background = 'var(--spotify-light-gray)';
+    });
+    avatarBadge.addEventListener('mouseleave', function () {
+      this.style.background = 'var(--spotify-gray)';
+    });
+  }
+
+  // Auto-dismiss alerts after 3 seconds
+  setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 3000);
 </script>
 {% endblock %}
