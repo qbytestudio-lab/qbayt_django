@@ -5,199 +5,296 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ leccion.titulo }} — QBYT</title>
-  <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
-  <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
+  
+  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <style>
-    body { background:#0b0b14; color:#eae8f5; font-family:'DM Sans',sans-serif; }
-    .act-card {
-      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08);
-      border-radius:14px; padding:1.25rem; margin-bottom:1rem;
-      display:flex; align-items:center; gap:1rem;
-      transition:border-color 0.2s, transform 0.2s;
-      text-decoration:none; color:#eae8f5;
-    }
-    .act-card:hover { border-color:rgba(124,111,255,0.35); transform:translateY(-2px); color:#eae8f5; }
-    .act-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
-    .act-icon.texto { background:rgba(124,111,255,0.15); color:#7c6fff; }
-    .act-icon.quiz { background:rgba(80,220,140,0.12); color:#50dc8c; }
-    .act-info { flex:1; }
-    .act-title { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:0.15rem; }
-    .act-meta { font-size:0.75rem; color:rgba(255,255,255,0.4); }
-    .tipo-badge { font-size:0.7rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px; }
-    .tipo-texto { background:rgba(124,111,255,0.12); color:#a89fff; }
-    .tipo-quiz { background:rgba(80,220,140,0.1); color:#50dc8c; }
-  </style>
+  
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'docente/css/detalle_leccion.css' %}">
 </head>
 <body>
 
-{% if messages %}
-<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
-  {% for message in messages %}
-  <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-    {{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  </div>
-  {% endfor %}
-</div>
-{% endif %}
-
-<header class="topbar">
-  <div class="container topbar-content">
-    <a href="{% url 'index' %}" class="logo-area">
-      <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
-      <h2 class="logo-text">QBYT</h2>
-    </a>
-    <div class="auth-buttons">
-      <a href="{% url 'detalle_clase' clase.id %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
-      <a href="{% url 'logout' %}" class="btn-login"><i class="bi bi-box-arrow-right me-1"></i> Salir</a>
-    </div>
-  </div>
-</header>
-
-<div class="detail-header">
-  <div class="container">
-    <a href="{% url 'detalle_clase' clase.id %}" class="back-btn">
-      <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
-    </a>
-    <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.5rem;">
-      <h1 class="clase-title" style="margin:0;">{{ leccion.titulo }}</h1>
-      {% if leccion.disponible %}
-      <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.75rem; font-weight:600; padding:0.25rem 0.75rem; border-radius:100px;">Disponible</span>
+  <!-- FLOATING MESSAGES -->
+  {% if messages %}
+  <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+    {% for message in messages %}
+    <div class="alert-floating alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {% if message.tags == 'success' %}
+      <i class="bi bi-check-circle-fill me-2"></i>
       {% else %}
-      <span style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.75rem; font-weight:600; padding:0.25rem 0.75rem; border-radius:100px;">Bloqueado</span>
+      <i class="bi bi-exclamation-circle-fill me-2"></i>
+      {% endif %}
+      {{ message }}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-content">
+      <a href="{% url 'index' %}" class="logo-area">
+        <div class="logo-box">
+          <i class="bi bi-music-note-beamed"></i>
+        </div>
+        <h2 class="logo-text">QBYT</h2>
+      </a>
+      <div class="auth-buttons">
+        <a href="{% url 'detalle_clase' clase.id %}" class="btn-topbar">
+          <i class="bi bi-arrow-left"></i> Volver a la clase
+        </a>
+        <a href="{% url 'logout' %}" class="btn-topbar danger">
+          <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- LESSON HEADER -->
+  <section class="lesson-header-section">
+    <div class="container">
+      <a href="{% url 'detalle_clase' clase.id %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> {{ clase.nombre }}
+      </a>
+      
+      <div class="lesson-title-row">
+        <h1 class="lesson-title">{{ leccion.titulo }}</h1>
+        {% if leccion.disponible %}
+        <span class="lesson-status-badge available">
+          <i class="bi bi-unlock-fill"></i> Disponible
+        </span>
+        {% else %}
+        <span class="lesson-status-badge locked">
+          <i class="bi bi-lock-fill"></i> Bloqueado
+        </span>
+        {% endif %}
+      </div>
+      
+      {% if leccion.descripcion %}
+      <p class="lesson-description">{{ leccion.descripcion }}</p>
       {% endif %}
     </div>
-    {% if leccion.descripcion %}<p style="color:rgba(255,255,255,0.5); margin:0;">{{ leccion.descripcion }}</p>{% endif %}
-  </div>
-</div>
+  </section>
 
-<div class="content-area">
-  <div class="container">
-    <div class="row g-4">
+  <!-- MAIN CONTENT -->
+  <main class="content-area">
+    <div class="container">
+      <div class="row g-4">
 
-      <!-- ACTIVIDADES -->
-      <div class="col-lg-8">
-        <div class="card-section">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem;">
-            <h3 style="margin:0; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; display:flex; align-items:center; gap:0.5rem;">
-              <i class="bi bi-list-task" style="color:#7c6fff"></i> Actividades
-              <span style="background:rgba(124,111,255,0.15); color:#a89fff; font-size:0.7rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:100px;">{{ actividades.count }}</span>
-            </h3>
-            <button data-bs-toggle="modal" data-bs-target="#modalActividad"
-              style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.5rem 1rem; border-radius:8px; cursor:pointer;">
-              <i class="bi bi-plus-lg me-1"></i> Nueva actividad
-            </button>
-          </div>
-
-          {% for act in actividades %}
-          <a href="{% url 'detalle_actividad' clase.id leccion.id act.id %}" class="act-card">
-            <div class="act-icon {{ act.tipo }}">
-              {% if act.tipo == 'quiz' %}
-              <i class="bi bi-patch-question-fill"></i>
-              {% else %}
-              <i class="bi bi-file-text-fill"></i>
-              {% endif %}
+        <!-- ACTIVITIES COLUMN -->
+        <div class="col-lg-8">
+          <div class="section-card">
+            <div class="section-header">
+              <h3 class="section-title">
+                <i class="bi bi-list-task"></i>
+                Actividades
+                <span class="section-badge">{{ actividades.count }}</span>
+              </h3>
+              <button class="btn-new-activity" data-bs-toggle="modal" data-bs-target="#modalActividad">
+                <i class="bi bi-plus-lg"></i> Nueva actividad
+              </button>
             </div>
-            <div class="act-info">
-              <div class="act-title">{{ act.titulo }}</div>
-              <div class="act-meta">
-                <span class="tipo-badge tipo-{{ act.tipo }}">{{ act.get_tipo_display }}</span>
-                <span class="ms-2">{{ act.preguntas.count }} preguntas</span>
+
+            <div class="activities-list">
+              {% for act in actividades %}
+              <a href="{% url 'detalle_actividad' clase.id leccion.id act.id %}" class="activity-card">
+                <div class="activity-icon {{ act.tipo }}">
+                  {% if act.tipo == 'quiz' %}
+                  <i class="bi bi-patch-question-fill"></i>
+                  {% else %}
+                  <i class="bi bi-file-text-fill"></i>
+                  {% endif %}
+                </div>
+                
+                <div class="activity-info">
+                  <div class="activity-title">{{ act.titulo }}</div>
+                  <div class="activity-meta">
+                    <span class="activity-type-badge {{ act.tipo }}">
+                      {{ act.get_tipo_display }}
+                    </span>
+                    {% if act.tipo == 'quiz' %}
+                    <span class="activity-questions">
+                      <i class="bi bi-question-circle me-1"></i>
+                      {{ act.preguntas.count }} pregunta{{ act.preguntas.count|pluralize:"s" }}
+                    </span>
+                    {% endif %}
+                  </div>
+                </div>
+                
+                <i class="bi bi-chevron-right activity-arrow"></i>
+              </a>
+              {% empty %}
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <i class="bi bi-inbox"></i>
+                </div>
+                <p class="empty-text">No hay actividades aún. ¡Crea la primera!</p>
+                <button class="btn-new-activity" data-bs-toggle="modal" data-bs-target="#modalActividad">
+                  <i class="bi bi-plus-lg"></i> Crear actividad
+                </button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO SIDEBAR -->
+        <div class="col-lg-4">
+          <div class="section-card">
+            <h3 class="section-title" style="margin-bottom: 1rem;">
+              <i class="bi bi-info-circle"></i>
+              Información
+            </h3>
+            
+            <div class="info-list">
+              <div class="info-item">
+                <span class="info-label">Clase</span>
+                <span class="info-value">{{ clase.nombre }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Lección #</span>
+                <span class="info-value">{{ leccion.orden }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Actividades</span>
+                <span class="info-value">{{ actividades.count }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Estado</span>
+                {% if leccion.disponible %}
+                <span class="info-value available">
+                  <i class="bi bi-check-circle-fill me-1"></i> Disponible
+                </span>
+                {% else %}
+                <span class="info-value locked">
+                  <i class="bi bi-lock-fill me-1"></i> Bloqueado
+                </span>
+                {% endif %}
               </div>
             </div>
-            <i class="bi bi-chevron-right" style="color:rgba(255,255,255,0.3)"></i>
-          </a>
-          {% empty %}
-          <div style="text-align:center; padding:2rem 0; color:rgba(255,255,255,0.3);">
-            <i class="bi bi-inbox" style="font-size:2.5rem; display:block; margin-bottom:0.75rem;"></i>
-            <p>No hay actividades aún. ¡Crea la primera!</p>
           </div>
-          {% endfor %}
-        </div>
-      </div>
 
-      <!-- INFO LATERAL -->
-      <div class="col-lg-4">
-        <div class="card-section">
-          <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1rem; margin-bottom:1rem; display:flex; align-items:center; gap:0.5rem;">
-            <i class="bi bi-info-circle" style="color:#7c6fff"></i> Info de la lección
-          </h3>
-          <div style="display:flex; flex-direction:column; gap:0.75rem;">
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-              <span style="color:rgba(255,255,255,0.4);">Clase</span>
-              <span style="font-weight:600;">{{ clase.nombre }}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-              <span style="color:rgba(255,255,255,0.4);">Lección #</span>
-              <span style="font-weight:600;">{{ leccion.orden }}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-              <span style="color:rgba(255,255,255,0.4);">Actividades</span>
-              <span style="font-weight:600;">{{ actividades.count }}</span>
-            </div>
-            <div style="display:flex; justify-content:space-between; font-size:0.85rem;">
-              <span style="color:rgba(255,255,255,0.4);">Estado</span>
-              {% if leccion.disponible %}
-              <span style="color:#50dc8c; font-weight:600;">Disponible</span>
-              {% else %}
-              <span style="color:rgba(255,255,255,0.3); font-weight:600;">Bloqueado</span>
-              {% endif %}
+          <!-- Quick Actions -->
+          <div class="section-card">
+            <h3 class="section-title" style="margin-bottom: 1rem;">
+              <i class="bi bi-lightning-charge"></i>
+              Acciones rápidas
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+              <button class="btn-new-activity" data-bs-toggle="modal" data-bs-target="#modalActividad" style="width: 100%; justify-content: center;">
+                <i class="bi bi-plus-lg"></i> Nueva actividad
+              </button>
+              <a href="{% url 'detalle_clase' clase.id %}" class="btn-topbar" style="width: 100%; justify-content: center; text-align: center;">
+                <i class="bi bi-collection-play"></i> Ver todas las lecciones
+              </a>
             </div>
           </div>
         </div>
-      </div>
 
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: Nueva Actividad -->
+  <div class="modal fade" id="modalActividad" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">
+            <i class="bi bi-plus-circle" style="color: var(--accent-purple);"></i>
+            Nueva actividad
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <form action="{% url 'crear_actividad' clase.id leccion.id %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Título <span style="color: #e91429;">*</span></label>
+              <input type="text" class="form-control" name="titulo" 
+                     placeholder="Ej: Quiz de notas musicales" required>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Tipo de actividad</label>
+              <select class="form-select" name="tipo" id="tipoSelect">
+                <option value="texto">📄 Texto / Lectura</option>
+                <option value="quiz">❓ Quiz de selección múltiple</option>
+              </select>
+            </div>
+            
+            <div class="mb-3" id="contenidoArea">
+              <label class="form-label">Contenido del texto</label>
+              <textarea class="form-control" name="contenido" rows="4" 
+                        placeholder="Escribe el contenido de la lectura..."></textarea>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Imagen (opcional)</label>
+              <input type="file" class="form-control" name="imagen" accept="image/*" 
+                     style="padding: 0.5rem !important;">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-modal-primary">
+              <i class="bi bi-check-lg me-1"></i> Crear actividad
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Modal Nueva Actividad -->
-<div class="modal fade" id="modalActividad" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-dark">
-      <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Actividad</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{% url 'crear_actividad' clase.id leccion.id %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="modal-body">
-          <div class="mb-3">
-            <label class="form-label small">Título <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" name="titulo" placeholder="Ej: Quiz de notas musicales" required>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small">Tipo de actividad</label>
-            <select class="form-select" name="tipo" id="tipoSelect">
-              <option value="texto">📄 Texto / Lectura</option>
-              <option value="quiz">❓ Quiz de selección múltiple</option>
-            </select>
-          </div>
-          <div class="mb-3" id="contenidoArea">
-            <label class="form-label small">Contenido del texto</label>
-            <textarea class="form-control" name="contenido" rows="4" placeholder="Escribe el contenido de la lectura..."></textarea>
-          </div>
-          <div class="mb-3">
-            <label class="form-label small">Imagen (opcional)</label>
-            <input type="file" class="form-control" name="imagen" accept="image/*">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary btn-sm">Crear actividad</button>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Toggle contenido textarea -->
+  <script>
+    document.getElementById('tipoSelect').addEventListener('change', function() {
+      const contenidoArea = document.getElementById('contenidoArea');
+      contenidoArea.style.display = this.value === 'texto' ? '' : 'none';
+    });
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-  document.getElementById('tipoSelect').addEventListener('change', function() {
-    document.getElementById('contenidoArea').style.display = this.value === 'texto' ? '' : 'none';
-  });
-</script>
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.alert-floating');
+      alerts.forEach(alert => {
+        const bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      });
+    }, 4000);
+
+    // Animation on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.activity-card').forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(15px)';
+      card.style.transition = `all 0.4s ease ${index * 0.05}s`;
+      observer.observe(card);
+    });
+  </script>
 </body>
 </html>
