@@ -6,12 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ clase.nombre }} — QBYT</title>
-    <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
-    <link rel="stylesheet" href="{% static 'docente/css/detalle.css' %}">
-    <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'docente/css/detalle_clase.css' %}">
 </head>
 
 <body>
@@ -19,14 +20,15 @@
     {% if messages %}
     <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
         {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        <div class="alert-floating alert-{{ message.tags }} alert-dismissible fade show">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
+    <!-- TOPBAR -->
     <header class="topbar">
         <div class="container topbar-content">
             <a href="{% url 'index' %}" class="logo-area">
@@ -34,68 +36,55 @@
                 <h2 class="logo-text">QBYT</h2>
             </a>
             <div class="auth-buttons">
-                <a href="{% url 'mis_clases' %}" class="btn-login"><i class="bi bi-arrow-left me-1"></i> Volver</a>
-                <a href="{% url 'logout' %}" class="btn-login"><i class="bi bi-box-arrow-right me-1"></i> Salir</a>
+                <a href="{% url 'mis_clases' %}" class="btn-topbar"><i class="bi bi-arrow-left"></i> Mis clases</a>
+                <a href="{% url 'logout' %}" class="btn-topbar danger"><i class="bi bi-box-arrow-right"></i> Salir</a>
             </div>
         </div>
     </header>
 
-    <div class="detail-header">
+    <!-- CLASS HERO -->
+    <section class="class-hero">
         <div class="container">
-            <a href="{% url 'mis_clases' %}" class="back-btn">
+            <a href="{% url 'mis_clases' %}" class="back-link">
                 <i class="bi bi-arrow-left"></i> Volver a mis clases
             </a>
-            <h1 class="clase-title">{{ clase.nombre }}</h1>
+
+            <h1 class="class-title">{{ clase.nombre }}</h1>
 
             {% if clase.descripcion %}
-                <p style="color:rgba(255,255,255,0.5); margin-bottom:1rem;">{{ clase.descripcion }}</p>
+            <p class="class-description">{{ clase.descripcion }}</p>
             {% endif %}
 
-            <div class="clase-meta mb-3">
-                <span><i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes</span>
-                <span><i class="bi bi-calendar3"></i> Creada el {{ clase.fecha_creacion|date:"d M Y" }}</span>
+            <div class="class-meta">
+                <span class="class-meta-item"><i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }}
+                    estudiantes</span>
+                <span class="class-meta-item"><i class="bi bi-calendar3"></i> {{ clase.fecha_creacion|date:"d M Y"
+                    }}</span>
             </div>
-            
+
             <div class="d-flex align-items-center gap-3 flex-wrap">
-                <div class="codigo-badge" onclick="copiarCodigo()" title="Click para copiar">
-                    <i class="bi bi-key"></i> {{ clase.codigo }}
-                    <i class="bi bi-clipboard ms-1" style="font-size:0.8rem; opacity:0.6"></i>
+                <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
+                    <i class="bi bi-key-fill"></i> {{ clase.codigo }}
+                    <i class="bi bi-clipboard" style="font-size:0.75rem; opacity:0.6"></i>
                 </div>
-                
-                <span style="color:rgba(255,255,255,0.3); font-size:0.8rem">← Comparte este código</span>
+                <span class="code-hint">← Comparte este código</span>
 
                 <div class="dropdown ms-lg-auto">
-                    <button class="btn btn-sm btn-outline-light d-flex align-items-center justify-content-center" 
-                            type="button" 
-                            id="dropdownConfigClase" 
-                            data-bs-toggle="dropdown" 
-                            aria-expanded="false"
-                            style="border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.05); width: 38px; height: 38px; border-radius: 50%;">
-                        <i class="bi bi-gear-fill" style="font-size: 1.1rem;"></i>
+                    <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
+                        <i class="bi bi-gear-fill"></i>
                     </button>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end" 
-                        aria-labelledby="dropdownConfigClase"
-                        style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5);">
-                        
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <button class="dropdown-item d-flex align-items-center gap-2" 
-                                    type="button"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalEditarClase"
-                                    style="color: #fff; border-radius: 8px; padding: 0.5rem 1rem; transition: background 0.2s;">
-                                <i class="bi bi-pencil-square text-muted"></i> Editar clase
+                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
+                                <i class="bi bi-pencil-square"></i> Editar clase
                             </button>
                         </li>
-                        
-                        <li><hr class="dropdown-divider" style="border-color: rgba(255,255,255,0.08);"></li>
-                        
                         <li>
-                            <button class="dropdown-item d-flex align-items-center gap-2" 
-                                    type="button"
-                                    data-bs-toggle="modal" 
-                                    data-bs-target="#modalEliminarClase"
-                                    style="color: #ff4d4d; border-radius: 8px; padding: 0.5rem 1rem; transition: background 0.2s;">
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <button class="dropdown-item text-danger" data-bs-toggle="modal"
+                                data-bs-target="#modalEliminarClase">
                                 <i class="bi bi-trash-fill"></i> Eliminar clase
                             </button>
                         </li>
@@ -103,30 +92,39 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <div class="content-area">
+    <!-- MAIN CONTENT -->
+    <main class="content-area">
         <div class="container">
             <div class="row g-4">
 
+                <!-- LEFT COLUMN -->
                 <div class="col-lg-5">
 
-                    <div class="card-section mb-4">
-                        <h3>
-                            <i class="bi bi-bell-fill" style="color:#ff9f43"></i> Solicitudes pendientes
-                            {% if solicitudes %}<span class="count-pill">{{ solicitudes.count }}</span>{% endif %}
-                        </h3>
+                    <!-- SOLICITUDES -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-bell-fill" style="color: var(--accent-orange);"></i>
+                                Solicitudes pendientes
+                                {% if solicitudes %}<span class="section-badge orange">{{ solicitudes.count }}</span>{% endif %}
+                            </h3>
+                        </div>
+
                         {% if solicitudes %}
                         {% for sol in solicitudes %}
                         <div class="solicitud-row">
-                            <div class="student-avatar">{{ sol.estudiante.username|first|upper }}</div>
+                            <div class="solicitud-avatar">{{ sol.estudiante.username|first|upper }}</div>
                             <div class="solicitud-info">
-                                <strong>{{ sol.estudiante.username }}</strong>
+                                <strong>{{ sol.estudiante.get_full_name|default:sol.estudiante.username }}</strong>
                                 <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
                             </div>
                             <div class="d-flex gap-2">
-                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn btn-sm btn-success"><i class="bi bi-check-lg"></i></a>
-                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-x-lg"></i></a>
+                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept"><i
+                                        class="bi bi-check-lg"></i></a>
+                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject"><i
+                                        class="bi bi-x-lg"></i></a>
                             </div>
                         </div>
                         {% endfor %}
@@ -135,113 +133,124 @@
                         {% endif %}
                     </div>
 
-                    <div class="card-section mb-4">
-                        <h3><i class="bi bi-person-plus" style="color:#7c6fff"></i> Agregar directamente</h3>
-                        <form action="{% url 'agregar_estudiante' clase.id %}" method="POST">
+                    <!-- AGREGAR ESTUDIANTE -->
+                    <div class="section-card">
+                        <h3 class="section-title" style="margin-bottom: 1rem;">
+                            <i class="bi bi-person-plus-fill" style="color: var(--accent-purple);"></i>
+                            Agregar estudiante
+                        </h3>
+                        <form action="{% url 'agregar_estudiante' clase.id %}" method="POST" class="add-student-form">
                             {% csrf_token %}
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="username" placeholder="Usuario del estudiante" required style="background:rgba(255,255,255,0.07); border-color:rgba(255,255,255,0.1); color:#fff;">
-                                <button type="submit" class="btn-agregar">Agregar</button>
-                            </div>
+                            <input type="text" name="username" placeholder="Nombre de usuario" required>
+                            <button type="submit" class="btn-agregar">Agregar</button>
                         </form>
                     </div>
 
-                    <div class="card-section">
-                        <h3>
-                            <i class="bi bi-people" style="color:#7c6fff"></i> Estudiantes inscritos
-                            <span class="count-pill">{{ clase.estudiantes.count }}</span>
-                        </h3>
+                    <!-- ESTUDIANTES -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
+                                Estudiantes inscritos
+                                <span class="section-badge purple">{{ clase.estudiantes.count }}</span>
+                            </h3>
+                        </div>
+
                         <div class="search-bar">
                             <i class="bi bi-search"></i>
                             <input type="text" placeholder="Buscar estudiante..." id="searchInput">
                         </div>
+
                         {% if clase.estudiantes.all %}
                         {% for estudiante in clase.estudiantes.all %}
                         <div class="student-row">
                             <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
                             <div class="student-info">
                                 <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
-                                <p>@{{ estudiante.username }} · {{ estudiante.email }}</p>
+                                <p>@{{ estudiante.username }}</p>
                             </div>
-                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft" onclick="return confirm('¿Remover a {{ estudiante.username }} de esta clase?')">
+                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}"
+                                class="btn-danger-soft"
+                                onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
                                 <i class="bi bi-person-dash"></i> Remover
                             </a>
                         </div>
                         {% endfor %}
                         {% else %}
-                        <p class="empty-msg"><i class="bi bi-people me-2"></i>No hay estudiantes inscritos aún</p>
+                        <p class="empty-msg">No hay estudiantes inscritos aún</p>
                         {% endif %}
                     </div>
 
                 </div>
 
+                <!-- RIGHT COLUMN -->
                 <div class="col-lg-7">
 
-                    <div class="card-section mb-4">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-                            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-                                <i class="bi bi-collection-play" style="color:#7c6fff"></i> Contenido de la clase
+                    <!-- LECCIONES -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-collection-play-fill" style="color: var(--accent-purple);"></i>
+                                Contenido de la clase
                             </h3>
-                            <button data-bs-toggle="modal" data-bs-target="#modalLeccion" style="background:linear-gradient(135deg,#7c6fff,#b06fff); border:none; color:#fff; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                                <i class="bi bi-plus-lg me-1"></i> Añadir lección
+                            <button class="btn-add purple" data-bs-toggle="modal" data-bs-target="#modalLeccion">
+                                <i class="bi bi-plus-lg"></i> Añadir lección
                             </button>
                         </div>
 
                         {% for leccion in lecciones %}
-                        <div class="mb-3 d-flex justify-content-between align-items-center" style="background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 8px;">
+                        <div class="lesson-item">
                             <div style="flex:1;">
-                                <div style="font-weight:600; font-size:0.9rem; margin-bottom:0.1rem;">
-                                    <a href="{% url 'detalle_leccion' clase.id leccion.id %}" style="color:#eae8f5; text-decoration:none;">
-                                        {{ leccion.titulo }}
-                                    </a>
-                                </div>
-                                {% if leccion.descripcion %}
-                                    <div style="font-size:0.75rem; color:rgba(255,255,255,0.4);">{{ leccion.descripcion }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="d-flex align-items-center gap-2">
-                                {% if leccion.disponible %}
-                                <span style="background:rgba(80,220,140,0.12); color:#50dc8c; font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Disponible</span>
-                                {% else %}
-                                <span style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.3); font-size:0.72rem; font-weight:600; padding:0.2rem 0.6rem; border-radius:100px;">Bloqueado</span>
-                                {% endif %}
-                                <a href="{% url 'eliminar_leccion' clase.id leccion.id %}" onclick="return confirm('¿Eliminar esta lección?')" style="color:rgba(255,80,80,0.6); font-size:0.85rem; text-decoration:none; padding:0.25rem 0.5rem;">
-                                    <i class="bi bi-trash"></i>
+                                <a href="{% url 'detalle_leccion' clase.id leccion.id %}" class="lesson-link">
+                                    {{ leccion.titulo }}
                                 </a>
+                                {% if leccion.descripcion %}
+                                <div class="lesson-desc">{{ leccion.descripcion|truncatechars:60 }}</div>
+                                {% endif %}
                             </div>
+                            <span class="lesson-status {% if leccion.disponible %}available{% else %}locked{% endif %}">
+                                {% if leccion.disponible %}Disponible{% else %}Bloqueado{% endif %}
+                            </span>
+                            <a href="{% url 'eliminar_leccion' clase.id leccion.id %}" class="btn-delete-lesson"
+                                onclick="return confirm('¿Eliminar esta lección?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
                         {% empty %}
-                        <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay lecciones aún. ¡Agrega la primera!</p>
+                        <p class="empty-msg">No hay lecciones aún. ¡Agrega la primera!</p>
                         {% endfor %}
                     </div>
 
-                    <div class="card-section">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
-                            <h3 style="margin:0; display:flex; align-items:center; gap:0.5rem;">
-                                <i class="bi bi-megaphone" style="color:#ff9f43"></i> Anuncios
+                    <!-- ANUNCIOS -->
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-megaphone-fill" style="color: var(--accent-orange);"></i>
+                                Anuncios
                             </h3>
-                            <button data-bs-toggle="modal" data-bs-target="#modalAnuncio" style="background:rgba(255,159,67,0.15); border:1px solid rgba(255,159,67,0.25); color:#ff9f43; font-size:0.8rem; font-weight:600; padding:0.45rem 1rem; border-radius:8px; cursor:pointer;">
-                                <i class="bi bi-plus-lg me-1"></i> Publicar anuncio
+                            <button class="btn-add orange" data-bs-toggle="modal" data-bs-target="#modalAnuncio">
+                                <i class="bi bi-plus-lg"></i> Publicar anuncio
                             </button>
                         </div>
+
                         {% for anuncio in anuncios %}
-                        <div style="background:rgba(255,159,67,0.07); border:1px solid rgba(255,159,67,0.15); border-radius:12px; padding:1.25rem; margin-bottom:0.75rem;">
-                            <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
-                                <div style="width:32px; height:32px; background:linear-gradient(135deg,#7c6fff,#b06fff); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.8rem; font-weight:700;">
-                                    {{ clase.docente.username|first|upper }}
-                                </div>
+                        <div class="announcement-item">
+                            <div class="announcement-header">
+                                <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
                                 <div>
-                                    <div style="font-weight:600; font-size:0.85rem;">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                                    <div style="font-size:0.72rem; color:rgba(255,255,255,0.35)">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+                                    <div class="announcement-author">{{
+                                        clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                    <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
                                 </div>
-                                <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" onclick="return confirm('¿Eliminar anuncio?')" style="margin-left:auto; color:rgba(255,80,80,0.5); text-decoration:none;">
+                                <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"
+                                    class="btn-delete-announcement" onclick="return confirm('¿Eliminar anuncio?')">
                                     <i class="bi bi-trash"></i>
                                 </a>
                             </div>
-                            <p style="color:rgba(255,255,255,0.6); font-size:0.85rem; margin:0; line-height:1.6;">{{ anuncio.texto }}</p>
+                            <p class="announcement-text">{{ anuncio.texto }}</p>
                         </div>
                         {% empty %}
-                        <p style="color:rgba(255,255,255,0.3); text-align:center; padding:1rem 0; font-size:0.875rem;">No hay anuncios aún.</p>
+                        <p class="empty-msg">No hay anuncios aún</p>
                         {% endfor %}
                     </div>
 
@@ -249,116 +258,130 @@
 
             </div>
         </div>
-    </div>
+    </main>
 
+    <!-- MODAL: Nueva Lección -->
     <div class="modal fade" id="modalLeccion" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-plus-circle me-2"></i>Nueva Lección</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title"><i class="bi bi-plus-circle" style="color:var(--accent-purple)"></i> Nueva
+                        lección</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{% url 'crear_leccion' clase.id %}" method="POST">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label small">Título <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="titulo" placeholder="Ej: Introducción a la clase" required>
+                            <label class="form-label">Título <span style="color:var(--danger)">*</span></label>
+                            <input type="text" class="form-control" name="titulo"
+                                placeholder="Ej: Introducción a la clase" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small">Descripción (opcional)</label>
-                            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción del contenido">
+                            <label class="form-label">Descripción (opcional)</label>
+                            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción">
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
-                            <label class="form-check-label small" for="disponible">Disponible para estudiantes</label>
+                            <label class="form-check-label" for="disponible"
+                                style="color:var(--spotify-subtext); font-size:0.85rem;">Disponible para
+                                estudiantes</label>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Agregar lección</button>
+                        <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-primary">Agregar lección</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Publicar Anuncio -->
     <div class="modal fade" id="modalAnuncio" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content text-dark">
+            <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-megaphone me-2"></i>Publicar Anuncio</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title"><i class="bi bi-megaphone-fill" style="color:var(--accent-orange)"></i>
+                        Publicar anuncio</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{% url 'crear_anuncio' clase.id %}" method="POST">
                     {% csrf_token %}
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label small">Mensaje <span class="text-danger">*</span></label>
-                            <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
+                            <label class="form-label">Mensaje <span style="color:var(--danger)">*</span></label>
+                            <textarea class="form-control" name="texto" rows="4"
+                                placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-warning btn-sm">Publicar</button>
+                        <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-warning">Publicar</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-
-    <div class="modal fade" id="modalEditarClase" tabindex="-1" aria-labelledby="modalEditarClaseLabel" aria-hidden="true">
+    <!-- MODAL: Editar Clase -->
+    <div class="modal fade" id="modalEditarClase" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff;">
-                <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data" style="margin: 0; padding: 1.5rem;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil-square" style="color:var(--accent-purple)"></i>
+                        Editar clase</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                        <h5 id="modalEditarClaseLabel" style="font-family: 'Syne', sans-serif; font-weight: 700; margin: 0;">Editar Clase 📝</h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre de la clase</label>
+                            <input type="text" name="nombre" class="form-control" value="{{ clase.nombre }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea name="descripcion" class="form-control"
+                                rows="3">{{ clase.descripcion }}</textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Cambiar imagen de portada (opcional)</label>
+                            <input type="file" name="imagen" class="form-control" accept="image/*"
+                                style="padding:0.5rem!important;">
+                        </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Nombre de la clase</label>
-                        <input type="text" name="nombre" class="form-control" value="{{ clase.nombre }}" required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Descripción</label>
-                        <textarea name="descripcion" class="form-control" rows="3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">{{ clase.descripcion }}</textarea>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="form-label" style="color: rgba(255,255,255,0.6); font-size: 0.85rem;">Cambiar imagen de portada (opcional)</label>
-                        <input type="file" name="imagen" class="form-control" accept="image/*" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 8px;">
-                    </div>
-                    
-                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal" style="border-radius: 8px;">Cancelar</button>
-                        <button type="submit" class="btn btn-sm" style="background: linear-gradient(135deg,#7c6fff,#b06fff); color: #fff; border: none; font-weight: 600; border-radius: 8px; padding: 0.5rem 1rem;">Guardar Cambios</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-modal-primary">Guardar cambios</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div class="modal fade" id="modalEliminarClase" tabindex="-1" aria-labelledby="modalEliminarClaseLabel" aria-hidden="true">
+    <!-- MODAL: Eliminar Clase -->
+    <div class="modal fade" id="modalEliminarClase" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="background: #1a1625; border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; color: #fff; text-align: center;">
-                <form action="{% url 'eliminar_clase' clase.id %}" method="POST" style="margin: 0; padding: 2rem;">
-                    {% csrf_token %}
-                    <div style="font-size: 3.5rem; color: #ff4d4d; margin-bottom: 1rem;">
+            <div class="modal-content text-center">
+                <div class="modal-body" style="padding:2.5rem!important;">
+                    <div class="delete-modal-icon">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </div>
-                    <h5 id="modalEliminarClaseLabel" style="font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 0.5rem;">¿Eliminar la clase?</h5>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 2rem;">
-                        Esta acción borrará la clase <strong>{{ clase.nombre }}</strong> de forma definitiva. Se perderán todos los datos y los alumnos serán desvinculados de la plataforma.
+                    <h5 style="font-family:'Syne',sans-serif; font-weight:700; margin-bottom:0.5rem;">¿Eliminar la
+                        clase?</h5>
+                    <p style="color:var(--spotify-subtext); font-size:0.9rem; margin-bottom:2rem;">
+                        Esta acción borrará <strong>{{ clase.nombre }}</strong> de forma definitiva. Se perderán todos
+                        los datos.
                     </p>
-                    <div style="display: flex; gap: 0.75rem; justify-content: center;">
-                        <button type="button" class="btn btn-sm btn-outline-light" data-bs-dismiss="modal" style="border-radius: 8px; padding: 0.5rem 1rem;">No, cancelar</button>
-                        <button type="submit" class="btn btn-sm btn-danger" style="background-color: #ff4d4d; border: none; font-weight: 600; border-radius: 8px; padding: 0.5rem 1rem;">Sí, eliminar clase</button>
+                    <div class="d-flex gap-3 justify-content-center">
+                        <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <form action="{% url 'eliminar_clase' clase.id %}" method="POST" style="margin:0;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-modal-danger">Sí, eliminar</button>
+                        </form>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     </div>
@@ -367,14 +390,25 @@
     <script>
         function copiarCodigo() {
             navigator.clipboard.writeText('{{ clase.codigo }}');
-            alert('Código copiado: {{ clase.codigo }}');
+            const badge = document.querySelector('.code-badge');
+            badge.style.borderColor = 'var(--spotify-green)';
+            badge.style.color = 'var(--spotify-green)';
+            setTimeout(() => {
+                badge.style.borderColor = 'rgba(124,111,255,0.2)';
+                badge.style.color = '#c4baff';
+            }, 1500);
         }
+
         document.getElementById('searchInput').addEventListener('input', function () {
             const q = this.value.toLowerCase();
             document.querySelectorAll('.student-row').forEach(row => {
                 row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
             });
         });
+
+        setTimeout(() => {
+            document.querySelectorAll('.alert-floating').forEach(a => new bootstrap.Alert(a).close());
+        }, 4000);
     </script>
 </body>
 
