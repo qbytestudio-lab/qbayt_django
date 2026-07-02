@@ -98,22 +98,34 @@
     {% for curso in cursos_teoria %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
       <div style="position: relative;">
-        <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
-          alt="{{ curso.nombre }}" class="course-card-img">
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+
         <div class="course-card-img-overlay"></div>
+
         <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
           <i class="bi bi-play-fill"></i>
         </a>
       </div>
+
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-level {{ curso.nivel }}">
+            {{ curso.get_nivel_display }}
+          </span>
+
           <span class="course-duration">
-            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+            <i class="bi bi-clock"></i>
+            {{ curso.duracion_horas }}h
           </span>
         </div>
-        <h3 class="course-title">{{ curso.nombre }}</h3>
-        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+
+        <h3 class="course-title">
+          {{ curso.nombre }}
+        </h3>
+
+        <p class="course-description">
+          {{ curso.descripcion|truncatewords:15 }}
+        </p>
       </div>
     </div>
 
@@ -191,22 +203,34 @@
     {% for curso in cursos_auditivo %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
       <div style="position: relative;">
-        <img src="{% if curso.portada %}{{ curso.portada.url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}"
-          alt="{{ curso.titulo }}" class="course-card-img">
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+
         <div class="course-card-img-overlay"></div>
+
         <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
           <i class="bi bi-play-fill"></i>
         </a>
       </div>
+
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-level {{ curso.nivel }}">
+            {{ curso.get_nivel_display }}
+          </span>
+
           <span class="course-duration">
-            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+            <i class="bi bi-clock"></i>
+            {{ curso.duracion_horas }}h
           </span>
         </div>
-        <h3 class="course-title">{{ curso.titulo }}</h3>
-        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+
+        <h3 class="course-title">
+          {{ curso.nombre }}
+        </h3>
+
+        <p class="course-description">
+          {{ curso.descripcion|truncatewords:15 }}
+        </p>
       </div>
     </div>
 

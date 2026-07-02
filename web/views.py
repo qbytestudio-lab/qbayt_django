@@ -3,30 +3,27 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from web.models import Perfil
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
 from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
 from django.shortcuts import get_object_or_404
-
-@login_required
-def mis_clases(request):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-        
-    clases_inscritas = Clase.objects.filter(estudiantes=request.user)
-    
-    # 🛠️ CORRECCIÓN DE LA RUTA AQUÍ:
-    return render(request, 'web/mis_clases.html', {
-        'clases': clases_inscritas
-    })
+from django.contrib.auth.decorators import user_passes_test
 
 def index(request):
     return render(request, 'web/index.html')
 
 @login_required
 def inicio(request):
-    return render(request, 'web/inicio.html')
+    cursos_teoria = Curso.objects.filter(categoria='teoria')
+    cursos_auditivo = Curso.objects.filter(categoria='auditivo')
+    cursos_instrumento = Curso.objects.filter(categoria='instrumento')
+    
+    return render(request, 'web/inicio.html', {
+        'cursos_teoria': cursos_teoria,
+        'cursos_auditivo': cursos_auditivo,
+        'cursos_instrumento': cursos_instrumento,
+    })
 
 @login_required
 def perfil_estudiante(request):
@@ -35,10 +32,47 @@ def perfil_estudiante(request):
     return render(request, 'perfil_estudiante.html')
 
 @login_required
-def perfil_docente(request):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    return render(request, 'perfil_docente.html')
+def admin_login_view(request):
+    """Login exclusivo para administradores"""
+    # Si ya está autenticado como admin, redirigir al dashboard
+    if request.user.is_authenticated and request.user.is_superuser:
+        return redirect('admin_dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and user.is_superuser:
+            login(request, user)
+            messages.success(request, f'¡Bienvenido administrador {user.username}!')
+            return redirect('admin_dashboard')
+        else:
+            messages.error(request, 'Credenciales inválidas o no tienes permisos.')
+    
+    return render(request, 'admin/login.html')
+
+
+def admin_logout_view(request):
+    """Cerrar sesión del administrador"""
+    logout(request)
+    return redirect('admin_login')
+
+
+@user_passes_test(lambda u: u.is_superuser, login_url='admin_login')
+def admin_dashboard(request):
+    """Dashboard principal del admin"""
+    
+    # Estadísticas
+    total_usuarios = User.objects.count()
+    ultimos_usuarios = User.objects.order_by('-date_joined')[:10]
+    
+    context = {
+        'total_usuarios': total_usuarios,
+        'ultimos_usuarios': ultimos_usuarios,
+    }
+    
+    return render(request, 'admin/dashboard.html', context)
 
 @login_required
 def perfil_administrador(request):
