@@ -19,5 +19,5 @@ urlpatterns = [
     path('clase/<int:clase_id>/leccion/<int:leccion_id>/actividad/<int:actividad_id>/', views.detalle_actividad, name='detalle_actividad'),
     path('actividad/<int:actividad_id>/pregunta/', views.crear_pregunta, name='crear_pregunta'),
     path('clase/<int:clase_id>/editar/', views.editar_clase, name='editar_clase'),
-    path('clase/<int:clase_id>/eliminar/', views.eliminar_clase, name='eliminar_clase'), # <-- Duplicada (ya estaba arriba en la línea 8)
-]
+    # Asegúrate de tener la coma al final de la línea anterior
+path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),]

@@ -69,6 +69,11 @@
                 </div>
                 <span class="code-hint">← Comparte este código</span>
 
+                <!-- BOTÓN PDF INSERTADO AQUÍ -->
+                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings" title="Descargar PDF" style="background: var(--accent-purple); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
+                    <i class="bi bi-file-earmark-pdf-fill"></i>
+                </a>
+
                 <div class="dropdown ms-lg-auto">
                     <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
                         <i class="bi bi-gear-fill"></i>
@@ -129,7 +134,7 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
+                        <p class="empty-msg"><i class="bi bi-check-circle-me-2"></i>Sin solicitudes pendientes</p>
                         {% endif %}
                     </div>
 

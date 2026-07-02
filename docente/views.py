@@ -1,8 +1,13 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
 from django.contrib.auth.models import User
 from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion
+
+
 
 @login_required
 def editar_clase(request, clase_id):
@@ -278,3 +283,40 @@ def crear_pregunta(request, actividad_id):
                     clase_id=actividad.leccion.clase.id,
                     leccion_id=actividad.leccion.id,
                     actividad_id=actividad.id)
+@login_required
+def generar_reporte_pdf(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    # Creamos la respuesta HTTP con el tipo de contenido PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Reporte_{clase.nombre}.pdf"'
+    
+    # Creamos el objeto canvas de ReportLab
+    p = canvas.Canvas(response, pagesize=letter)
+    p.setTitle(f"Reporte {clase.nombre}")
+    
+    # Dibujamos el contenido
+    p.setFont("Helvetica-Bold", 20)
+    p.drawString(100, 750, f"Reporte de Clase: {clase.nombre}")
+    
+    p.setFont("Helvetica", 12)
+    p.drawString(100, 730, f"Docente: {clase.docente.get_full_name()}")
+    p.drawString(100, 715, f"Fecha de creación: {clase.fecha_creacion.strftime('%d/%m/%Y')}")
+    
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(100, 680, "Lista de Estudiantes:")
+    
+    # Listamos a los estudiantes
+    y = 660
+    estudiantes = clase.estudiantes.all()
+    if estudiantes:
+        for est in estudiantes:
+            p.setFont("Helvetica", 12)
+            p.drawString(120, y, f"- {est.get_full_name()} (@{est.username})")
+            y -= 20
+    else:
+        p.drawString(120, y, "No hay estudiantes inscritos.")
+        
+    p.showPage()
+    p.save()
+    return response
