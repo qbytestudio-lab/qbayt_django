@@ -91,7 +91,7 @@ body::before {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   padding: 1.5rem;
   animation: fadeInUp 0.8s ease;
 }
@@ -139,6 +139,7 @@ body::before {
   margin-bottom: 2rem;
 }
 
+/* Lock icon (for reset form) */
 .lock-icon {
   width: 70px;
   height: 70px;
@@ -163,6 +164,85 @@ body::before {
   }
 }
 
+/* Mail success icon */
+.mail-success-icon {
+  position: relative;
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 1.2rem;
+}
+
+.mail-icon-circle {
+  width: 80px;
+  height: 80px;
+  margin: 5px auto 0;
+  background: rgba(29, 185, 84, 0.1);
+  border: 2px solid rgba(29, 185, 84, 0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--spotify-green);
+  animation: successPulse 2s ease-in-out infinite;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes successPulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(29, 185, 84, 0.2);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(29, 185, 84, 0.4), 0 0 60px rgba(29, 185, 84, 0.15);
+  }
+}
+
+/* Sparkles around the icon */
+.success-sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.sparkle {
+  position: absolute;
+  font-size: 0.8rem;
+  color: var(--spotify-green);
+  opacity: 0;
+  animation: sparkleAnim 2s ease-in-out infinite;
+}
+
+.sparkle:nth-child(1) {
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 0s;
+}
+
+.sparkle:nth-child(2) {
+  bottom: 5px;
+  right: 5px;
+  animation-delay: 0.6s;
+}
+
+.sparkle:nth-child(3) {
+  bottom: 5px;
+  left: 5px;
+  animation-delay: 1.2s;
+}
+
+@keyframes sparkleAnim {
+  0%, 100% {
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.2);
+  }
+}
+
 .auth-header h2 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
@@ -177,6 +257,96 @@ body::before {
   font-size: 0.9rem;
   line-height: 1.5;
   margin: 0;
+}
+
+/* ═══════════════════════════════════════════ */
+/* INFO BOX */
+/* ═══════════════════════════════════════════ */
+
+.info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: rgba(124, 111, 255, 0.06);
+  border: 1px solid rgba(124, 111, 255, 0.12);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.info-box-icon {
+  color: var(--accent-purple);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-box-content {
+  flex: 1;
+}
+
+.info-box-title {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--spotify-text);
+  margin-bottom: 0.2rem;
+}
+
+.info-box-text {
+  font-size: 0.8rem;
+  color: var(--spotify-subtext);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.info-box-text strong {
+  color: var(--spotify-text);
+}
+
+/* ═══════════════════════════════════════════ */
+/* EMAIL ANIMATION */
+/* ═══════════════════════════════════════════ */
+
+.email-animation {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.email-icon-large {
+  display: inline-block;
+  position: relative;
+  font-size: 2.5rem;
+  color: var(--accent-purple);
+  opacity: 0.3;
+}
+
+.email-send-effect {
+  position: absolute;
+  top: 50%;
+  right: -30px;
+  width: 20px;
+  height: 2px;
+  background: var(--accent-purple);
+  opacity: 0;
+  animation: sendLine 2s ease-in-out infinite;
+}
+
+@keyframes sendLine {
+  0% {
+    opacity: 0;
+    width: 0;
+    right: -10px;
+  }
+  50% {
+    opacity: 0.6;
+    width: 40px;
+    right: -50px;
+  }
+  100% {
+    opacity: 0;
+    width: 0;
+    right: -90px;
+  }
 }
 
 /* ═══════════════════════════════════════════ */
@@ -359,22 +529,6 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════ */
-/* SUCCESS STATE */
-/* ═══════════════════════════════════════════ */
-
-.success-icon {
-  font-size: 3rem;
-  color: var(--spotify-green);
-  animation: bounceIn 0.6s ease;
-}
-
-@keyframes bounceIn {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-/* ═══════════════════════════════════════════ */
 /* RESPONSIVE */
 /* ═══════════════════════════════════════════ */
 
@@ -398,8 +552,18 @@ body::before {
     font-size: 1.5rem;
   }
   
+  .mail-icon-circle {
+    width: 65px;
+    height: 65px;
+    font-size: 1.6rem;
+  }
+  
   .btn-reset {
     padding: 0.75rem !important;
     font-size: 0.9rem !important;
+  }
+  
+  .info-box {
+    padding: 0.8rem 1rem;
   }
 }
