@@ -8,7 +8,9 @@ from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, R
 from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
 from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import user_passes_test
+import json
+from datetime import datetime
+
 
 def index(request):
     return render(request, 'web/index.html')
@@ -255,3 +257,63 @@ def mis_clases(request):
     else:
         clases = request.user.clases_estudiante.all()
         return render(request, 'web/mis_clases.html', {'clases': clases})
+
+@login_required
+def calendario(request):
+    eventos = []
+
+    if request.user.perfil.rol == 'estudiante':
+        # Clases inscritas
+        clases = request.user.clases_estudiante.all()
+        for clase in clases:
+            eventos.append({
+                'id': f'clase-{clase.id}',
+                'title': f'📚 {clase.nombre}',
+                'start': clase.fecha_creacion.strftime('%Y-%m-%d'),
+                'color': '#7c6fff',
+                'tipo': 'clase',
+                'url': f'/estudiante/clase/{clase.id}/',
+                'descripcion': f'Docente: {clase.docente.get_full_name() or clase.docente.username}',
+            })
+
+        # Actividades pendientes con fecha límite
+        completadas_ids = RespuestaEstudiante.objects.filter(
+            estudiante=request.user
+        ).values_list('actividad_id', flat=True).distinct()
+
+        actividades = Actividad.objects.filter(
+            leccion__clase__in=clases,
+            fecha_limite__isnull=False
+        ).exclude(id__in=completadas_ids)
+
+        for act in actividades:
+            eventos.append({
+                'id': f'act-{act.id}',
+                'title': f'⚡ {act.titulo}',
+                'start': act.fecha_limite.strftime('%Y-%m-%dT%H:%M:%S'),
+                'color': '#ff9f43' if act.fecha_limite > datetime.now(act.fecha_limite.tzinfo) else '#ff6b6b',
+                'tipo': 'actividad',
+                'url': f'/estudiante/actividad/{act.id}/',
+                'descripcion': f'Clase: {act.leccion.clase.nombre}',
+            })
+
+        # Lista próximos eventos ordenados
+        from datetime import timezone
+        ahora = datetime.now(timezone.utc)
+        proximos = Actividad.objects.filter(
+            leccion__clase__in=clases,
+            fecha_limite__isnull=False,
+            fecha_limite__gte=ahora
+        ).exclude(id__in=completadas_ids).order_by('fecha_limite')[:10]
+
+        return render(request, 'web/calendario.html', {
+            'eventos_json': json.dumps(eventos),
+            'proximos': proximos,
+            'clases': clases,
+        })
+
+    return render(request, 'web/calendario.html', {
+        'eventos_json': '[]',
+        'proximos': [],
+        'clases': [],
+    })

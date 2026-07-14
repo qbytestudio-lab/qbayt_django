@@ -19,5 +19,6 @@ urlpatterns = [
     path('clase/<int:clase_id>/leccion/<int:leccion_id>/actividad/<int:actividad_id>/', views.detalle_actividad, name='detalle_actividad'),
     path('actividad/<int:actividad_id>/pregunta/', views.crear_pregunta, name='crear_pregunta'),
     path('clase/<int:clase_id>/editar/', views.editar_clase, name='editar_clase'),
-    # Asegúrate de tener la coma al final de la línea anterior
-path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),]
+    path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),
+    path('estadisticas/<int:clase_id>/',views.estadisticas_clase,name='estadisticas_clase')
+    ]

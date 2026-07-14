@@ -1,0 +1,659 @@
+/* ============================================ */
+/* CALENDARIO - SPOTIFY STYLE */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-light-gray: #535353;
+  --spotify-green: #1db954;
+  --spotify-green-hover: #1ed760;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --accent-purple: #7c6fff;
+  --accent-purple-hover: #9b8fff;
+  --accent-orange: #ff9f43;
+  --accent-pink: #ff6b9d;
+  --danger: #e91429;
+}
+
+/* ═══════════════════════════════════════════ */
+/* HERO BANNER */
+/* ═══════════════════════════════════════════ */
+
+.calendar-hero {
+  background: linear-gradient(135deg, #7c6fff 0%, #5a4fcf 100%);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+.calendar-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -10%;
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.calendar-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.calendar-hero-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  color: #fff;
+  margin-bottom: 0.3rem;
+  line-height: 1.2;
+}
+
+.calendar-hero-subtitle {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.calendar-hero-actions {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.4rem;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+/* View Toggle Buttons */
+.view-toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 0.55rem 1.2rem;
+  border-radius: 9px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.view-toggle-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.view-toggle-btn.active {
+  background: #fff;
+  color: #5a4fcf;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ═══════════════════════════════════════════ */
+/* MAIN LAYOUT */
+/* ═══════════════════════════════════════════ */
+
+.calendar-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+}
+
+@media (max-width: 992px) {
+  .calendar-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════ */
+/* CALENDAR CARD */
+/* ═══════════════════════════════════════════ */
+
+.calendar-card {
+  background: var(--spotify-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 1.5rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* FULLCALENDAR OVERRIDES */
+/* ═══════════════════════════════════════════ */
+
+.fc {
+  font-family: 'DM Sans', sans-serif;
+  color: var(--spotify-text);
+}
+
+/* Grid borders */
+.fc-theme-standard td,
+.fc-theme-standard th,
+.fc-theme-standard .fc-scrollgrid {
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Header row */
+.fc-col-header-cell {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.75rem 0 !important;
+}
+
+.fc-col-header-cell-cushion {
+  color: var(--spotify-muted) !important;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Day cells */
+.fc-daygrid-day {
+  transition: background 0.2s;
+}
+
+.fc-daygrid-day:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fc-daygrid-day-frame {
+  background: transparent;
+  min-height: 90px;
+  padding: 4px !important;
+}
+
+/* Day number */
+.fc-daygrid-day-number {
+  color: var(--spotify-subtext) !important;
+  text-decoration: none !important;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 6px 8px !important;
+}
+
+/* Today */
+.fc-day-today {
+  background: rgba(124, 111, 255, 0.08) !important;
+}
+
+.fc-day-today .fc-daygrid-day-number {
+  background: var(--accent-purple);
+  color: #fff !important;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+}
+
+/* Other month days */
+.fc-day-other .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Weekend */
+.fc-day-sat .fc-daygrid-day-number,
+.fc-day-sun .fc-daygrid-day-number {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/* TOOLBAR */
+/* ═══════════════════════════════════════════ */
+
+.fc-toolbar {
+  margin-bottom: 1.25rem !important;
+}
+
+.fc-toolbar-title {
+  color: var(--spotify-text) !important;
+  font-family: 'Syne', sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 1.15rem !important;
+}
+
+/* Buttons */
+.fc-button {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--spotify-subtext) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  padding: 0.5rem 0.9rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s !important;
+  text-transform: capitalize !important;
+  box-shadow: none !important;
+}
+
+.fc-button:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--spotify-text) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.fc-button-active {
+  background: var(--accent-purple) !important;
+  border-color: var(--accent-purple) !important;
+  color: #fff !important;
+}
+
+.fc-button-active:hover {
+  background: var(--accent-purple-hover) !important;
+}
+
+.fc-prev-button,
+.fc-next-button {
+  border-radius: 50% !important;
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+
+.fc-today-button {
+  border-radius: 20px !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/* EVENTS */
+/* ═══════════════════════════════════════════ */
+
+.fc-event {
+  border: none !important;
+  border-radius: 5px !important;
+  font-size: 0.72rem !important;
+  padding: 3px 7px !important;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin-bottom: 2px;
+}
+
+.fc-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Event colors */
+.fc-event-clase {
+  background: var(--accent-purple) !important;
+  border-left: 3px solid var(--accent-purple-hover) !important;
+}
+
+.fc-event-actividad {
+  background: var(--accent-orange) !important;
+  border-left: 3px solid #ffb366 !important;
+}
+
+.fc-event-vencida {
+  background: var(--danger) !important;
+  border-left: 3px solid #ff4444 !important;
+}
+
+/* Event dot */
+.fc-daygrid-dot-event {
+  background: transparent !important;
+  border: none !important;
+}
+
+.fc-daygrid-event-dot {
+  border: 2px solid currentColor !important;
+  border-radius: 50% !important;
+}
+
+/* More link */
+.fc-more-link {
+  color: var(--accent-purple) !important;
+  font-weight: 600 !important;
+  font-size: 0.75rem !important;
+}
+
+/* Popover */
+.fc-popover {
+  background: var(--spotify-gray) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+}
+
+.fc-popover-header {
+  background: rgba(124, 111, 255, 0.15) !important;
+  color: var(--spotify-text) !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600;
+}
+
+.fc-popover-body {
+  padding: 0.5rem !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/* LIST VIEW */
+/* ═══════════════════════════════════════════ */
+
+.event-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.event-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  color: var(--spotify-text);
+  transition: all 0.2s ease;
+}
+
+.event-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(124, 111, 255, 0.2);
+  color: var(--spotify-text);
+  transform: translateX(3px);
+}
+
+.event-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.event-dot.clase {
+  background: var(--accent-purple);
+  color: var(--accent-purple);
+}
+
+.event-dot.actividad {
+  background: var(--accent-orange);
+  color: var(--accent-orange);
+}
+
+.event-dot.vencida {
+  background: var(--danger);
+  color: var(--danger);
+}
+
+.event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.88rem;
+  margin-bottom: 0.15rem;
+  color: var(--spotify-text);
+}
+
+.event-subtitle {
+  font-size: 0.75rem;
+  color: var(--spotify-muted);
+}
+
+.event-meta {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.event-date {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent-purple);
+}
+
+.event-time {
+  font-size: 0.7rem;
+  color: var(--spotify-muted);
+}
+
+/* ═══════════════════════════════════════════ */
+/* SIDEBAR */
+/* ═══════════════════════════════════════════ */
+
+.sidebar-card {
+  background: var(--spotify-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.sidebar-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--spotify-text);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.sidebar-title i {
+  font-size: 1rem;
+}
+
+/* Legend */
+.legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.82rem;
+  color: var(--spotify-subtext);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-dot.clase { background: var(--accent-purple); }
+.legend-dot.actividad { background: var(--accent-orange); }
+.legend-dot.vencida { background: var(--danger); }
+
+/* Upcoming events */
+.upcoming-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  text-decoration: none;
+  color: var(--spotify-text);
+  transition: all 0.2s;
+}
+
+.upcoming-item:last-child {
+  border-bottom: none;
+}
+
+.upcoming-item:hover {
+  color: var(--spotify-text);
+  background: rgba(255, 255, 255, 0.02);
+  margin: 0 -0.5rem;
+  padding: 0.7rem 0.5rem;
+  border-radius: 8px;
+}
+
+.upcoming-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.upcoming-icon.actividad {
+  background: rgba(255, 159, 67, 0.12);
+  color: var(--accent-orange);
+}
+
+.upcoming-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.upcoming-title {
+  font-weight: 600;
+  font-size: 0.82rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.1rem;
+}
+
+.upcoming-date {
+  font-size: 0.72rem;
+  color: var(--spotify-muted);
+}
+
+/* ═══════════════════════════════════════════ */
+/* EMPTY STATE */
+/* ═══════════════════════════════════════════ */
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1rem;
+}
+
+.empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.empty-icon.green {
+  color: rgba(29, 185, 84, 0.4);
+}
+
+.empty-icon.muted {
+  color: var(--spotify-light-gray);
+  opacity: 0.5;
+}
+
+.empty-text {
+  color: var(--spotify-subtext);
+  font-size: 0.85rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* SCROLLBAR */
+/* ═══════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--spotify-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--spotify-light-gray);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--spotify-muted);
+}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .calendar-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem;
+  }
+
+  .calendar-hero-title {
+    font-size: 1.5rem;
+  }
+
+  .calendar-hero-actions {
+    width: 100%;
+  }
+
+  .view-toggle-btn {
+    flex: 1;
+    justify-content: center;
+  }
+
+  .calendar-card {
+    padding: 1rem;
+  }
+
+  .fc-toolbar {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-hero-title {
+    font-size: 1.3rem;
+  }
+
+  .fc-col-header-cell-cushion {
+    font-size: 0.7rem;
+  }
+
+  .fc-daygrid-day-number {
+    font-size: 0.75rem;
+  }
+
+  .fc-daygrid-day-frame {
+    min-height: 60px;
+  }
+}

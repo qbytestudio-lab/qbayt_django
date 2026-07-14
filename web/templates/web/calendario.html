@@ -1,0 +1,197 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Calendario — QBYT{% endblock %}
+{% block page_title %}Calendario{% endblock %}
+{% block nav_calendario %}active{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'web/css/calendario.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- HERO BANNER -->
+<div class="calendar-hero">
+  <div class="calendar-hero-content">
+    <h1 class="calendar-hero-title">Calendario</h1>
+    <p class="calendar-hero-subtitle">Tus clases y actividades en un solo vistazo</p>
+  </div>
+  <div class="calendar-hero-actions">
+    <button class="view-toggle-btn active" id="btnMes" onclick="cambiarVista('mes')">
+      <i class="bi bi-grid-3x3-gap"></i> Mes
+    </button>
+    <button class="view-toggle-btn" id="btnLista" onclick="cambiarVista('lista')">
+      <i class="bi bi-list-ul"></i> Lista
+    </button>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="calendar-layout">
+
+  <!-- CALENDAR -->
+  <div class="calendar-card">
+    <!-- Month View -->
+    <div id="calendario-mes">
+      <div id="fullcalendar"></div>
+    </div>
+    
+    <!-- List View -->
+    <div id="calendario-lista" style="display:none;">
+      <div class="event-list">
+        {% if proximos %}
+          {% for act in proximos %}
+          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="event-item">
+            <div class="event-dot actividad"></div>
+            <div class="event-info">
+              <div class="event-title">{{ act.titulo }}</div>
+              <div class="event-subtitle">{{ act.leccion.clase.nombre }}</div>
+            </div>
+            <div class="event-meta">
+              <div class="event-date">{{ act.fecha_limite|date:"d M" }}</div>
+              <div class="event-time">{{ act.fecha_limite|date:"H:i" }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+          {% for clase in clases %}
+          <div class="event-item">
+            <div class="event-dot clase"></div>
+            <div class="event-info">
+              <div class="event-title">{{ clase.nombre }}</div>
+              <div class="event-subtitle">Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+            </div>
+            <div class="event-meta">
+              <div class="event-date">{{ clase.fecha_creacion|date:"d M Y" }}</div>
+            </div>
+          </div>
+          {% endfor %}
+          {% if not clases %}
+          <div class="empty-state">
+            <i class="bi bi-calendar-x empty-icon muted"></i>
+            <p class="empty-text">No tienes eventos programados</p>
+          </div>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="calendar-sidebar">
+
+    <!-- Legend -->
+    <div class="sidebar-card">
+      <h3 class="sidebar-title">
+        <i class="bi bi-palette-fill" style="color: var(--accent-purple);"></i>
+        Leyenda
+      </h3>
+      <div class="legend-list">
+        <div class="legend-item">
+          <span class="legend-dot clase"></span>
+          Clases inscritas
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot actividad"></span>
+          Actividades pendientes
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot vencida"></span>
+          Actividades vencidas
+        </div>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="sidebar-card">
+      <h3 class="sidebar-title">
+        <i class="bi bi-clock-history" style="color: var(--accent-orange);"></i>
+        Próximas entregas
+      </h3>
+      
+      <div class="upcoming-list">
+        {% if proximos %}
+          {% for act in proximos|slice:":5" %}
+          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="upcoming-item">
+            <div class="upcoming-icon actividad">
+              <i class="bi bi-patch-question-fill"></i>
+            </div>
+            <div class="upcoming-info">
+              <div class="upcoming-title">{{ act.titulo }}</div>
+              <div class="upcoming-date">{{ act.fecha_limite|date:"d M · H:i" }}</div>
+            </div>
+          </a>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-check-circle-fill empty-icon green"></i>
+          <p class="empty-text">¡Sin entregas pendientes!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
+<script>
+  const eventosData = {{ eventos_json|safe }};
+
+  const calendar = new FullCalendar.Calendar(document.getElementById('fullcalendar'), {
+    initialView: 'dayGridMonth',
+    locale: 'es',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: ''
+    },
+    events: eventosData,
+    eventClick: function(info) {
+      if (info.event.url) {
+        info.jsEvent.preventDefault();
+        window.location.href = info.event.url;
+      }
+    },
+    eventDidMount: function(info) {
+      const tipo = info.event.extendedProps.tipo;
+      if (tipo === 'clase') {
+        info.el.classList.add('fc-event-clase');
+      } else if (tipo === 'actividad') {
+        info.el.classList.add('fc-event-actividad');
+      } else if (tipo === 'vencida') {
+        info.el.classList.add('fc-event-vencida');
+      }
+      info.el.setAttribute('title', info.event.extendedProps.descripcion || info.event.title);
+    },
+    height: 'auto',
+    dayMaxEvents: 3,
+    moreLinkText: '+ más',
+    noEventsText: 'Sin eventos',
+    buttonText: { 
+      today: 'Hoy',
+      month: 'Mes',
+      week: 'Semana',
+      day: 'Día'
+    },
+  });
+
+  calendar.render();
+
+  function cambiarVista(vista) {
+    document.getElementById('btnMes').classList.toggle('active', vista === 'mes');
+    document.getElementById('btnLista').classList.toggle('active', vista === 'lista');
+    document.getElementById('calendario-mes').style.display = vista === 'mes' ? '' : 'none';
+    document.getElementById('calendario-lista').style.display = vista === 'lista' ? '' : 'none';
+    if (vista === 'mes') {
+      setTimeout(() => calendar.render(), 100);
+    }
+  }
+</script>
+{% endblock %}

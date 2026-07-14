@@ -1,0 +1,254 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estadísticas — {{ clase.nombre }}</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="{% static 'docente/css/estadisticas.css' %}">
+</head>
+<body>
+
+  <!-- FLOATING MESSAGES -->
+  {% if messages %}
+  <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+    {% for message in messages %}
+    <div class="alert-floating alert-{{ message.tags }} alert-dismissible fade show">
+      <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container topbar-content">
+      <a href="{% url 'index' %}" class="logo-area">
+        <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
+        <h2 class="logo-text">QBYT</h2>
+      </a>
+      <div class="auth-buttons">
+        <a href="{% url 'detalle_clase' clase.id %}" class="btn-topbar">
+          <i class="bi bi-arrow-left"></i> Volver a la clase
+        </a>
+        <a href="{% url 'logout' %}" class="btn-topbar">
+          <i class="bi bi-box-arrow-right"></i> Salir
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- HEADER -->
+  <section class="stats-header">
+    <div class="container">
+      <a href="{% url 'detalle_clase' clase.id %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> {{ clase.nombre }}
+      </a>
+      <h1 class="stats-title">
+        <i class="bi bi-graph-up-arrow"></i> Estadísticas
+      </h1>
+      <p class="stats-subtitle">Analiza el rendimiento de tus estudiantes</p>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="content-area">
+    <div class="container">
+
+      <!-- SUMMARY CARDS -->
+      <div class="summary-grid">
+        <div class="summary-card purple">
+          <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
+          <div class="summary-value purple">{{ total_estudiantes }}</div>
+          <div class="summary-label">Estudiantes</div>
+        </div>
+        
+        <div class="summary-card green">
+          <div class="summary-icon"><i class="bi bi-list-task"></i></div>
+          <div class="summary-value green">{{ total_actividades }}</div>
+          <div class="summary-label">Actividades</div>
+        </div>
+        
+        <div class="summary-card orange">
+          <div class="summary-icon"><i class="bi bi-trophy-fill"></i></div>
+          <div class="summary-value orange">
+            {% if data_estudiantes %}{{ data_estudiantes.0.progreso }}%{% else %}0%{% endif %}
+          </div>
+          <div class="summary-label">Progreso top</div>
+        </div>
+        
+        <div class="summary-card pink">
+          <div class="summary-icon"><i class="bi bi-star-fill"></i></div>
+          <div class="summary-value pink">
+            {% if data_actividades %}{{ data_actividades.0.porcentaje }}%{% else %}0%{% endif %}
+          </div>
+          <div class="summary-label">Actividad más completada</div>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs-container">
+        <button class="tab-btn active" id="btnEstudiantes" onclick="cambiarTab('estudiantes')">
+          <i class="bi bi-people-fill"></i> Por estudiante
+        </button>
+        <button class="tab-btn" id="btnActividades" onclick="cambiarTab('actividades')">
+          <i class="bi bi-list-task"></i> Por actividad
+        </button>
+      </div>
+
+      <!-- TAB: POR ESTUDIANTE -->
+      <div id="tab-estudiantes">
+        {% if data_estudiantes %}
+          {% for item in data_estudiantes %}
+          <div class="student-row">
+            
+            <!-- Avatar -->
+            <div class="student-avatar">
+              {{ item.estudiante.username|first|upper }}
+            </div>
+
+            <!-- Info -->
+            <div class="student-info">
+              <div class="student-name">
+                {{ item.estudiante.get_full_name|default:item.estudiante.username }}
+                <span class="student-username">@{{ item.estudiante.username }}</span>
+              </div>
+              <div class="student-progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill purple" style="width: {{ item.progreso }}%;"></div>
+                </div>
+                <span class="progress-text">{{ item.completadas }}/{{ item.total }} act.</span>
+              </div>
+            </div>
+
+            <!-- Progreso -->
+            <div class="score-display">
+              <div class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
+                {{ item.progreso }}%
+              </div>
+              <div class="score-label">Progreso</div>
+            </div>
+
+            <!-- Puntaje -->
+            <div class="score-display">
+              <div class="score-value {% if item.puntaje >= 70 %}high{% elif item.puntaje >= 40 %}medium{% elif item.puntaje > 0 %}low{% else %}neutral{% endif %}">
+                {% if item.puntaje > 0 %}{{ item.puntaje }}%{% else %}—{% endif %}
+              </div>
+              <div class="score-label">Puntaje</div>
+            </div>
+
+            <!-- Estado -->
+            {% if item.progreso == 100 %}
+            <span class="status-badge completed">Completado</span>
+            {% elif item.progreso > 0 %}
+            <span class="status-badge in-progress">En progreso</span>
+            {% else %}
+            <span class="status-badge not-started">Sin iniciar</span>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-people empty-icon"></i>
+          <p class="empty-text">No hay estudiantes inscritos aún</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- TAB: POR ACTIVIDAD -->
+      <div id="tab-actividades" style="display:none;">
+        {% if data_actividades %}
+          {% for item in data_actividades %}
+          <div class="activity-row">
+            
+            <!-- Icon -->
+            <div class="activity-icon {% if item.actividad.tipo == 'quiz' %}quiz{% else %}texto{% endif %}">
+              <i class="bi bi-{% if item.actividad.tipo == 'quiz' %}patch-question-fill{% else %}file-text-fill{% endif %}"></i>
+            </div>
+
+            <!-- Info -->
+            <div class="activity-info">
+              <div class="activity-title">{{ item.actividad.titulo }}</div>
+              <div class="activity-meta">
+                {{ item.actividad.leccion.titulo }} · {{ item.actividad.get_tipo_display }}
+              </div>
+              <div class="activity-progress-wrapper">
+                <div class="progress-bar">
+                  <div class="progress-fill green" style="width: {{ item.porcentaje }}%;"></div>
+                </div>
+                <span class="progress-text">{{ item.completaron }}/{{ item.total_estudiantes }}</span>
+              </div>
+            </div>
+
+            <!-- % Completaron -->
+            <div class="score-display">
+              <div class="score-value {% if item.porcentaje >= 70 %}high{% elif item.porcentaje >= 40 %}medium{% else %}low{% endif %}">
+                {{ item.porcentaje }}%
+              </div>
+              <div class="score-label">Completaron</div>
+            </div>
+
+            <!-- Deadline -->
+            <div class="activity-deadline">
+              {% if item.actividad.fecha_limite %}
+              <div class="deadline-date">{{ item.actividad.fecha_limite|date:"d M" }}</div>
+              <div class="deadline-time">{{ item.actividad.fecha_limite|date:"H:i" }}</div>
+              {% else %}
+              <div class="deadline-none">Sin fecha</div>
+              {% endif %}
+            </div>
+
+          </div>
+          {% endfor %}
+        {% else %}
+        <div class="empty-state">
+          <i class="bi bi-list-task empty-icon"></i>
+          <p class="empty-text">No hay actividades creadas aún</p>
+        </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function cambiarTab(tab) {
+      document.getElementById('tab-estudiantes').style.display = tab === 'estudiantes' ? '' : 'none';
+      document.getElementById('tab-actividades').style.display = tab === 'actividades' ? '' : 'none';
+      document.getElementById('btnEstudiantes').classList.toggle('active', tab === 'estudiantes');
+      document.getElementById('btnActividades').classList.toggle('active', tab === 'actividades');
+    }
+
+    // Animation on scroll
+    const observerOptions = { threshold: 0.1 };
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.student-row, .activity-row').forEach((row, i) => {
+      row.style.opacity = '0';
+      row.style.transform = 'translateY(15px)';
+      row.style.transition = `all 0.4s ease ${i * 0.05}s`;
+      observer.observe(row);
+    });
+
+    // Auto-dismiss alerts
+    setTimeout(() => {
+      document.querySelectorAll('.alert-floating').forEach(a => new bootstrap.Alert(a).close());
+    }, 4000);
+  </script>
+</body>
+</html>

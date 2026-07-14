@@ -5,7 +5,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion
+from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion, RespuestaEstudiante
+
 
 
 
@@ -226,10 +227,12 @@ def crear_actividad(request, clase_id, leccion_id):
         imagen = request.FILES.get('imagen')
         orden = leccion.actividades.count() + 1
         if titulo:
+            fecha_limite = request.POST.get('fecha_limite') or None
             Actividad.objects.create(
-                leccion=leccion, titulo=titulo, tipo=tipo,
-                contenido=contenido, imagen=imagen, orden=orden
-            )
+            leccion=leccion, titulo=titulo, tipo=tipo,
+            contenido=contenido, imagen=imagen, orden=orden,
+            fecha_limite=fecha_limite
+)
             messages.success(request, 'Actividad creada.')
     return redirect('detalle_leccion', clase_id=clase_id, leccion_id=leccion_id)
 
@@ -295,7 +298,7 @@ def generar_reporte_pdf(request, clase_id):
     p = canvas.Canvas(response, pagesize=letter)
     p.setTitle(f"Reporte {clase.nombre}")
     
-    # Dibujamos el contenido
+    # contenido
     p.setFont("Helvetica-Bold", 20)
     p.drawString(100, 750, f"Reporte de Clase: {clase.nombre}")
     
@@ -320,3 +323,59 @@ def generar_reporte_pdf(request, clase_id):
     p.showPage()
     p.save()
     return response
+
+@login_required
+def estadisticas_clase(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    estudiantes = clase.estudiantes.all()
+    actividades = Actividad.objects.filter(leccion__clase=clase)
+    
+    # Por cada estudiante, calcular su progreso y puntaje
+    data_estudiantes = []
+    for estudiante in estudiantes:
+        respuestas = RespuestaEstudiante.objects.filter(
+            estudiante=estudiante,
+            actividad__leccion__clase=clase
+        ).select_related('actividad', 'opcion')
+        
+        completadas = respuestas.values('actividad').distinct().count()
+        total = actividades.count()
+        progreso = round((completadas / total) * 100) if total > 0 else 0
+        
+        # Puntaje promedio en quizzes
+        correctas = sum(1 for r in respuestas if r.opcion.es_correcta)
+        total_resp = respuestas.count()
+        puntaje = round((correctas / total_resp) * 100) if total_resp > 0 else 0
+        
+        data_estudiantes.append({
+            'estudiante': estudiante,
+            'completadas': completadas,
+            'total': total,
+            'progreso': progreso,
+            'puntaje': puntaje,
+        })
+    
+    # Por cada actividad, cuántos la completaron
+    data_actividades = []
+    for act in actividades:
+        completaron = RespuestaEstudiante.objects.filter(
+            actividad=act
+        ).values('estudiante').distinct().count()
+        porcentaje = round((completaron / estudiantes.count()) * 100) if estudiantes.count() > 0 else 0
+        data_actividades.append({
+            'actividad': act,
+            'completaron': completaron,
+            'total_estudiantes': estudiantes.count(),
+            'porcentaje': porcentaje,
+        })
+    
+    return render(request, 'docente/estadisticas.html', {
+        'clase': clase,
+        'data_estudiantes': data_estudiantes,
+        'data_actividades': data_actividades,
+        'total_estudiantes': estudiantes.count(),
+        'total_actividades': actividades.count(),
+    })

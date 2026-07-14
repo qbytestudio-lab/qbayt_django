@@ -59,6 +59,13 @@
                     </a>
                 </li>
 
+                <li class="{% block nav_calendario %}{% endblock %}">
+                    <a href="{% url 'calendario' %}">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Calendario</span>
+                    </a>
+                </li>
+
                 <li class="{% block nav_config %}{% endblock %}">
                     <a href="{% url 'certificados' %}">
                         <i class="bi bi-gear"></i><span>Certificados</span>

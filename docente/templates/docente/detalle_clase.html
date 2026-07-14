@@ -38,6 +38,10 @@
             <div class="auth-buttons">
                 <a href="{% url 'mis_clases' %}" class="btn-topbar"><i class="bi bi-arrow-left"></i> Mis clases</a>
                 <a href="{% url 'logout' %}" class="btn-topbar danger"><i class="bi bi-box-arrow-right"></i> Salir</a>
+                <a href="{% url 'estadisticas_clase' clase.id %}"
+                    style="background:rgba(124,111,255,0.15); border:1px solid rgba(124,111,255,0.3); color:#a89fff; font-size:0.8rem; font-weight:600; padding:0.5rem 1rem; border-radius:8px; text-decoration:none;">
+                    <i class="bi bi-graph-up me-1"></i> Estadísticas
+                </a>
             </div>
         </div>
     </header>
@@ -70,7 +74,8 @@
                 <span class="code-hint">← Comparte este código</span>
 
                 <!-- BOTÓN PDF INSERTADO AQUÍ -->
-                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings" title="Descargar PDF" style="background: var(--accent-purple); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
+                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings" title="Descargar PDF"
+                    style="background: var(--accent-purple); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
                 </a>
 

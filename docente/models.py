@@ -75,6 +75,7 @@ class Actividad(models.Model):
     contenido = models.TextField(blank=True)  # para tipo texto
     imagen = models.ImageField(upload_to='actividades/', blank=True, null=True)
     orden = models.PositiveIntegerField(default=1)
+    fecha_limite = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         ordering = ['orden']
