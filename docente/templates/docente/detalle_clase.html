@@ -203,34 +203,93 @@
                                 <i class="bi bi-collection-play-fill" style="color: var(--accent-purple);"></i>
                                 Contenido de la clase
                             </h3>
-                            <button class="btn-add purple" data-bs-toggle="modal" data-bs-target="#modalLeccion">
-                                <i class="bi bi-plus-lg"></i> Añadir lección
-                            </button>
-                        </div>
-
-                        {% for leccion in lecciones %}
-                        <div class="lesson-item">
-                            <div style="flex:1;">
-                                <a href="{% url 'detalle_leccion' clase.id leccion.id %}" class="lesson-link">
-                                    {{ leccion.titulo }}
-                                </a>
-                                {% if leccion.descripcion %}
-                                <div class="lesson-desc">{{ leccion.descripcion|truncatechars:60 }}</div>
-                                {% endif %}
-                            </div>
-                            <span class="lesson-status {% if leccion.disponible %}available{% else %}locked{% endif %}">
-                                {% if leccion.disponible %}Disponible{% else %}Bloqueado{% endif %}
-                            </span>
-                            <a href="{% url 'eliminar_leccion' clase.id leccion.id %}" class="btn-delete-lesson"
-                                onclick="return confirm('¿Eliminar esta lección?')">
-                                <i class="bi bi-trash"></i>
+                            <!-- Cambiamos el <button> por un <a> estilizado con tus mismas clases -->
+                            <a href="{% url 'crear_ejercicio' clase.id %}" class="btn-add purple" style="text-decoration: none;">
+                                <i class="bi bi-plus-lg"></i> Crear Ejercicio
                             </a>
                         </div>
-                        {% empty %}
-                        <p class="empty-msg">No hay lecciones aún. ¡Agrega la primera!</p>
-                        {% endfor %}
-                    </div>
+                        <!-- Lista de Ejercicios Reales -->
+    <div class="ejercicios-container mt-3" style="display: flex; flex-direction: column; gap: 12px;">
+    {% if ejercicios %}
+        {% for ejercicio in ejercicios %}
+            <div class="ejercicio-item" style="background: #1f1f1f; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0; font-size: 1.1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: #fff;">
+                        {{ ejercicio.titulo }}
+                    </h4>
+                    {% if ejercicio.descripcion %}
+                        <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #b3b3b3;">
+                            {{ ejercicio.descripcion }}
+                        </p>
+                    {% endif %}
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Badge de Preguntas -->
+                    <span class="badge" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;">
+                        <i class="bi bi-question-circle-fill me-1"></i>
+                        {{ ejercicio.preguntas.count }} preguntas
+                    </span>
 
+                    <!-- Botón de Editar -->
+                    <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" 
+                       class="btn btn-sm" 
+                       style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; border-radius: 8px; padding: 6px 10px; transition: 0.2s;"
+                       title="Editar ejercicio">
+                        <i class="bi bi-pencil-square"></i>
+                    </a>
+
+                    <!-- NUEVO BOTÓN DE ELIMINAR: Ahora abre el modal usando "data-bs-target" -->
+                    <button type="button" 
+                            class="btn btn-sm" 
+                            style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 8px; padding: 6px 10px; transition: 0.2s;"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#deleteModal{{ ejercicio.id }}"
+                            title="Eliminar ejercicio">
+                        <i class="bi bi-trash-fill"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODAL DE CONFIRMACIÓN (Uno único por cada ejercicio en el ciclo) -->
+            <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ ejercicio.id }}" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <!-- Diseñado con el estilo oscuro de QBYT -->
+                    <div class="modal-content" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
+                        <div class="modal-header border-0 pb-0">
+                            <h5 class="modal-title text-white" id="deleteModalLabel{{ ejercicio.id }}" style="font-family: 'DM Sans', sans-serif; font-weight: 600;">
+                                ¿Eliminar ejercicio?
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body py-3">
+                            <p class="mb-0" style="color: #b3b3b3; font-size: 0.95rem;">
+                                ¿Estás seguro de que deseas eliminar permanentemente el ejercicio <strong class="text-white">"{{ ejercicio.titulo }}"</strong>? Esta acción no se puede deshacer.
+                            </p>
+                        </div>
+                        <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                            <button type="button" class="btn btn-sm text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 16px;" data-bs-dismiss="modal">
+                                Cancelar
+                            </button>
+                            <!-- El formulario real de Django se procesa aquí -->
+                            <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm" style="background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
+                                    Sí, eliminar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% endfor %}
+    {% else %}
+            <!-- Esto se muestra solo si la lista de ejercicios está vacía -->
+            <p class="text-muted small m-0 text-center py-3">No hay ejercicios creados aún. ¡Crea el primero!</p>
+        {% endif %}
+    </div>
+</div>
                     <!-- ANUNCIOS -->
                     <div class="section-card">
                         <div class="section-header">

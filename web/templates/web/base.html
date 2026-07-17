@@ -47,7 +47,8 @@
                 <!-- Solo estudiantes ven Explorar clases -->
                 {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_explorar %}{% endblock %}">
-                    <a href="{% url 'explorar_clases' %}">
+                    <!-- CORREGIDO: Añadido prefijo estudiante: -->
+                    <a href="{% url 'estudiante:explorar_clases' %}">
                         <i class="bi bi-compass"></i><span>Explorar clases</span>
                     </a>
                 </li>
@@ -75,7 +76,8 @@
                 <li class="{% block nav_perfil %}{% endblock %}">
 
                     {% if request.user.perfil.rol == 'estudiante' %}
-                    <a href="{% url 'perfil_estudiante' %}">
+                    <!-- CORREGIDO: Añadido prefijo estudiante: -->
+                    <a href="{% url 'estudiante:perfil_estudiante' %}">
                         <i class="bi bi-person-circle"></i><span>Mi perfil</span>
                     </a>
 

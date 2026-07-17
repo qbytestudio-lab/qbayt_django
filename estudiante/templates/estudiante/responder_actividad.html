@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      
+      <!-- Card del Encabezado del Ejercicio -->
+      <div class="card shadow-sm border-0 mb-4 text-white" style="border-radius: 15px; background: linear-gradient(135deg, #7c6fff, #5a4bdf);">
+        <div class="card-body p-4">
+          <span class="badge bg-white text-dark mb-2">Clase: {{ clase.nombre }}</span>
+          <h1 class="fw-bold m-0">{{ actividad.titulo }}</h1>
+          {% if actividad.descripcion %}
+            <p class="mt-2 mb-0 opacity-75">{{ actividad.descripcion }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Formulario Tipo Google Forms -->
+      <form method="POST">
+        {% csrf_token %}
+        
+        {% for pregunta in preguntas %}
+        <div class="card shadow-sm border-0 mb-4" style="border-radius: 12px;">
+          <div class="card-body p-4">
+            
+            <!-- Enunciado de la Pregunta -->
+            <h5 class="fw-bold mb-3">
+              <span class="text-purple" style="color: #7c6fff;">{{ forloop.counter }}.</span> 
+              {{ pregunta.enunciado }}
+            </h5>
+
+            <!-- REPRODUCTOR DE AUDIO (Si la pregunta incluye un archivo de audio) -->
+            {% if pregunta.audio %}
+            <div class="audio-player bg-light p-3 rounded-3 mb-3 border d-flex flex-column align-items-center">
+              <span class="small text-muted mb-2"><i class="bi bi-volume-up-fill"></i> Reproduce el fragmento de audio:</span>
+              <audio controls class="w-100">
+                <source src="{{ pregunta.audio.url }}" type="audio/mpeg">
+                Tu navegador no soporta el elemento de audio.
+              </audio>
+            </div>
+            {% endif %}
+
+            <!-- Opciones (Opciones de Selección) -->
+            <div class="d-flex flex-column gap-2 mt-3">
+              {% for opcion in pregunta.opciones.all %}
+              <label class="p-3 border rounded-3 d-flex align-items-center gap-3 option-label" style="cursor: pointer; transition: background 0.2s;">
+                <input type="radio" 
+                       name="pregunta_{{ pregunta.id }}" 
+                       value="{{ opcion.id }}" 
+                       required 
+                       style="accent-color: #7c6fff; width: 18px; height: 18px;">
+                <span class="fs-6">{{ opcion.texto }}</span>
+              </label>
+              {% empty %}
+              <p class="text-muted small">No hay opciones registradas para esta pregunta.</p>
+              {% endfor %}
+            </div>
+
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- Botones de Acción -->
+        <div class="d-flex justify-content-between align-items-center mt-4">
+          <a href="{% url 'detalle_clase_estudiante' clase.id %}" class="btn btn-outline-secondary px-4 py-2" style="border-radius: 8px;">
+            <i class="bi bi-x-circle"></i> Cancelar
+          </a>
+          <button type="submit" class="btn btn-primary px-5 py-2 text-white fw-bold" style="background-color: #7c6fff; border: none; border-radius: 8px;">
+            Enviar Respuestas <i class="bi bi-send-fill ms-1"></i>
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>
+
+<style>
+  .option-label:hover {
+    background-color: rgba(124, 111, 255, 0.05);
+    border-color: #7c6fff !important;
+  }
+  input[type="radio"]:checked + span {
+    font-weight: bold;
+    color: #7c6fff;
+  }
+</style>
+{% endblock %}

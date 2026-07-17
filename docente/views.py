@@ -8,7 +8,21 @@ from django.contrib.auth.models import User
 from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion, RespuestaEstudiante
 
 
-
+@login_required
+def crear_clase(request):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        imagen = request.FILES.get('imagen')
+        if nombre:
+            Clase.objects.create(
+                nombre=nombre, descripcion=descripcion,
+                docente=request.user, imagen=imagen
+            )
+            messages.success(request, 'Clase creada exitosamente.')
+    return redirect('mis_clases')
 
 @login_required
 def editar_clase(request, clase_id):
@@ -64,22 +78,6 @@ def perfil_docente(request):
     })
 
 @login_required
-def crear_clase(request):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        imagen = request.FILES.get('imagen')
-        if nombre:
-            Clase.objects.create(
-                nombre=nombre, descripcion=descripcion,
-                docente=request.user, imagen=imagen
-            )
-            messages.success(request, 'Clase creada exitosamente.')
-    return redirect('mis_clases')
-
-@login_required
 def agregar_estudiante(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
@@ -126,10 +124,25 @@ def rechazar_solicitud(request, solicitud_id):
 def detalle_clase(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
+        
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    # Obtenemos todos los datos que la plantilla necesita
     solicitudes = SolicitudClase.objects.filter(clase=clase, estado='pendiente')
-    return render(request, 'detalle_clase.html', {'clase': clase, 'solicitudes': solicitudes})
-
+    anuncios = clase.anuncios.all().order_by('-fecha')
+    lecciones = clase.lecciones.all()
+    
+    # Obtenemos los ejercicios creados con la nueva app
+    ejercicios = clase.ejercicios.all()
+    
+    # ¡Cambiamos la ruta aquí agregando 'docente/' al principio!
+    return render(request, 'docente/detalle_clase.html', {
+        'clase': clase,
+        'solicitudes': solicitudes,
+        'anuncios': anuncios,
+        'lecciones': lecciones,
+        'ejercicios': ejercicios,
+    })
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):
     if request.user.perfil.rol != 'docente':
@@ -149,20 +162,6 @@ def eliminar_clase(request, clase_id):
     messages.success(request, 'Clase eliminada.')
     return redirect('perfil_docente')
 
-@login_required
-def detalle_clase(request, clase_id):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    solicitudes = SolicitudClase.objects.filter(clase=clase, estado='pendiente')
-    anuncios = clase.anuncios.all().order_by('-fecha')
-    lecciones = clase.lecciones.all()
-    return render(request, 'docente/detalle_clase.html', {
-        'clase': clase,
-        'solicitudes': solicitudes,
-        'anuncios': anuncios,
-        'lecciones': lecciones,
-    })
 
 @login_required
 def crear_anuncio(request, clase_id):

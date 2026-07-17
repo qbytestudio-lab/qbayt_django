@@ -32,7 +32,7 @@
   {% endif %}
 
   <div class="hero-actions">
-    <a href="{% url 'explorar_clases' %}" class="btn-hero btn-hero-primary">
+    <a href="{% url 'estudiante:explorar_clases' %}" class="btn-hero btn-hero-primary">
       <i class="bi bi-compass"></i> Descubrir clases
     </a>
   </div>
@@ -91,7 +91,7 @@
       </span>
 
       <!-- Play Button -->
-      <a href="{% url 'detalle_clase_estudiante' clase.id %}" class="class-play-btn">
+      <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="class-play-btn">
         <i class="bi bi-play-fill"></i>
       </a>
     </div>
@@ -129,10 +129,10 @@
 
       <!-- Footer Buttons -->
       <div class="class-card-footer">
-        <a href="{% url 'detalle_clase_estudiante' clase.id %}" class="btn-class-primary">
+        <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="btn-class-primary">
           <i class="bi bi-play-fill"></i> Continuar
         </a>
-        <a href="{% url 'salir_clase' clase.id %}" class="btn-class-danger"
+        <a href="{% url 'estudiante:salir_clase' clase.id %}" class="btn-class-danger"
           onclick="return confirm('¿Salir de {{ clase.nombre }}?')" title="Salir de la clase">
           <i class="bi bi-box-arrow-right"></i>
         </a>

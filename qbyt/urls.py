@@ -24,8 +24,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('web.urls')),
     path('docente/', include('docente.urls')),
-    path('estudiante/', include('estudiante.urls')),
+    path('estudiante/', include(('estudiante.urls', 'estudiante'), namespace='estudiante')),
     path('clase/', include('clase.urls')),
+    path('ejercicios/', include('ejercicios.urls')),
       # Recuperar contraseña
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='registration/password_reset_form.html'

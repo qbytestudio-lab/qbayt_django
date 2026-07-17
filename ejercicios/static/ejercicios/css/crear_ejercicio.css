@@ -1,0 +1,156 @@
+:root {
+            --bg-dark: #121212;
+            --card-bg: #181818;
+            --accent-purple: #7c6fff; /* Morado característico de QBYT */
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-secondary: #b3b3b3;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Topbar de Navegación */
+        .topbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            margin-bottom: 3rem;
+        }
+        .topbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        .logo-box {
+            background: var(--accent-purple);
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+        }
+        .logo-text {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            color: #fff;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* Contenedores y Tarjetas */
+        .container-custom {
+            max-width: 800px;
+            margin-bottom: 5rem;
+        }
+        .title-font {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+        }
+        .card-custom {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Tarjeta de Pregunta Dinámica */
+        .pregunta-card {
+            background: #1f1f1f;
+            border-left: 4px solid var(--accent-purple);
+            border-radius: 12px;
+            padding: 1.8rem;
+            margin-bottom: 2rem;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        /* Inputs Personalizados */
+        .form-control-custom {
+            background: #242424 !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            border-radius: 8px !important;
+            padding: 0.75rem 1rem !important;
+        }
+        .form-control-custom:focus {
+            border-color: var(--accent-purple) !important;
+            box-shadow: 0 0 0 0.25rem rgba(124, 111, 255, 0.25) !important;
+        }
+        .form-label-custom {
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        /* Checkbox Personalizado para la respuesta correcta */
+        .correct-check {
+            width: 22px;
+            height: 22px;
+            background-color: #242424;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+        .correct-check:checked {
+            background-color: var(--accent-purple);
+            border-color: var(--accent-purple);
+        }
+
+        /* Botones */
+        .btn-purple {
+            background: var(--accent-purple);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+        }
+        .btn-purple:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            color: #fff;
+        }
+        .btn-outline-custom {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+        .btn-outline-custom:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        .btn-add-option {
+            background: rgba(124, 111, 255, 0.1);
+            color: var(--accent-purple);
+            border: 1px dashed var(--accent-purple);
+            font-weight: 500;
+            font-size: 0.85rem;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+        .btn-add-option:hover {
+            background: var(--accent-purple);
+            color: #fff;
+        }

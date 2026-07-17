@@ -46,7 +46,7 @@
     </div>
     
     <div class="class-hero-actions">
-      <a href="{% url 'salir_clase' clase.id %}"
+      <a href="{% url 'estudiante:salir_clase' clase.id %}"
          onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
          class="btn-leave-class">
         <i class="bi bi-box-arrow-right"></i> Salir de la clase
@@ -89,106 +89,94 @@
     </div>
     {% endif %}
 
-    <!-- LESSONS -->
+    <!-- EJERCICIOS DE LA CLASE -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
           <i class="bi bi-collection-play-fill icon-purple"></i>
-          Contenido de la clase
+          Ejercicios de la clase
         </h3>
-        <span class="section-badge">{{ clase.lecciones.all|length }} lecciones</span>
+        <span class="section-badge">{{ ejercicios|length }} ejercicios</span>
       </div>
 
-      {% for leccion in clase.lecciones.all %}
-      <div class="lesson-item {% if not leccion.disponible %}disabled{% endif %}">
-        
-        <!-- Lesson Header -->
-        <div class="lesson-header" {% if leccion.disponible %}onclick="toggleLesson(this)"{% endif %}>
-          <div class="lesson-number {% if leccion.disponible %}available{% else %}locked{% endif %}">
-            {% if leccion.disponible %}
-            {{ leccion.orden }}
-            {% else %}
-            <i class="bi bi-lock-fill"></i>
-            {% endif %}
-          </div>
+      <!-- Condicional para verificar si hay ejercicios -->
+      {% if ejercicios %}
+        {% for ejercicio in ejercicios %}
+        <div class="lesson-item">
           
-          <div class="lesson-info">
-            <div class="lesson-title">{{ leccion.titulo }}</div>
-            {% if leccion.descripcion %}
-            <div class="lesson-description">{{ leccion.descripcion|truncatechars:60 }}</div>
-            {% endif %}
-          </div>
-          
-          <div class="lesson-status">
-            {% if leccion.disponible %}
-            <span class="status-badge available-badge">
-              <i class="bi bi-unlock-fill"></i> Disponible
-            </span>
-            {% else %}
-            <span class="status-badge locked-badge">
-              <i class="bi bi-lock-fill"></i> Bloqueado
-            </span>
-            {% endif %}
-          </div>
-          
-          {% if leccion.disponible %}
-          <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
-          {% endif %}
-        </div>
-
-        <!-- Activities -->
-        {% if leccion.disponible and leccion.actividades.all %}
-        <div class="lesson-activities" style="display: none;">
-          {% for act in leccion.actividades.all %}
-          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="activity-item">
-            <div class="activity-icon {% if act.tipo == 'quiz' %}quiz{% else %}document{% endif %}">
-              {% if act.tipo == 'quiz' %}
-              <i class="bi bi-patch-question-fill"></i>
-              {% else %}
-              <i class="bi bi-file-text-fill"></i>
+          <!-- Ejercicio Header (Acordeón) -->
+          <div class="lesson-header" onclick="toggleLesson(this)">
+            <div class="lesson-number available">
+              {{ forloop.counter }}
+            </div>
+            
+            <div class="lesson-info">
+              <div class="lesson-title">{{ ejercicio.titulo }}</div>
+              {% if ejercicio.descripcion %}
+              <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
               {% endif %}
             </div>
             
-            <div class="activity-info">
-              <div class="activity-title">{{ act.titulo }}</div>
-              <div class="activity-type">
-                {{ act.get_tipo_display }}
-                {% if act.tipo == 'quiz' %} · {{ act.preguntas.count }} preguntas{% endif %}
+            <div class="lesson-status">
+              <span class="status-badge available-badge" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple);">
+                <i class="bi bi-unlock-fill"></i> Disponible
+              </span>
+            </div>
+            
+            <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
+          </div>
+
+          <!-- Preguntas del Ejercicio (Desplegable) -->
+          {% if ejercicio.preguntas.all %}
+          <div class="lesson-activities" style="display: none;">
+            {% for pregunta in ejercicio.preguntas.all %}
+            <!-- Cambia ejercicio.id por ejercicio.actividad.id -->
+            <!-- Prueba esto para ver si el ID tiene valor -->
+<a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="activity-item">
+    ID del ejercicio: {{ ejercicio.id }} 
+    ...
+</a>
+              <div class="activity-icon quiz">
+                <i class="bi bi-patch-question-fill"></i>
               </div>
-            </div>
-            
-            <span class="activity-badge {% if act.id in completadas %}completed{% else %}pending{% endif %}">
-              {% if act.id in completadas %}
-              <i class="bi bi-check-lg"></i> Completado
-              {% else %}
-              Pendiente
-              {% endif %}
-            </span>
-            
-            <i class="bi bi-chevron-right activity-arrow"></i>
-          </a>
-          {% endfor %}
-        </div>
-        {% elif leccion.disponible %}
-        <div class="lesson-activities" style="display: none;">
-          <div class="empty-state">
-            <div class="empty-icon">
-              <i class="bi bi-inbox"></i>
-            </div>
-            <p class="empty-text">Sin actividades aún</p>
+              
+              <div class="activity-info">
+                <div class="activity-title">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
+                <div class="activity-type">
+                  Pregunta {{ forloop.counter }} · Tipo: {{ pregunta.get_tipo_pregunta_display|default:"Opción múltiple" }}
+                </div>
+              </div>
+              
+              <span class="activity-badge pending">
+                Pendiente
+              </span>
+              
+              <i class="bi bi-chevron-right activity-arrow"></i>
+            </a>
+            {% endfor %}
           </div>
-        </div>
-        {% endif %}
+          {% else %}
+          <div class="lesson-activities" style="display: none;">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="bi bi-inbox"></i>
+              </div>
+              <p class="empty-text">Este ejercicio no tiene preguntas aún</p>
+            </div>
+          </div>
+          {% endif %}
 
-      </div>
-      {% empty %}
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="bi bi-collection"></i>
         </div>
-        <p class="empty-text">El docente aún no ha agregado contenido</p>
-      </div>
-      {% endfor %}
+        {% endfor %}
+      {% else %}
+        <!-- Caso cuando la lista de ejercicios esté totalmente vacía -->
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-collection"></i>
+          </div>
+          <p class="empty-text">El docente aún no ha agregado ejercicios</p>
+        </div>
+      {% endif %}
     </div>
 
   </div>
@@ -309,4 +297,3 @@
   });
 </script>
 {% endblock %}
-

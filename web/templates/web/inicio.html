@@ -21,10 +21,10 @@
     </div>
     <div class="hero-actions">
       {% if request.user.perfil.rol == 'estudiante' %}
-      <a href="{% url 'perfil_estudiante' %}" class="btn-hero btn-hero-primary">
+      <a href="{% url 'estudiante:perfil_estudiante' %}" class="btn-hero btn-hero-primary">
         <i class="bi bi-person-arms-up"></i> Mi perfil
       </a>
-      <a href="{% url 'explorar_clases' %}" class="btn-hero">
+      <a href="{% url 'estudiante:explorar_clases' %}" class="btn-hero">
         <i class="bi bi-compass"></i> Explorar
       </a>
       {% elif request.user.perfil.rol == 'docente' %}

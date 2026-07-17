@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
+from estudiante.models import Ejercicio, Pregunta, Opcion, RespuestaEstudiante, Actividad
 from docente.utils import calcular_progreso_clase
 
 def calcular_progreso_clase(estudiante, clase):
@@ -122,6 +122,7 @@ def detalle_clase_estudiante(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
     clase = get_object_or_404(Clase, id=clase_id, estudiantes=request.user)
+    ejercicios = clase.ejercicios.all()
       # IDs de actividades ya completadas por el estudiante
     completadas = RespuestaEstudiante.objects.filter(
         estudiante=request.user,
@@ -131,6 +132,7 @@ def detalle_clase_estudiante(request, clase_id):
     return render(request, 'estudiante/detalle_clase_estudiante.html', {
         'clase': clase,
         'completadas': list(completadas),
+        'ejercicios' : ejercicios,
     })
 
 @login_required
@@ -182,27 +184,44 @@ def detalle_actividad_estudiante(request, actividad_id):
 
 
 @login_required
-def responder_actividad(request, actividad_id):
+def responder_actividad(request, pregunta_id): # <-- Cambiamos el nombre aquí
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
-    actividad = get_object_or_404(Actividad, id=actividad_id)
-    clase = actividad.leccion.clase
+    
+    # 1. Buscamos el EJERCICIO, no la ACTIVIDAD
+    ejercicio = get_object_or_404(Ejercicio, id=pregunta_id)
+    clase = ejercicio.clase # Ajustado según tu models.py
 
     if request.user not in clase.estudiantes.all():
         return redirect('inicio')
 
+    # 2. Ajustamos la lógica de 'ya_respondio' para el EJERCICIO
+    ya_respondio = RespuestaEstudiante.objects.filter(
+        estudiante=request.user, ejercicio=ejercicio 
+    ).exists()
+    
+    if ya_respondio:
+        return redirect('detalle_actividad_estudiante', actividad_id=ejercicio.id)
+
     if request.method == 'POST':
-        preguntas = actividad.preguntas.all()
+        preguntas = ejercicio.preguntas.all()
         for pregunta in preguntas:
             opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
             if opcion_id:
                 opcion = get_object_or_404(Opcion, id=opcion_id, pregunta=pregunta)
                 RespuestaEstudiante.objects.get_or_create(
                     estudiante=request.user,
-                    actividad=actividad,
+                    ejercicio=ejercicio, # Ajustado
                     pregunta=pregunta,
                     defaults={'opcion': opcion}
                 )
         messages.success(request, '¡Respuestas enviadas!')
+        return redirect('detalle_actividad_estudiante', actividad_id=ejercicio.id)
 
-    return redirect('detalle_actividad_estudiante', actividad_id=actividad_id)
+    # 3. Si es GET, renderizamos el formulario
+    preguntas = ejercicio.preguntas.all().prefetch_related('opciones')
+    return render(request, 'estudiante/responder_actividad.html', {
+        'actividad': ejercicio, # Mantenemos el nombre 'actividad' en el template para no tener que cambiar todo el HTML
+        'clase': clase,
+        'preguntas': preguntas,
+    })
