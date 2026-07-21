@@ -94,7 +94,7 @@ def solicitar_clase(request):
         else:
             SolicitudClase.objects.create(clase=clase, estudiante=request.user)
             messages.success(request, f'Solicitud enviada a "{clase.nombre}". Espera que el docente la acepte.')
-    return redirect('perfil_estudiante')
+    return redirect('estudiante:perfil_estudiante')
 
 @login_required
 def salir_clase(request, clase_id):
@@ -103,7 +103,7 @@ def salir_clase(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
     clase.estudiantes.remove(request.user)
     messages.success(request, f'Saliste de "{clase.nombre}".')
-    return redirect('perfil_estudiante')
+    return redirect('estudiante:perfil_estudiante')
 
 @login_required
 def explorar_clases(request):
