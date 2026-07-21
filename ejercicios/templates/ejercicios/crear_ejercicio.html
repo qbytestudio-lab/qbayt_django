@@ -1,102 +1,303 @@
 {% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear Ejercicio — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_ejercicio.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>Crear Ejercicio Interactivo</h2>
-    <hr>
-    
-    <div class="mb-3">
-        <label class="form-label">Título del Ejercicio</label>
-        <input type="text" id="titulo-ejercicio" class="form-control" placeholder="Ej. Acordes mayores y menores">
-    </div>
+
+<div class="ejercicio-container">
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="bi bi-puzzle-fill"></i> Crear Ejercicio Interactivo
+    </h1>
+    <p class="page-subtitle">Diseña preguntas musicales con opciones de respuesta para tus estudiantes</p>
+  </div>
+
+  <!-- Exercise Info Card -->
+  <div class="section-card">
+    <h3 class="section-title">
+      <i class="bi bi-info-circle-fill"></i> Información del Ejercicio
+    </h3>
 
     <div class="mb-3">
-        <label class="form-label">Descripción</label>
-        <textarea id="desc-ejercicio" class="form-control" placeholder="Instrucciones para el estudiante..."></textarea>
+      <label class="form-label-custom">Título del Ejercicio <span style="color: var(--danger);">*</span></label>
+      <input type="text" id="titulo-ejercicio" class="form-control-custom" 
+             placeholder="Ej: Acordes mayores y menores" required>
     </div>
 
-    <hr>
-    <h4>Preguntas</h4>
+    <div class="mb-0">
+      <label class="form-label-custom">Descripción</label>
+      <textarea id="desc-ejercicio" class="form-control-custom" 
+                placeholder="Instrucciones para el estudiante..."></textarea>
+    </div>
+  </div>
+
+  <!-- Questions Section -->
+  <div class="section-card">
+    <h3 class="section-title">
+      <i class="bi bi-patch-question-fill"></i> Preguntas
+      <span class="section-badge" id="contador-preguntas">0</span>
+    </h3>
+
     <div id="contenedor-preguntas">
-        {/* Aquí se inyectarán las tarjetas dinámicamente */}
+      <!-- Las preguntas se agregan dinámicamente -->
     </div>
 
-    <button type="button" class="btn btn-secondary mb-3" onclick="agregarPreguntaHTML()">+ Añadir Pregunta</button>
-    <div>
-        <button type="button" class="btn btn-primary btn-lg" onclick="guardarTodo()">Guardar Ejercicio</button>
-    </div>
+    <button type="button" class="btn-add-question" onclick="agregarPreguntaHTML()">
+      <i class="bi bi-plus-lg"></i> Añadir pregunta
+    </button>
+  </div>
+
+  <!-- Save Button -->
+  <div class="form-footer">
+    <button type="button" class="btn-save" onclick="guardarTodo()">
+      <i class="bi bi-check-lg"></i> Guardar Ejercicio
+    </button>
+  </div>
+
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
+let preguntaCounter = 0;
+
+function actualizarContador() {
+  const count = document.querySelectorAll('.tarjeta-pregunta').length;
+  document.getElementById('contador-preguntas').textContent = count;
+}
+
 function agregarPreguntaHTML() {
-    const contenedor = document.getElementById('contenedor-preguntas');
-    const div = document.createElement('div');
-    div.className = 'tarjeta-pregunta card p-3 mb-3 bg-dark text-white';
-    div.innerHTML = `
-        <div class="mb-2">
-            <label class="form-label">Pregunta</label>
-            <input type="text" class="pregunta-texto form-control" placeholder="Escribe la pregunta musical...">
+  preguntaCounter++;
+  const contenedor = document.getElementById('contenedor-preguntas');
+  
+  const preguntaId = `pregunta-${preguntaCounter}`;
+  
+  const div = document.createElement('div');
+  div.className = 'tarjeta-pregunta';
+  div.id = preguntaId;
+  div.innerHTML = `
+    <div class="question-number">${preguntaCounter}</div>
+    
+    <div class="question-header">
+      <label class="form-label-custom" style="margin-bottom:0;">Pregunta <span style="color: var(--danger);">*</span></label>
+      <button type="button" class="btn-delete-question" onclick="eliminarPregunta('${preguntaId}')" title="Eliminar pregunta">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+    
+    <input type="text" class="pregunta-texto form-control-custom" 
+           placeholder="Escribe la pregunta musical..." required>
+    
+    <div class="options-title">
+      <i class="bi bi-check-circle-fill"></i> Opciones (marca la correcta)
+    </div>
+    
+    <div class="opciones-container">
+      <div class="option-row">
+        <div class="option-check-wrapper">
+          <input type="checkbox" class="opcion-correcta" title="Marcar como correcta">
+          <span class="correct-label">Correcta</span>
         </div>
-        <label class="form-label">Opciones (marca la casilla de la respuesta correcta)</label>
-        <div class="opciones-container">
-            <div class="input-group mb-2">
-                <div class="input-group-text"><input type="checkbox" class="opcion-correcta" title="Marcar como correcta"></div>
-                <input type="text" class="opcion-texto form-control" placeholder="Opción 1">
-            </div>
-            <div class="input-group mb-2">
-                <div class="input-group-text"><input type="checkbox" class="opcion-correcta" title="Marcar como correcta"></div>
-                <input type="text" class="opcion-texto form-control" placeholder="Opción 2">
-            </div>
+        <div class="option-input-wrapper">
+          <input type="text" class="opcion-texto form-control-custom" placeholder="Opción 1" required>
+          <span class="correct-indicator"><i class="bi bi-check-circle-fill"></i></span>
         </div>
-    `;
-    contenedor.appendChild(div);
+        <button type="button" class="btn-delete-option" onclick="eliminarOpcion(this)" title="Eliminar opción">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+      
+      <div class="option-row">
+        <div class="option-check-wrapper">
+          <input type="checkbox" class="opcion-correcta" title="Marcar como correcta">
+          <span class="correct-label">Correcta</span>
+        </div>
+        <div class="option-input-wrapper">
+          <input type="text" class="opcion-texto form-control-custom" placeholder="Opción 2" required>
+          <span class="correct-indicator"><i class="bi bi-check-circle-fill"></i></span>
+        </div>
+        <button type="button" class="btn-delete-option" onclick="eliminarOpcion(this)" title="Eliminar opción">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    </div>
+    
+    <button type="button" class="btn-add-question" style="margin-top: 1rem; font-size: 0.78rem; padding: 0.5rem;" 
+            onclick="agregarOpcion(this)">
+      <i class="bi bi-plus-lg"></i> Agregar opción
+    </button>
+  `;
+  
+  contenedor.appendChild(div);
+  actualizarContador();
+  
+  // Scroll to new question
+  div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function eliminarPregunta(id) {
+  const pregunta = document.getElementById(id);
+  if (pregunta) {
+    pregunta.style.opacity = '0';
+    pregunta.style.transform = 'translateX(30px)';
+    pregunta.style.transition = 'all 0.3s ease';
+    setTimeout(() => {
+      pregunta.remove();
+      actualizarContador();
+      renumerarPreguntas();
+    }, 300);
+  }
+}
+
+function renumerarPreguntas() {
+  const preguntas = document.querySelectorAll('.tarjeta-pregunta');
+  preguntas.forEach((pregunta, index) => {
+    const numBadge = pregunta.querySelector('.question-number');
+    if (numBadge) {
+      numBadge.textContent = index + 1;
+    }
+  });
+}
+
+function agregarOpcion(btn) {
+  const opcionesContainer = btn.previousElementSibling;
+  
+  const optionRow = document.createElement('div');
+  optionRow.className = 'option-row';
+  optionRow.style.animation = 'fadeInUp 0.3s ease forwards';
+  optionRow.innerHTML = `
+    <div class="option-check-wrapper">
+      <input type="checkbox" class="opcion-correcta" title="Marcar como correcta">
+      <span class="correct-label">Correcta</span>
+    </div>
+    <div class="option-input-wrapper">
+      <input type="text" class="opcion-texto form-control-custom" placeholder="Nueva opción">
+      <span class="correct-indicator"><i class="bi bi-check-circle-fill"></i></span>
+    </div>
+    <button type="button" class="btn-delete-option" onclick="eliminarOpcion(this)" title="Eliminar opción">
+      <i class="bi bi-trash"></i>
+    </button>
+  `;
+  
+  opcionesContainer.appendChild(optionRow);
+  optionRow.querySelector('input[type="text"]').focus();
+}
+
+function eliminarOpcion(btn) {
+  const row = btn.closest('.option-row');
+  if (row) {
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(20px)';
+    row.style.transition = 'all 0.3s ease';
+    setTimeout(() => row.remove(), 300);
+  }
 }
 
 function guardarTodo() {
-    const titulo = document.getElementById('titulo-ejercicio').value;
-    const descripcion = document.getElementById('desc-ejercicio').value;
-    const tarjetas = document.querySelectorAll('.tarjeta-pregunta');
+  const titulo = document.getElementById('titulo-ejercicio').value.trim();
+  const descripcion = document.getElementById('desc-ejercicio').value.trim();
+  const tarjetas = document.querySelectorAll('.tarjeta-pregunta');
+  
+  if (!titulo) {
+    alert('Por favor ingresa un título para el ejercicio.');
+    document.getElementById('titulo-ejercicio').focus();
+    return;
+  }
+  
+  if (tarjetas.length === 0) {
+    alert('Agrega al menos una pregunta al ejercicio.');
+    return;
+  }
+  
+  let preguntas = [];
+  let valid = true;
+
+  tarjetas.forEach(tarjeta => {
+    let textoPregunta = tarjeta.querySelector('.pregunta-texto').value.trim();
+    let opcionesInputs = tarjeta.querySelectorAll('.opcion-texto');
+    let checkboxes = tarjeta.querySelectorAll('.opcion-correcta');
     
-    let preguntas = [];
-
-    tarjetas.forEach(tarjeta => {
-        let textoPregunta = tarjeta.querySelector('.pregunta-texto').value;
-        let opcionesInputs = tarjeta.querySelectorAll('.opcion-texto');
-        let checkboxes = tarjeta.querySelectorAll('.opcion-correcta');
-        
-        let opciones = [];
-        opcionesInputs.forEach((optInput, index) => {
-            opciones.push({
-                texto: optInput.value,
-                es_correcta: checkboxes[index].checked
-            });
+    if (!textoPregunta) {
+      valid = false;
+      return;
+    }
+    
+    let opciones = [];
+    let hasCorrect = false;
+    
+    opcionesInputs.forEach((optInput, index) => {
+      const texto = optInput.value.trim();
+      if (texto) {
+        const esCorrecta = checkboxes[index].checked;
+        if (esCorrecta) hasCorrect = true;
+        opciones.push({
+          texto: texto,
+          es_correcta: esCorrecta
         });
-
-        preguntas.push({
-            texto: textoPregunta,
-            opciones: opciones
-        });
+      }
     });
+    
+    if (opciones.length < 2) {
+      valid = false;
+      return;
+    }
+    
+    if (!hasCorrect) {
+      valid = false;
+      alert('Cada pregunta debe tener al menos una opción marcada como correcta.');
+      return;
+    }
 
-    // Enviar por fetch en formato JSON a Django
-    fetch(window.location.href, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ titulo, descripcion, preguntas })
+    preguntas.push({
+      texto: textoPregunta,
+      opciones: opciones
+    });
+  });
+
+  if (!valid) {
+    alert('Completa todas las preguntas con al menos 2 opciones cada una.');
+    return;
+  }
+
+  // Enviar por fetch
+  fetch(window.location.href, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': '{{ csrf_token }}'
+    },
+    body: JSON.stringify({ 
+      titulo: titulo, 
+      descripcion: descripcion, 
+      preguntas: preguntas 
     })
-    .then(response => response.json())
-    .then(data => {
-        if(data.status === 'success') {
-            alert(data.message);
-            window.location.href = "{% url 'mis_clases' %}"; 
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => console.error('Error:', error));
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      alert('✅ ' + data.message);
+      window.location.href = data.redirect_url || "{% url 'mis_clases' %}";
+    } else {
+      alert('❌ Error: ' + data.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Ocurrió un error al guardar. Intenta de nuevo.');
+  });
 }
+
+// Iniciar con una pregunta por defecto
+document.addEventListener('DOMContentLoaded', function() {
+  agregarPreguntaHTML();
+});
 </script>
 {% endblock %}
