@@ -21,7 +21,7 @@ class Clase(models.Model):
         # Máx 3 clases por docente
         clases_docente = Clase.objects.filter(docente=self.docente).exclude(pk=self.pk).count()
         if clases_docente >= 3:
-            raise ValidationError("Un docente no puede tener más de 3 clases.")
+            raise ValidationError("Haz alcanzado el maximo de clases permitidas.")
 
     def agregar_estudiante(self, estudiante):
         if self.estudiantes.count() >= self.max_estudiantes:

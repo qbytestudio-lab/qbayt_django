@@ -6,22 +6,35 @@ from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion, RespuestaEstudiante
-
+from django.core.exceptions import ValidationError
 
 @login_required
 def crear_clase(request):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
+
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         imagen = request.FILES.get('imagen')
+
         if nombre:
-            Clase.objects.create(
-                nombre=nombre, descripcion=descripcion,
-                docente=request.user, imagen=imagen
-            )
-            messages.success(request, 'Clase creada exitosamente.')
+            try:
+                clase = Clase(
+                    nombre=nombre,
+                    descripcion=descripcion,
+                    docente=request.user,
+                    imagen=imagen
+                )
+
+                clase.full_clean()   # Ejecuta clean()
+                clase.save()
+
+                messages.success(request, 'Clase creada exitosamente.')
+
+            except ValidationError as e:
+                messages.error(request, e.messages[0])
+
     return redirect('mis_clases')
 
 @login_required

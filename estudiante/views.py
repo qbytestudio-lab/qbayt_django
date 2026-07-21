@@ -72,14 +72,13 @@ def unirse_clase(request):
                 clase.estudiantes.add(request.user)
                 messages.success(request, f'¡Te uniste a "{clase.nombre}"!')
 
-            # Solo redirige si la clase existe
-            return redirect('detalle_clase_estudiante', clase_id=clase.id)
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
-            return redirect('explorar_clases')  # o la página donde está el formulario
+            return redirect('estudiante:explorar_clases')
 
-    return redirect('explorar_clases')
+    return redirect('estudiante:explorar_clases')
 
 @login_required
 def solicitar_clase(request):
