@@ -118,14 +118,7 @@
             </div>
             
             <div class="lesson-status">
-              <!-- Botón rápido para ir a resolver el ejercicio -->
-              <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">
-                <i class="bi bi-play-fill"></i> Resolver
-              </a>
-              <span class="status-badge available-badge" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple);">
-                <i class="bi bi-unlock-fill"></i> Disponible
-              </span>
-              {% with intento=ejercicio.intentos.first %}
+    {% with intento=ejercicio.mi_intento %}
         {% if intento %}
             {% if intento.calificacion is not None %}
                 <span class="badge bg-success p-2">
@@ -140,12 +133,17 @@
                 </span>
             {% endif %}
         {% else %}
-            <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary">
+            <!-- Botón para resolver (solo si el usuario actual no ha enviado este ejercicio) -->
+            <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">
                 <i class="bi bi-play-fill"></i> Resolver
             </a>
         {% endif %}
     {% endwith %}
-            </div>
+
+    <span class="status-badge available-badge ms-2" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple);">
+        <i class="bi bi-unlock-fill"></i> Disponible
+    </span>
+</div>
             
             <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
           </div>

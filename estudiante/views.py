@@ -122,18 +122,17 @@ def explorar_clases(request):
 def detalle_clase_estudiante(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
+    
     clase = get_object_or_404(Clase, id=clase_id, estudiantes=request.user)
     ejercicios = clase.ejercicios.all()
-      # IDs de actividades ya completadas por el estudiante
-    completadas = RespuestaEstudiante.objects.filter(
-        estudiante=request.user,
-        actividad__leccion__clase=clase
-    ).values_list('actividad_id', flat=True).distinct()
+
+    # Adjuntamos el intento exclusivo del usuario actual a cada ejercicio
+    for ejercicio in ejercicios:
+        ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
 
     return render(request, 'estudiante/detalle_clase_estudiante.html', {
         'clase': clase,
-        'completadas': list(completadas),
-        'ejercicios' : ejercicios,
+        'ejercicios': ejercicios,
     })
 
 @login_required
