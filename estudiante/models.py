@@ -23,3 +23,4 @@ class RespuestaEstudiante(models.Model):
 
     class Meta:
         unique_together = ('estudiante', 'pregunta')
+
