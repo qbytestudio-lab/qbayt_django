@@ -1,8 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from estudiante.models import Ejercicio, Pregunta, Opcion, RespuestaEstudiante, Actividad
+from ejercicios.models import Ejercicio, Pregunta, Opcion 
 from docente.utils import calcular_progreso_clase
+from clase.models import Clase
+from docente.models import SolicitudClase, Actividad, RespuestaEstudiante
 
 def calcular_progreso_clase(estudiante, clase):
     """Devuelve el % de actividades completadas en una clase."""

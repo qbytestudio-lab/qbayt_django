@@ -1,10 +1,7 @@
+from django.conf import settings
 from django.db import models
-# Importa tu modelo Clase de la app donde lo tengas definido (ej. 'docente' o 'clases')
-# Si tu modelo de clase está en 'docente', sería:
-# from docente.models import Clase
 
 class Ejercicio(models.Model):
-    # Apuntamos a la app 'clase' y al modelo 'Clase'
     clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
     titulo = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True, null=True)
@@ -28,3 +25,18 @@ class Opcion(models.Model):
 
     def __str__(self):
         return self.texto_opcion
+
+class IntentoEjercicio(models.Model):
+    estudiante = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='intentos')
+    ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE, related_name='intentos')
+    fecha_envio = models.DateTimeField(auto_now_add=True)
+    calificacion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    retroalimentacion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"Intento de {self.estudiante.username} en {self.ejercicio}"
+
+class RespuestaEstudiante(models.Model):
+    intento = models.ForeignKey(IntentoEjercicio, on_delete=models.CASCADE, related_name='respuestas')
+    pregunta = models.ForeignKey(Pregunta, on_delete=models.CASCADE)
+    opcion_seleccionada = models.ForeignKey(Opcion, on_delete=models.CASCADE)

@@ -104,7 +104,7 @@
         {% for ejercicio in ejercicios %}
         <div class="lesson-item">
           
-          <!-- Ejercicio Header (Acordeón) -->
+          <!-- Ejercicio Header (Acordeón o Enlace directos) -->
           <div class="lesson-header" onclick="toggleLesson(this)">
             <div class="lesson-number available">
               {{ forloop.counter }}
@@ -118,24 +118,43 @@
             </div>
             
             <div class="lesson-status">
+              <!-- Botón rápido para ir a resolver el ejercicio -->
+              <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">
+                <i class="bi bi-play-fill"></i> Resolver
+              </a>
               <span class="status-badge available-badge" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple);">
                 <i class="bi bi-unlock-fill"></i> Disponible
               </span>
+              {% with intento=ejercicio.intentos.first %}
+        {% if intento %}
+            {% if intento.calificacion is not None %}
+                <span class="badge bg-success p-2">
+                    <i class="bi bi-check-circle-fill"></i> Nota: {{ intento.calificacion }}
+                </span>
+                {% if intento.retroalimentacion %}
+                    <p class="small text-muted mt-1 mb-0">💬 {{ intento.retroalimentacion }}</p>
+                {% endif %}
+            {% else %}
+                <span class="badge bg-warning text-dark p-2">
+                    <i class="bi bi-clock-fill"></i> Enviado (Pendiente de calificar)
+                </span>
+            {% endif %}
+        {% else %}
+            <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-play-fill"></i> Resolver
+            </a>
+        {% endif %}
+    {% endwith %}
             </div>
             
             <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
           </div>
 
-          <!-- Preguntas del Ejercicio (Desplegable) -->
+          <!-- Preguntas del Ejercicio (Desplegable informativo) -->
           {% if ejercicio.preguntas.all %}
           <div class="lesson-activities" style="display: none;">
             {% for pregunta in ejercicio.preguntas.all %}
-            <!-- Cambia ejercicio.id por ejercicio.actividad.id -->
-            <!-- Prueba esto para ver si el ID tiene valor -->
-<a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="activity-item">
-    ID del ejercicio: {{ ejercicio.id }} 
-    ...
-</a>
+            <div class="activity-item" style="cursor: default;">
               <div class="activity-icon quiz">
                 <i class="bi bi-patch-question-fill"></i>
               </div>
@@ -143,17 +162,22 @@
               <div class="activity-info">
                 <div class="activity-title">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
                 <div class="activity-type">
-                  Pregunta {{ forloop.counter }} · Tipo: {{ pregunta.get_tipo_pregunta_display|default:"Opción múltiple" }}
+                  Pregunta {{ forloop.counter }}
                 </div>
               </div>
               
               <span class="activity-badge pending">
-                Pendiente
+                Incluida
               </span>
-              
-              <i class="bi bi-chevron-right activity-arrow"></i>
-            </a>
+            </div>
             {% endfor %}
+            
+            <!-- Botón inferior para entrar a resolver todo el cuestionario -->
+            <div class="p-3 text-center">
+                <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-outline-light w-100">
+                    <i class="bi bi-pencil-square"></i> Ir a Resolver Ejercicio
+                </a>
+            </div>
           </div>
           {% else %}
           <div class="lesson-activities" style="display: none;">
@@ -178,8 +202,6 @@
         </div>
       {% endif %}
     </div>
-
-  </div>
 
   <!-- RIGHT COLUMN: Sidebar -->
   <div class="class-sidebar">

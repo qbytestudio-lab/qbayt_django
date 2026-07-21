@@ -1,179 +1,102 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Ejercicio — QBYT</title>
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Crear Ejercicio Interactivo</h2>
+    <hr>
     
-    <!-- Bootstrap 5 & Icons -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <!-- Enlace a tu archivo CSS personalizado en static -->
-    <link rel="stylesheet" href="{% static 'ejercicios/css/crear_ejercicio.css' %}">
-    <!-- Google Fonts (Syne y DM Sans) -->
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <div class="mb-3">
+        <label class="form-label">Título del Ejercicio</label>
+        <input type="text" id="titulo-ejercicio" class="form-control" placeholder="Ej. Acordes mayores y menores">
+    </div>
 
-    <!-- Header / Navbar de Retorno -->
-    <header class="topbar">
-        <div class="container topbar-content">
-            <a href="/" class="logo-area">
-                <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
-                <h2 class="logo-text">QBYT</h2>
-            </a>
-            <div>
-                <a href="{% url 'detalle_clase' clase.id %}" class="btn-outline-custom py-2 px-3">
-                    <i class="bi bi-arrow-left me-1"></i> Volver a la clase
-                </a>
+    <div class="mb-3">
+        <label class="form-label">Descripción</label>
+        <textarea id="desc-ejercicio" class="form-control" placeholder="Instrucciones para el estudiante..."></textarea>
+    </div>
+
+    <hr>
+    <h4>Preguntas</h4>
+    <div id="contenedor-preguntas">
+        {/* Aquí se inyectarán las tarjetas dinámicamente */}
+    </div>
+
+    <button type="button" class="btn btn-secondary mb-3" onclick="agregarPreguntaHTML()">+ Añadir Pregunta</button>
+    <div>
+        <button type="button" class="btn btn-primary btn-lg" onclick="guardarTodo()">Guardar Ejercicio</button>
+    </div>
+</div>
+
+<script>
+function agregarPreguntaHTML() {
+    const contenedor = document.getElementById('contenedor-preguntas');
+    const div = document.createElement('div');
+    div.className = 'tarjeta-pregunta card p-3 mb-3 bg-dark text-white';
+    div.innerHTML = `
+        <div class="mb-2">
+            <label class="form-label">Pregunta</label>
+            <input type="text" class="pregunta-texto form-control" placeholder="Escribe la pregunta musical...">
+        </div>
+        <label class="form-label">Opciones (marca la casilla de la respuesta correcta)</label>
+        <div class="opciones-container">
+            <div class="input-group mb-2">
+                <div class="input-group-text"><input type="checkbox" class="opcion-correcta" title="Marcar como correcta"></div>
+                <input type="text" class="opcion-texto form-control" placeholder="Opción 1">
+            </div>
+            <div class="input-group mb-2">
+                <div class="input-group-text"><input type="checkbox" class="opcion-correcta" title="Marcar como correcta"></div>
+                <input type="text" class="opcion-texto form-control" placeholder="Opción 2">
             </div>
         </div>
-    </header>
+    `;
+    contenedor.appendChild(div);
+}
 
-    <main class="container container-custom">
-        <div class="mb-4">
-            <h1 class="title-font h2">Crear Nuevo Ejercicio</h1>
-            <p class="text-secondary">Clase: <strong class="text-white">{{ clase.nombre }}</strong></p>
-        </div>
+function guardarTodo() {
+    const titulo = document.getElementById('titulo-ejercicio').value;
+    const descripcion = document.getElementById('desc-ejercicio').value;
+    const tarjetas = document.querySelectorAll('.tarjeta-pregunta');
+    
+    let preguntas = [];
 
-        <!-- Formulario (Permite subir imágenes con enctype) -->
-        <form action="{% url 'crear_ejercicio' clase.id %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-
-            <!-- SECCIÓN 1: Datos Generales -->
-            <div class="card-custom">
-                <div class="d-flex align-items-center gap-2 mb-4">
-                    <i class="bi bi-journal-check" style="color: var(--accent-purple); font-size: 1.5rem;"></i>
-                    <h3 class="title-font h5 m-0">Información del Ejercicio</h3>
-                </div>
-                
-                <div class="mb-3">
-                    <label class="form-label form-label-custom">Título del Ejercicio <span class="text-danger">*</span></label>
-                    <input type="text" name="titulo" class="form-control form-control-custom" placeholder="Ej: Práctica de Intervalos de 3ra Mayor" required>
-                </div>
-                
-                <div>
-                    <label class="form-label form-label-custom">Instrucciones o Descripción (Opcional)</label>
-                    <textarea name="descripcion" class="form-control form-control-custom" rows="2" placeholder="Ej: Escucha con atención cada pregunta y marca la respuesta adecuada..."></textarea>
-                </div>
-            </div>
-
-            <!-- SECCIÓN 2: Preguntas y Opciones -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h3 class="title-font h4 m-0">Preguntas</h3>
-                <button type="button" class="btn btn-purple py-2" id="btn-add-pregunta">
-                    <i class="bi bi-plus-lg"></i> Añadir Pregunta
-                </button>
-            </div>
-
-            <!-- Contenedor donde JS inyectará las preguntas -->
-            <div id="preguntas-container"></div>
-
-            <!-- Acciones de guardado -->
-            <div class="d-flex justify-content-end gap-3 mt-5 border-top pt-4" style="border-color: var(--border-color) !important;">
-                <a href="{% url 'detalle_clase' clase.id %}" class="btn-outline-custom">Cancelar</a>
-                <button type="submit" class="btn-purple px-5">Guardar Todo el Ejercicio</button>
-            </div>
-        </form>
-    </main>
-
-    <!-- SCRIPT DINÁMICO DE COMPORTAMIENTO -->
-    <script>
-        let preguntaCount = 0;
-
-        // Añade una nueva pregunta con su estructura de opciones iniciales
-        document.getElementById('btn-add-pregunta').addEventListener('click', () => {
-            preguntaCount++;
-            const container = document.getElementById('preguntas-container');
-            
-            const preguntaHtml = `
-                <div class="pregunta-card" id="pregunta-${preguntaCount}">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary" style="border-color: rgba(255,255,255,0.05) !important;">
-                        <span class="badge bg-dark px-3 py-2 fs-7" style="border: 1px solid var(--border-color);">Pregunta #${preguntaCount}</span>
-                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="eliminarPregunta(${preguntaCount})">
-                            <i class="bi bi-trash"></i> Eliminar Pregunta
-                        </button>
-                    </div>
-
-                    <div class="row g-3">
-                        <!-- Enunciado de la Pregunta -->
-                        <div class="col-md-8">
-                            <label class="form-label form-label-custom">Enunciado de la Pregunta <span class="text-danger">*</span></label>
-                            <input type="text" name="enunciado_${preguntaCount}" class="form-control form-control-custom" placeholder="Ej: ¿Qué intervalo se escucha?" required>
-                        </div>
-                        
-                        <!-- Carga de Imagen (Subida dinámica) -->
-                        <div class="col-md-4">
-                            <label class="form-label form-label-custom">Imagen de Apoyo (Opcional)</label>
-                            <input type="file" name="imagen_${preguntaCount}" class="form-control form-control-custom" accept="image/*">
-                        </div>
-                    </div>
-
-                    <!-- Sección de Opciones para la Pregunta -->
-                    <div class="mt-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="form-label-custom m-0">Respuestas (Marca la casilla de la respuesta correcta)</span>
-                            <button type="button" class="btn-add-option" onclick="agregarOpcion(${preguntaCount})">
-                                <i class="bi bi-plus-circle-fill"></i> Añadir Opción
-                            </button>
-                        </div>
-                        
-                        <!-- Contenedor dinámico de opciones -->
-                        <div id="opciones-container-${preguntaCount}">
-                            <!-- Opción 1 inicial -->
-                            <div class="input-group mb-2">
-                                <div class="input-group-text bg-dark border-secondary px-3">
-                                    <input type="checkbox" name="correcta_${preguntaCount}_1" class="form-check-input correct-check">
-                                </div>
-                                <input type="text" name="opcion_${preguntaCount}_1" class="form-control form-control-custom" placeholder="Opción A" required>
-                            </div>
-                            
-                            <!-- Opción 2 inicial -->
-                            <div class="input-group mb-2">
-                                <div class="input-group-text bg-dark border-secondary px-3">
-                                    <input type="checkbox" name="correcta_${preguntaCount}_2" class="form-check-input correct-check">
-                                </div>
-                                <input type="text" name="opcion_${preguntaCount}_2" class="form-control form-control-custom" placeholder="Opción B" required>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            container.insertAdjacentHTML('beforeend', preguntaHtml);
+    tarjetas.forEach(tarjeta => {
+        let textoPregunta = tarjeta.querySelector('.pregunta-texto').value;
+        let opcionesInputs = tarjeta.querySelectorAll('.opcion-texto');
+        let checkboxes = tarjeta.querySelectorAll('.opcion-correcta');
+        
+        let opciones = [];
+        opcionesInputs.forEach((optInput, index) => {
+            opciones.push({
+                texto: optInput.value,
+                es_correcta: checkboxes[index].checked
+            });
         });
 
-        // Elimina toda la tarjeta de la pregunta
-        function eliminarPregunta(id) {
-            document.getElementById(`pregunta-${id}`).remove();
+        preguntas.push({
+            texto: textoPregunta,
+            opciones: opciones
+        });
+    });
+
+    // Enviar por fetch en formato JSON a Django
+    fetch(window.location.href, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ titulo, descripcion, preguntas })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(data.status === 'success') {
+            alert(data.message);
+            window.location.href = "{% url 'mis_clases' %}"; 
+        } else {
+            alert('Error: ' + data.message);
         }
-
-        // Añade una opción de respuesta adicional a la pregunta seleccionada
-        function agregarOpcion(preguntaId) {
-            const opcionesContainer = document.getElementById(`opciones-container-${preguntaId}`);
-            const opcionCount = opcionesContainer.children.length + 1;
-            
-            const opcionHtml = `
-                <div class="input-group mb-2">
-                    <div class="input-group-text bg-dark border-secondary px-3">
-                        <input type="checkbox" name="correcta_${preguntaId}_${opcionCount}" class="form-check-input correct-check">
-                    </div>
-                    <input type="text" name="opcion_${preguntaId}_${opcionCount}" class="form-control form-control-custom" placeholder="Nueva Opción" required>
-                    <button type="button" class="btn btn-outline-danger" onclick="this.parentElement.remove()">
-                        <i class="bi bi-dash"></i>
-                    </button>
-                </div>
-            `;
-            opcionesContainer.insertAdjacentHTML('beforeend', opcionHtml);
-        }
-
-        // Al iniciar la vista, crea automáticamente la Pregunta #1
-        window.onload = () => {
-            document.getElementById('btn-add-pregunta').click();
-        };
-    </script>
-
-    <!-- Bootstrap Bundle JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    })
+    .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}
