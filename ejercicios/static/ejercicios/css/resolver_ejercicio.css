@@ -1,0 +1,202 @@
+/* ============================================ */
+/*     RESOLVER EJERCICIO - SPOTIFY ESTILO     */
+/* ============================================ */
+
+.exercise-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding-bottom: 4rem;
+}
+
+/* Tarjeta principal contenedora */
+.section-card {
+  background: #181818;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1.8rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.exercise-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #a89fff;
+  background: rgba(124, 111, 255, 0.1);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  margin-bottom: 0.75rem;
+}
+
+.exercise-main-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.exercise-main-desc {
+  color: #b3b3b3;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Tarjetas de preguntas individuales */
+.question-card {
+  position: relative;
+  border-left: 3px solid #7c6fff;
+}
+
+.question-title-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.question-number {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  background: rgba(124, 111, 255, 0.15);
+  color: #a89fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.question-enunciado {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #fff;
+  line-height: 1.4;
+  margin: 0;
+  padding-top: 0.2rem;
+}
+
+/* Opciones de respuesta modernas tipo Spotify */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding-left: calc(32px + 1rem);
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-item:hover {
+  background: rgba(124, 111, 255, 0.05);
+  border-color: rgba(124, 111, 255, 0.3);
+}
+
+/* Ocultar el radio button nativo pero mantener accesibilidad */
+.custom-radio {
+  display: none;
+}
+
+/* Estilo personalizado para el círculo de selección */
+.option-custom-box {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border: 2px solid #535353;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.option-item input[type="radio"]:checked ~ .option-custom-box {
+  border-color: #7c6fff;
+  background: #7c6fff;
+  box-shadow: 0 0 0 4px rgba(124, 111, 255, 0.15);
+}
+
+.option-item input[type="radio"]:checked ~ .option-custom-box::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.option-item input[type="radio"]:checked ~ .option-text {
+  color: #fff;
+  font-weight: 600;
+}
+
+.option-text {
+  font-size: 0.9rem;
+  color: #b3b3b3;
+  transition: color 0.2s ease;
+}
+
+/* Botón de envío principal */
+.form-submit-wrapper {
+  margin-top: 2rem;
+}
+
+.btn-submit-exercise {
+  width: 100%;
+  background: linear-gradient(135deg, #7c6fff 0%, #b06fff 100%);
+  color: #fff;
+  border: none;
+  padding: 1rem;
+  border-radius: 30px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(124, 111, 255, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-submit-exercise:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 111, 255, 0.4);
+  background: linear-gradient(135deg, #8b7fff, #bd7fff);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .exercise-container {
+    padding: 0 0.5rem;
+  }
+  
+  .options-list {
+    padding-left: 0;
+  }
+  
+  .exercise-main-title {
+    font-size: 1.4rem;
+  }
+}

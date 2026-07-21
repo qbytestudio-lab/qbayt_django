@@ -55,12 +55,105 @@
   </div>
 </div>
 
-<!-- MAIN CONTENT -->
+<!-- CONTENT LAYOUT -->
 <div class="class-content">
   
   <!-- LEFT COLUMN: Lessons & Announcements -->
   <div class="class-main">
     
+    <!-- EJERCICIOS DE LA CLASE -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-collection-play-fill icon-purple"></i>
+          Ejercicios de la clase
+        </h3>
+        <span class="section-badge">{{ ejercicios|length }} ejercicios</span>
+      </div>
+
+      {% if ejercicios %}
+        <div class="lessons-list">
+          {% for ejercicio in ejercicios %}
+          <div class="lesson-item">
+            
+            <div class="lesson-header" onclick="toggleLesson(this)">
+              <div class="lesson-number available">
+                {{ forloop.counter }}
+              </div>
+              <div class="lesson-info">
+                <div class="lesson-title">{{ ejercicio.titulo }}</div>
+                {% if ejercicio.descripcion %}
+                <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
+                {% with intento=ejercicio.mi_intento %}
+                    {% if intento %}
+                        {% if intento.calificacion is not None %}
+                            <span class="status-badge" style="background: rgba(29,185,84,0.15); color: #1db954;">
+                                <i class="bi bi-check-circle-fill"></i> Nota: {{ intento.calificacion }}
+                            </span>
+                        {% else %}
+                            <span class="status-badge" style="background: rgba(255,159,67,0.15); color: #ff9f43;">
+                                <i class="bi bi-clock-fill"></i> Pendiente
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        <a href="#" class="status-badge available-badge text-decoration-none">
+                            <i class="bi bi-play-fill"></i> Resolver
+                        </a>
+                    {% endif %}
+                {% endwith %}
+                <i class="bi bi-chevron-down text-muted" style="font-size: 0.8rem; transition: transform 0.2s;"></i>
+              </div>
+            </div>
+
+            <!-- Retroalimentación si existe -->
+            {% with intento=ejercicio.mi_intento %}
+              {% if intento and intento.retroalimentacion %}
+                <div class="px-3 pb-2 pt-1 text-muted" style="font-size: 0.78rem; border-top: 1px solid rgba(255,255,255,0.03);">
+                  💬 <strong class="text-white">Feedback docente:</strong> {{ intento.retroalimentacion }}
+                </div>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Preguntas desplegables -->
+            {% if ejercicio.preguntas.all %}
+            <div class="lesson-activities" style="display: none;">
+              <div class="d-flex flex-column gap-1">
+                {% for pregunta in ejercicio.preguntas.all %}
+                <div class="activity-item">
+                  <div class="activity-icon document">
+                    <i class="bi bi-patch-question-fill"></i>
+                  </div>
+                  <div class="activity-info">
+                    <div class="activity-title text-white">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
+                    <div class="activity-type">Pregunta {{ forloop.counter }}</div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+              
+              <div class="mt-2 pt-2 text-center" style="border-top: 1px solid rgba(255,255,255,0.05);">
+                <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="text-decoration-none" style="font-size: 0.78rem; color: #a89fff; font-weight: 600;">
+                  <i class="bi bi-pencil-square"></i> Ir a Resolver Cuestionario completo →
+                </a>
+              </div>
+            </div>
+            {% endif %}
+
+          </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon"><i class="bi bi-collection"></i></div>
+          <div class="empty-text">El docente aún no ha agregado ejercicios</div>
+        </div>
+      {% endif %}
+    </div>
+
     <!-- ANNOUNCEMENTS -->
     {% if clase.anuncios.all %}
     <div class="section-card">
@@ -72,169 +165,33 @@
         <span class="section-badge">{{ clase.anuncios.all|length }}</span>
       </div>
       
-      {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
-      <div class="announcement-item">
-        <div class="announcement-header">
-          <div class="announcement-avatar">
-            {{ clase.docente.username|first|upper }}
+      <div class="d-flex flex-column">
+        {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
+        <div class="announcement-item">
+          <div class="announcement-header">
+            <div class="announcement-avatar">
+              {{ clase.docente.username|first|upper }}
+            </div>
+            <div>
+              <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+              <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+            </div>
           </div>
-          <div>
-            <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-            <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-          </div>
+          <p class="announcement-text">{{ anuncio.texto }}</p>
         </div>
-        <p class="announcement-text">{{ anuncio.texto }}</p>
+        {% endfor %}
       </div>
-      {% endfor %}
     </div>
     {% endif %}
 
-    <!-- EJERCICIOS DE LA CLASE -->
-    <div class="section-card">
-      <div class="section-card-header">
-        <h3 class="section-card-title">
-          <i class="bi bi-collection-play-fill icon-purple"></i>
-          Ejercicios de la clase
-        </h3>
-        <span class="section-badge">{{ ejercicios|length }} ejercicios</span>
-      </div>
+  </div>
 
-      <!-- Condicional para verificar si hay ejercicios -->
-      {% if ejercicios %}
-        {% for ejercicio in ejercicios %}
-        <div class="lesson-item">
-          
-          <!-- Ejercicio Header (Acordeón o Enlace directos) -->
-          <div class="lesson-header" onclick="toggleLesson(this)">
-            <div class="lesson-number available">
-              {{ forloop.counter }}
-            </div>
-            
-            <div class="lesson-info">
-              <div class="lesson-title">{{ ejercicio.titulo }}</div>
-              {% if ejercicio.descripcion %}
-              <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
-              {% endif %}
-            </div>
-            
-            <div class="lesson-status">
-    {% with intento=ejercicio.mi_intento %}
-        {% if intento %}
-            {% if intento.calificacion is not None %}
-                <span class="badge bg-success p-2">
-                    <i class="bi bi-check-circle-fill"></i> Nota: {{ intento.calificacion }}
-                </span>
-                {% if intento.retroalimentacion %}
-                    <p class="small text-muted mt-1 mb-0">💬 {{ intento.retroalimentacion }}</p>
-                {% endif %}
-            {% else %}
-                <span class="badge bg-warning text-dark p-2">
-                    <i class="bi bi-clock-fill"></i> Enviado (Pendiente de calificar)
-                </span>
-            {% endif %}
-        {% else %}
-            <!-- Botón para resolver (solo si el usuario actual no ha enviado este ejercicio) -->
-            <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">
-                <i class="bi bi-play-fill"></i> Resolver
-            </a>
-        {% endif %}
-    {% endwith %}
-
-    <span class="status-badge available-badge ms-2" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple);">
-        <i class="bi bi-unlock-fill"></i> Disponible
-    </span>
-</div>
-            
-            <i class="bi bi-chevron-down" style="color: #6a6a6a; font-size: 0.8rem; transition: transform 0.2s;"></i>
-          </div>
-
-          <!-- Preguntas del Ejercicio (Desplegable informativo) -->
-          {% if ejercicio.preguntas.all %}
-          <div class="lesson-activities" style="display: none;">
-            {% for pregunta in ejercicio.preguntas.all %}
-            <div class="activity-item" style="cursor: default;">
-              <div class="activity-icon quiz">
-                <i class="bi bi-patch-question-fill"></i>
-              </div>
-              
-              <div class="activity-info">
-                <div class="activity-title">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
-                <div class="activity-type">
-                  Pregunta {{ forloop.counter }}
-                </div>
-              </div>
-              
-              <span class="activity-badge pending">
-                Incluida
-              </span>
-            </div>
-            {% endfor %}
-            
-            <!-- Botón inferior para entrar a resolver todo el cuestionario -->
-            <div class="p-3 text-center">
-                <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="btn btn-outline-light w-100">
-                    <i class="bi bi-pencil-square"></i> Ir a Resolver Ejercicio
-                </a>
-            </div>
-          </div>
-          {% else %}
-          <div class="lesson-activities" style="display: none;">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <i class="bi bi-inbox"></i>
-              </div>
-              <p class="empty-text">Este ejercicio no tiene preguntas aún</p>
-            </div>
-          </div>
-          {% endif %}
-
-        </div>
-        {% endfor %}
-      {% else %}
-        <!-- Caso cuando la lista de ejercicios esté totalmente vacía -->
-        <div class="empty-state">
-          <div class="empty-icon">
-            <i class="bi bi-collection"></i>
-          </div>
-          <p class="empty-text">El docente aún no ha agregado ejercicios</p>
-        </div>
-      {% endif %}
-    </div>
-
-  <!-- RIGHT COLUMN: Sidebar -->
+  <!-- RIGHT COLUMN: Sidebar (Docente y Compañeros) -->
   <div class="class-sidebar">
     
-    <!-- CLASSMATES -->
+    <!-- TEACHER CARD -->
     <div class="section-card">
-      <div class="section-card-header">
-        <h3 class="section-card-title">
-          <i class="bi bi-people-fill icon-purple"></i>
-          Compañeros
-        </h3>
-        <span class="section-badge">{{ clase.estudiantes.count }}</span>
-      </div>
-      
-      <div class="classmates-list">
-        {% for estudiante in clase.estudiantes.all %}
-        <div class="classmate-item">
-          <div class="classmate-avatar color-{{ forloop.counter|add:1 }}">
-            {{ estudiante.username|first|upper }}
-          </div>
-          <div class="classmate-info">
-            <div class="classmate-name">{{ estudiante.get_full_name|default:estudiante.username }}</div>
-            <div class="classmate-username">@{{ estudiante.username }}</div>
-          </div>
-          {% if estudiante == request.user %}
-          <span class="classmate-you">Tú</span>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
-    </div>
-
-    <!-- TEACHER -->
-    <div class="section-card">
-      <div class="section-card-header">
+      <div class="section-card-header" style="margin-bottom: 0.75rem;">
         <h3 class="section-card-title">
           <i class="bi bi-mortarboard-fill icon-pink"></i>
           Docente
@@ -247,14 +204,39 @@
         </div>
         <div class="teacher-info">
           <div class="teacher-name">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-          <div class="teacher-email">
-            <i class="bi bi-envelope"></i>
-            {{ clase.docente.email }}
+          <div class="teacher-email text-truncate">
+            <i class="bi bi-envelope"></i> {{ clase.docente.email }}
           </div>
-          <span class="teacher-badge">
-            <i class="bi bi-patch-check-fill"></i> Docente
-          </span>
+          <span class="teacher-badge">Docente</span>
         </div>
+      </div>
+    </div>
+
+    <!-- CLASSMATES -->
+    <div class="section-card">
+      <div class="section-card-header">
+        <h3 class="section-card-title">
+          <i class="bi bi-people-fill icon-purple"></i>
+          Compañeros
+        </h3>
+        <span class="section-badge">{{ clase.estudiantes.count }}</span>
+      </div>
+      
+      <div class="classmates-list" style="max-height: 320px; overflow-y: auto;">
+        {% for estudiante in clase.estudiantes.all %}
+        <div class="classmate-item">
+          <div class="classmate-avatar color-{{ forloop.counter0|divisibleby:5|yesno:'1,2' }}">
+            {{ estudiante.username|first|upper }}
+          </div>
+          <div class="classmate-info overflow-hidden">
+            <div class="classmate-name text-truncate">{{ estudiante.get_full_name|default:estudiante.username }}</div>
+            <div class="classmate-username">@{{ estudiante.username }}</div>
+          </div>
+          {% if estudiante == request.user %}
+          <span class="classmate-you">Tú</span>
+          {% endif %}
+        </div>
+        {% endfor %}
       </div>
     </div>
 
@@ -266,24 +248,23 @@
 
 {% block extra_js %}
 <script>
-  // Toggle lesson accordion
   function toggleLesson(header) {
-    const lessonItem = header.parentElement;
+    const lessonItem = header.closest('.lesson-item');
     const activities = lessonItem.querySelector('.lesson-activities');
     const chevron = header.querySelector('.bi-chevron-down');
     
     if (activities) {
       const isHidden = activities.style.display === 'none' || activities.style.display === '';
       
-      // Close all other lessons
+      // Cerrar las demás secciones desplegables
       document.querySelectorAll('.lesson-activities').forEach(el => {
         el.style.display = 'none';
       });
-      document.querySelectorAll('.bi-chevron-down').forEach(el => {
+      document.querySelectorAll('.lesson-header .bi-chevron-down').forEach(el => {
         el.style.transform = 'rotate(0deg)';
       });
       
-      // Toggle current
+      // Alternar la actual
       if (isHidden) {
         activities.style.display = 'block';
         if (chevron) chevron.style.transform = 'rotate(180deg)';
@@ -293,27 +274,5 @@
       }
     }
   }
-
-  // Animation on scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.lesson-item, .announcement-item').forEach((item, index) => {
-    item.style.opacity = '0';
-    item.style.transform = 'translateY(15px)';
-    item.style.transition = `all 0.4s ease ${index * 0.05}s`;
-    observer.observe(item);
-  });
 </script>
 {% endblock %}

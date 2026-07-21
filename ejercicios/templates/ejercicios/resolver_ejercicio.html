@@ -1,38 +1,66 @@
 {% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
+{% block page_title %}Resolver Ejercicio{% endblock %}
+{% block nav_clases %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/resolver_ejercicio.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    <div class="card bg-dark text-white p-4 mb-4 border-secondary">
-        <h2>{{ ejercicio.titulo }}</h2>
-        <p class="text-muted mb-0">{{ ejercicio.descripcion }}</p>
+<div class="exercise-container">
+    
+    <!-- ENCABEZADO / INFORMACIÓN DEL EJERCICIO -->
+    <div class="section-card mb-4">
+        <div class="exercise-header-badge">
+            <i class="bi bi-journal-text icon-purple"></i> Evaluación Interactiva
+        </div>
+        <h2 class="exercise-main-title">{{ ejercicio.titulo }}</h2>
+        {% if ejercicio.descripcion %}
+        <p class="exercise-main-desc">{{ ejercicio.descripcion }}</p>
+        {% endif %}
     </div>
 
+    <!-- FORMULARIO DE PREGUNTAS -->
     <form method="POST">
         {% csrf_token %}
         
-        {% for pregunta in ejercicio.preguntas.all %}
-            <div class="card bg-dark text-white p-4 mb-3 border-secondary">
-                <h5 class="mb-3">
-                    <span class="badge bg-purple me-2">{{ forloop.counter }}</span> 
-                    {{ pregunta.enunciado }}
-                </h5>
+        <div class="questions-list">
+            {% for pregunta in ejercicio.preguntas.all %}
+            <div class="section-card question-card">
                 
-                <div class="ms-3">
+                <div class="question-title-wrapper">
+                    <div class="question-number">
+                        {{ forloop.counter }}
+                    </div>
+                    <h5 class="question-enunciado">
+                        {{ pregunta.enunciado }}
+                    </h5>
+                </div>
+                
+                <div class="options-list">
                     {% for opcion in pregunta.opciones.all %}
-                        <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" id="opcion_{{ opcion.id }}" required>
-                            <label class="form-check-label text-light" for="opcion_{{ opcion.id }}">
-                                {{ opcion.texto_opcion }}
-                            </label>
-                        </div>
+                    <label class="option-item" for="opcion_{{ opcion.id }}">
+                        <input class="custom-radio" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" id="opcion_{{ opcion.id }}" required>
+                        <span class="option-custom-box"></span>
+                        <span class="option-text">{{ opcion.texto_opcion }}</span>
+                    </label>
                     {% endfor %}
                 </div>
-            </div>
-        {% endfor %}
 
-        <button type="submit" class="btn btn-primary btn-lg w-100 mt-3">
-            <i class="bi bi-send-fill"></i> Enviar Respuestas al Docente
-        </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- BOTÓN DE ENVÍO -->
+        <div class="form-submit-wrapper">
+            <button type="submit" class="btn-submit-exercise">
+                <i class="bi bi-send-fill"></i> Enviar Respuestas al Docente
+            </button>
+        </div>
+
     </form>
 </div>
 {% endblock %}
