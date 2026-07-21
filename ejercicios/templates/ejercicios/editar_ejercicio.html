@@ -1,31 +1,123 @@
-{% extends 'web/base.html' %} <!-- Asegúrate de extender de tu base -->
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Editar Ejercicio — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/editar_ejercicio.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class="container my-5 text-white">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <h2 class="mb-4">Editar Ejercicio</h2>
-            <div class="card bg-dark text-white p-4 border-secondary">
-                <form method="POST">
-                    {% csrf_token %}
-                    
-                    <div class="mb-3">
-                        <label for="titulo" class="form-label">Título del Ejercicio</label>
-                        <input type="text" class="form-control bg-secondary text-white border-0" id="titulo" name="titulo" value="{{ ejercicio.titulo }}" required>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control bg-secondary text-white border-0" id="descripcion" name="descripcion" rows="4">{{ ejercicio.descripcion }}</textarea>
-                    </div>
-                    
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{% url 'detalle_clase' clase.id %}" class="btn btn-outline-light">Cancelar</a>
-                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+
+<div class="editar-ejercicio-container">
+  <div class="editar-ejercicio-wrapper">
+
+    <!-- Back Navigation -->
+    <div class="back-nav">
+      <a href="{% url 'detalle_clase' clase.id %}" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Volver a la clase
+      </a>
     </div>
+
+    <!-- Page Title -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="bi bi-pencil-square"></i> Editar Ejercicio
+      </h1>
+    </div>
+
+    <!-- Form Card -->
+    <div class="form-card">
+      
+      <!-- Card Header -->
+      <div class="form-card-header">
+        <div class="form-card-icon">
+          <i class="bi bi-puzzle-fill"></i>
+        </div>
+        <div>
+          <h3 class="form-card-title">{{ ejercicio.titulo }}</h3>
+          <p class="form-card-subtitle">Modifica los datos del ejercicio</p>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <form method="POST">
+        {% csrf_token %}
+        
+        <!-- Título -->
+        <div class="mb-4">
+          <label for="titulo" class="form-label">
+            Título del Ejercicio <span class="required">*</span>
+          </label>
+          <input type="text" class="form-control" id="titulo" name="titulo" 
+                 value="{{ ejercicio.titulo }}" 
+                 placeholder="Ej: Acordes mayores y menores" 
+                 required
+                 oninput="updateCharCount(this, 'titulo-counter', 100)">
+          <div class="char-counter" id="titulo-counter">{{ ejercicio.titulo|length }}/100</div>
+        </div>
+        
+        <!-- Descripción -->
+        <div class="mb-3">
+          <label for="descripcion" class="form-label">
+            Descripción
+          </label>
+          <textarea class="form-control" id="descripcion" name="descripcion" rows="5" 
+                    placeholder="Instrucciones para el estudiante..."
+                    oninput="updateCharCount(this, 'desc-counter', 500)">{{ ejercicio.descripcion }}</textarea>
+          <div class="char-counter" id="desc-counter">{{ ejercicio.descripcion|length }}/500</div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <div class="info-box-icon">
+            <i class="bi bi-info-circle-fill"></i>
+          </div>
+          <p class="info-box-text">
+            Los cambios se aplicarán inmediatamente. Las preguntas y opciones del ejercicio no se modificarán desde este formulario.
+          </p>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <a href="{% url 'detalle_clase' clase.id %}" class="btn-cancel">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </a>
+          <button type="submit" class="btn-save">
+            <i class="bi bi-check-lg"></i> Guardar Cambios
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Character counter
+  function updateCharCount(input, counterId, limit) {
+    const counter = document.getElementById(counterId);
+    const length = input.value.length;
+    counter.textContent = length + '/' + limit;
+    
+    if (length >= limit) {
+      counter.classList.add('limit');
+    } else {
+      counter.classList.remove('limit');
+    }
+  }
+
+  // Initialize counters
+  document.addEventListener('DOMContentLoaded', function() {
+    const titulo = document.getElementById('titulo');
+    const descripcion = document.getElementById('descripcion');
+    
+    if (titulo) updateCharCount(titulo, 'titulo-counter', 100);
+    if (descripcion) updateCharCount(descripcion, 'desc-counter', 500);
+  });
+</script>
 {% endblock %}
