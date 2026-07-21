@@ -138,9 +138,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'dilanmunoz671.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'tucorreo@gmail.com'  # tu correo
-EMAIL_HOST_PASSWORD = 'tu_contraseña_de_aplicacion'  # OJO: no es tu contraseña normal
+EMAIL_HOST_USER = 'tucorreo@gmail.com'  #  correo
+EMAIL_HOST_PASSWORD = 'eqnbpniwkncrpzxw'  # contraseña
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
