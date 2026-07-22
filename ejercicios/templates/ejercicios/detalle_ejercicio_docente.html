@@ -1,122 +1,63 @@
 {% extends 'web/base.html' %}
 {% load static %}
 
-{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'ejercicios/css/detalle_ejercicio_docente.css' %}">
 {% endblock %}
 
 {% block content %}
-
-<div class="ejercicio-detalle-container">
-
-  <!-- Back Navigation -->
-  <div class="back-nav">
-    <a href="{% url 'detalle_clase' clase.id %}" class="btn-back">
-      <i class="bi bi-arrow-left"></i> Volver a la clase
-    </a>
+<div class="container mt-4 mb-5">
+  <div class="card bg-dark text-white p-4 mb-4 border-secondary">
+    <h2>{{ ejercicio.titulo }} (Panel Docente)</h2>
+    <p class="text-muted">{{ ejercicio.descripcion }}</p>
   </div>
 
-  <!-- Exercise Hero -->
-  <div class="exercise-hero">
-    <div class="exercise-hero-content">
-      <span class="exercise-type-badge">
-        <i class="bi bi-puzzle-fill"></i> Ejercicio interactivo
-      </span>
-      <h1 class="exercise-title">{{ ejercicio.titulo }}</h1>
-      
-      {% if ejercicio.descripcion %}
-      <p class="exercise-description">{{ ejercicio.descripcion }}</p>
-      {% endif %}
-      
-      <div class="exercise-meta">
-        <span class="exercise-meta-item">
-          <i class="bi bi-patch-question-fill"></i>
-          {{ ejercicio.preguntas.count }} pregunta{{ ejercicio.preguntas.count|pluralize:"s" }}
-        </span>
-        <span class="exercise-meta-item">
-          <i class="bi bi-list-check"></i>
-          {% with total_opciones=0 %}
-            {% for pregunta in ejercicio.preguntas.all %}
-              {% with total_opciones=total_opciones|add:pregunta.opciones.count %}{% endwith %}
-            {% endfor %}
-          {% endwith %}
-          Opciones en total
-        </span>
-      </div>
+  <!-- SECCIÓN DE INTENTOS DE ESTUDIANTES -->
+  <div class="card bg-dark text-white p-4 border-secondary">
+    <h4 class="mb-3"><i class="bi bi-people-fill"></i> Entregas de Estudiantes</h4>
+
+    {% if intentos %}
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Fecha de Envío</th>
+            <th>Calificación</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for intento in intentos %}
+          <tr>
+            <td>
+              <i class="bi bi-person-circle"></i>
+              {{ intento.estudiante.get_full_name|default:intento.estudiante.username }}
+            </td>
+            <td>{{ intento.fecha_envio|date:"d M Y, H:i" }}</td>
+            <td>
+              {% if intento.calificacion is not None %}
+              <span class="badge bg-success fs-6">{{ intento.calificacion }}</span>
+              {% else %}
+              <span class="badge bg-warning text-dark fs-6">Sin calificar</span>
+              {% endif %}
+            </td>
+            <td>
+              <a href="{% url 'calificar_ejercicio' intento.id %}" class="btn btn-sm btn-primary">
+                <i class="bi bi-check2-square"></i> Calificar / Ver
+              </a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
-  </div>
-
-  <!-- Questions Section -->
-  <div class="section-header">
-    <h2 class="section-title">
-      <i class="bi bi-patch-question-fill"></i>
-      Preguntas del Ejercicio
-    </h2>
-    <span class="section-badge">{{ ejercicio.preguntas.count }}</span>
-  </div>
-
-  {% if ejercicio.preguntas.all %}
-    {% for pregunta in ejercicio.preguntas.all %}
-    <div class="question-card">
-      <div class="question-number">{{ forloop.counter }}</div>
-      <div class="question-text">{{ pregunta.enunciado }}</div>
-      
-      <div class="options-list">
-        {% for opcion in pregunta.opciones.all %}
-        <div class="option-item {% if opcion.es_correcta %}correct{% else %}incorrect{% endif %}">
-          <div class="option-icon {% if opcion.es_correcta %}correct{% else %}incorrect{% endif %}">
-            {% if opcion.es_correcta %}
-            <i class="bi bi-check-lg"></i>
-            {% else %}
-            <i class="bi bi-circle"></i>
-            {% endif %}
-          </div>
-          <span class="option-text">{{ opcion.texto_opcion }}</span>
-          {% if opcion.es_correcta %}
-          <span class="option-badge correct">
-            <i class="bi bi-star-fill me-1"></i> Correcta
-          </span>
-          {% endif %}
-        </div>
-        {% endfor %}
-      </div>
+    {% else %}
+    <div class="text-center py-4 text-muted">
+      <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+      <p>Ningún estudiante ha enviado respuestas para este ejercicio todavía.</p>
     </div>
-    {% endfor %}
-  {% else %}
-  <div class="empty-state">
-    <i class="bi bi-inbox empty-icon"></i>
-    <p class="empty-text">Este ejercicio aún no tiene preguntas registradas.</p>
+    {% endif %}
   </div>
-  {% endif %}
-
 </div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  // Animation on scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.question-card').forEach((card, index) => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(15px)';
-    card.style.transition = `all 0.4s ease ${index * 0.05}s`;
-    observer.observe(card);
-  });
-</script>
 {% endblock %}

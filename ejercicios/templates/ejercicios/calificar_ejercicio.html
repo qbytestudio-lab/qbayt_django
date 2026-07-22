@@ -1,28 +1,35 @@
 {% extends 'web/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/calificar_ejercicios.css' %}">
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
-    <a href="{% url 'detalle_ejercicio_docente' intento.ejercicio.clase.id intento.ejercicio.id %}" class="btn btn-outline-light mb-3">← Volver al ejercicio</a>
-    
+    <a href="{% url 'detalle_ejercicio_docente' intento.ejercicio.clase.id intento.ejercicio.id %}"
+        class="btn btn-outline-light mb-3">← Volver al ejercicio</a>
+
     <div class="card bg-dark text-white p-4 mb-4">
         <h2>Calificar Intento de: {{ intento.estudiante.username }}</h2>
-        <p class="text-muted">Ejercicio: {{ intento.ejercicio.titulo }} — Enviado el: {{ intento.fecha_envio|date:"d M Y H:i" }}</p>
+        <p class="text-muted">Ejercicio: {{ intento.ejercicio.titulo }} — Enviado el: {{ intento.fecha_envio|date:"d M Y
+            H:i" }}</p>
     </div>
 
     <!-- Respuestas seleccionadas por el estudiante -->
     <h4 class="mb-3">Respuestas del Estudiante</h4>
     {% for respuesta in intento.respuestas.all %}
-        <div class="card bg-secondary text-white p-3 mb-3">
-            <h5>{{ forloop.counter }}. {{ respuesta.pregunta.enunciado }}</h5>
-            <p class="mb-0">
-                <strong>Respuesta elegida:</strong> {{ respuesta.opcion_seleccionada.texto_opcion }}
-                {% if respuesta.opcion_seleccionada.es_correcta %}
-                    <span class="badge bg-success ms-2">Correcta ✓</span>
-                {% else %}
-                    <span class="badge bg-danger ms-2">Incorrecta ✗</span>
-                {% endif %}
-            </p>
-        </div>
+    <div class="card bg-secondary text-white p-3 mb-3">
+        <h5>{{ forloop.counter }}. {{ respuesta.pregunta.enunciado }}</h5>
+        <p class="mb-0">
+            <strong>Respuesta elegida:</strong> {{ respuesta.opcion_seleccionada.texto_opcion }}
+            {% if respuesta.opcion_seleccionada.es_correcta %}
+            <span class="badge bg-success ms-2">Correcta ✓</span>
+            {% else %}
+            <span class="badge bg-danger ms-2">Incorrecta ✗</span>
+            {% endif %}
+        </p>
+    </div>
     {% endfor %}
 
     <!-- Formulario para asignar la nota -->
@@ -31,11 +38,13 @@
             {% csrf_token %}
             <div class="mb-3">
                 <label class="form-label">Calificación (Ej. 5.0 o 100)</label>
-                <input type="number" step="0.1" name="calificacion" class="form-control" value="{{ intento.calificacion|default:'' }}" required>
+                <input type="number" step="0.1" name="calificacion" class="form-control"
+                    value="{{ intento.calificacion|default:'' }}" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Retroalimentación / Comentarios</label>
-                <textarea name="retroalimentacion" class="form-control" rows="3">{{ intento.retroalimentacion|default:'' }}</textarea>
+                <textarea name="retroalimentacion" class="form-control"
+                    rows="3">{{ intento.retroalimentacion|default:'' }}</textarea>
             </div>
             <button type="submit" class="btn btn-success btn-lg">Guardar Calificación</button>
         </form>

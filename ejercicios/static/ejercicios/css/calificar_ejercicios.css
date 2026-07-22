@@ -1,5 +1,5 @@
-/* ============================================ */
-/* detalle DOCENTE - */
+/* =========================================== */
+/* CALIFICAR INTENTO DOCENTE - SPOTIFY STYLE */
 /* ============================================ */
 
 :root {
@@ -30,20 +30,46 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .container {
-  max-width: 1000px;
+  max-width: 900px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
 
 /* ═══════════════════════════════════════════ */
-/* EXERCISE HEADER CARD */
+/* BACK BUTTON */
+/* ═══════════════════════════════════════════ */
+
+.btn-outline-light {
+  background: transparent !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  color: var(--spotify-subtext) !important;
+  padding: 0.55rem 1.2rem !important;
+  border-radius: 20px !important;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-outline-light:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: var(--spotify-text) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ═══════════════════════════════════════════ */
+/* STUDENT INFO CARD */
 /* ═══════════════════════════════════════════ */
 
 .card {
   background: var(--spotify-dark) !important;
   border: 1px solid rgba(255, 255, 255, 0.06) !important;
   border-radius: 14px !important;
-  padding: 2rem !important;
+  padding: 1.5rem !important;
   margin-bottom: 1.5rem !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
@@ -57,92 +83,63 @@ body {
 .card h2 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   color: var(--spotify-text);
   margin-bottom: 0.5rem;
-  letter-spacing: -0.3px;
 }
 
 .card .text-muted {
   color: var(--spotify-subtext) !important;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
 
 /* ═══════════════════════════════════════════ */
-/* SECTION TITLE */
+/* STUDENT RESPONSES */
 /* ═══════════════════════════════════════════ */
 
-.card h4 {
+h4 {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   color: var(--spotify-text);
+  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
+  gap: 0.5rem;
 }
 
-.card h4 i {
-  color: var(--accent-purple);
-  font-size: 1.2rem;
+/* Response cards */
+.card.bg-secondary {
+  background: #1f1f1f !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  border-left: 4px solid var(--accent-purple) !important;
+  border-radius: 12px !important;
+  padding: 1.25rem !important;
+  margin-bottom: 0.75rem !important;
+  transition: all 0.25s ease;
 }
 
-/* ═══════════════════════════════════════════ */
-/* TABLE */
-/* ═══════════════════════════════════════════ */
-
-.table-responsive {
-  border-radius: 10px;
-  overflow: hidden;
+.card.bg-secondary:hover {
+  border-color: rgba(124, 111, 255, 0.2) !important;
+  background: #242424 !important;
 }
 
-.table {
-  margin-bottom: 0 !important;
-  border-collapse: collapse;
-  width: 100%;
-}
-
-.table thead th {
-  background: rgba(255, 255, 255, 0.03);
-  color: var(--spotify-muted);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  padding: 0.85rem 1rem;
-  border-bottom: 2px solid rgba(124, 111, 255, 0.15);
+.card.bg-secondary h5 {
+  font-family: 'Syne', sans-serif;
   font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--spotify-text);
+  margin-bottom: 0.6rem;
 }
 
-.table tbody td {
-  padding: 0.85rem 1rem;
-  font-size: 0.88rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+.card.bg-secondary p {
   color: var(--spotify-subtext);
-  vertical-align: middle;
+  font-size: 0.88rem;
+  margin-bottom: 0;
 }
 
-.table tbody tr {
-  transition: all 0.2s ease;
-}
-
-.table tbody tr:hover {
-  background: rgba(124, 111, 255, 0.04) !important;
-}
-
-.table tbody tr:hover td {
+.card.bg-secondary strong {
   color: var(--spotify-text);
-}
-
-/* Estudiante nombre */
-.table tbody td:first-child {
-  font-weight: 600;
-  color: var(--spotify-text);
-}
-
-.table tbody td:first-child i {
-  color: var(--accent-purple);
-  margin-right: 0.4rem;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -150,9 +147,9 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .badge {
-  padding: 0.35rem 0.75rem !important;
+  padding: 0.3rem 0.7rem !important;
   border-radius: 20px !important;
-  font-size: 0.78rem !important;
+  font-size: 0.72rem !important;
   font-weight: 700 !important;
   letter-spacing: 0.3px;
 }
@@ -163,62 +160,107 @@ body {
   border: 1px solid rgba(29, 185, 84, 0.2);
 }
 
-.badge.bg-warning {
-  background: rgba(255, 159, 67, 0.15) !important;
-  color: var(--accent-orange) !important;
-  border: 1px solid rgba(255, 159, 67, 0.2);
+.badge.bg-danger {
+  background: rgba(233, 20, 41, 0.15) !important;
+  color: var(--danger) !important;
+  border: 1px solid rgba(233, 20, 41, 0.2);
 }
 
 /* ═══════════════════════════════════════════ */
-/* BUTTONS */
+/* FORM ELEMENTS */
 /* ═══════════════════════════════════════════ */
 
-.btn-sm {
-  padding: 0.45rem 1rem !important;
-  border-radius: 20px !important;
-  font-weight: 600 !important;
-  font-size: 0.8rem !important;
-  transition: all 0.2s ease !important;
+.form-label {
+  color: var(--spotify-subtext);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
   letter-spacing: 0.3px;
 }
 
-.btn-primary {
-  background: var(--accent-purple) !important;
-  border: none !important;
-  color: #fff !important;
-}
-
-.btn-primary:hover {
-  background: var(--accent-purple-hover) !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.3);
-}
-
-/* ═══════════════════════════════════════════ */
-/* EMPTY STATE */
-/* ═══════════════════════════════════════════ */
-
-.text-center.py-4 {
-  padding: 3rem 1rem !important;
-}
-
-.text-center .bi-inbox {
-  font-size: 3rem !important;
-  color: var(--spotify-light-gray);
-  opacity: 0.4;
-}
-
-.text-center p {
-  color: var(--spotify-subtext);
+.form-control {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: var(--spotify-text) !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1rem !important;
   font-size: 0.9rem;
-  margin-top: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--accent-purple) !important;
+  box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.15) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.form-control::placeholder {
+  color: var(--spotify-muted);
+  font-weight: 400;
+}
+
+input[type="number"].form-control {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════ */
+/* SUBMIT BUTTON */
+/* ═══════════════════════════════════════════ */
+
+.btn-success {
+  background: var(--spotify-green) !important;
+  border: none !important;
+  color: #000 !important;
+  padding: 0.8rem 2.5rem !important;
+  border-radius: 25px !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-success::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.btn-success:hover {
+  background: var(--spotify-green-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
+  color: #000 !important;
+}
+
+.btn-success:hover::before {
+  left: 100%;
+}
+
+.btn-success:active {
+  transform: translateY(0) scale(0.97);
 }
 
 /* ═══════════════════════════════════════════ */
 /* SCROLLBAR */
 /* ═══════════════════════════════════════════ */
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--spotify-black); }
 ::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--spotify-muted); }
@@ -229,14 +271,14 @@ body {
 
 @media (max-width: 768px) {
   .container { padding: 1.5rem 1rem; }
-  .card { padding: 1.5rem !important; }
-  .card h2 { font-size: 1.3rem; }
-  .table thead th { font-size: 0.7rem; padding: 0.6rem 0.7rem; }
-  .table tbody td { font-size: 0.82rem; padding: 0.6rem 0.7rem; }
+  .card { padding: 1.2rem !important; }
+  .card h2 { font-size: 1.2rem; }
+  .card.bg-secondary { padding: 1rem !important; }
+  .card.bg-secondary h5 { font-size: 0.88rem; }
+  .btn-success { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 480px) {
   .card h2 { font-size: 1.1rem; }
-  .badge { font-size: 0.7rem !important; padding: 0.25rem 0.6rem !important; }
-  .btn-sm { font-size: 0.75rem !important; padding: 0.4rem 0.8rem !important; }
+  .btn-outline-light { width: 100%; justify-content: center; }
 }
