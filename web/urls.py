@@ -22,4 +22,5 @@ urlpatterns = [
     path('admin-login/', views.admin_login_view, name='admin_login'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/logout/', views.admin_logout_view, name='admin_logout'),
+    path('crear-curso/',views.crear_curso, name='crear_curso'),
 ]

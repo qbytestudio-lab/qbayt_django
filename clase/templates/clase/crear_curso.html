@@ -1,0 +1,216 @@
+ {% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear Curso — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clase/css/crear_curso.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="crear-curso-container">
+
+  <!-- Back Navigation -->
+  <div class="back-nav">
+    <a href="{% url 'cursos' %}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Volver a cursos
+    </a>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="bi bi-plus-circle-fill"></i> Crear nuevo curso
+    </h1>
+    <p class="page-subtitle">Completa la información para publicar un nuevo curso en la plataforma</p>
+  </div>
+
+  <!-- Form Card -->
+  <div class="form-card">
+    
+    <!-- Card Header -->
+    <div class="form-card-header">
+      <div class="form-card-icon">
+        <i class="bi bi-journal-plus"></i>
+      </div>
+      <div>
+        <h3 class="form-card-title">Información del curso</h3>
+        <p class="form-card-subtitle">Todos los campos marcados con * son obligatorios</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form method="POST" action="{% url 'crear_curso' %}" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <!-- Nombre del curso -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-book-fill"></i> Nombre del curso <span class="required">*</span>
+        </label>
+        <input type="text" name="nombre" class="form-control" 
+               placeholder="Ej: Teoría Musical Básica" 
+               required autofocus>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-text-paragraph"></i> Descripción
+          <span class="optional">(opcional)</span>
+        </label>
+        <textarea name="descripcion" class="form-control" rows="4" 
+                  placeholder="Describe de qué trata el curso, qué aprenderán los estudiantes, etc."></textarea>
+      </div>
+
+      <!-- Categoría + Nivel -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-folder-fill"></i> Categoría <span class="required">*</span>
+          </label>
+          <select name="categoria" class="form-select" required>
+            <option value="">Seleccionar categoría...</option>
+            <option value="teoria">🎵 Teoría Musical</option>
+            <option value="auditivo">👂 Entrenamiento Auditivo</option>
+            <option value="instrumento">🎸 Instrumento</option>
+            <option value="produccion">🎛️ Producción Musical</option>
+            <option value="composicion">✍️ Composición</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">
+            <i class="bi bi-speedometer2"></i> Nivel <span class="required">*</span>
+          </label>
+          <select name="nivel" class="form-select" required>
+            <option value="">Seleccionar nivel...</option>
+            <option value="basico">🟢 Básico</option>
+            <option value="intermedio">🟠 Intermedio</option>
+            <option value="avanzado">🔴 Avanzado</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Duración -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-clock-fill"></i> Duración (horas) <span class="required">*</span>
+        </label>
+        <input type="number" name="duracion_horas" class="form-control" 
+               placeholder="Ej: 20" min="1" max="200" required>
+      </div>
+
+      <!-- Divider -->
+      <hr class="form-divider">
+      <div class="form-divider-label">Apariencia del curso</div>
+
+      <!-- Imagen de portada -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-image-fill"></i> Imagen de portada
+          <span class="optional">(opcional)</span>
+        </label>
+        <input type="file" name="imagen" class="form-control" accept="image/*">
+      </div>
+
+      <!-- URL de imagen -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-link-45deg"></i> URL de imagen
+          <span class="optional">(opcional)</span>
+        </label>
+        <input type="url" name="imagen_url" class="form-control" 
+               placeholder="https://ejemplo.com/imagen.jpg">
+      </div>
+
+      <!-- Ícono -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-emoji-smile"></i> Ícono (Bootstrap Icons)
+          <span class="optional">(opcional)</span>
+        </label>
+        <input type="text" name="icono" class="form-control" 
+               placeholder="Ej: bi-music-note-beamed" value="bi-book">
+        <div style="font-size: 0.75rem; color: var(--spotify-muted); margin-top: 0.3rem;">
+          <i class="bi bi-info-circle me-1"></i>
+          Consulta los iconos disponibles en 
+          <a href="https://icons.getbootstrap.com/" target="_blank" style="color: var(--accent-orange);">Bootstrap Icons</a>
+        </div>
+      </div>
+
+      <!-- Vista previa -->
+      <div class="preview-section">
+        <div class="preview-title">
+          <i class="bi bi-eye"></i> Vista previa de la card
+        </div>
+        <div class="preview-card">
+          <div class="preview-card-image">
+            <i class="bi bi-book"></i>
+          </div>
+          <div class="preview-card-body">
+            <div class="preview-card-title">Nombre del curso</div>
+            <div class="preview-card-meta">Categoría · Nivel · 20h</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Footer -->
+      <div class="form-footer">
+        <a href="{% url 'cursos' %}" class="btn-cancel">
+          <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-submit">
+          <i class="bi bi-check-lg"></i> Crear curso
+        </button>
+      </div>
+
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Actualizar vista previa en tiempo real
+  const nombreInput = document.querySelector('input[name="nombre"]');
+  const categoriaSelect = document.querySelector('select[name="categoria"]');
+  const nivelSelect = document.querySelector('select[name="nivel"]');
+  const duracionInput = document.querySelector('input[name="duracion_horas"]');
+  const iconoInput = document.querySelector('input[name="icono"]');
+  
+  const previewTitle = document.querySelector('.preview-card-title');
+  const previewMeta = document.querySelector('.preview-card-meta');
+  const previewIcon = document.querySelector('.preview-card-image i');
+
+  function updatePreview() {
+    // Título
+    previewTitle.textContent = nombreInput.value || 'Nombre del curso';
+    
+    // Meta
+    const categoria = categoriaSelect.value || 'Categoría';
+    const nivel = nivelSelect.value || 'Nivel';
+    const duracion = duracionInput.value ? duracionInput.value + 'h' : '20h';
+    previewMeta.textContent = `${categoria} · ${nivel} · ${duracion}`;
+    
+    // Ícono
+    if (iconoInput.value) {
+      previewIcon.className = `bi ${iconoInput.value}`;
+    } else {
+      previewIcon.className = 'bi bi-book';
+    }
+  }
+
+  nombreInput?.addEventListener('input', updatePreview);
+  categoriaSelect?.addEventListener('change', updatePreview);
+  nivelSelect?.addEventListener('change', updatePreview);
+  duracionInput?.addEventListener('input', updatePreview);
+  iconoInput?.addEventListener('input', updatePreview);
+
+  // Inicializar vista previa
+  updatePreview();
+</script>
+{% endblock %}

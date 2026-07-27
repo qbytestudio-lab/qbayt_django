@@ -195,6 +195,23 @@ def agregar_curso(request, curso_id):
     messages.success(request, f'Te uniste a "{curso.nombre}".')
     return redirect('cursos')
 
+@login_required
+def crear_curso(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        descripcion = request.POST.get('descripcion')
+        categoria = request.POST.get('categoria')
+
+        Curso.objects.create(
+            nombre=nombre,
+            descripcion=descripcion,
+            categoria=categoria
+        )
+
+        messages.success(request, "Curso creado correctamente.")
+        return redirect('cursos')
+
+    return redirect('cursos')
 
 @login_required
 def eliminar_curso(request, curso_id):
