@@ -28,6 +28,12 @@
       <div class="hero-stat-label">Disponibles</div>
     </div>
   </div>
+
+  {% if request.user.perfil.rol == 'docente' or request.user.is_superuser %}
+  <button class="btn-create-course" data-bs-toggle="modal" data-bs-target="#modalCrearCurso" style="position:relative; z-index:1;">
+    <i class="bi bi-plus-circle-fill"></i> Crear nuevo curso
+  </button>
+  {% endif %}
 </div>
 
 <!-- ALERT MESSAGES -->
@@ -44,7 +50,7 @@
 {% endif %}
 
 <!-- ═══════════════════════════════════════════ -->
-<!--           MIS CURSOS                     -->
+<!-- MIS CURSOS -->
 <!-- ═══════════════════════════════════════════ -->
 
 <div class="section-header">
@@ -63,10 +69,11 @@
   <div class="course-card my-course">
 
     <!-- Card Image -->
-    <div class="class-card-image {% if clase.imagen %}has-image{% endif %}" {% if clase.imagen %}
-      style="background-image:url('{{ clase.imagen.url }}');" {% endif %}>
+    <div class="course-card-image {% if insc.curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+         {% if insc.curso.imagen_url %}style="background-image: url('{{ insc.curso.imagen_url }}');"{% endif %}>
+      
       {% if not insc.curso.imagen_url %}
-      <i class="bi {{ insc.curso.icono }}"></i>
+      <i class="bi {{ insc.curso.icono|default:'bi-book' }}"></i>
       {% endif %}
 
       <div class="course-card-overlay"></div>
@@ -102,10 +109,10 @@
       <div class="course-progress">
         <div class="course-progress-info">
           <span class="course-progress-text">Progreso</span>
-          <span class="course-progress-percent">45%</span>
+          <span class="course-progress-percent">{{ insc.progreso|default:'45' }}%</span>
         </div>
         <div class="progress-bar">
-          <div class="progress-bar-fill" style="width: 45%;"></div>
+          <div class="progress-bar-fill" style="width: {{ insc.progreso|default:'45' }}%;"></div>
         </div>
       </div>
 
@@ -115,8 +122,8 @@
           <i class="bi bi-play-fill"></i> Continuar
         </a>
         <a href="{% url 'eliminar_curso' insc.curso.id %}"
-          onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')" class="btn-course-danger"
-          title="Dejar de seguir">
+           onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')" 
+           class="btn-course-danger" title="Dejar de seguir">
           <i class="bi bi-trash-fill"></i>
         </a>
       </div>
@@ -134,7 +141,7 @@
 {% endif %}
 
 <!-- ═══════════════════════════════════════════ -->
-<!--         CATÁLOGO DE CURSOS               -->
+<!-- CATÁLOGO DE CURSOS -->
 <!-- ═══════════════════════════════════════════ -->
 
 <div class="section-header">
@@ -175,12 +182,10 @@
 
     <!-- Card Image -->
     <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
-     {% if curso.imagen_url %}
-     style="background-image: url('{{ curso.imagen_url }}');"
-     {% endif %}>
+         {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}>
 
       {% if not curso.imagen_url %}
-      <i class="bi {{ curso.icono }}"></i>
+      <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
       {% endif %}
 
       <div class="course-card-overlay"></div>
@@ -229,6 +234,93 @@
 </div>
 {% endif %}
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: CREAR CURSO -->
+<!-- ═══════════════════════════════════════════ -->
+
+{% if request.user.perfil.rol == 'docente' or request.user.is_superuser %}
+<div class="modal fade" id="modalCrearCurso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-plus-circle-fill me-2" style="color: #ff9f43;"></i>
+          Crear nuevo curso
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'crear_curso' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          
+          <div class="mb-3">
+            <label class="form-label">Nombre del curso <span style="color: #e91429;">*</span></label>
+            <input type="text" class="form-control" name="nombre" 
+                   placeholder="Ej: Teoría Musical Básica" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" name="descripcion" rows="3" 
+                      placeholder="Describe de qué trata el curso..."></textarea>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Categoría</label>
+              <select class="form-select" name="categoria">
+                <option value="teoria">🎵 Teoría Musical</option>
+                <option value="auditivo">👂 Entrenamiento Auditivo</option>
+                <option value="instrumento">🎸 Instrumento</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Nivel</label>
+              <select class="form-select" name="nivel">
+                <option value="basico">🟢 Básico</option>
+                <option value="intermedio">🟠 Intermedio</option>
+                <option value="avanzado">🔴 Avanzado</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Duración (horas)</label>
+            <input type="number" class="form-control" name="duracion_horas" 
+                   placeholder="Ej: 20" min="1" max="200">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Imagen de portada (opcional)</label>
+            <input type="file" class="form-control" name="imagen" accept="image/*" 
+                   style="padding: 0.5rem !important;">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">URL de imagen (opcional)</label>
+            <input type="url" class="form-control" name="imagen_url" 
+                   placeholder="https://ejemplo.com/imagen.jpg">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Ícono (clase de Bootstrap Icons)</label>
+            <input type="text" class="form-control" name="icono" 
+                   placeholder="Ej: bi-music-note-beamed" value="bi-book">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn-modal-primary">
+            <i class="bi bi-check-lg me-1"></i> Crear curso
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -244,13 +336,9 @@
 
   // Filter pills
   function filterCourses(category, btn) {
-    // Update active pill
-    document.querySelectorAll('.filter-pill').forEach(pill => {
-      pill.classList.remove('active');
-    });
+    document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
     btn.classList.add('active');
 
-    // Filter cards
     document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
       if (category === 'all') {
         card.style.display = '';
@@ -261,11 +349,7 @@
   }
 
   // Animation on scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px'
-  };
-
+  const observerOptions = { threshold: 0.1, rootMargin: '0px' };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -284,8 +368,7 @@
 
   // Auto-dismiss alerts
   setTimeout(() => {
-    const alerts = document.querySelectorAll('.alert-spotify');
-    alerts.forEach(alert => {
+    document.querySelectorAll('.alert-spotify').forEach(alert => {
       const bsAlert = new bootstrap.Alert(alert);
       bsAlert.close();
     });
