@@ -83,31 +83,48 @@ def perfil_administrador(request):
     return render(request, 'perfil_admin.html')
 
 def registro(request):
-    if request.method == 'POST':
-        first_name = request.POST ['first_name']
-        last_name = request.POST['last_name']
-        username = request.POST['username']
-        email = request.POST['email']
-        password1 = request.POST['password1']
-        password2 = request.POST['password2']
-        rol = request.POST['rol']
+  if request.method == 'POST':
+    first_name = request.POST.get('first_name')
+    last_name = request.POST.get('last_name')
+    username = request.POST.get('username')
+    email = request.POST.get('email')
+    password1 = request.POST.get('password1')
+    password2 = request.POST.get('password2')
+    rol = request.POST.get('rol', 'estudiante')  # Por defecto estudiante
 
-        if password1 != password2:
-            messages.error(request, 'Las contraseñas no coinciden.')
-            return redirect('registro')
+    if password1 != password2:
+      messages.error(request, 'Las contraseñas no coinciden.')
+      return redirect('registro')
 
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'El usuario ya existe.')
-            return redirect('registro')
+    if User.objects.filter(username=username).exists():
+      messages.error(request, 'El usuario ya existe.')
+      return redirect('registro')
 
-        user = User.objects.create_user(username=username, email=email, password=password1, first_name=first_name,
-    last_name=last_name)
-        user.save()
-        Perfil.objects.create(user=user, rol=rol)
-        messages.success(request, '¡Cuenta creada! Inicia sesión.')
-        return redirect('login')
+    # Crear el usuario
+    user = User.objects.create_user(
+        username=username,
+        email=email,
+        password=password1,
+        first_name=first_name,
+        last_name=last_name,
+    )
+    user.save()
 
-    return render(request, 'web/registro.html')
+    # Crear su perfil asociado
+    Perfil.objects.create(user=user, rol=rol)
+
+    # Iniciar sesión automáticamente de inmediato
+    login(request, user)
+
+    messages.success(request, '¡Cuenta creada con éxito!')
+
+    # Si es estudiante, mandarlo a configurar su nivel musical; si es otro rol, a inicio
+    if rol == 'estudiante':
+      return redirect('estudiante:configurar_nivel')
+    else:
+      return redirect('inicio')
+
+  return render(request, 'web/registro.html')
 
 def login_view(request):
     if request.method == 'POST':

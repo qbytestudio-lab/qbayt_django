@@ -54,6 +54,19 @@ def perfil_estudiante(request):
         'ejercicios_hechos': ejercicios_hechos,
         'total_actividades': total_actividades,
     })
+@login_required
+def configurar_nivel_view(request):
+  usuario = request.user
+
+  if request.method == 'POST':
+    nuevo_nivel = request.POST.get('nivel_musical')
+    if nuevo_nivel in ['1', '2', '3', '4']:
+      usuario.nivel_musical = int(nuevo_nivel)
+      usuario.save()
+      # Redirige a su panel principal o perfil una vez configurado
+      return redirect('estudiante:mis_clases')  # O la ruta que prefieras
+
+  return render(request, 'estudiante/configurar_nivel.html', {'usuario': usuario})
 
 @login_required
 def unirse_clase(request):

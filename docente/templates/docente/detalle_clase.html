@@ -62,8 +62,7 @@
             <div class="class-meta">
                 <span class="class-meta-item"><i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }}
                     estudiantes</span>
-                <span class="class-meta-item"><i class="bi bi-calendar3"></i> {{ clase.fecha_creacion|date:"d M Y"
-                    }}</span>
+                <span class="class-meta-item"><i class="bi bi-calendar3"></i> {{ clase.fecha_creacion|date:"d M Y"}}</span>
             </div>
 
             <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -311,8 +310,7 @@
                             <div class="announcement-header">
                                 <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
                                 <div>
-                                    <div class="announcement-author">{{
-                                        clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                    <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
                                     <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
                                 </div>
                                 <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}"

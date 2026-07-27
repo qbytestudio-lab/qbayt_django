@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Ejercicio(models.Model):
     clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
@@ -30,7 +31,12 @@ class IntentoEjercicio(models.Model):
     estudiante = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='intentos')
     ejercicio = models.ForeignKey(Ejercicio, on_delete=models.CASCADE, related_name='intentos')
     fecha_envio = models.DateTimeField(auto_now_add=True)
-    calificacion = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    calificacion = models.DecimalField(
+        max_digits=3, 
+        decimal_places=1, 
+        null=True, 
+        blank=True,
+        validators=[MinValueValidator(1.0), MaxValueValidator(5.0)],)
     retroalimentacion = models.TextField(blank=True, null=True)
 
     def __str__(self):

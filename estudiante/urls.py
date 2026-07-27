@@ -12,4 +12,5 @@ urlpatterns = [
     path('explorar-clases/', views.explorar_clases, name='explorar_clases'),
     path('clase/<int:clase_id>/', views.detalle_clase_estudiante, name='detalle_clase_estudiante'),
     path('actividad/<int:pregunta_id>/responder/', views.responder_actividad, name='responder_actividad'),
+    path('configurar-nivel/',views.configurar_nivel_view,name='configurar_nivel',),
 ]
