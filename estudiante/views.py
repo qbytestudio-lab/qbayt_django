@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ejercicios.models import Ejercicio, Pregunta, Opcion 
+from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
 from docente.utils import calcular_progreso_clase
 from clase.models import Clase
-from docente.models import SolicitudClase, Actividad, RespuestaEstudiante
+from docente.models import SolicitudClase, Actividad
 
 def calcular_progreso_clase(estudiante, clase):
     """Devuelve el % de actividades completadas en una clase."""
@@ -197,44 +197,46 @@ def detalle_actividad_estudiante(request, actividad_id):
 
 
 @login_required
-def responder_actividad(request, pregunta_id): # <-- Cambiamos el nombre aquí
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    
-    # 1. Buscamos el EJERCICIO, no la ACTIVIDAD
+def responder_actividad(request, pregunta_id): # Nota: 'pregunta_id' aquí suele ser el id del Ejercicio
     ejercicio = get_object_or_404(Ejercicio, id=pregunta_id)
-    clase = ejercicio.clase # Ajustado según tu models.py
+    clase = ejercicio.clase
 
-    if request.user not in clase.estudiantes.all():
-        return redirect('inicio')
-
-    # 2. Ajustamos la lógica de 'ya_respondio' para el EJERCICIO
-    ya_respondio = RespuestaEstudiante.objects.filter(
-        estudiante=request.user, ejercicio=ejercicio 
-    ).exists()
-    
-    if ya_respondio:
-        return redirect('detalle_actividad_estudiante', actividad_id=ejercicio.id)
+    # Verificar si ya tiene un intento activo o enviado para no duplicar
+    intento_existente = IntentoEjercicio.objects.filter(estudiante=request.user, ejercicio=ejercicio).first()
 
     if request.method == 'POST':
+        # 1. Creamos o recuperamos el intento del estudiante para este ejercicio
+        intento, created = IntentoEjercicio.objects.get_or_create(
+            estudiante=request.user,
+            ejercicio=ejercicio
+        )
+
+        # Limpiamos respuestas anteriores por si acaso se está reenviando
+        intento.respuestas.all().delete()
+
+        # 2. Recorremos las preguntas del ejercicio para capturar lo que respondió
         preguntas = ejercicio.preguntas.all()
         for pregunta in preguntas:
+            # Obtenemos el ID de la opción seleccionada en el formulario HTML (ej: name="pregunta_5")
             opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            
             if opcion_id:
-                opcion = get_object_or_404(Opcion, id=opcion_id, pregunta=pregunta)
-                RespuestaEstudiante.objects.get_or_create(
-                    estudiante=request.user,
-                    ejercicio=ejercicio, # Ajustado
+                opcion_seleccionada = get_object_or_404(Opcion, id=opcion_id)
+                
+                # Guardamos la respuesta del estudiante
+                RespuestaEstudiante.objects.create(
+                    intento=intento,
                     pregunta=pregunta,
-                    defaults={'opcion': opcion}
+                    opcion_seleccionada=opcion_seleccionada
                 )
-        messages.success(request, '¡Respuestas enviadas!')
-        return redirect('detalle_actividad_estudiante', actividad_id=ejercicio.id)
 
-    # 3. Si es GET, renderizamos el formulario
-    preguntas = ejercicio.preguntas.all().prefetch_related('opciones')
+        messages.success(request, "¡Ejercicio enviado con éxito! Quedó pendiente de calificación.")
+        
+        # Redirigimos a la vista de la clase del estudiante
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+
     return render(request, 'estudiante/responder_actividad.html', {
-        'actividad': ejercicio, # Mantenemos el nombre 'actividad' en el template para no tener que cambiar todo el HTML
+        'actividad': ejercicio,
         'clase': clase,
-        'preguntas': preguntas,
+        'preguntas': ejercicio.preguntas.all().prefetch_related('opciones'),
     })

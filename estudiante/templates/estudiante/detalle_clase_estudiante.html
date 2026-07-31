@@ -100,7 +100,8 @@
                             </span>
                         {% endif %}
                     {% else %}
-                        <a href="#" class="status-badge available-badge text-decoration-none">
+                        <!-- CORREGIDO: Usando el namespace estudiante: -->
+                        <a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="status-badge available-badge text-decoration-none">
                             <i class="bi bi-play-fill"></i> Resolver
                         </a>
                     {% endif %}
@@ -135,10 +136,16 @@
                 {% endfor %}
               </div>
               
-              <div class="mt-2 pt-2 text-center" style="border-top: 1px solid rgba(255,255,255,0.05);">
-                <a href="{% url 'resolver_ejercicio' clase.id ejercicio.id %}" class="text-decoration-none" style="font-size: 0.78rem; color: #a89fff; font-weight: 600;">
-                  <i class="bi bi-pencil-square"></i> Ir a Resolver Cuestionario completo →
-                </a>
+              <!-- Enlace general para resolver el cuestionario dentro del desplegable -->
+              <div class="mt-3 pt-2 border-top text-end">
+                {% if ejercicio.ya_respondio_por_usuario %}
+                  <span class="badge bg-success">Completado (Nota: 10.0)</span>
+                {% else %}
+                  <!-- CORREGIDO: Usando el namespace estudiante: -->
+                  <a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="text-purple text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                    Ir a Resolver Cuestionario completo →
+                  </a>
+                {% endif %}
               </div>
             </div>
             {% endif %}

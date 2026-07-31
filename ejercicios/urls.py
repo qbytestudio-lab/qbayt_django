@@ -9,4 +9,5 @@ urlpatterns = [
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/', views.detalle_ejercicio_docente, name='detalle_ejercicio_docente'),
     path('resolver/<int:clase_id>/<int:ejercicio_id>/', views.resolver_ejercicio, name='resolver_ejercicio'),
     path('calificar/<int:intento_id>/', views.calificar_ejercicio, name='calificar_ejercicio'),
+    path('intento/<int:intento_id>/reenviar/', views.reenviar_ejercicio, name='reenviar_ejercicio'),
 ]
