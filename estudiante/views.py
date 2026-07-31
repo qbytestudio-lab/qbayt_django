@@ -40,11 +40,13 @@ def perfil_estudiante(request):
     else:
         progreso_general = 0
 
-    # Totales reales
-    total_actividades = Actividad.objects.filter(leccion__clase__in=clases).count()
-    ejercicios_hechos = RespuestaEstudiante.objects.filter(
-        estudiante=request.user
-    ).values('actividad').distinct().count()
+        # Totales reales
+        total_actividades = Actividad.objects.filter(leccion__clase__in=clases).count()
+    
+        # 🛠️ CORREGIDO: Usando 'intento__estudiante' y contando los ejercicios únicos a través del intento
+        ejercicios_hechos = RespuestaEstudiante.objects.filter(
+        intento__estudiante=request.user
+    ).values('intento__ejercicio').distinct().count()
 
     return render(request, 'estudiante/perfil_estudiante.html', {
         'clases': clases,

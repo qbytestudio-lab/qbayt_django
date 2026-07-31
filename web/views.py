@@ -120,7 +120,7 @@ def registro(request):
 
     # Si es estudiante, mandarlo a configurar su nivel musical; si es otro rol, a inicio
     if rol == 'estudiante':
-      return redirect('estudiante:configurar_nivel')
+      return redirect('login')
     else:
       return redirect('inicio')
 
