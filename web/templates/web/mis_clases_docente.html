@@ -249,41 +249,124 @@
 
 <!-- MODAL CREAR CLASE -->
 <div class="modal fade" id="modalCrearClase" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
+
       <div class="modal-header">
         <h5 class="modal-title">
-          <i class="bi bi-plus-circle me-2" style="color: #7c6fff;"></i>
+          <i class="bi bi-plus-circle me-2" style="color:#7c6fff;"></i>
           Nueva clase
         </h5>
+
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
+
       <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+
         <div class="modal-body">
+
           <div class="mb-3">
-            <label class="form-label">Nombre de la clase <span style="color: #e91429;">*</span></label>
+            <label class="form-label">
+              Nombre de la clase
+              <span class="text-danger">*</span>
+            </label>
+
             <input type="text" class="form-control" name="nombre" placeholder="Ej: Entrenamiento auditivo I" required>
           </div>
+
           <div class="mb-3">
-            <label class="form-label">Descripción</label>
+            <label class="form-label">
+              Descripción
+            </label>
+
             <textarea class="form-control" name="descripcion" rows="3"
               placeholder="Describe de qué trata esta clase..."></textarea>
           </div>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">
+                Fecha de inicio
+              </label>
+
+              <input type="date" class="form-control" name="fecha_inicio">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">
+                Fecha de finalización
+              </label>
+
+              <input type="date" class="form-control" name="fecha_fin">
+            </div>
+
+          </div>
+
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+
+              <label class="form-label">
+                Máximo de estudiantes
+              </label>
+
+              <input type="number" class="form-control" name="max_estudiantes" value="35" min="1" max="100">
+
+            </div>
+
+            <div class="col-md-6 mb-3">
+
+              <label class="form-label">
+                Nivel previo (opcional)
+              </label>
+
+              <select class="form-select" name="nivel_previo">
+                <option value="">Ninguno</option>
+
+                {% for clase in clases_docente %}
+                <option value="{{ clase.id }}">
+                  {{ clase.nombre }}
+                </option>
+                {% endfor %}
+
+              </select>
+
+            </div>
+
+          </div>
+
           <div class="mb-3">
-            <label class="form-label">Imagen de portada (opcional)</label>
-            <input type="file" class="form-control" name="imagen" accept="image/*" style="padding: 0.5rem !important;">
+            <label class="form-label">
+              Imagen de portada (opcional)
+            </label>
+
+            <input type="file" class="form-control" name="imagen" accept="image/*" style="padding:.5rem!important;">
           </div>
+
           <div class="alert-info-spotify">
-            <i class="bi bi-info-circle"></i>
-            Se generará un código único automáticamente para que los estudiantes puedan unirse.
+            <i class="bi bi-info-circle me-2"></i>
+
+            Se generará automáticamente un código único de acceso para que los estudiantes puedan unirse a la clase.
           </div>
+
         </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn-spotify-purple">Crear clase</button>
+
+          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">
+            Cancelar
+          </button>
+
+          <button type="submit" class="btn-spotify-purple">
+            Crear clase
+          </button>
+
         </div>
+
       </form>
+
     </div>
   </div>
 </div>
