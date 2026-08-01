@@ -24,6 +24,11 @@
     <h3 class="section-title">
       <i class="bi bi-info-circle-fill"></i> Información del Ejercicio
     </h3>
+    
+    <div class="mb-3">
+      <label for="fecha-limite" class="form-label-custom">Fecha y hora de entrega</label>
+      <input type="datetime-local" id="fecha-limite" class="form-control-custom">
+    </div>
 
     <div class="mb-3">
       <label class="form-label-custom">Título del Ejercicio <span style="color: var(--danger);">*</span></label>
@@ -138,8 +143,6 @@ function agregarPreguntaHTML() {
   
   contenedor.appendChild(div);
   actualizarContador();
-  
-  // Scroll to new question
   div.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
@@ -204,6 +207,10 @@ function eliminarOpcion(btn) {
 function guardarTodo() {
   const titulo = document.getElementById('titulo-ejercicio').value.trim();
   const descripcion = document.getElementById('desc-ejercicio').value.trim();
+  
+  const fechaLimiteInput = document.getElementById('fecha-limite');
+  const fecha_limite = fechaLimiteInput ? fechaLimiteInput.value : null;
+
   const tarjetas = document.querySelectorAll('.tarjeta-pregunta');
   
   if (!titulo) {
@@ -267,7 +274,6 @@ function guardarTodo() {
     return;
   }
 
-  // Enviar por fetch
   fetch(window.location.href, {
     method: 'POST',
     headers: {
@@ -277,6 +283,7 @@ function guardarTodo() {
     body: JSON.stringify({ 
       titulo: titulo, 
       descripcion: descripcion, 
+      fecha_limite: fecha_limite, 
       preguntas: preguntas 
     })
   })
@@ -295,7 +302,7 @@ function guardarTodo() {
   });
 }
 
-// Iniciar con una pregunta por defecto
+// Inicializar cargando la primera pregunta por defecto
 document.addEventListener('DOMContentLoaded', function() {
   agregarPreguntaHTML();
 });
