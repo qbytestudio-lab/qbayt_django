@@ -18,9 +18,9 @@ urlpatterns = [
     path('curso/<int:curso_id>/agregar/', views.agregar_curso, name='agregar_curso'),
     path('curso/<int:curso_id>/eliminar/', views.eliminar_curso, name='eliminar_curso'),
     path('calendario/', views.calendario, name='calendario'),
-    # ─── RUTAS DEL ADMINISTRADOR ───
     path('admin-login/', views.admin_login_view, name='admin_login'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/logout/', views.admin_logout_view, name='admin_logout'),
     path('crear-curso/',views.crear_curso, name='crear_curso'),
+    
 ]

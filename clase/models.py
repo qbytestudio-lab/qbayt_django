@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Clase(models.Model):
     nombre = models.CharField(max_length=100)
@@ -13,7 +14,9 @@ class Clase(models.Model):
     nivel_previo = models.ForeignKey(
         'self', null=True, blank=True, on_delete=models.SET_NULL, related_name='nivel_siguiente'
     )
-    max_estudiantes = models.PositiveIntegerField(default=35)
+    max_estudiantes = models.PositiveIntegerField(default=35,validators=[MinValueValidator(1),
+        MaxValueValidator(35)
+    ])
     fecha_inicio = models.DateField(null=True, blank=True)
     fecha_fin = models.DateField(null=True, blank=True)
 

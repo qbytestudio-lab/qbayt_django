@@ -18,16 +18,29 @@ def crear_clase(request):
         descripcion = request.POST.get('descripcion', '').strip()
         imagen = request.FILES.get('imagen')
 
+        max_estudiantes = request.POST.get('max_estudiantes')
+        fecha_inicio = request.POST.get('fecha_inicio') or None
+        fecha_fin = request.POST.get('fecha_fin') or None
+        nivel_previo_id = request.POST.get('nivel_previo')
+
+        nivel_previo = None
+        if nivel_previo_id:
+            nivel_previo = Clase.objects.filter(id=nivel_previo_id).first()
+
         if nombre:
             try:
                 clase = Clase(
                     nombre=nombre,
                     descripcion=descripcion,
                     docente=request.user,
-                    imagen=imagen
+                    imagen=imagen,
+                    max_estudiantes=max_estudiantes,
+                    fecha_inicio=fecha_inicio,
+                    fecha_fin=fecha_fin,
+                    nivel_previo=nivel_previo,
                 )
 
-                clase.full_clean()   # Ejecuta clean()
+                clase.full_clean()   # Ejecuta TODOS los validadores
                 clase.save()
 
                 messages.success(request, 'Clase creada exitosamente.')
