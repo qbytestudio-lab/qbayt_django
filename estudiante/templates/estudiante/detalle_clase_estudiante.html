@@ -58,10 +58,10 @@
 <!-- CONTENT LAYOUT -->
 <div class="class-content">
   
-  <!-- LEFT COLUMN: Lessons & Announcements -->
+  <!-- LEFT COLUMN -->
   <div class="class-main">
     
-    <!-- EJERCICIOS DE LA CLASE -->
+    <!-- EJERCICIOS -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -72,87 +72,93 @@
       </div>
 
       {% if ejercicios %}
-        <div class="lessons-list">
-          {% for ejercicio in ejercicios %}
-          <div class="lesson-item">
-            
-            <div class="lesson-header" onclick="toggleLesson(this)">
-              <div class="lesson-number available">
-                {{ forloop.counter }}
-              </div>
-              <div class="lesson-info">
-                <div class="lesson-title">{{ ejercicio.titulo }}</div>
-                {% if ejercicio.descripcion %}
-                <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
-                {% endif %}
-              </div>
-              
-              <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
-                {% with intento=ejercicio.mi_intento %}
-                    {% if intento %}
-                        {% if intento.calificacion is not None %}
-                            <span class="status-badge" style="background: rgba(29,185,84,0.15); color: #1db954;">
-                                <i class="bi bi-check-circle-fill"></i> Nota: {{ intento.calificacion }}
-                            </span>
-                        {% else %}
-                            <span class="status-badge" style="background: rgba(255,159,67,0.15); color: #ff9f43;">
-                                <i class="bi bi-clock-fill"></i> Pendiente
-                            </span>
-                        {% endif %}
-                    {% else %}
-                        <!-- CORREGIDO: Usando el namespace estudiante: -->
-                        <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge text-decoration-none">
-                            <i class="bi bi-play-fill"></i> Resolver
-                        </a>
-                    {% endif %}
-                {% endwith %}
-                <i class="bi bi-chevron-down text-muted" style="font-size: 0.8rem; transition: transform 0.2s;"></i>
-              </div>
-            </div>
-
-            <!-- Retroalimentación si existe -->
-            {% with intento=ejercicio.mi_intento %}
-              {% if intento and intento.retroalimentacion %}
-                <div class="px-3 pb-2 pt-1 text-muted" style="font-size: 0.78rem; border-top: 1px solid rgba(255,255,255,0.03);">
-                  💬 <strong class="text-white">Feedback docente:</strong> {{ intento.retroalimentacion }}
-                </div>
+        {% for ejercicio in ejercicios %}
+        <div class="lesson-item">
+          
+          <div class="lesson-header" onclick="toggleLesson(this)">
+            <div class="lesson-number available">{{ forloop.counter }}</div>
+            <div class="lesson-info">
+              <div class="lesson-title">{{ ejercicio.titulo }}</div>
+              {% if ejercicio.descripcion %}
+              <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
               {% endif %}
-            {% endwith %}
-
-            <!-- Preguntas desplegables -->
-            {% if ejercicio.preguntas.all %}
-            <div class="lesson-activities" style="display: none;">
-              <div class="d-flex flex-column gap-1">
-                {% for pregunta in ejercicio.preguntas.all %}
-                <div class="activity-item">
-                  <div class="activity-icon document">
-                    <i class="bi bi-patch-question-fill"></i>
-                  </div>
-                  <div class="activity-info">
-                    <div class="activity-title text-white">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
-                    <div class="activity-type">Pregunta {{ forloop.counter }}</div>
-                  </div>
-                </div>
-                {% endfor %}
-              </div>
-              
-              <!-- Enlace general para resolver el cuestionario dentro del desplegable -->
-              <div class="mt-3 pt-2 border-top text-end">
-                {% if ejercicio.ya_respondio_por_usuario %}
-                  <span class="badge bg-success">Completado (Nota: 10.0)</span>
+            </div>
+            
+            <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
+              {% with intento=ejercicio.mi_intento %}
+                {% if intento %}
+                  {% if intento.calificacion is not None %}
+                  <span class="status-badge" style="background: rgba(29,185,84,0.15); color: #1db954; border: 1px solid rgba(29,185,84,0.2);">
+                    <i class="bi bi-check-circle-fill"></i> {{ intento.calificacion }}/5.0
+                  </span>
+                  {% else %}
+                  <span class="status-badge" style="background: rgba(255,159,67,0.15); color: #ff9f43; border: 1px solid rgba(255,159,67,0.2);">
+                    <i class="bi bi-clock-fill"></i> Pendiente
+                  </span>
+                  {% endif %}
                 {% else %}
-                  <!-- CORREGIDO: Usando el namespace estudiante: -->
-                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="text-purple text-decoration-none fw-bold" style="font-size: 0.85rem;">
-                    Ir a Resolver Cuestionario completo →
+                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge">
+                    <i class="bi bi-play-fill"></i> Resolver
                   </a>
                 {% endif %}
+              {% endwith %}
+              <i class="bi bi-chevron-down text-muted" style="font-size: 0.8rem; transition: transform 0.2s;"></i>
+            </div>
+          </div>
+
+          <!-- FEEDBACK DEL DOCENTE (MEJORADO) -->
+          {% with intento=ejercicio.mi_intento %}
+            {% if intento and intento.retroalimentacion %}
+            <div class="feedback-section">
+              <div class="feedback-header">
+                <div class="feedback-icon">
+                  <i class="bi bi-chat-square-text-fill"></i>
+                </div>
+                <span class="feedback-label">Feedback del docente</span>
+                {% if intento.calificacion %}
+                <span class="feedback-score">
+                  <i class="bi bi-star-fill"></i> {{ intento.calificacion }}/5.0
+                </span>
+                {% endif %}
               </div>
+              <p class="feedback-text">{{ intento.retroalimentacion }}</p>
             </div>
             {% endif %}
+          {% endwith %}
 
+          <!-- PREGUNTAS DESPLEGABLES -->
+          {% if ejercicio.preguntas.all %}
+          <div class="lesson-activities" style="display: none;">
+            {% for pregunta in ejercicio.preguntas.all %}
+            <div class="activity-item">
+              <div class="activity-icon document">
+                <i class="bi bi-patch-question-fill"></i>
+              </div>
+              <div class="activity-info">
+                <div class="activity-title">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
+                <div class="activity-type">Pregunta {{ forloop.counter }} · {{ pregunta.opciones.count }} opciones</div>
+              </div>
+            </div>
+            {% endfor %}
+            
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
+              {% with intento=ejercicio.mi_intento %}
+                {% if intento and intento.calificacion is not None %}
+                <span class="status-badge" style="background: rgba(29,185,84,0.12); color: #1db954;">
+                  <i class="bi bi-check-circle-fill"></i> Completado
+                </span>
+                {% else %}
+                <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="resolve-link">
+                  Ir a resolver <i class="bi bi-arrow-right"></i>
+                </a>
+                {% endif %}
+              {% endwith %}
+            </div>
           </div>
-          {% endfor %}
+          {% endif %}
+
         </div>
+        {% endfor %}
       {% else %}
         <div class="empty-state">
           <div class="empty-icon"><i class="bi bi-collection"></i></div>
@@ -161,7 +167,7 @@
       {% endif %}
     </div>
 
-    <!-- ANNOUNCEMENTS -->
+    <!-- ANUNCIOS -->
     {% if clase.anuncios.all %}
     <div class="section-card">
       <div class="section-card-header">
@@ -172,31 +178,27 @@
         <span class="section-badge">{{ clase.anuncios.all|length }}</span>
       </div>
       
-      <div class="d-flex flex-column">
-        {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
-        <div class="announcement-item">
-          <div class="announcement-header">
-            <div class="announcement-avatar">
-              {{ clase.docente.username|first|upper }}
-            </div>
-            <div>
-              <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-              <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-            </div>
+      {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
+      <div class="announcement-item">
+        <div class="announcement-header">
+          <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
+          <div>
+            <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+            <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
           </div>
-          <p class="announcement-text">{{ anuncio.texto }}</p>
         </div>
-        {% endfor %}
+        <p class="announcement-text">{{ anuncio.texto }}</p>
       </div>
+      {% endfor %}
     </div>
     {% endif %}
 
   </div>
 
-  <!-- RIGHT COLUMN: Sidebar (Docente y Compañeros) -->
+  <!-- RIGHT COLUMN -->
   <div class="class-sidebar">
     
-    <!-- TEACHER CARD -->
+    <!-- DOCENTE -->
     <div class="section-card">
       <div class="section-card-header" style="margin-bottom: 0.75rem;">
         <h3 class="section-card-title">
@@ -206,20 +208,16 @@
       </div>
       
       <div class="teacher-card">
-        <div class="teacher-avatar">
-          {{ clase.docente.username|first|upper }}
-        </div>
+        <div class="teacher-avatar">{{ clase.docente.username|first|upper }}</div>
         <div class="teacher-info">
           <div class="teacher-name">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-          <div class="teacher-email text-truncate">
-            <i class="bi bi-envelope"></i> {{ clase.docente.email }}
-          </div>
+          <div class="teacher-email"><i class="bi bi-envelope"></i> {{ clase.docente.email }}</div>
           <span class="teacher-badge">Docente</span>
         </div>
       </div>
     </div>
 
-    <!-- CLASSMATES -->
+    <!-- COMPAÑEROS -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -232,10 +230,10 @@
       <div class="classmates-list" style="max-height: 320px; overflow-y: auto;">
         {% for estudiante in clase.estudiantes.all %}
         <div class="classmate-item">
-          <div class="classmate-avatar color-{{ forloop.counter0|divisibleby:5|yesno:'1,2' }}">
+          <div class="classmate-avatar color-{{ forloop.counter|divisibleby:2|yesno:'1,2' }}">
             {{ estudiante.username|first|upper }}
           </div>
-          <div class="classmate-info overflow-hidden">
+          <div class="classmate-info">
             <div class="classmate-name text-truncate">{{ estudiante.get_full_name|default:estudiante.username }}</div>
             <div class="classmate-username">@{{ estudiante.username }}</div>
           </div>
@@ -260,26 +258,45 @@
     const activities = lessonItem.querySelector('.lesson-activities');
     const chevron = header.querySelector('.bi-chevron-down');
     
-    if (activities) {
-      const isHidden = activities.style.display === 'none' || activities.style.display === '';
+    if (!activities) return;
+    
+    const isCurrentlyOpen = activities.style.display === 'block';
+    
+    // Cerrar todas
+    document.querySelectorAll('.lesson-activities').forEach(el => {
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.bi-chevron-down').forEach(el => {
+      el.style.transform = 'rotate(0deg)';
+    });
+    
+    // Abrir actual si estaba cerrada
+    if (!isCurrentlyOpen) {
+      activities.style.display = 'block';
+      if (chevron) chevron.style.transform = 'rotate(180deg)';
       
-      // Cerrar las demás secciones desplegables
-      document.querySelectorAll('.lesson-activities').forEach(el => {
-        el.style.display = 'none';
-      });
-      document.querySelectorAll('.lesson-header .bi-chevron-down').forEach(el => {
-        el.style.transform = 'rotate(0deg)';
-      });
-      
-      // Alternar la actual
-      if (isHidden) {
-        activities.style.display = 'block';
-        if (chevron) chevron.style.transform = 'rotate(180deg)';
-      } else {
-        activities.style.display = 'none';
-        if (chevron) chevron.style.transform = 'rotate(0deg)';
-      }
+      // Scroll suave
+      setTimeout(() => {
+        lessonItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }, 150);
     }
   }
+
+  // Animación al scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = '1';
+        entry.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.lesson-item, .announcement-item').forEach((item, i) => {
+    item.style.opacity = '0';
+    item.style.transform = 'translateY(15px)';
+    item.style.transition = `all 0.4s ease ${i * 0.05}s`;
+    observer.observe(item);
+  });
 </script>
-{% endblock %}
+{% endblock %}   

@@ -1,62 +1,138 @@
 {% extends 'web/base.html' %}
 {% load static %}
 
+{% block title %}Calificar Intento — QBYT{% endblock %}
+
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'ejercicios/css/calificar_ejercicios.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <a href="{% url 'detalle_ejercicio_docente' intento.ejercicio.clase.id intento.ejercicio.id %}"
-        class="btn btn-outline-light mb-3">← Volver al ejercicio</a>
 
-    <div class="card bg-dark text-white p-4 mb-4">
-        <h2>Calificar Intento de: {{ intento.estudiante.username }}</h2>
-        <p class="text-muted">Ejercicio: {{ intento.ejercicio.titulo }} — Enviado el: 
-            {{ intento.fecha_envio|date:"d M Y H:i" }}</p>
-    </div>
+<div class="calificar-container">
 
-    <!-- Respuestas seleccionadas por el estudiante -->
-    <div class="mb-4">
-    <h3 class="text-white mb-3">Respuestas del Estudiante</h3>
-    
-    {% for respuesta in respuestas %}
-    <div class="card bg-dark text-white border-secondary p-3 mb-3">
-        <h5 class="text-primary mb-2">Pregunta: {{ respuesta.pregunta.enunciado }}</h5>
-        <p class="mb-0">
-            <strong>Respuesta seleccionada:</strong> 
-            <span class="text-info">{{ respuesta.opcion_seleccionada.texto_opcion }}</span>
-        </p>
-    </div>
-    {% empty %}
-    <p class="text-muted">No hay respuestas registradas para este intento.</p>
-    {% endfor %}
-</div>
-
-    <!-- Formulario para asignar la nota -->
-    <div class="card bg-dark text-white p-4 mt-4">
-        <form method="POST">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label class="form-label">Calificación (Ej. 0.0 o 5.0)</label>
-                <input type="number" 
-                        min="1.0" max="5.0" step="0.1" 
-                        name="calificacion" 
-                        class="form-control"
-                        value="{{ intento.calificacion|default:'' }}" required>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Retroalimentación / Comentarios</label>
-                <textarea name="retroalimentacion" class="form-control"
-                    rows="3">{{ intento.retroalimentacion|default:'' }}</textarea>
-            </div>
-            <div class="mt-3">
-    <a href="{% url 'reenviar_ejercicio' intento.id %}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
-        <i class="bi bi-arrow-counterclockwise"></i> Rechazar y Reenviar Ejercicio
+  <!-- BACK NAVIGATION -->
+  <div class="back-nav">
+    <a href="{% url 'detalle_ejercicio_docente' intento.ejercicio.clase.id intento.ejercicio.id %}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Volver al ejercicio
     </a>
-</div>
-            <button type="submit" class="btn btn-success btn-lg">Guardar Calificación</button>
-        </form>
+  </div>
+
+  <!-- STUDENT INFO CARD -->
+  <div class="student-info-card">
+    <div class="student-avatar">
+      {{ intento.estudiante.username|first|upper }}
     </div>
+    <div class="student-details">
+      <h2 class="student-name">
+        Calificar intento de {{ intento.estudiante.get_full_name|default:intento.estudiante.username }}
+      </h2>
+      <div class="student-meta">
+        <span class="meta-item">
+          <i class="bi bi-journal-text"></i>
+          Ejercicio: <strong>{{ intento.ejercicio.titulo }}</strong>
+        </span>
+        <span class="meta-divider">·</span>
+        <span class="meta-item">
+          <i class="bi bi-clock"></i>
+          Enviado el {{ intento.fecha_envio|date:"d M Y, H:i" }}
+        </span>
+      </div>
+    </div>
+    {% if intento.calificacion %}
+    <div class="current-score">
+      <span class="score-value">{{ intento.calificacion }}</span>
+      <span class="score-label">Nota actual</span>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- STUDENT RESPONSES -->
+  <div class="section-header">
+    <h3 class="section-title">
+      <i class="bi bi-chat-square-text"></i>
+      Respuestas del estudiante
+    </h3>
+    <span class="section-badge">{{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}</span>
+  </div>
+
+  {% if respuestas %}
+  <div class="responses-grid">
+    {% for respuesta in respuestas %}
+    <div class="response-card">
+      <div class="response-number">{{ forloop.counter }}</div>
+      <div class="response-content">
+        <h4 class="response-question">{{ respuesta.pregunta.enunciado }}</h4>
+        <div class="response-answer">
+          <i class="bi bi-check-circle-fill"></i>
+          <span>Respuesta seleccionada:</span>
+          <strong>{{ respuesta.opcion_seleccionada.texto_opcion }}</strong>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-inbox"></i>
+    <p>No hay respuestas registradas para este intento.</p>
+  </div>
+  {% endif %}
+
+  <!-- CALIFICATION FORM -->
+  <div class="section-header" style="margin-top: 2.5rem;">
+    <h3 class="section-title">
+      <i class="bi bi-pencil-square"></i>
+      Formulario de calificación
+    </h3>
+  </div>
+
+  <div class="form-card">
+    <form method="POST">
+      {% csrf_token %}
+      
+      <!-- Calificación -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-percent"></i> Calificación
+          <span class="required">*</span>
+        </label>
+        <div class="score-input-wrapper">
+          <input type="number" min="1.0" max="5.0" step="0.1" name="calificacion" 
+                 class="form-control score-input" 
+                 value="{{ intento.calificacion|default:'' }}" 
+                 placeholder="0.0" required>
+          <span class="score-suffix">/5.0</span>
+        </div>
+      </div>
+
+      <!-- Retroalimentación -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-chat-dots"></i> Retroalimentación / Comentarios
+          <span class="optional">(opcional)</span>
+        </label>
+        <textarea name="retroalimentacion" class="form-control textarea-custom" rows="4" 
+                  placeholder="Escribe comentarios, observaciones y sugerencias para el estudiante...">{{ intento.retroalimentacion|default:'' }}</textarea>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="form-actions">
+        <a href="{% url 'reenviar_ejercicio' intento.id %}" 
+           class="btn-reject"
+           onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          Rechazar y reenviar ejercicio
+        </a>
+        <button type="submit" class="btn-save">
+          <i class="bi bi-check-lg"></i>
+          Guardar calificación
+        </button>
+      </div>
+
+    </form>
+  </div>
+
 </div>
+
 {% endblock %}
