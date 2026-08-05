@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.http import JsonResponse
 from clase.models import Clase
-from .models import Ejercicio, Pregunta, Opcion, RespuestaEstudiante, IntentoEjercicio
+from .models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
 
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -134,33 +134,7 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
         'intentos': intentos
     })
 
-def resolver_ejercicio(request, clase_id, ejercicio_id):
-    clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
 
-    if request.method == 'POST':
-        # Creamos el intento usando el usuario autenticado actual
-        intento = IntentoEjercicio.objects.create(
-            estudiante=request.user,
-            ejercicio=ejercicio
-        )
-        
-        # Guardar las respuestas enviadas por el formulario...
-        for pregunta in ejercicio.preguntas.all():
-            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
-            if opcion_id:
-                opcion = Opcion.objects.get(id=opcion_id)
-                RespuestaEstudiante.objects.create(
-                    intento=intento,
-                    pregunta=pregunta,
-                    opcion_seleccionada=opcion
-                )
-        return redirect('detalle_clase', clase_id=clase.id) # O a donde desees redirigir
-
-    return render(request, 'ejercicios/resolver_ejercicio.html', {
-        'clase': clase,
-        'ejercicio': ejercicio
-    })
 
 # VISTA DEL DOCENTE: Calificar el intento de un estudiante
 def calificar_ejercicio(request, intento_id):
@@ -220,3 +194,38 @@ def reenviar_ejercicio(request, intento_id):
     
     messages.warning(request, "El ejercicio ha sido reenviado para que el estudiante lo vuelva a realizar.")
     return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
+
+
+def responder_actividad(request, pregunta_id): # Aquí 'pregunta_id' es el ID del Ejercicio
+    ejercicio = get_object_or_404(Ejercicio, id=pregunta_id)
+    clase = ejercicio.clase
+
+    if request.method == 'POST':
+        # 1. Creamos o recuperamos el intento de forma segura para soportar reenvíos
+        intento, created = IntentoEjercicio.objects.get_or_create(
+            estudiante=request.user,
+            ejercicio=ejercicio
+        )
+
+        # Limpiamos respuestas anteriores si se está reenviando
+        intento.respuestas.all().delete()
+
+        # 2. Guardamos las respuestas nuevas del formulario
+        for pregunta in ejercicio.preguntas.all():
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_id:
+                opcion_seleccionada = get_object_or_404(Opcion, id=opcion_id)
+                RespuestaEstudiante.objects.create(
+                    intento=intento,
+                    pregunta=pregunta,
+                    opcion_seleccionada=opcion_seleccionada
+                )
+
+        messages.success(request, "¡Ejercicio enviado con éxito! Quedó pendiente de calificación.")
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+
+    # 3. Renderizamos utilizando la plantilla moderna dentro de ejercicios
+    return render(request, 'ejercicios/resolver_ejercicio.html', {
+        'ejercicio': ejercicio,
+        'clase': clase,
+    })

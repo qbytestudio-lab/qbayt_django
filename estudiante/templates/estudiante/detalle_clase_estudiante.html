@@ -101,7 +101,7 @@
                         {% endif %}
                     {% else %}
                         <!-- CORREGIDO: Usando el namespace estudiante: -->
-                        <a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="status-badge available-badge text-decoration-none">
+                        <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge text-decoration-none">
                             <i class="bi bi-play-fill"></i> Resolver
                         </a>
                     {% endif %}
@@ -142,7 +142,7 @@
                   <span class="badge bg-success">Completado (Nota: 10.0)</span>
                 {% else %}
                   <!-- CORREGIDO: Usando el namespace estudiante: -->
-                  <a href="{% url 'estudiante:responder_actividad' ejercicio.id %}" class="text-purple text-decoration-none fw-bold" style="font-size: 0.85rem;">
+                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="text-purple text-decoration-none fw-bold" style="font-size: 0.85rem;">
                     Ir a Resolver Cuestionario completo →
                   </a>
                 {% endif %}

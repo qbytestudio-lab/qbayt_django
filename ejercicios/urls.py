@@ -7,7 +7,7 @@ urlpatterns = [
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/editar/', views.editar_ejercicio, name='editar_ejercicio'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/', views.detalle_ejercicio_docente, name='detalle_ejercicio_docente'),
-    path('resolver/<int:clase_id>/<int:ejercicio_id>/', views.resolver_ejercicio, name='resolver_ejercicio'),
+    path('resolver/<int:pregunta_id>/', views.responder_actividad, name='resolver_ejercicio'),
     path('calificar/<int:intento_id>/', views.calificar_ejercicio, name='calificar_ejercicio'),
     path('intento/<int:intento_id>/reenviar/', views.reenviar_ejercicio, name='reenviar_ejercicio'),
 ]
