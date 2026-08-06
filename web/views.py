@@ -180,15 +180,41 @@ def eliminar_perfil(request):
 
 @login_required
 def cursos(request):
-    if request.user.perfil.rol == 'estudiante':
-        inscripciones = InscripcionCurso.objects.filter(estudiante=request.user).select_related('curso')
-        cursos_inscritos_ids = inscripciones.values_list('curso_id', flat=True)
-        catalogo = Curso.objects.exclude(id__in=cursos_inscritos_ids)
-        return render(request, 'clase/cursos.html', {
-            'inscripciones': inscripciones,
-            'catalogo': catalogo,
-        })
-    return render(request, 'clase/cursos.html', {})
+    # Verificar si el usuario es docente
+    es_docente = request.user.perfil.rol == 'docente'
+    es_estudiante = request.user.perfil.rol == 'estudiante'
+    
+    # Obtener inscripciones del usuario
+    inscripciones = InscripcionCurso.objects.filter(
+        estudiante=request.user
+    ).select_related('curso').order_by('-fecha_inscripcion')
+    
+    # IDs de cursos a los que está inscrito
+    cursos_inscritos_ids = inscripciones.values_list('curso_id', flat=True)
+    inscrito_ids = [str(id) for id in cursos_inscritos_ids]
+    
+    # Obtener cursos creados por el usuario (si es docente)
+    cursos_creados = []
+    if es_docente or request.user.is_superuser:
+        cursos_creados = Curso.objects.filter(creado_por=request.user).order_by('-fecha_creacion')
+    
+    # Catálogo: todos los cursos disponibles
+    catalogo = Curso.objects.all().order_by('nombre')
+    
+    # Para estudiantes: ocultar cursos ya inscritos
+    if es_estudiante:
+        catalogo = Curso.objects.exclude(id__in=cursos_inscritos_ids).order_by('nombre')
+    
+    context = {
+        'inscripciones': inscripciones,
+        'catalogo': catalogo,
+        'inscrito_ids': inscrito_ids,
+        'cursos_creados': cursos_creados,  # ✅ PASAMOS los cursos creados
+        'es_docente': es_docente,
+        'es_estudiante': es_estudiante,
+    }
+    
+    return render(request, 'clase/cursos.html', context)
 
 
 @login_required
@@ -198,18 +224,39 @@ def agregar_curso(request, curso_id):
     messages.success(request, f'Te uniste a "{curso.nombre}".')
     return redirect('cursos')
 
+
 @login_required
 def crear_curso(request):
+    # SOLO AGREGAMOS: verificación de permisos
+    if request.user.perfil.rol != 'docente' and not request.user.is_superuser:
+        messages.error(request, 'No tienes permiso para crear cursos')
+        return redirect('cursos')
+    
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         descripcion = request.POST.get('descripcion')
         categoria = request.POST.get('categoria')
+        nivel = request.POST.get('nivel', 'basico')  #  NUEVO: campo adicional
+        duracion_horas = request.POST.get('duracion_horas', 0)  #  NUEVO
+        imagen_url = request.POST.get('imagen_url')  #  NUEVO
+        icono = request.POST.get('icono', 'bi-book')  #  NUEVO
 
-        Curso.objects.create(
+        # CREAMOS el curso con todos los campos
+        curso = Curso.objects.create(
             nombre=nombre,
             descripcion=descripcion,
-            categoria=categoria
+            categoria=categoria,
+            nivel=nivel,
+            duracion_horas=duracion_horas or 0,
+            imagen_url=imagen_url,
+            icono=icono,
+            creado_por=request.user  # NUEVO: quién lo creó
         )
+        
+        # Procesar imagen si se subió
+        if request.FILES.get('imagen'):
+            curso.imagen = request.FILES['imagen']
+            curso.save()
 
         messages.success(request, "Curso creado correctamente.")
         return redirect('cursos')
@@ -221,6 +268,65 @@ def eliminar_curso(request, curso_id):
     InscripcionCurso.objects.filter(estudiante=request.user, curso_id=curso_id).delete()
     messages.success(request, 'Dejaste de seguir el curso.')
     return redirect('cursos')
+
+@login_required
+def eliminar_curso_propio(request, curso_id):
+    """
+    Eliminar un curso creado por el docente
+    Solo el docente que lo creó o un admin puede eliminarlo
+    """
+    curso = get_object_or_404(Curso, id=curso_id)
+    
+    # Verificar permisos
+    if request.user.perfil.rol == 'docente' or request.user.is_superuser:
+        # Verificar que el docente sea el creador o sea admin
+        if curso.creado_por == request.user or request.user.is_superuser:
+            nombre_curso = curso.nombre
+            curso.delete()
+            messages.success(request, f'El curso "{nombre_curso}" fue eliminado correctamente.')
+        else:
+            messages.error(request, 'No tienes permiso para eliminar este curso.')
+    else:
+        messages.error(request, 'Solo los docentes pueden eliminar cursos.')
+    
+    return redirect('cursos')
+
+@login_required
+def detalle_curso(request, curso_id):
+    """
+    Vista de detalle del curso - Para ver contenido y gestionar
+    """
+    curso = get_object_or_404(Curso, id=curso_id)
+    
+    # Verificar si el usuario está inscrito
+    esta_inscrito = InscripcionCurso.objects.filter(
+        estudiante=request.user, 
+        curso=curso
+    ).exists()
+    
+    # Verificar si el usuario es el creador (docente)
+    es_creador = curso.creado_por == request.user
+    
+    # Obtener inscripciones (estudiantes inscritos)
+    inscripciones = InscripcionCurso.objects.filter(curso=curso).select_related('estudiante')
+    
+    # Obtener progreso del usuario si está inscrito
+    progreso_usuario = 0
+    if esta_inscrito:
+        insc = InscripcionCurso.objects.get(estudiante=request.user, curso=curso)
+        progreso_usuario = insc.progreso
+    
+    context = {
+        'curso': curso,
+        'esta_inscrito': esta_inscrito,
+        'es_creador': es_creador,
+        'inscripciones': inscripciones,
+        'progreso_usuario': progreso_usuario,
+        'total_estudiantes': inscripciones.count(),
+    }
+    
+    return render(request, 'clase/detalle_curso.html', context)
+
 
 
 @login_required

@@ -13,130 +13,196 @@
 
 <!-- HERO SECTION -->
 <div class="cursos-hero">
-  <div class="hero-content">
-    <h1 class="hero-title">Cursos</h1>
-    <p class="hero-subtitle">Descubre y sigue cursos a tu propio ritmo</p>
-  </div>
-
-  <div class="hero-stats">
-    <div class="hero-stat">
-      <div class="hero-stat-value">{{ inscripciones|length }}</div>
-      <div class="hero-stat-label">Siguiendo</div>
+    <div class="hero-content">
+        <h1 class="hero-title">Cursos</h1>
+        <p class="hero-subtitle">Descubre y sigue cursos a tu propio ritmo</p>
     </div>
-    <div class="hero-stat">
-      <div class="hero-stat-value">{{ catalogo|length }}</div>
-      <div class="hero-stat-label">Disponibles</div>
-    </div>
-  </div>
 
-  {% if request.user.perfil.rol == 'docente' or request.user.is_superuser %}
-  <button class="btn-create-course" data-bs-toggle="modal" data-bs-target="#modalCrearCurso" style="position:relative; z-index:1;">
-    <i class="bi bi-plus-circle-fill"></i> Crear nuevo curso
-  </button>
-  {% endif %}
+    <div class="hero-stats">
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ inscripciones|length }}</div>
+            <div class="hero-stat-label">Siguiendo</div>
+        </div>
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ catalogo|length }}</div>
+            <div class="hero-stat-label">Disponibles</div>
+        </div>
+        {% if es_docente %}
+        <div class="hero-stat">
+            <div class="hero-stat-value">{{ cursos_creados|length }}</div>
+            <div class="hero-stat-label">Mis cursos</div>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if es_docente or request.user.is_superuser %}
+    <button class="btn-create-course" data-bs-toggle="modal" data-bs-target="#modalCrearCurso" style="position:relative; z-index:1;">
+        <i class="bi bi-plus-circle-fill"></i> Crear nuevo curso
+    </button>
+    {% endif %}
 </div>
 
 <!-- ALERT MESSAGES -->
 {% if messages %}
 <div class="mb-3">
-  {% for message in messages %}
-  <div class="alert-spotify alert-dismissible fade show" role="alert">
-    <i class="bi bi-check-circle-fill"></i>
-    {{ message }}
-    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="margin-left: auto;"></button>
-  </div>
-  {% endfor %}
+    {% for message in messages %}
+    <div class="alert-spotify alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i>
+        {{ message }}
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" style="margin-left: auto;"></button>
+    </div>
+    {% endfor %}
 </div>
 {% endif %}
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- MIS CURSOS -->
+<!-- MIS CURSOS (CURSOS INSCRITOS + CREADOS) -->
 <!-- ═══════════════════════════════════════════ -->
 
 <div class="section-header">
-  <h2 class="section-title">
-    <i class="bi bi-bookmark-star icon-purple"></i>
-    Mis cursos
-  </h2>
-  {% if inscripciones %}
-  <span class="section-count">{{ inscripciones|length }} curso{{ inscripciones|length|pluralize:"s" }}</span>
-  {% endif %}
+    <h2 class="section-title">
+        <i class="bi bi-bookmark-star icon-purple"></i>
+        Mis cursos
+    </h2>
+    {% if inscripciones or cursos_creados %}
+    <span class="section-count">{{ inscripciones|length|add:cursos_creados|length }} curso{{ inscripciones|length|add:cursos_creados|length|pluralize:"s" }}</span>
+    {% endif %}
 </div>
 
-{% if inscripciones %}
+{% if inscripciones or cursos_creados %}
 <div class="courses-grid">
-  {% for insc in inscripciones %}
-  <div class="course-card my-course">
+    <!-- Mostrar cursos INSCRITOS -->
+    {% for insc in inscripciones %}
+    <div class="course-card my-course">
+        <div class="course-card-image {% if insc.curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+             {% if insc.curso.imagen_url %}style="background-image: url('{{ insc.curso.imagen_url }}');"{% endif %}>
+            
+            {% if not insc.curso.imagen_url %}
+            <i class="bi {{ insc.curso.icono|default:'bi-book' }}"></i>
+            {% endif %}
 
-    <!-- Card Image -->
-    <div class="course-card-image {% if insc.curso.imagen_url %}has-image{% else %}no-image{% endif %}"
-         {% if insc.curso.imagen_url %}style="background-image: url('{{ insc.curso.imagen_url }}');"{% endif %}>
-      
-      {% if not insc.curso.imagen_url %}
-      <i class="bi {{ insc.curso.icono|default:'bi-book' }}"></i>
-      {% endif %}
-
-      <div class="course-card-overlay"></div>
-
-      <!-- Status Badge -->
-      <span class="course-status following">
-        <i class="bi bi-bookmark-check-fill"></i> Siguiendo
-      </span>
-
-      <!-- Play Button -->
-      <a href="#" class="course-play-btn">
-        <i class="bi bi-play-fill"></i>
-      </a>
-    </div>
-
-    <!-- Card Body -->
-    <div class="course-card-body">
-      <div class="course-meta">
-        <span class="course-category">{{ insc.curso.get_categoria_display }}</span>
-        <span class="course-level {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
-        <span class="course-duration">
-          <i class="bi bi-clock"></i> {{ insc.curso.duracion_horas }}h
-        </span>
-      </div>
-
-      <h3 class="course-title">{{ insc.curso.nombre }}</h3>
-
-      {% if insc.curso.descripcion %}
-      <p class="course-description">{{ insc.curso.descripcion|truncatechars:90 }}</p>
-      {% endif %}
-
-      <!-- Progress Bar -->
-      <div class="course-progress">
-        <div class="course-progress-info">
-          <span class="course-progress-text">Progreso</span>
-          <span class="course-progress-percent">{{ insc.progreso|default:'45' }}%</span>
+            <div class="course-card-overlay"></div>
+            <span class="course-status following">
+                <i class="bi bi-bookmark-check-fill"></i> Siguiendo
+            </span>
+            <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+            <a href="{% url 'detalle_curso' insc.curso.id %}" class="course-play-btn">
+                <i class="bi bi-play-fill"></i>
+            </a>
         </div>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" style="width: {{ insc.progreso|default:'45' }}%;"></div>
-        </div>
-      </div>
 
-      <!-- Footer -->
-      <div class="course-card-footer">
-        <a href="#" class="btn-course-primary">
-          <i class="bi bi-play-fill"></i> Continuar
-        </a>
-        <a href="{% url 'eliminar_curso' insc.curso.id %}"
-           onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')" 
-           class="btn-course-danger" title="Dejar de seguir">
-          <i class="bi bi-trash-fill"></i>
-        </a>
-      </div>
+        <div class="course-card-body">
+            <div class="course-meta">
+                <span class="course-category">{{ insc.curso.get_categoria_display }}</span>
+                <span class="course-level {{ insc.curso.nivel }}">{{ insc.curso.get_nivel_display }}</span>
+                <span class="course-duration">
+                    <i class="bi bi-clock"></i> {{ insc.curso.duracion_horas }}h
+                </span>
+            </div>
+
+            <h3 class="course-title">{{ insc.curso.nombre }}</h3>
+
+            {% if insc.curso.descripcion %}
+            <p class="course-description">{{ insc.curso.descripcion|truncatechars:90 }}</p>
+            {% endif %}
+
+            <div class="course-progress">
+                <div class="course-progress-info">
+                    <span class="course-progress-text">Progreso</span>
+                    <span class="course-progress-percent">{{ insc.progreso|default:'0' }}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-bar-fill" style="width: {{ insc.progreso|default:'0' }}%;"></div>
+                </div>
+            </div>
+
+            <div class="course-card-footer">
+                <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+                <a href="{% url 'detalle_curso' insc.curso.id %}" class="btn-course-primary">
+                    <i class="bi bi-play-fill"></i> Continuar
+                </a>
+                <a href="{% url 'eliminar_curso' insc.curso.id %}"
+                   onclick="return confirm('¿Dejar de seguir {{ insc.curso.nombre }}?')" 
+                   class="btn-course-danger" title="Dejar de seguir">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
+
+    <!-- Mostrar cursos CREADOS por el docente (si no están en inscripciones) -->
+    {% if es_docente %}
+        {% for curso in cursos_creados %}
+            {% if curso.id|stringformat:"i" not in inscrito_ids %}
+            <div class="course-card course-card-created">
+                <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+                     {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}">
+
+                    {% if not curso.imagen_url %}
+                    <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
+                    {% endif %}
+
+                    <div class="course-card-overlay"></div>
+                    <span class="course-status created-by-you">
+                        <i class="bi bi-pencil-fill"></i> Creado por ti
+                    </span>
+                    <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+                    <a href="{% url 'detalle_curso' curso.id %}" class="course-play-btn">
+                        <i class="bi bi-eye-fill"></i>
+                    </a>
+                </div>
+
+                <div class="course-card-body">
+                    <div class="course-meta">
+                        <span class="course-category">{{ curso.get_categoria_display }}</span>
+                        <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+                        <span class="course-duration">
+                            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+                        </span>
+                        <span class="course-creator">
+                            <i class="bi bi-people-fill"></i> {{ curso.inscripciones.count }} estudiantes
+                        </span>
+                    </div>
+
+                    <h3 class="course-title">{{ curso.nombre }}</h3>
+
+                    {% if curso.descripcion %}
+                    <p class="course-description">{{ curso.descripcion|truncatechars:90 }}</p>
+                    {% endif %}
+
+                    <div class="course-card-footer">
+                        <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+                        <a href="{% url 'detalle_curso' curso.id %}" class="btn-course-primary" style="background: #ff9f43;">
+                            <i class="bi bi-eye-fill"></i> Ver curso
+                        </a>
+                        <a href="#" class="btn-course-primary" style="background: #6c5ce7;">
+                            <i class="bi bi-pencil-fill"></i> Editar
+                        </a>
+                        <a href="{% url 'eliminar_curso_propio' curso.id %}"
+                           onclick="return confirm('¿Estás seguro de eliminar el curso {{ curso.nombre }}? Esta acción no se puede deshacer.')" 
+                           class="btn-course-danger" title="Eliminar curso">
+                            <i class="bi bi-trash-fill"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
 </div>
 {% else %}
 <div class="empty-state">
-  <div class="empty-icon">
-    <i class="bi bi-bookmark-star"></i>
-  </div>
-  <p class="empty-text">Aún no sigues ningún curso. ¡Explora el catálogo y elige uno!</p>
+    <div class="empty-icon">
+        <i class="bi bi-bookmark-star"></i>
+    </div>
+    <p class="empty-text">
+        {% if es_docente %}
+            No tienes cursos activos. ¡Crea tu primer curso!
+        {% else %}
+            Aún no sigues ningún curso. ¡Explora el catálogo y elige uno!
+        {% endif %}
+    </p>
 </div>
 {% endif %}
 
@@ -145,179 +211,316 @@
 <!-- ═══════════════════════════════════════════ -->
 
 <div class="section-header">
-  <h2 class="section-title">
-    <i class="bi bi-grid-fill icon-orange"></i>
-    Catálogo de cursos
-  </h2>
-  {% if catalogo %}
-  <span class="section-count">{{ catalogo|length }} disponible{{ catalogo|length|pluralize:"s" }}</span>
-  {% endif %}
+    <h2 class="section-title">
+        <i class="bi bi-grid-fill icon-orange"></i>
+        Catálogo de cursos
+    </h2>
+    {% if catalogo %}
+    <span class="section-count">{{ catalogo|length }} disponible{{ catalogo|length|pluralize:"s" }}</span>
+    {% endif %}
 </div>
 
 {% if catalogo %}
-<!-- Filter Bar -->
 <div class="filter-bar">
-  <button class="filter-pill active" onclick="filterCourses('all', this)">
-    <i class="bi bi-grid-fill"></i> Todos
-  </button>
-  <button class="filter-pill" onclick="filterCourses('teoria', this)">
-    <i class="bi bi-music-note-list"></i> Teoría
-  </button>
-  <button class="filter-pill" onclick="filterCourses('auditivo', this)">
-    <i class="bi bi-ear"></i> Auditivo
-  </button>
-  <button class="filter-pill" onclick="filterCourses('instrumento', this)">
-    <i class="bi bi-music-note-beamed"></i> Instrumento
-  </button>
+    <button class="filter-pill active" onclick="filterCourses('all', this)">
+        <i class="bi bi-grid-fill"></i> Todos
+    </button>
+    <button class="filter-pill" onclick="filterCourses('teoria', this)">
+        <i class="bi bi-music-note-list"></i> Teoría
+    </button>
+    <button class="filter-pill" onclick="filterCourses('auditivo', this)">
+        <i class="bi bi-ear"></i> Auditivo
+    </button>
+    <button class="filter-pill" onclick="filterCourses('instrumento', this)">
+        <i class="bi bi-music-note-beamed"></i> Instrumento
+    </button>
 
-  <div class="search-bar-mini">
-    <i class="bi bi-search"></i>
-    <input type="text" placeholder="Buscar curso..." id="courseSearch">
-  </div>
+    <div class="search-bar-mini">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar curso..." id="courseSearch">
+    </div>
 </div>
 
 <div class="courses-grid" id="catalogGrid">
-  {% for curso in catalogo %}
-  <div class="course-card" data-category="{{ curso.categoria }}">
+    {% for curso in catalogo %}
+    <div class="course-card" data-category="{{ curso.categoria }}">
+        <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+             {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}">
 
-    <!-- Card Image -->
-    <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
-         {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}>
+            {% if not curso.imagen_url %}
+            <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
+            {% endif %}
 
-      {% if not curso.imagen_url %}
-      <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
-      {% endif %}
+            <div class="course-card-overlay"></div>
+            
+            <!-- Badge "Disponible" en la parte superior -->
+            <span class="course-status available">
+                <i class="bi bi-plus-circle"></i> Disponible
+            </span>
 
-      <div class="course-card-overlay"></div>
+            <!-- Badge "Creado por ti" en la parte inferior (solo para docentes) -->
+            {% if es_docente and curso.creado_por == request.user %}
+            <span class="course-status created-by-you">
+                <i class="bi bi-pencil-fill"></i> Creado por ti
+            </span>
+            {% endif %}
 
-      <!-- Status Badge -->
-      <span class="course-status available">
-        <i class="bi bi-plus-circle"></i> Disponible
-      </span>
+            <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+            <a href="{% url 'detalle_curso' curso.id %}" class="course-play-btn">
+                <i class="bi bi-eye-fill"></i>
+            </a>
+        </div>
+
+        <div class="course-card-body">
+            <div class="course-meta">
+                <span class="course-category">{{ curso.get_categoria_display }}</span>
+                <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+                <span class="course-duration">
+                    <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+                </span>
+                {% if curso.creado_por %}
+                <span class="course-creator">
+                    <i class="bi bi-person"></i> {{ curso.creado_por.username }}
+                </span>
+                {% endif %}
+            </div>
+
+            <h3 class="course-title">{{ curso.nombre }}</h3>
+
+            {% if curso.descripcion %}
+            <p class="course-description">{{ curso.descripcion|truncatechars:90 }}</p>
+            {% endif %}
+
+            <div class="course-card-footer">
+                {% if es_estudiante %}
+                    {% if curso.id|stringformat:"i" in inscrito_ids %}
+                        <button class="btn-course-add" disabled>
+                            <i class="bi bi-check-circle-fill"></i> Ya inscrito
+                        </button>
+                    {% else %}
+                        <form action="{% url 'agregar_curso' curso.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-course-add" style="width:100%;">
+                                <i class="bi bi-plus-circle"></i> Agregar a mis cursos
+                            </button>
+                        </form>
+                    {% endif %}
+                {% elif es_docente %}
+                    {% if curso.id|stringformat:"i" in inscrito_ids %}
+                        <button class="btn-course-add" disabled>
+                            <i class="bi bi-check-circle-fill"></i> Ya inscrito
+                        </button>
+                    {% else %}
+                        <form action="{% url 'agregar_curso' curso.id %}" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-course-add" style="width:100%;">
+                                <i class="bi bi-plus-circle"></i> Inscribirme
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    {% if curso.creado_por == request.user %}
+                    <a href="{% url 'eliminar_curso_propio' curso.id %}"
+                       onclick="return confirm('¿Estás seguro de eliminar el curso {{ curso.nombre }}? Esta acción no se puede deshacer.')" 
+                       class="btn-delete-course" title="Eliminar curso permanentemente">
+                        <i class="bi bi-trash-fill"></i> Eliminar
+                    </a>
+                    {% endif %}
+                {% else %}
+                    <button class="btn-course-add" disabled>
+                        <i class="bi bi-info-circle"></i> Inicia sesión para inscribirte
+                    </button>
+                {% endif %}
+            </div>
+        </div>
     </div>
-
-    <!-- Card Body -->
-    <div class="course-card-body">
-      <div class="course-meta">
-        <span class="course-category">{{ curso.get_categoria_display }}</span>
-        <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
-        <span class="course-duration">
-          <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
-        </span>
-      </div>
-
-      <h3 class="course-title">{{ curso.nombre }}</h3>
-
-      {% if curso.descripcion %}
-      <p class="course-description">{{ curso.descripcion|truncatechars:90 }}</p>
-      {% endif %}
-
-      <!-- Footer -->
-      <div class="course-card-footer">
-        <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="flex:1; display:flex;">
-          {% csrf_token %}
-          <button type="submit" class="btn-course-add" style="width:100%;">
-            <i class="bi bi-plus-circle"></i> Agregar a mis cursos
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-  {% endfor %}
+    {% endfor %}
 </div>
 {% else %}
 <div class="empty-state">
-  <div class="empty-icon">
-    <i class="bi bi-check-circle"></i>
-  </div>
-  <p class="empty-text">¡Ya sigues todos los cursos disponibles!</p>
+    <div class="empty-icon">
+        <i class="bi bi-check-circle"></i>
+    </div>
+    <p class="empty-text">
+        {% if es_estudiante %}
+            ¡Ya estás inscrito en todos los cursos disponibles!
+        {% else %}
+            No hay cursos disponibles en este momento.
+        {% endif %}
+    </p>
 </div>
 {% endif %}
 
 <!-- ═══════════════════════════════════════════ -->
-<!-- MODAL: CREAR CURSO -->
+<!-- MIS CURSOS CREADOS (SOLO DOCENTES) -->
 <!-- ═══════════════════════════════════════════ -->
 
-{% if request.user.perfil.rol == 'docente' or request.user.is_superuser %}
-<div class="modal fade" id="modalCrearCurso" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">
-          <i class="bi bi-plus-circle-fill me-2" style="color: #ff9f43;"></i>
-          Crear nuevo curso
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-      </div>
-      <form action="{% url 'crear_curso' %}" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="modal-body">
-          
-          <div class="mb-3">
-            <label class="form-label">Nombre del curso <span style="color: #e91429;">*</span></label>
-            <input type="text" class="form-control" name="nombre" 
-                   placeholder="Ej: Teoría Musical Básica" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Descripción</label>
-            <textarea class="form-control" name="descripcion" rows="3" 
-                      placeholder="Describe de qué trata el curso..."></textarea>
-          </div>
-
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <label class="form-label">Categoría</label>
-              <select class="form-select" name="categoria">
-                <option value="teoria">🎵 Teoría Musical</option>
-                <option value="auditivo">👂 Entrenamiento Auditivo</option>
-                <option value="instrumento">🎸 Instrumento</option>
-              </select>
-            </div>
-            <div class="col-md-6">
-              <label class="form-label">Nivel</label>
-              <select class="form-select" name="nivel">
-                <option value="basico">🟢 Básico</option>
-                <option value="intermedio">🟠 Intermedio</option>
-                <option value="avanzado">🔴 Avanzado</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Duración (horas)</label>
-            <input type="number" class="form-control" name="duracion_horas" 
-                   placeholder="Ej: 20" min="1" max="200">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Imagen de portada (opcional)</label>
-            <input type="file" class="form-control" name="imagen" accept="image/*" 
-                   style="padding: 0.5rem !important;">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">URL de imagen (opcional)</label>
-            <input type="url" class="form-control" name="imagen_url" 
-                   placeholder="https://ejemplo.com/imagen.jpg">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Ícono (clase de Bootstrap Icons)</label>
-            <input type="text" class="form-control" name="icono" 
-                   placeholder="Ej: bi-music-note-beamed" value="bi-book">
-          </div>
-
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn-modal-primary">
-            <i class="bi bi-check-lg me-1"></i> Crear curso
-          </button>
-        </div>
-      </form>
+{% if es_docente and cursos_creados %}
+<div class="section-created">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="bi bi-pencil-square icon-orange"></i>
+            Todos mis cursos creados
+        </h2>
+        <span class="section-count">{{ cursos_creados|length }} curso{{ cursos_creados|length|pluralize:"s" }}</span>
     </div>
-  </div>
+
+    <div class="courses-grid">
+        {% for curso in cursos_creados %}
+        <div class="course-card course-card-created">
+            <div class="course-card-image {% if curso.imagen_url %}has-image{% else %}no-image{% endif %}"
+                 {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}">
+
+                {% if not curso.imagen_url %}
+                <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
+                {% endif %}
+
+                <div class="course-card-overlay"></div>
+                
+                <span class="course-status created-by-you">
+                    <i class="bi bi-pencil-fill"></i> Creado por ti
+                </span>
+                
+                <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+                <a href="{% url 'detalle_curso' curso.id %}" class="course-play-btn">
+                    <i class="bi bi-eye-fill"></i>
+                </a>
+            </div>
+
+            <div class="course-card-body">
+                <div class="course-meta">
+                    <span class="course-category">{{ curso.get_categoria_display }}</span>
+                    <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+                    <span class="course-duration">
+                        <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+                    </span>
+                    <span class="course-creator">
+                        <i class="bi bi-calendar3"></i> {{ curso.fecha_creacion|date:"d/m/Y" }}
+                    </span>
+                </div>
+
+                <h3 class="course-title">{{ curso.nombre }}</h3>
+
+                {% if curso.descripcion %}
+                <p class="course-description">{{ curso.descripcion|truncatechars:90 }}</p>
+                {% endif %}
+
+                <div class="course-stats" style="display: flex; gap: 1rem; margin-bottom: 0.75rem; font-size: 0.75rem; color: var(--spotify-subtext);">
+                    <span>
+                        <i class="bi bi-people-fill"></i> 
+                        {{ curso.inscripciones.count }} estudiantes
+                    </span>
+                    <span>
+                        <i class="bi bi-clock-history"></i> 
+                        Creado hace {{ curso.fecha_creacion|timesince }}
+                    </span>
+                </div>
+
+                <div class="course-card-footer">
+                    <!-- ✅ CORREGIDO: Enlace a detalle_curso -->
+                    <a href="{% url 'detalle_curso' curso.id %}" class="btn-course-primary" style="background: #ff9f43; flex:1;">
+                        <i class="bi bi-eye-fill"></i> Ver curso
+                    </a>
+                    <a href="#" class="btn-course-primary" style="background: #6c5ce7; flex:1;">
+                        <i class="bi bi-pencil-fill"></i> Editar
+                    </a>
+                    <a href="{% url 'eliminar_curso_propio' curso.id %}"
+                       onclick="return confirm('¿Estás seguro de eliminar el curso {{ curso.nombre }}? Esta acción no se puede deshacer.')" 
+                       class="btn-delete-course" title="Eliminar curso permanentemente">
+                        <i class="bi bi-trash-fill"></i> Eliminar
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: CREAR CURSO (SOLO DOCENTES) -->
+<!-- ═══════════════════════════════════════════ -->
+
+{% if es_docente or request.user.is_superuser %}
+<div class="modal fade" id="modalCrearCurso" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-plus-circle-fill me-2" style="color: #ff9f43;"></i>
+                    Crear nuevo curso
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'crear_curso' %}" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="modal-body">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Nombre del curso <span style="color: #e91429;">*</span></label>
+                        <input type="text" class="form-control" name="nombre" 
+                               placeholder="Ej: Teoría Musical Básica" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="3" 
+                                  placeholder="Describe de qué trata el curso..."></textarea>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Categoría</label>
+                            <select class="form-select" name="categoria">
+                                <option value="teoria">🎵 Teoría Musical</option>
+                                <option value="auditivo">👂 Entrenamiento Auditivo</option>
+                                <option value="instrumento">🎸 Instrumento</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nivel</label>
+                            <select class="form-select" name="nivel">
+                                <option value="basico">🟢 Básico</option>
+                                <option value="intermedio">🟠 Intermedio</option>
+                                <option value="avanzado">🔴 Avanzado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Duración (horas)</label>
+                        <input type="number" class="form-control" name="duracion_horas" 
+                               placeholder="Ej: 20" min="1" max="200">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Imagen de portada (opcional)</label>
+                        <input type="file" class="form-control" name="imagen" accept="image/*" 
+                               style="padding: 0.5rem !important;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">URL de imagen (opcional)</label>
+                        <input type="url" class="form-control" name="imagen_url" 
+                               placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Ícono (clase de Bootstrap Icons)</label>
+                        <input type="text" class="form-control" name="icono" 
+                               placeholder="Ej: bi-music-note-beamed" value="bi-book">
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-primary">
+                        <i class="bi bi-check-lg me-1"></i> Crear curso
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endif %}
 
@@ -325,53 +528,56 @@
 
 {% block extra_js %}
 <script>
-  // Search functionality
-  document.getElementById('courseSearch')?.addEventListener('input', function () {
-    const query = this.value.toLowerCase().trim();
-    document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(query) ? '' : 'none';
+    // Search functionality
+    document.getElementById('courseSearch')?.addEventListener('input', function () {
+        const query = this.value.toLowerCase().trim();
+        document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = text.includes(query) ? '' : 'none';
+        });
     });
-  });
 
-  // Filter pills
-  function filterCourses(category, btn) {
-    document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
-    btn.classList.add('active');
+    // Filter pills
+    function filterCourses(category, btn) {
+        document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
+        btn.classList.add('active');
 
-    document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
-      if (category === 'all') {
-        card.style.display = '';
-      } else {
-        card.style.display = card.dataset.category === category ? '' : 'none';
-      }
+        document.querySelectorAll('#catalogGrid .course-card').forEach(card => {
+            if (category === 'all') {
+                card.style.display = '';
+            } else {
+                card.style.display = card.dataset.category === category ? '' : 'none';
+            }
+        });
+        
+        const searchInput = document.getElementById('courseSearch');
+        if (searchInput) searchInput.value = '';
+    }
+
+    // Animation on scroll
+    const observerOptions = { threshold: 0.1, rootMargin: '0px' };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.course-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+        observer.observe(card);
     });
-  }
 
-  // Animation on scroll
-  const observerOptions = { threshold: 0.1, rootMargin: '0px' };
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.course-card').forEach((card, index) => {
-    card.style.opacity = '0';
-    card.style.transform = 'translateY(20px)';
-    card.style.transition = `all 0.5s ease ${index * 0.1}s`;
-    observer.observe(card);
-  });
-
-  // Auto-dismiss alerts
-  setTimeout(() => {
-    document.querySelectorAll('.alert-spotify').forEach(alert => {
-      const bsAlert = new bootstrap.Alert(alert);
-      bsAlert.close();
-    });
-  }, 4000);
+    // Auto-dismiss alerts
+    setTimeout(() => {
+        document.querySelectorAll('.alert-spotify').forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            alert.close();
+        });
+    }, 4000);
 </script>
 {% endblock %}

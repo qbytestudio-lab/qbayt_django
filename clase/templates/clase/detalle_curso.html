@@ -1,0 +1,174 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ curso.nombre }} - QBYT{% endblock %}
+{% block page_title %}{{ curso.nombre }}{% endblock %}
+{% block nav_cursos %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clase/css/detalle_curso.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="detail-container">
+    <!-- HEADER DEL CURSO -->
+    <div class="detail-header">
+        <div class="detail-header-top">
+            <!-- Imagen -->
+            <div class="detail-image {% if curso.imagen_url %}has-image{% endif %}"
+                 {% if curso.imagen_url %}style="background-image: url('{{ curso.imagen_url }}');"{% endif %}>
+                {% if not curso.imagen_url %}
+                <i class="bi {{ curso.icono|default:'bi-book' }}"></i>
+                {% endif %}
+            </div>
+
+            <!-- Info -->
+            <div class="detail-info">
+                <h1 class="detail-title">{{ curso.nombre }}</h1>
+
+                <div class="detail-meta">
+                    <span class="detail-meta-item">
+                        <i class="bi bi-tag"></i> {{ curso.get_categoria_display }}
+                    </span>
+                    <span class="detail-meta-item">
+                        <i class="bi bi-bar-chart"></i> {{ curso.get_nivel_display }}
+                    </span>
+                    <span class="detail-meta-item">
+                        <i class="bi bi-clock"></i> {{ curso.duracion_horas }} horas
+                    </span>
+                    <span class="detail-meta-item">
+                        <i class="bi bi-people"></i> {{ total_estudiantes }} estudiante{{ total_estudiantes|pluralize:"s" }}
+                    </span>
+                    {% if es_creador %}
+                    <span class="detail-meta-item" style="color: var(--accent-orange);">
+                        <i class="bi bi-pencil-fill"></i> Creado por ti
+                    </span>
+                    {% endif %}
+                </div>
+
+                {% if curso.descripcion %}
+                <p class="detail-description">{{ curso.descripcion }}</p>
+                {% endif %}
+
+                <!-- Acciones -->
+                <div class="detail-actions">
+                    {% if es_creador %}
+                        <a href="#" class="btn-course-primary" style="background: #ff9f43; flex: 0 1 auto;">
+                            <i class="bi bi-pencil-fill"></i> Editar curso
+                        </a>
+                        <a href="{% url 'eliminar_curso_propio' curso.id %}"
+                           onclick="return confirm('¿Estás seguro de eliminar el curso {{ curso.nombre }}? Esta acción no se puede deshacer.')" 
+                           class="btn-delete-course" style="padding: 0.6rem 1.5rem;">
+                            <i class="bi bi-trash-fill"></i> Eliminar curso
+                        </a>
+                    {% endif %}
+
+                    {% if esta_inscrito %}
+                        <a href="#" class="btn-course-primary" style="background: var(--spotify-green); flex: 0 1 auto;">
+                            <i class="bi bi-play-fill"></i> Continuar aprendiendo
+                        </a>
+                    {% else %}
+                        <form action="{% url 'agregar_curso' curso.id %}" method="POST" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-course-add" style="flex: 0 1 auto; padding: 0.6rem 1.5rem;">
+                                <i class="bi bi-plus-circle"></i> Inscribirme
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="detail-stats">
+        <div class="stat-card">
+            <div class="stat-number purple">{{ total_estudiantes }}</div>
+            <div class="stat-label">Estudiantes inscritos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number orange">{{ curso.duracion_horas }}h</div>
+            <div class="stat-label">Duración total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number green">{{ progreso_usuario }}%</div>
+            <div class="stat-label">Tu progreso</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" style="color: var(--accent-orange);">
+                {{ curso.fecha_creacion|date:"d/m/Y" }}
+            </div>
+            <div class="stat-label">Fecha de creación</div>
+        </div>
+    </div>
+
+    <!-- ESTUDIANTES INSCRITOS -->
+    <div class="students-section">
+        <h3>
+            <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
+            Estudiantes inscritos
+            <span style="font-size: 0.8rem; color: var(--spotify-subtext); font-weight: 400;">
+                ({{ total_estudiantes }})
+            </span>
+        </h3>
+
+        {% if inscripciones %}
+            {% for insc in inscripciones %}
+            <div class="student-item">
+                <div class="student-info">
+                    <div class="student-avatar">
+                        {{ insc.estudiante.username|first|upper }}
+                    </div>
+                    <span class="student-name">{{ insc.estudiante.get_full_name|default:insc.estudiante.username }}</span>
+                </div>
+                <div class="student-progress">
+                    Progreso: {{ insc.progreso|default:0 }}%
+                    <span class="bar">
+                        <span class="bar-fill" style="width: {{ insc.progreso|default:0 }}%;"></span>
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-students">
+                <i class="bi bi-people"></i>
+                <p>No hay estudiantes inscritos en este curso aún.</p>
+                <p style="font-size: 0.85rem; color: var(--spotify-muted);">
+                    Comparte el curso para atraer estudiantes.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- BOTÓN VOLVER -->
+    <div style="margin-top: 1.5rem;">
+        <a href="{% url 'cursos' %}" class="btn-course-primary" style="flex: 0 1 auto; background: var(--spotify-gray);">
+            <i class="bi bi-arrow-left"></i> Volver a cursos
+        </a>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación de entrada
+    const observerOptions = { threshold: 0.1, rootMargin: '0px' };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.stat-card, .students-section, .detail-header').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.transition = `all 0.5s ease ${index * 0.1}s`;
+        observer.observe(el);
+    });
+</script>
+{% endblock %}

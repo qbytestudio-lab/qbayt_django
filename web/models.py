@@ -16,24 +16,38 @@ class Perfil(models.Model):
         return f"{self.user.username} - {self.rol}"
 
 class Curso(models.Model):
-    NIVEL_CHOICES = [
-        ('basico', 'Básico'),
-        ('intermedio', 'Intermedio'),
-        ('avanzado', 'Avanzado'),
-    ]
     CATEGORIA_CHOICES = [
-        ('teoria', 'Teoría Musical'),
-        ('auditivo', 'Entrenamiento Auditivo'),
-        ('instrumento', 'Instrumento'),
+        ('teoria', '🎵 Teoría Musical'),
+        ('auditivo', '👂 Entrenamiento Auditivo'),
+        ('instrumento', '🎸 Instrumento'),
     ]
-    nombre = models.CharField(max_length=100)
+    
+    NIVEL_CHOICES = [
+        ('basico', '🟢 Básico'),
+        ('intermedio', '🟠 Intermedio'),
+        ('avanzado', '🔴 Avanzado'),
+    ]
+    
+    nombre = models.CharField(max_length=200)
     descripcion = models.TextField(blank=True)
-    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES)
+    categoria = models.CharField(max_length=20, choices=CATEGORIA_CHOICES, default='teoria')
     nivel = models.CharField(max_length=20, choices=NIVEL_CHOICES, default='basico')
-    duracion_horas = models.PositiveIntegerField(default=1)
-    imagen_url = models.URLField(blank=True) 
-    icono = models.CharField(max_length=50, default='bi-music-note')
-
+    duracion_horas = models.IntegerField(default=0)
+    imagen = models.ImageField(upload_to='cursos/', blank=True, null=True)
+    imagen_url = models.URLField(blank=True, null=True)
+    icono = models.CharField(max_length=50, default='bi-book')
+    
+    # ✅ AGREGAR ESTE CAMPO
+    creado_por = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL,  # Si el usuario se elimina, el curso no se borra
+        null=True, 
+        blank=True,
+        related_name='cursos_creados'
+    )
+    
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    
     def __str__(self):
         return self.nombre
 

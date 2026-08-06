@@ -1,5 +1,5 @@
 /* ============================================ */
-/* CURSOS */
+/* CURSOS - QBYT */
 /* ============================================ */
 
 :root {
@@ -240,6 +240,7 @@ body {
 .section-title i { font-size: 1.4rem; }
 .section-title .icon-purple { color: var(--accent-purple); }
 .section-title .icon-orange { color: var(--accent-orange); }
+.section-title .icon-green { color: var(--spotify-green); }
 
 .section-count {
   background: rgba(255,255,255,0.05);
@@ -286,6 +287,14 @@ body {
 .course-card.my-course { border-color: rgba(124,111,255,0.2); }
 .course-card.my-course:hover { border-color: rgba(124,111,255,0.4); }
 
+.course-card-created {
+  border: 2px solid rgba(255, 159, 67, 0.3) !important;
+}
+
+.course-card-created:hover {
+  border-color: rgba(255, 159, 67, 0.6) !important;
+}
+
 /* ═══════════════════════════════════════════ */
 /* CARD IMAGE */
 /* ═══════════════════════════════════════════ */
@@ -326,36 +335,67 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/* STATUS BADGES */
+/* BADGES - VERSIÓN MEJORADA Y MÁS PEQUEÑA */
 /* ═══════════════════════════════════════════ */
 
+/* Badge superior (Disponible, Siguiendo) - MÁS PEQUEÑO */
 .course-status {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
+  top: 8px;
+  left: 8px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 0.6rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   z-index: 2;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 3px;
 }
 
 .course-status.following {
-  background: rgba(124,111,255,0.3);
-  color: #fff;
-  border: 1px solid rgba(124,111,255,0.5);
+  background: rgba(124,111,255,0.25);
+  color: #c4baff;
+  border: 1px solid rgba(124,111,255,0.3);
 }
 
 .course-status.available {
-  background: rgba(255,159,67,0.3);
-  color: #fff;
-  border: 1px solid rgba(255,159,67,0.5);
+  background: rgba(255,159,67,0.2);
+  color: #ffb366;
+  border: 1px solid rgba(255,159,67,0.25);
+}
+
+.course-status.following i,
+.course-status.available i {
+  font-size: 0.55rem;
+}
+
+/* Badge "Creado por ti" - MÁS PEQUEÑO Y ELEGANTE (EN LA PARTE INFERIOR) */
+.course-status.created-by-you {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  top: auto;
+  right: auto;
+  background: rgba(255,159,67,0.2) !important;
+  color: #ffb366 !important;
+  border: 1px solid rgba(255,159,67,0.25) !important;
+  backdrop-filter: blur(8px);
+  text-transform: uppercase;
+  font-weight: 700;
+  font-size: 0.55rem;
+  padding: 3px 10px;
+  border-radius: 12px;
+  letter-spacing: 0.3px;
+  z-index: 2;
+}
+
+.course-status.created-by-you i {
+  font-size: 0.55rem;
+  color: #ffb366;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -366,14 +406,14 @@ body {
   position: absolute;
   bottom: 12px;
   right: 12px;
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   background: var(--spotify-green);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #000;
   opacity: 0;
   transform: translateY(10px);
@@ -446,6 +486,15 @@ body {
   margin-left: auto;
 }
 
+.course-creator {
+  font-size: 0.68rem;
+  color: var(--accent-purple);
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-left: auto;
+}
+
 .course-title {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
@@ -506,6 +555,12 @@ body {
   display: flex;
   gap: 0.5rem;
   margin-top: auto;
+  flex-wrap: wrap;
+}
+
+.course-card-footer form {
+  flex: 1;
+  min-width: 120px;
 }
 
 .btn-course-primary {
@@ -550,12 +605,31 @@ body {
   justify-content: center;
   gap: 0.4rem;
   cursor: pointer;
+  width: 100%;
 }
 
 .btn-course-add:hover {
   background: #ffb366;
   transform: scale(1.03);
   color: #000;
+}
+
+.btn-course-add:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  background: #2d2d3e !important;
+  border-color: #6c5ce7 !important;
+  color: var(--spotify-subtext) !important;
+}
+
+.btn-course-add:disabled:hover {
+  background: #2d2d3e !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-course-add:disabled i {
+  color: var(--spotify-green);
 }
 
 .btn-course-danger {
@@ -577,6 +651,40 @@ body {
 .btn-course-danger:hover {
   background: rgba(233,20,41,0.2);
   color: #ff4444;
+}
+
+.btn-delete-course {
+  background: rgba(233, 20, 41, 0.1);
+  color: var(--danger);
+  border: 1px solid rgba(233, 20, 41, 0.3);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.btn-delete-course:hover {
+  background: rgba(233, 20, 41, 0.2);
+  border-color: var(--danger);
+  transform: scale(1.05);
+  color: #ff4444;
+}
+
+.btn-delete-course i {
+  font-size: 0.9rem;
+}
+
+.section-created {
+  border-top: 2px solid rgba(255, 159, 67, 0.2);
+  padding-top: 2rem;
+  margin-top: 2.5rem;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -650,6 +758,7 @@ body {
 .modal-footer {
   border-top: 1px solid rgba(255,255,255,0.08) !important;
   padding: 1.5rem !important;
+  gap: 0.75rem;
 }
 
 .form-label {
@@ -743,9 +852,28 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .search-bar-mini { margin-left: 0; width: 100%; }
   .search-bar-mini input { width: 100%; }
   .filter-bar { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; }
+  
+  .course-card-footer {
+    flex-direction: column;
+  }
+  
+  .course-card-footer form {
+    width: 100%;
+  }
+  
+  .btn-delete-course {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
   .hero-title { font-size: 1.5rem; }
   .hero-stat-value { font-size: 1.4rem; }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
