@@ -9,9 +9,8 @@ from .models import Curso, InscripcionCurso
 from docente.utils import calcular_progreso_clase
 from django.shortcuts import get_object_or_404
 import json
-from datetime import datetime
-from datetime import timedelta
-
+from datetime import datetime, timedelta
+from django.utils import timezone
 
 
 
@@ -404,34 +403,21 @@ def mis_clases(request):
 @login_required
 def calendario(request):
     eventos = []
+    proximos = []
+    clases = []
 
     if request.user.perfil.rol == 'estudiante':
         # Clases inscritas
         clases = request.user.clases_estudiante.all()
-        for clase in clases:
-            eventos.append({
-                'id': f'clase-{clase.id}',
-                'title': f'📚 {clase.nombre}',
-                'start': clase.fecha_creacion.strftime('%Y-%m-%d'),
-                'color': '#7c6fff',
-                'tipo': 'clase',
-                'url': f'/estudiante/clase/{clase.id}/',
-                'descripcion': f'Docente: {clase.docente.get_full_name() or clase.docente.username}',
-            })
-
-        # Actividades pendientes con fecha límite
+        
+        # IDs de actividades ya completadas
         completadas_ids = RespuestaEstudiante.objects.filter(
             estudiante=request.user
         ).values_list('actividad_id', flat=True).distinct()
 
-        actividades = Actividad.objects.filter(
-            leccion__clase__in=clases,
-            fecha_limite__isnull=False
-        ).exclude(id__in=completadas_ids)
-
-
+        # Agregar clases como eventos
         for clase in clases:
-             evento = {
+            evento = {
                 'id': f'clase-{clase.id}',
                 'title': f'📚 {clase.nombre}',
                 'color': '#7c6fff',
@@ -439,37 +425,70 @@ def calendario(request):
                 'url': f'/estudiante/clase/{clase.id}/',
                 'descripcion': f'Docente: {clase.docente.get_full_name() or clase.docente.username}',
                 'allDay': True,
-         }
+            }
 
-        # Si tiene fecha de inicio, usarla
-        if clase.fecha_inicio:
-            evento['start'] = clase.fecha_inicio.strftime('%Y-%m-%d')
-        else:
-            evento['start'] = clase.fecha_creacion.strftime('%Y-%m-%d')
+            if clase.fecha_inicio:
+                evento['start'] = clase.fecha_inicio.strftime('%Y-%m-%d')
+            else:
+                evento['start'] = clase.fecha_creacion.strftime('%Y-%m-%d')
 
-        # Si tiene fecha de finalización, mostrar todo el rango
-        if clase.fecha_fin:
-            evento['end'] = (clase.fecha_fin + timedelta(days=1)).strftime('%Y-%m-%d')
+            if clase.fecha_fin:
+                evento['end'] = (clase.fecha_fin + timedelta(days=1)).strftime('%Y-%m-%d')
 
-        eventos.append(evento)
+            eventos.append(evento)
 
-            # Lista próximos eventos ordenados
-        from datetime import timezone
-        ahora = datetime.now(timezone.utc)
-        proximos = Actividad.objects.filter(
-                leccion__clase__in=clases,
-                fecha_limite__isnull=False,
-                fecha_limite__gte=ahora
-            ).exclude(id__in=completadas_ids).order_by('fecha_limite')[:10]
+        # Actividades pendientes
+        actividades = Actividad.objects.filter(
+            leccion__clase__in=clases,
+            fecha_limite__isnull=False
+        ).exclude(id__in=completadas_ids).select_related('leccion__clase')
 
-        return render(request, 'web/calendario.html', {
-                'eventos_json': json.dumps(eventos),
-                'proximos': proximos,
-                'clases': clases,
+        ahora = timezone.now()
+        actividades_count = 0
+
+        for act in actividades:
+            actividades_count += 1
+            es_vencida = act.fecha_limite < ahora if act.fecha_limite else False
+            
+            evento_act = {
+                'id': f'act-{act.id}',
+                'title': f'{"⚠️ " if es_vencida else ""}{act.titulo}',
+                'start': act.fecha_limite.strftime('%Y-%m-%dT%H:%M:%S') if act.fecha_limite else '',
+                'color': '#e91429' if es_vencida else '#ff9f43',
+                'tipo': 'vencida' if es_vencida else 'actividad',
+                'url': f'/estudiante/actividad/{act.id}/',
+                'descripcion': f'Clase: {act.leccion.clase.nombre} | Lección: {act.leccion.titulo}',
+                'clase_nombre': act.leccion.clase.nombre,
+                'leccion_titulo': act.leccion.titulo,
+                'allDay': False,
+            }
+            eventos.append(evento_act)
+
+        # Próximos eventos (no vencidos)
+        proximos_act = Actividad.objects.filter(
+            leccion__clase__in=clases,
+            fecha_limite__isnull=False,
+            fecha_limite__gte=ahora
+        ).exclude(id__in=completadas_ids).select_related('leccion__clase').order_by('fecha_limite')[:10]
+
+        for act in proximos_act:
+            proximos.append({
+                'id': act.id,
+                'titulo': act.titulo,
+                'clase_nombre': act.leccion.clase.nombre,
+                'clase_id': act.leccion.clase.id,
+                'leccion_titulo': act.leccion.titulo,
+                'fecha_limite': act.fecha_limite,
+                'tipo': act.tipo,
             })
 
-    return render(request, 'web/calendario.html', {
-        'eventos_json': '[]',
-        'proximos': [],
-        'clases': [],
-    })
+    context = {
+        'eventos_json': json.dumps(eventos),
+        'proximos': proximos,
+        'clases': clases,
+        'total_clases': clases.count(),
+        'actividades_pendientes': actividades_count if 'actividades_count' in dir() else 0,
+        'actividades_completadas': completadas_ids.count(),
+    }
+
+    return render(request, 'web/calendario.html', context)

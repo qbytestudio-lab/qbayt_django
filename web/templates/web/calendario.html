@@ -6,131 +6,167 @@
 {% block nav_calendario %}active{% endblock %}
 
 {% block extra_css %}
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'web/css/calendario.css' %}">
 {% endblock %}
 
 {% block content %}
 
-<!-- HERO BANNER -->
-<div class="calendar-hero">
-  <div class="calendar-hero-content">
-    <h1 class="calendar-hero-title">Calendario</h1>
-    <p class="calendar-hero-subtitle">Tus clases y actividades en un solo vistazo</p>
-  </div>
-  <div class="calendar-hero-actions">
-    <button class="view-toggle-btn active" id="btnMes" onclick="cambiarVista('mes')">
-      <i class="bi bi-grid-3x3-gap"></i> Mes
-    </button>
-    <button class="view-toggle-btn" id="btnLista" onclick="cambiarVista('lista')">
-      <i class="bi bi-list-ul"></i> Lista
-    </button>
-  </div>
-</div>
+<div class="calendar-page">
 
-<!-- MAIN LAYOUT -->
-<div class="calendar-layout">
-
-  <!-- CALENDAR -->
-  <div class="calendar-card">
-    <!-- Month View -->
-    <div id="calendario-mes">
-      <div id="fullcalendar"></div>
+  <!-- HEADER -->
+  <div class="calendar-header">
+    <h1 class="calendar-title">
+      <i class="bi bi-calendar3"></i> Calendario
+    </h1>
+    
+    <div class="calendar-month-nav">
+      <button class="btn-month-nav" onclick="changeMonth(-1)">‹</button>
+      <span class="month-label" id="monthLabel"></span>
+      <button class="btn-month-nav" onclick="changeMonth(1)">›</button>
     </div>
     
-    <!-- List View -->
-    <div id="calendario-lista" style="display:none;">
-      <div class="event-list">
-        {% if proximos %}
-          {% for act in proximos %}
-          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="event-item">
-            <div class="event-dot actividad"></div>
-            <div class="event-info">
-              <div class="event-title">{{ act.titulo }}</div>
-              <div class="event-subtitle">{{ act.leccion.clase.nombre }}</div>
-            </div>
-            <div class="event-meta">
-              <div class="event-date">{{ act.fecha_limite|date:"d M" }}</div>
-              <div class="event-time">{{ act.fecha_limite|date:"H:i" }}</div>
-            </div>
-          </a>
-          {% endfor %}
-        {% else %}
-          {% for clase in clases %}
-          <div class="event-item">
-            <div class="event-dot clase"></div>
-            <div class="event-info">
-              <div class="event-title">{{ clase.nombre }}</div>
-              <div class="event-subtitle">Prof. {{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-            </div>
-            <div class="event-meta">
-              <div class="event-date">{{ clase.fecha_creacion|date:"d M Y" }}</div>
-            </div>
-          </div>
-          {% endfor %}
-          {% if not clases %}
-          <div class="empty-state">
-            <i class="bi bi-calendar-x empty-icon muted"></i>
-            <p class="empty-text">No tienes eventos programados</p>
-          </div>
-          {% endif %}
-        {% endif %}
-      </div>
+    <button class="btn-today" onclick="goToToday()">Hoy</button>
+  </div>
+
+  <!-- LEGEND -->
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-dot clase"></span> Clases
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot actividad"></span> Actividades
+    </div>
+    <div class="legend-item">
+      <span class="legend-dot vencida"></span> Vencidas
     </div>
   </div>
 
-  <!-- SIDEBAR -->
-  <div class="calendar-sidebar">
+  <!-- MAIN LAYOUT -->
+  <div class="calendar-layout">
 
-    <!-- Legend -->
-    <div class="sidebar-card">
-      <h3 class="sidebar-title">
-        <i class="bi bi-palette-fill" style="color: var(--accent-purple);"></i>
-        Leyenda
-      </h3>
-      <div class="legend-list">
-        <div class="legend-item">
-          <span class="legend-dot clase"></span>
-          Clases inscritas
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot actividad"></span>
-          Actividades pendientes
-        </div>
-        <div class="legend-item">
-          <span class="legend-dot vencida"></span>
-          Actividades vencidas
-        </div>
+    <!-- CALENDARIO -->
+    <div class="calendar-main">
+      <!-- Weekdays -->
+      <div class="weekdays">
+        <div class="weekday">Lun</div>
+        <div class="weekday">Mar</div>
+        <div class="weekday">Mié</div>
+        <div class="weekday">Jue</div>
+        <div class="weekday">Vie</div>
+        <div class="weekday">Sáb</div>
+        <div class="weekday">Dom</div>
+      </div>
+
+      <!-- Days Grid -->
+      <div class="days-grid" id="daysGrid">
+        <!-- Se llena con JavaScript -->
       </div>
     </div>
 
-    <!-- Upcoming Events -->
-    <div class="sidebar-card">
-      <h3 class="sidebar-title">
-        <i class="bi bi-clock-history" style="color: var(--accent-orange);"></i>
-        Próximas entregas
-      </h3>
-      
-      <div class="upcoming-list">
-        {% if proximos %}
-          {% for act in proximos|slice:":5" %}
-          <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="upcoming-item">
-            <div class="upcoming-icon actividad">
-              <i class="bi bi-patch-question-fill"></i>
-            </div>
-            <div class="upcoming-info">
-              <div class="upcoming-title">{{ act.titulo }}</div>
-              <div class="upcoming-date">{{ act.fecha_limite|date:"d M · H:i" }}</div>
-            </div>
-          </a>
-          {% endfor %}
-        {% else %}
-        <div class="empty-state">
-          <i class="bi bi-check-circle-fill empty-icon green"></i>
-          <p class="empty-text">¡Sin entregas pendientes!</p>
+    <!-- SIDEBAR -->
+    <div class="calendar-sidebar">
+
+      <!-- Quick Summary -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-speedometer2" style="color: var(--accent-purple);"></i> Resumen
+        </h3>
+        <div class="quick-summary">
+          <div class="quick-stat">
+            <div class="quick-stat-value">{{ total_clases|default:clases.count|default:0 }}</div>
+            <div class="quick-stat-label">Clases</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value">{{ actividades_pendientes|default:0 }}</div>
+            <div class="quick-stat-label">Pendientes</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value">{{ actividades_completadas|default:0 }}</div>
+            <div class="quick-stat-label">Completadas</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value">{{ proximos|length|default:0 }}</div>
+            <div class="quick-stat-label">Próximas</div>
+          </div>
         </div>
-        {% endif %}
       </div>
+
+      <!-- Próximos Eventos -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-clock-history" style="color: var(--accent-orange);"></i> Próximos eventos
+        </h3>
+        
+        <div class="proximos-list">
+          {% if proximos %}
+            {% for act in proximos %}
+            <a href="{% url 'detalle_actividad_estudiante' act.id %}" class="proximo-item">
+              <div class="proximo-icon {% if act.tipo == 'quiz' %}orange{% else %}purple{% endif %}">
+                <i class="bi bi-{% if act.tipo == 'quiz' %}patch-question{% else %}file-text{% endif %}"></i>
+              </div>
+              <div class="proximo-info">
+                <div class="proximo-title">{{ act.titulo }}</div>
+                <div class="proximo-clase">
+                  <i class="bi bi-folder-fill"></i> {{ act.clase_nombre }}
+                </div>
+                <div class="proximo-date">
+                  <i class="bi bi-clock"></i> {{ act.fecha_limite|date:"d M · H:i" }}
+                  <span style="color: var(--accent-orange); font-weight: 600; font-size: 0.65rem;">
+                    {{ act.fecha_limite|timeuntil }}
+                  </span>
+                </div>
+              </div>
+              <i class="bi bi-chevron-right proximo-arrow"></i>
+            </a>
+            {% endfor %}
+          {% else %}
+          <div class="empty-state">
+            <i class="bi bi-check-circle empty-icon"></i>
+            <p class="empty-text">¡Sin tareas pendientes!</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Mis Clases -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-collection-play" style="color: var(--spotify-green);"></i> Mis clases
+        </h3>
+        
+        <div class="proximos-list">
+          {% if clases %}
+            {% for clase in clases %}
+            <a href="/estudiante/clase/{{ clase.id }}/" class="proximo-item">
+              <div class="proximo-icon purple">
+                <i class="bi bi-camera-video"></i>
+              </div>
+              <div class="proximo-info">
+                <div class="proximo-title">{{ clase.nombre }}</div>
+                <div class="proximo-date">
+                  <i class="bi bi-person"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
+                </div>
+              </div>
+              <i class="bi bi-chevron-right proximo-arrow"></i>
+            </a>
+            {% endfor %}
+          {% else %}
+          <div class="empty-state">
+            <i class="bi bi-collection empty-icon"></i>
+            <p class="empty-text">No estás inscrito en ninguna clase</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Mini Calendar -->
+      <div class="sidebar-card">
+        <h3 class="sidebar-card-title">
+          <i class="bi bi-calendar-week" style="color: var(--accent-purple);"></i> Este mes
+        </h3>
+        <div id="mini-calendar"></div>
+      </div>
+
     </div>
 
   </div>
@@ -140,58 +176,185 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <script>
+  // ============================================
+  // DATOS DE EVENTOS
+  // ============================================
+  
   const eventosData = {{ eventos_json|safe }};
-
-  const calendar = new FullCalendar.Calendar(document.getElementById('fullcalendar'), {
-    initialView: 'dayGridMonth',
-    locale: 'es',
-    headerToolbar: {
-      left: 'prev,next today',
-      center: 'title',
-      right: ''
-    },
-    events: eventosData,
-    eventClick: function(info) {
-      if (info.event.url) {
-        info.jsEvent.preventDefault();
-        window.location.href = info.event.url;
-      }
-    },
-    eventDidMount: function(info) {
-      const tipo = info.event.extendedProps.tipo;
-      if (tipo === 'clase') {
-        info.el.classList.add('fc-event-clase');
-      } else if (tipo === 'actividad') {
-        info.el.classList.add('fc-event-actividad');
-      } else if (tipo === 'vencida') {
-        info.el.classList.add('fc-event-vencida');
-      }
-      info.el.setAttribute('title', info.event.extendedProps.descripcion || info.event.title);
-    },
-    height: 'auto',
-    dayMaxEvents: 3,
-    moreLinkText: '+ más',
-    noEventsText: 'Sin eventos',
-    buttonText: { 
-      today: 'Hoy',
-      month: 'Mes',
-      week: 'Semana',
-      day: 'Día'
-    },
-  });
-
-  calendar.render();
-
-  function cambiarVista(vista) {
-    document.getElementById('btnMes').classList.toggle('active', vista === 'mes');
-    document.getElementById('btnLista').classList.toggle('active', vista === 'lista');
-    document.getElementById('calendario-mes').style.display = vista === 'mes' ? '' : 'none';
-    document.getElementById('calendario-lista').style.display = vista === 'lista' ? '' : 'none';
-    if (vista === 'mes') {
-      setTimeout(() => calendar.render(), 100);
+  
+  console.log('Eventos cargados:', eventosData);
+  
+  // ============================================
+  // CALENDARIO PRINCIPAL
+  // ============================================
+  
+  let currentDate = new Date();
+  let currentMonth = currentDate.getMonth();
+  let currentYear = currentDate.getFullYear();
+  
+  const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+  
+  function renderCalendar() {
+    const daysGrid = document.getElementById('daysGrid');
+    const monthLabel = document.getElementById('monthLabel');
+    
+    monthLabel.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+    
+    // Ajustar para empezar en Lunes
+    let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    
+    let html = '';
+    
+    // Días vacíos al inicio
+    for (let i = 0; i < startOffset; i++) {
+      html += '<div class="day-cell empty"></div>';
     }
+    
+    // Días del mes
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = (d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear());
+      
+      // Buscar eventos para este día
+      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+      
+      const dayEvents = eventosData.filter(e => {
+        if (!e.start) return false;
+        // Para eventos con rango (start y end)
+        if (e.end) {
+          const eventStart = new Date(e.start);
+          const eventEnd = new Date(e.end);
+          const currentDay = new Date(currentYear, currentMonth, d);
+          return currentDay >= eventStart && currentDay < eventEnd;
+        }
+        // Para eventos de un solo día
+        return e.start.startsWith(dateStr);
+      });
+      
+      let eventsHtml = '';
+      if (dayEvents.length > 0) {
+        const maxShow = 3;
+        dayEvents.slice(0, maxShow).forEach(event => {
+          const tipo = event.tipo || 'actividad';
+          const claseNombre = event.clase_nombre || '';
+          const onclick = event.url ? `onclick="event.stopPropagation(); window.location.href='${event.url}'"` : '';
+          
+          eventsHtml += `
+            <div class="day-event ${tipo}" 
+                 title="${event.title}${claseNombre ? ' - ' + claseNombre : ''}" 
+                 ${onclick}>
+              <span class="dot"></span> ${event.title.replace('📚 ', '').replace('⚠️ ', '')}
+            </div>
+          `;
+        });
+        
+        if (dayEvents.length > maxShow) {
+          eventsHtml += `<div class="day-more">+${dayEvents.length - maxShow} más</div>`;
+        }
+      }
+      
+      html += `
+        <div class="day-cell ${isToday ? 'today' : ''} ${dayEvents.length > 0 ? 'has-events' : ''}">
+          <div class="day-number">${d}</div>
+          <div class="day-events">${eventsHtml}</div>
+        </div>
+      `;
+    }
+    
+    daysGrid.innerHTML = html;
+    renderMiniCalendar();
   }
+  
+  function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    } else if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+  }
+  
+  function goToToday() {
+    const today = new Date();
+    currentMonth = today.getMonth();
+    currentYear = today.getFullYear();
+    renderCalendar();
+  }
+  
+  // ============================================
+  // MINI CALENDARIO
+  // ============================================
+  
+  function renderMiniCalendar() {
+    const container = document.getElementById('mini-calendar');
+    if (!container) return;
+    
+    const now = new Date();
+    const miniMonth = now.getMonth();
+    const miniYear = now.getFullYear();
+    
+    const firstDay = new Date(miniYear, miniMonth, 1).getDay();
+    const daysInMonth = new Date(miniYear, miniMonth + 1, 0).getDate();
+    const today = now.getDate();
+    
+    let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    
+    let html = `
+      <div class="mini-month-header">
+        <button class="mini-nav-btn">‹</button>
+        <span class="mini-month-title">${monthNames[miniMonth].substring(0, 3)} ${miniYear}</span>
+        <button class="mini-nav-btn">›</button>
+      </div>
+      <div class="mini-weekdays">
+        <div class="mini-weekday">L</div>
+        <div class="mini-weekday">M</div>
+        <div class="mini-weekday">M</div>
+        <div class="mini-weekday">J</div>
+        <div class="mini-weekday">V</div>
+        <div class="mini-weekday">S</div>
+        <div class="mini-weekday">D</div>
+      </div>
+      <div class="mini-days">
+    `;
+    
+    for (let i = 0; i < startOffset; i++) {
+      html += '<div class="mini-day empty"></div>';
+    }
+    
+    const eventDays = eventosData.map(e => {
+      if (e.start) {
+        const d = new Date(e.start);
+        if (d.getMonth() === miniMonth && d.getFullYear() === miniYear) {
+          return d.getDate();
+        }
+      }
+      return null;
+    }).filter(Boolean);
+    
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = d === today;
+      const hasEvent = eventDays.includes(d);
+      
+      html += `
+        <div class="mini-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-events' : ''}">
+          ${d}
+        </div>
+      `;
+    }
+    
+    html += '</div>';
+    container.innerHTML = html;
+  }
+  
+  // Inicializar
+  renderCalendar();
 </script>
 {% endblock %}
