@@ -43,7 +43,7 @@ body {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 .calendar-title {
@@ -63,25 +63,25 @@ body {
 .calendar-month-nav {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
   background: var(--spotify-dark);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 30px;
-  padding: 0.4rem 1rem;
+  padding: 0.3rem 0.8rem;
 }
 
 .month-label {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #fff;
-  min-width: 120px;
+  min-width: 110px;
   text-align: center;
 }
 
 .btn-month-nav {
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
   border: none;
   background: rgba(255,255,255,0.05);
@@ -91,7 +91,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
 }
 
 .btn-month-nav:hover {
@@ -102,16 +102,18 @@ body {
   background: var(--accent-purple);
   border: none;
   color: #fff;
-  padding: 0.5rem 1.2rem;
+  padding: 0.4rem 1.2rem;
   border-radius: 20px;
   font-weight: 700;
-  font-size: 0.82rem;
+  font-size: 0.75rem;
   cursor: pointer;
   transition: all 0.2s;
+  margin-left: 0.3rem;
 }
 
 .btn-today:hover {
   background: #9b8fff;
+  transform: scale(1.03);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -175,14 +177,14 @@ body {
 .weekday {
   text-align: center;
   padding: 0.8rem 0;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   color: var(--spotify-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Grid de días - CORREGIDO */
+/* Grid de días */
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -301,7 +303,7 @@ body {
 .day-event.vencida .dot { background: var(--danger); }
 
 .day-more {
-  font-size: 0.6rem;
+  font-size: 0.55rem;
   color: var(--accent-purple);
   font-weight: 600;
   cursor: pointer;
@@ -403,11 +405,6 @@ body {
   font-size: 0.85rem;
 }
 
-.proximo-icon.purple {
-  background: rgba(124,111,255,0.12);
-  color: var(--accent-purple);
-}
-
 .proximo-icon.orange {
   background: rgba(255,159,67,0.12);
   color: var(--accent-orange);
@@ -425,20 +422,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.proximo-clase {
-  font-size: 0.7rem;
-  color: var(--accent-purple);
-  margin-top: 0.15rem;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.proximo-clase i {
-  font-size: 0.6rem;
-  opacity: 0.7;
 }
 
 .proximo-date {
@@ -608,10 +591,15 @@ body {
   
   .calendar-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
   }
   
   .calendar-title { font-size: 1.4rem; }
+  
+  .calendar-month-nav {
+    justify-content: center;
+    padding: 0.3rem;
+  }
   
   .day-cell { 
     min-height: 60px; 
@@ -620,11 +608,22 @@ body {
   
   .day-number { font-size: 0.7rem; }
   
-  .day-event { font-size: 0.55rem; }
+  .day-event { font-size: 0.5rem; }
+  .day-event span:not(.dot) { 
+    display: none; 
+  }
+  
+  .calendar-sidebar {
+    grid-template-columns: 1fr;
+  }
+  
+  .quick-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 480px) {
-  .weekday { font-size: 0.6rem; padding: 0.5rem 0; }
+  .weekday { font-size: 0.55rem; padding: 0.4rem 0; }
   
   .day-cell { 
     min-height: 45px; 
@@ -634,4 +633,6 @@ body {
   .day-event span:not(.dot) { display: none; }
   
   .quick-summary { grid-template-columns: 1fr 1fr; }
+  
+  .month-label { font-size: 0.8rem; min-width: 80px; }
 }

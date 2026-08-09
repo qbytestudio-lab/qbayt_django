@@ -474,15 +474,16 @@ body.register-page .input-group:focus-within .form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         ALERTS                            */
+/*         ALERTS - CORREGIDO                */
 /* ═══════════════════════════════════════════ */
 
 .alert {
   border-radius: 10px !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 0.82rem;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.85rem;
   border: none !important;
   animation: slideDown 0.3s ease;
+  font-weight: 500;
 }
 
 @keyframes slideDown {
@@ -496,28 +497,54 @@ body.register-page .input-group:focus-within .form-control {
   }
 }
 
+/* Éxito */
 .alert-success {
-  background: rgba(29, 185, 84, 0.15) !important;
-  color: #1db954 !important;
+  background: rgba(29, 185, 84, 0.2) !important;
+  color: #1ed760 !important;
+  border: 1px solid rgba(29, 185, 84, 0.3) !important;
 }
 
+.alert-success i {
+  color: #1ed760;
+}
+
+/* Error - MÁS VISIBLE */
 .alert-danger {
-  background: rgba(233, 20, 41, 0.15) !important;
-  color: #e91429 !important;
+  background: rgba(233, 20, 41, 0.2) !important;
+  color: #ff4444 !important;
+  border: 1px solid rgba(233, 20, 41, 0.35) !important;
+  animation: shakeError 0.5s ease;
 }
 
+.alert-danger i {
+  color: #ff4444;
+}
+
+/* Warning */
 .alert-warning {
-  background: rgba(255, 159, 67, 0.15) !important;
-  color: #ff9f43 !important;
+  background: rgba(255, 159, 67, 0.2) !important;
+  color: #ffb366 !important;
+  border: 1px solid rgba(255, 159, 67, 0.3) !important;
 }
 
+/* Info */
 .alert-info {
-  background: rgba(64, 169, 255, 0.15) !important;
-  color: #40a9ff !important;
+  background: rgba(64, 169, 255, 0.2) !important;
+  color: #73c0ff !important;
+  border: 1px solid rgba(64, 169, 255, 0.3) !important;
 }
 
 .btn-close {
   filter: brightness(0) invert(0.7);
+}
+
+/* Animación de shake para errores */
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
 }
 
 /* ═══════════════════════════════════════════ */

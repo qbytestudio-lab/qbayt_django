@@ -56,6 +56,7 @@
           <li class="nav-item"><a class="nav-link" href="#ultimos">Lo último</a></li>
           <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
           <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+          <li class="nav-item"><a class="nav-link" href="#testimonios">Testimonios</a></li>
           <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
           <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
         </ul>
@@ -65,18 +66,30 @@
 
   <!-- HERO -->
   <header class="hero">
+    <!-- Partículas flotantes -->
+    <div class="hero-particles">
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+      <div class="hero-particle"></div>
+    </div>
+
     <div class="container text-center">
       <p class="eyebrow fade-up"><i class="bi bi-music-note-beamed"></i> Entrenamiento musical</p>
       <h1 class="fade-up-2">
         Mejora tu oído y técnica<br>
-        <span>con ritmo y estilo</span>
+        <span class="text-gradient-animated">con ritmo y estilo</span>
       </h1>
       <p class="fade-up-3">
         Programas, práctica guiada y retos interactivos<br>
         para músicos de todos los niveles.
       </p>
       <div class="fade-up-3">
-        <a href="#programas" class="btn-hero-primary">
+        <a href="#programas" class="btn-hero-primary btn-pulse">
           Explorar programas <i class="bi bi-arrow-down"></i>
         </a>
       </div>
@@ -94,7 +107,7 @@
               <div class="banner-text">
                 <h3>Aprende música con nosotros</h3>
                 <p>Mejora tu capacidad para leer, escribir y tocar música mediante ejercicios interactivos.</p>
-                <a href="#programas" class="btn-banner">Comencemos <i class="bi bi-arrow-right"></i></a>
+                <a href="#programas" class="btn-banner btn-pulse">Comencemos <i class="bi bi-arrow-right"></i></a>
               </div>
               <div class="banner-image">
                 <img src="https://images.unsplash.com/photo-1511379938547-c1f69419868d?w=800" alt="Piano">
@@ -107,7 +120,7 @@
               <div class="banner-text">
                 <h3>Entrena tu oído musical</h3>
                 <p>Reconoce notas, intervalos y acordes con actividades dinámicas y progresivas.</p>
-                <a href="#ultimos" class="btn-banner">Ver cursos <i class="bi bi-arrow-right"></i></a>
+                <a href="#ultimos" class="btn-banner btn-pulse">Ver cursos <i class="bi bi-arrow-right"></i></a>
               </div>
               <div class="banner-image">
                 <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800" alt="Guitarra">
@@ -120,7 +133,7 @@
               <div class="banner-text">
                 <h3>Aprende a tu ritmo</h3>
                 <p>Accede a cursos, retos y ejercicios desde cualquier dispositivo, cuando quieras.</p>
-                <a href="{% url 'registro' %}" class="btn-banner">Registrarme <i class="bi bi-arrow-right"></i></a>
+                <a href="{% url 'registro' %}" class="btn-banner btn-pulse">Registrarme <i class="bi bi-arrow-right"></i></a>
               </div>
               <div class="banner-image">
                 <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800" alt="Música">
@@ -143,11 +156,15 @@
     <!-- PROGRAMAS -->
     <section id="programas" class="prog-section">
       <div class="container">
+        <div class="section-divider">
+          <i class="bi bi-star-fill"></i>
+        </div>
         <p class="sec-title">Programas destacados</p>
         <p class="sec-sub">Diseñados para llevarte del nivel básico al avanzado</p>
         <div class="row g-4">
           <div class="col-md-4">
             <div class="music-card h-100">
+              <div class="section-number">1</div>
               <div class="card-icon"><i class="bi bi-ear"></i></div>
               <h2>Entrenamiento auditivo</h2>
               <p>Ejercicios diarios para entrenar intervalos, acordes y progresiones armónicas.</p>
@@ -156,6 +173,7 @@
           </div>
           <div class="col-md-4">
             <div class="music-card h-100">
+              <div class="section-number">2</div>
               <div class="card-icon"><i class="bi bi-hand-index-thumb"></i></div>
               <h2>Técnica y postura</h2>
               <p>Lecciones prácticas para dominar tu instrumento con precisión y sin lesiones.</p>
@@ -164,6 +182,7 @@
           </div>
           <div class="col-md-4">
             <div class="music-card h-100">
+              <div class="section-number">3</div>
               <div class="card-icon"><i class="bi bi-lightbulb"></i></div>
               <h2>Improvisación creativa</h2>
               <p>Retos pensados para liberar tu creatividad y hacer que tu música suene más natural.</p>
@@ -183,7 +202,12 @@
 
           <div class="col-md-3">
             <div class="feature-card h-100">
-              <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
+              <div style="position: relative; overflow: hidden;">
+                <img src="https://aprendomusica.com/imagen/cards/quiz_tempo_01.png" alt="Sol y Mi">
+                <span class="badge-nuevo" style="position: absolute; top: 10px; right: 10px;">
+                  <i class="bi bi-star-fill"></i> Nuevo
+                </span>
+              </div>
               <div class="feature-card-body">
                 <h3>Sol y Mi</h3>
                 <p>Aprende a reconocer notas básicas en el pentagrama.</p>
@@ -194,7 +218,12 @@
 
           <div class="col-md-3">
             <div class="feature-card h-100">
-              <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?rs=1&pid=ImgDetMain" alt="Nota La">
+              <div style="position: relative; overflow: hidden;">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?rs=1&pid=ImgDetMain" alt="Nota La">
+                <span class="badge-nuevo" style="position: absolute; top: 10px; right: 10px;">
+                  <i class="bi bi-star-fill"></i> Nuevo
+                </span>
+              </div>
               <div class="feature-card-body">
                 <h3>Nota La</h3>
                 <p>Mejora tu oído musical practicando nuevas notas y escalas.</p>
@@ -205,7 +234,9 @@
 
           <div class="col-md-3">
             <div class="feature-card h-100">
-              <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350" alt="Simón Musical">
+              <div style="position: relative; overflow: hidden;">
+                <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350" alt="Simón Musical">
+              </div>
               <div class="feature-card-body">
                 <h3>Simón Musical</h3>
                 <p>Pon a prueba tu memoria auditiva con sonidos y ritmo.</p>
@@ -216,7 +247,9 @@
 
           <div class="col-md-3">
             <div class="feature-card h-100">
-              <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
+              <div style="position: relative; overflow: hidden;">
+                <img src="https://cdn-icons-png.flaticon.com/512/3659/3659899.png" alt="Teclado Mágico">
+              </div>
               <div class="feature-card-body">
                 <h3>Teclado Mágico</h3>
                 <p>Practica melodías y coordinación con ejercicios interactivos.</p>
@@ -319,6 +352,40 @@
       </div>
     </section>
 
+    <!-- TESTIMONIOS -->
+    <section id="testimonios" class="feature-section">
+      <div class="container">
+        <p class="sec-title">Lo que dicen nuestros estudiantes</p>
+        <p class="sec-sub">Músicos que ya están transformando su aprendizaje</p>
+        <div class="row g-4">
+          <div class="col-md-4">
+            <div class="testimonial-card">
+              <div class="testimonial-avatar">A</div>
+              <p class="testimonial-text">"QBYT cambió mi forma de practicar. Los ejercicios son adictivos y veo resultados cada semana."</p>
+              <div class="testimonial-name">Ana García</div>
+              <div class="testimonial-role">Estudiante de piano</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="testimonial-card">
+              <div class="testimonial-avatar">C</div>
+              <p class="testimonial-text">"Como docente, encuentro herramientas increíbles para mis clases. Mis alumnos están más motivados."</p>
+              <div class="testimonial-name">Carlos López</div>
+              <div class="testimonial-role">Profesor de guitarra</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="testimonial-card">
+              <div class="testimonial-avatar">M</div>
+              <p class="testimonial-text">"El entrenamiento auditivo mejoró mi oído en solo 2 meses. Recomiendo QBYT a todos mis colegas."</p>
+              <div class="testimonial-name">María Torres</div>
+              <div class="testimonial-role">Cantante profesional</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- FAQ -->
     <section id="faq" class="faq-section">
       <div class="container">
@@ -389,10 +456,10 @@
           <h2>¿Listo para transformar tu música?</h2>
           <p>Únete a más de 500 estudiantes que ya están entrenando con QBYT.<br>Empieza hoy, es gratis.</p>
           <div class="cta-buttons">
-            <a href="{% url 'registro' %}" class="btn-register" style="font-size:0.95rem; padding: 0.75rem 2rem;">
+            <a href="{% url 'registro' %}" class="btn-register btn-pulse" style="font-size:0.95rem; padding: 0.75rem 2rem;">
               <i class="bi bi-person-plus me-2"></i>Crear cuenta gratis
             </a>
-            <a href="#programas" class="btn-login" style="font-size:0.95rem; padding: 0.75rem 2rem;">
+            <a href="#programas" class="btn-login btn-pulse" style="font-size:0.95rem; padding: 0.75rem 2rem;">
               Ver programas
             </a>
           </div>
@@ -447,6 +514,20 @@
         behavior: "smooth"
       });
     });
+
+    // Animación de contadores al hacer scroll
+    const animateOnScroll = () => {
+      const elements = document.querySelectorAll('.qstat-val, .stat-value');
+      elements.forEach(el => {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < window.innerHeight - 100) {
+          el.classList.add('counter-animated');
+        }
+      });
+    };
+
+    window.addEventListener('scroll', animateOnScroll);
+    animateOnScroll();
   </script>
 </body>
 
