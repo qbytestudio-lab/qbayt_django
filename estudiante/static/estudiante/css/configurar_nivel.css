@@ -1,0 +1,188 @@
+/* ============================================ */
+/*      CONFIGURAR NIVEL - QBYT STYLE           */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-light-gray: #535353;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  
+  /* Gradación de morados por nivel (del más tenue al más pesado) */
+  --purple-level-1: rgba(124, 111, 255, 0.08);
+  --purple-level-2: rgba(124, 111, 255, 0.16);
+  --purple-level-3: rgba(124, 111, 255, 0.26);
+  --purple-level-4: rgba(124, 111, 255, 0.40);
+  
+  --accent-purple: #7c6fff;
+  --accent-pink: #b06fff;
+}
+
+body {
+  background-color: var(--spotify-black);
+  color: var(--spotify-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+}
+
+.config-container {
+  background-color: var(--spotify-dark) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 650px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.6);
+}
+
+.config-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--spotify-text);
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.config-header p {
+  color: var(--spotify-subtext);
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+}
+
+/* Base de las tarjetas de nivel con soporte para imagen de fondo y overlay oscuro */
+.nivel-option {
+  display: block;
+  position: relative;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.2rem;
+  cursor: pointer;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Capa oscura (overlay) para asegurar legibilidad sobre la foto de fondo */
+.nivel-option::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(24, 24, 24, 0.85);
+  z-index: 1;
+  transition: background 0.3s ease;
+}
+
+/* Asegurar que el contenido interno esté por encima del overlay */
+.nivel-option > div {
+  position: relative;
+  z-index: 2;
+}
+
+/* Efecto hover: se "sale" (escala) y toma su respectivo tono morado */
+.nivel-option:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.nivel-option:hover::before {
+  background: rgba(24, 24, 24, 0.65); /* Se aclara ligeramente el overlay al pasar el mouse para lucir la foto */
+}
+
+/* Gradaciones específicas por tarjeta (del más tenue al más pesado) */
+.nivel-option.nivel-1:hover {
+  background-color: var(--purple-level-1);
+  border-color: rgba(124, 111, 255, 0.3);
+}
+
+.nivel-option.nivel-2:hover {
+  background-color: var(--purple-level-2);
+  border-color: rgba(124, 111, 255, 0.5);
+}
+
+.nivel-option.nivel-3:hover {
+  background-color: var(--purple-level-3);
+  border-color: rgba(124, 111, 255, 0.7);
+}
+
+.nivel-option.nivel-4:hover {
+  background-color: var(--purple-level-4);
+  border-color: var(--accent-purple);
+}
+
+/* Estado seleccionado fijo */
+.nivel-option.selected {
+  border-color: var(--accent-purple) !important;
+  box-shadow: 0 0 15px rgba(124, 111, 255, 0.3);
+}
+
+.nivel-option.selected::before {
+  background: rgba(24, 24, 24, 0.5) !important;
+}
+
+.nivel-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--spotify-text);
+  margin-bottom: 0.25rem;
+}
+
+.nivel-desc {
+  font-size: 0.85rem;
+  color: var(--spotify-subtext);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.form-check-input {
+  background-color: var(--spotify-gray);
+  border-color: var(--spotify-light-gray);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.form-check-input:checked {
+  background-color: var(--accent-purple);
+  border-color: var(--accent-purple);
+}
+
+.btn-continuar {
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
+  border: none;
+  color: var(--spotify-text);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.btn-continuar:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 16px rgba(124, 111, 255, 0.4);
+}

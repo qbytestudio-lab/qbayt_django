@@ -102,7 +102,21 @@ def registro(request):
       messages.error(request, 'El usuario ya existe.')
       return redirect('registro')
 
-    # Crear el usuario
+    # Guardamos los datos temporalmente en la sesión para TODOS (o solo para estudiante)
+    # Si quieres que SÓLO el estudiante configure nivel, déjalo con el if:
+    if rol == 'estudiante':
+      request.session['registro_temporal'] = {
+          'username': username,
+          'email': email,
+          'password': password1,
+          'first_name': first_name,
+          'last_name': last_name,
+          'rol': rol
+      }
+      return redirect('estudiante:configurar_nivel')
+
+    # Si es docente (u otro rol que NO requiere configurar nivel), 
+    # se crea el usuario y perfil de una vez de forma normal:
     user = User.objects.create_user(
         username=username,
         email=email,
@@ -111,20 +125,11 @@ def registro(request):
         last_name=last_name,
     )
     user.save()
-
-    # Crear su perfil asociado
     Perfil.objects.create(user=user, rol=rol)
-
-    # Iniciar sesión automáticamente de inmediato
+    
     login(request, user)
-
     messages.success(request, '¡Cuenta creada con éxito!')
-
-    # Si es estudiante, mandarlo a configurar su nivel musical; si es otro rol, a inicio
-    if rol == 'estudiante':
-      return redirect('login')
-    else:
-      return redirect('inicio')
+    return redirect('inicio')
 
   return render(request, 'web/registro.html')
 

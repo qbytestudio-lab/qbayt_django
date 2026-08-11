@@ -54,19 +54,38 @@ def perfil_estudiante(request):
         'ejercicios_hechos': ejercicios_hechos,
         'total_actividades': total_actividades,
     })
-@login_required
-def configurar_nivel_view(request):
-  usuario = request.user
+def configurar_nivel(request):
+    # Seguridad: Si no pasó por el formulario de registro antes, lo regresamos
+    if 'registro_temporal' not in request.session:
+        return redirect('registro')
 
-  if request.method == 'POST':
-    nuevo_nivel = request.POST.get('nivel_musical')
-    if nuevo_nivel in ['1', '2', '3', '4']:
-      usuario.nivel_musical = int(nuevo_nivel)
-      usuario.save()
-      # Redirige a su panel principal o perfil una vez configurado
-      return redirect('estudiante:mis_clases')  # O la ruta que prefieras
+    if request.method == 'POST':
+        datos = request.session['registro_temporal']
+        nivel_seleccionado = request.POST.get('nivel') # Asegúrate que tu input se llame 'nivel'
 
-  return render(request, 'estudiante/configurar_nivel.html', {'usuario': usuario})
+        # Ahora sí, creamos el usuario en la base de datos
+        user = User.objects.create_user(
+            username=datos['username'],
+            email=datos['email'],
+            password=datos['password'],
+            first_name=datos['first_name'],
+            last_name=datos['last_name'],
+        )
+        user.save()
+
+        # Creamos su perfil asociado incluyendo el nivel seleccionado
+        Perfil.objects.create(user=user, rol=datos['rol'], nivel=nivel_seleccionado)
+
+        # Limpiamos la sesión temporal
+        del request.session['registro_temporal']
+
+        # Iniciamos sesión automáticamente
+        login(request, user)
+
+        messages.success(request, '¡Cuenta creada y nivel configurado con éxito!')
+        return redirect('inicio')
+
+    return render(request, 'estudiante/configurar_nivel.html')
 
 @login_required
 def unirse_clase(request):
