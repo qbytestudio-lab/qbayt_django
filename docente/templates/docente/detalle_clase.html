@@ -156,42 +156,51 @@
                     </div>
 
                     <!-- ESTUDIANTES -->
-                    <div class="section-card">
-                        <div class="section-header">
-                            <h3 class="section-title">
-                                <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
-                                Estudiantes inscritos
-                                <span class="section-badge purple">{{ clase.estudiantes.count }}</span>
-                            </h3>
-                        </div>
+<div class="section-card">
+    <div class="section-header">
+        <h3 class="section-title">
+            <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
+            Estudiantes inscritos
+            <span class="section-badge purple">{{ clase.estudiantes.count }}</span>
+        </h3>
+    </div>
 
-                        <div class="search-bar">
-                            <i class="bi bi-search"></i>
-                            <input type="text" placeholder="Buscar estudiante..." id="searchInput">
-                        </div>
+    <div class="search-bar">
+        <i class="bi bi-search"></i>
+        <input type="text" placeholder="Buscar estudiante..." id="searchInput">
+    </div>
 
-                        {% if clase.estudiantes.all %}
-                        {% for estudiante in clase.estudiantes.all %}
-                        <div class="student-row">
-                            <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
-                            <div class="student-info">
-                                <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
-                                <p>@{{ estudiante.username }}</p>
-                            </div>
-                            <a href="{% url 'eliminar_estudiante_clase' clase.id estudiante.id %}"
-                                class="btn-danger-soft"
-                                onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
-                                <i class="bi bi-person-dash"></i> Remover
-                            </a>
-                        </div>
-                        {% endfor %}
-                        {% else %}
-                        <p class="empty-msg">No hay estudiantes inscritos aún</p>
-                        {% endif %}
-                    </div>
-
-                </div>
-
+    {% if clase.estudiantes.all %}
+    {% for estudiante in clase.estudiantes.all %}
+    <div class="student-row">
+        <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
+        <div class="student-info">
+            <h4 class="d-flex align-items-center gap-2 flex-wrap">
+                {{ estudiante.get_full_name|default:estudiante.username }}
+                
+                <!-- 🟢 CONTADOR DE INTENTO (Solo aparece si ya tiene más de 1 intento registrado) -->
+                {% with sol=estudiante.solicitudes_clase.first %}
+                  {% if sol and sol.intentos > 1 %}
+                    <span class="status-badge {% if sol.intentos >= 2 %}text-danger border-danger{% else %}text-warning border-warning{% endif %}" style="font-size: 0.65rem; padding: 0.15rem 0.5rem; background: rgba(255,255,255,0.03);">
+                      Intento: {{ sol.intentos }}/2
+                      {% if sol.bloqueado %} (Bloqueado){% endif %}
+                    </span>
+                  {% endif %}
+                {% endwith %}
+            </h4>
+            <p>@{{ estudiante.username }}</p>
+        </div>
+        <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}"
+            class="btn-danger-soft"
+            onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
+            <i class="bi bi-person-dash"></i> Remover
+        </a>
+    </div>
+    {% endfor %}
+    {% else %}
+    <p class="empty-msg">No hay estudiantes inscritos aún</p>
+    {% endif %}
+</div>
                 <!-- RIGHT COLUMN -->
                 <div class="col-lg-7">
 

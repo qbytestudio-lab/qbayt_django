@@ -46,6 +46,17 @@ class Clase(models.Model):
 
     def __str__(self):
         return self.nombre
+class InscripcionClase(models.Model):
+        estudiante = models.ForeignKey(User, on_delete=models.CASCADE)
+        clase = models.ForeignKey(Clase, on_delete=models.CASCADE)
+        veces_inscrito = models.PositiveIntegerField(default=1)
+        bloqueado = models.BooleanField(default=False) # Si ya agotó sus 2 oportunidades de la clase
+        fecha_inscripcion = models.DateTimeField(auto_now=True)
+
+        class Meta:
+            unique_together = ('estudiante', 'clase')
+        def __str__(self):
+            return f"{self.estudiante.username} - {self.clase.nombre} (Intento {self.veces_inscrito})"
 
 
 class SolicitudClase(models.Model):
@@ -57,13 +68,15 @@ class SolicitudClase(models.Model):
     clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='solicitudes')
     estudiante = models.ForeignKey(User, on_delete=models.CASCADE, related_name='solicitudes_clase')
     estado = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente')
+    intentos = models.PositiveIntegerField(default=1)  # 👈 Cuenta las veces que ha cursado/solicitado
+    bloqueado = models.BooleanField(default=False)    # 👈 Se activa si llega a 2 y reprueba/es expulsado
     fecha = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ('clase', 'estudiante')
 
     def __str__(self):
-        return f"{self.estudiante.username} → {self.clase.nombre} ({self.estado})"
+        return f"{self.estudiante.username} → {self.clase.nombre} ({self.estado} - Intento {self.intentos}/2)"
 
 
 class Anuncio(models.Model):
@@ -160,3 +173,9 @@ class InscripcionNivel(models.Model):
 
     def __str__(self):
         return f"{self.estudiante.username} - {self.get_nivel_display()}"
+    
+class HistorialInscripcion(models.Model):
+    estudiante = models.ForeignKey(User, on_delete=models.CASCADE)
+    categoria_tema = models.CharField(max_length=100) # O puedes relacionarlo directamente con la clase
+    intentos = models.PositiveIntegerField(default=1)
+    bloqueado = models.BooleanField(default=False)

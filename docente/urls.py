@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from docente.views import expulsar_estudiante_clase
 
 urlpatterns = [
     path('perfil/', views.perfil_docente, name='perfil_docente'),
@@ -20,5 +21,6 @@ urlpatterns = [
     path('actividad/<int:actividad_id>/pregunta/', views.crear_pregunta, name='crear_pregunta'),
     path('clase/<int:clase_id>/editar/', views.editar_clase, name='editar_clase'),
     path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),
-    path('estadisticas/<int:clase_id>/',views.estadisticas_clase,name='estadisticas_clase')
+    path('estadisticas/<int:clase_id>/',views.estadisticas_clase,name='estadisticas_clase'),
+    path('clase/<int:clase_id>/expulsar/<int:estudiante_id>/', expulsar_estudiante_clase, name='expulsar_estudiante_clase'),
     ]

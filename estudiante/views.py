@@ -105,18 +105,39 @@ def unirse_clase(request):
         try:
             clase_nueva = Clase.objects.get(codigo=codigo)
 
-            # Validamos si ya tiene otra clase en la misma categoría de tema
-            clases_misma_categoria = request.user.clases_estudiante.filter(categoria_tema=clase_nueva.categoria_tema)
+            # Buscamos o creamos su registro de solicitud
+            solicitud, created = SolicitudClase.objects.get_or_create(
+                estudiante=request.user,
+                clase=clase_nueva,
+                defaults={'estado': 'pendiente', 'intentos': 1}
+            )
 
+            # Si está bloqueado permanentemente
+            if solicitud.bloqueado:
+                messages.error(request, 'Has agotado tus 2 oportunidades en esta clase y estás bloqueado permanentemente.')
+                return redirect('estudiante:explorar_clases')
+
+            # Si ya está dentro de la clase
             if request.user in clase_nueva.estudiantes.all():
                 messages.warning(request, 'Ya estás en esta clase.')
-            elif clases_misma_categoria.exists():
-                messages.error(request, f'Ya estás inscrito en otra clase de la categoría "{clase_nueva.get_categoria_tema_display()}".')
-            else:
-                clase_nueva.estudiantes.add(request.user)
-                messages.success(request, f'¡Te uniste a "{clase_nueva.nombre}"!')
+                return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
 
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
+            # Si la solicitud fue rechazada previamente y vuelve a intentarlo
+            if not created and solicitud.estado == 'rechazada':
+                if solicitud.intentos < 2:
+                    solicitud.intentos += 1
+                    solicitud.estado = 'pendiente'
+                    solicitud.save()
+                    messages.success(request, f'Nueva solicitud enviada. Intento de curso: {solicitud.intentos}/2')
+                else:
+                    solicitud.bloqueado = True
+                    solicitud.save()
+                    messages.error(request, 'Has agotado tus 2 oportunidades de cursar esta clase.')
+                    return redirect('estudiante:explorar_clases')
+            else:
+                messages.success(request, f'¡Solicitud enviada para la clase "{clase_nueva.nombre}"!')
+
+            return redirect('estudiante:explorar_clases')
 
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
@@ -172,6 +193,13 @@ def explorar_clases(request):
 
 @login_required
 def detalle_clase_estudiante(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+    
+    # Validar si el usuario sigue inscrito (por si fue expulsado por bloqueo)
+    if request.user not in clase.estudiantes.all():
+        messages.error(request, "No tienes acceso a esta clase o ha sido bloqueada por límite de reprobaciones.")
+        return redirect('estudiante:dashboard')
+    
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
     

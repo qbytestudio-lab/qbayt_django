@@ -156,12 +156,14 @@ def calificar_ejercicio(request, intento_id):
         
         NOTA_MINIMA = 3.0 
         ejercicio = intento.ejercicio
-        clase_id = ejercicio.clase.id
+        clase = ejercicio.clase
+        estudiante = intento.estudiante
+        clase_id = clase.id
         ejercicio_id = ejercicio.id
 
         # Contamos cuántos intentos lleva en total este estudiante
         total_intentos = IntentoEjercicio.objects.filter(
-            estudiante=intento.estudiante, 
+            estudiante=estudiante, 
             ejercicio=ejercicio
         ).count()
 
@@ -171,7 +173,12 @@ def calificar_ejercicio(request, intento_id):
             if total_intentos < 2:
                 messages.warning(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante puede realizar un segundo y último intento.")
             else:
-                messages.error(request, "Calificación menor a {NOTA_MINIMA}. El estudiante ha agotado sus 2 intentos y ya no puede reintentar.")
+                # 🔴 BLOQUEO DEL CURSO: Si ya cumplió 2 intentos y volvió a reprobar
+                messages.error(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante ha agotado sus 2 intentos y ha sido bloqueado de la clase.")
+                
+                # Removemos al estudiante del curso para denegarle el acceso por completo
+                if estudiante in clase.estudiantes.all():
+                    clase.estudiantes.remove(estudiante)
         
         return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
 
@@ -179,7 +186,6 @@ def calificar_ejercicio(request, intento_id):
         'intento': intento,
         'respuestas': respuestas
     })
-
 
 def reenviar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)

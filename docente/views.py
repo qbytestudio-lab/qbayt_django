@@ -135,7 +135,8 @@ def aceptar_solicitud(request, solicitud_id):
     solicitud.estado = 'aceptada'
     solicitud.save()
     messages.success(request, f'"{solicitud.estudiante.username}" aceptado en "{solicitud.clase.nombre}".')
-    return redirect('perfil_docente')
+    # 🔄 Cambiamos para que regrese al detalle de la clase
+    return redirect('detalle_clase', clase_id=solicitud.clase.id)
 
 @login_required
 def rechazar_solicitud(request, solicitud_id):
@@ -145,31 +146,33 @@ def rechazar_solicitud(request, solicitud_id):
     solicitud.estado = 'rechazada'
     solicitud.save()
     messages.info(request, f'Solicitud de "{solicitud.estudiante.username}" rechazada.')
-    return redirect('perfil_docente')
+    # 🔄 Cambiamos para que regrese al detalle de la clase
+    return redirect('detalle_clase', clase_id=solicitud.clase.id)
 
 @login_required
 def detalle_clase(request, clase_id):
+    # 1. Validamos que el usuario sea docente
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
         
+    # 2. Obtenemos la clase asegurándonos de que pertenezca al docente autenticado
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
-    # Obtenemos todos los datos que la plantilla necesita
-    solicitudes = SolicitudClase.objects.filter(clase=clase, estado='pendiente')
+    # 3. Recopilamos todos los datos que la plantilla necesita
+    solicitudes_pendientes = clase.solicitudes.filter(estado='pendiente')
     anuncios = clase.anuncios.all().order_by('-fecha')
     lecciones = clase.lecciones.all()
-    
-    # Obtenemos los ejercicios creados con la nueva app
     ejercicios = clase.ejercicios.all()
     
-    # ¡Cambiamos la ruta aquí agregando 'docente/' al principio!
+    # 4. Renderizamos la plantilla enviando todas las variables juntas
     return render(request, 'docente/detalle_clase.html', {
         'clase': clase,
-        'solicitudes': solicitudes,
+        'solicitudes_pendientes': solicitudes_pendientes,
         'anuncios': anuncios,
         'lecciones': lecciones,
         'ejercicios': ejercicios,
     })
+    
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):
     if request.user.perfil.rol != 'docente':
@@ -405,3 +408,27 @@ def estadisticas_clase(request, clase_id):
         'total_estudiantes': estudiantes.count(),
         'total_actividades': actividades.count(),
     })
+
+def expulsar_estudiante_clase(request, clase_id, estudiante_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    estudiante = get_object_or_404(User, id=estudiante_id)
+    
+    if estudiante in clase.estudiantes.all():
+        clase.estudiantes.remove(estudiante)
+        
+        # Actualizamos su solicitud correspondiente
+        try:
+            solicitud = SolicitudClase.objects.get(estudiante=estudiante, clase=clase)
+            solicitud.estado = 'rechazada'
+            
+            if solicitud.intentos >= 2:
+                solicitud.bloqueado = True
+                messages.warning(request, f"El estudiante ha agotado sus 2 oportunidades y ha sido bloqueado definitivamente.")
+            else:
+                messages.success(request, f"El estudiante fue retirado. Le queda 1 oportunidad restante.")
+            
+            solicitud.save()
+        except SolicitudClase.DoesNotExist:
+            pass
+    
+    return redirect('detalle_clase', clase_id=clase.id)
