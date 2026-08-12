@@ -15,6 +15,7 @@ def crear_clase(request):
 
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
+        categoria_tema = request.POST.get('categoria_tema') # 👈 CAPTURAMOS LA CATEGORÍA
         descripcion = request.POST.get('descripcion', '').strip()
         imagen = request.FILES.get('imagen')
 
@@ -31,6 +32,7 @@ def crear_clase(request):
             try:
                 clase = Clase(
                     nombre=nombre,
+                    categoria_tema=categoria_tema, # 👈 LA ASIGNAMOS AQUÍ
                     descripcion=descripcion,
                     docente=request.user,
                     imagen=imagen,
@@ -49,7 +51,6 @@ def crear_clase(request):
                 messages.error(request, e.messages[0])
 
     return redirect('mis_clases')
-
 @login_required
 def editar_clase(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)

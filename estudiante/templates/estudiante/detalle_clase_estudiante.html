@@ -6,7 +6,7 @@
 {% block nav_clases %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'estudiante/css/detalle_clase.css' %}">
+<link rel="stylesheet" href="{% static 'estudiante/css/detalle_clase_estudiante.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -85,28 +85,32 @@
             </div>
             
             <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
-              {% with intento=ejercicio.mi_intento %}
-                {% if intento %}
-                  {% if intento.calificacion is not None %}
+              {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
+                {% if intento and intento.calificacion is not None %}
                   <span class="status-badge" style="background: rgba(29,185,84,0.15); color: #1db954; border: 1px solid rgba(29,185,84,0.2);">
                     <i class="bi bi-check-circle-fill"></i> {{ intento.calificacion }}/5.0
                   </span>
-                  {% else %}
+                {% elif intento and intento.calificacion is None %}
                   <span class="status-badge" style="background: rgba(255,159,67,0.15); color: #ff9f43; border: 1px solid rgba(255,159,67,0.2);">
                     <i class="bi bi-clock-fill"></i> Pendiente
                   </span>
-                  {% endif %}
                 {% else %}
-                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge">
-                    <i class="bi bi-play-fill"></i> Resolver
-                  </a>
+                  {% if total >= 2 %}
+                    <span class="status-badge" style="background: rgba(255,75,75,0.15); color: #ff4b4b; border: 1px solid rgba(255,75,75,0.2);">
+                      <i class="bi bi-x-circle-fill"></i> Sin intentos
+                    </span>
+                  {% else %}
+                    <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge">
+                      <i class="bi bi-play-fill"></i> Resolver
+                    </a>
+                  {% endif %}
                 {% endif %}
               {% endwith %}
               <i class="bi bi-chevron-down text-muted" style="font-size: 0.8rem; transition: transform 0.2s;"></i>
             </div>
           </div>
 
-          <!-- FEEDBACK DEL DOCENTE (MEJORADO) -->
+          <!-- FEEDBACK DEL DOCENTE (INTEGRADO CON TUS CLASES CSS) -->
           {% with intento=ejercicio.mi_intento %}
             {% if intento and intento.retroalimentacion %}
             <div class="feedback-section">
@@ -142,15 +146,21 @@
             {% endfor %}
             
             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
-              {% with intento=ejercicio.mi_intento %}
+              {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
                 {% if intento and intento.calificacion is not None %}
-                <span class="status-badge" style="background: rgba(29,185,84,0.12); color: #1db954;">
-                  <i class="bi bi-check-circle-fill"></i> Completado
-                </span>
+                  <!-- Ya está calificado, no mostramos texto de intentos aquí abajo -->
+                {% elif intento and intento.calificacion is None %}
+                  <span class="text-warning" style="font-size: 0.85rem; font-weight: 500;">
+                    <i class="bi bi-clock-fill"></i> Esperando revisión del docente.
+                  </span>
+                {% elif total >= 2 %}
+                  <span class="text-danger" style="font-size: 0.85rem; font-weight: 500;">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Has agotado tus 2 oportunidades.
+                  </span>
                 {% else %}
-                <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="resolve-link">
-                  Ir a resolver <i class="bi bi-arrow-right"></i>
-                </a>
+                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="resolve-link">
+                    Ir a resolver <i class="bi bi-arrow-right"></i>
+                  </a>
                 {% endif %}
               {% endwith %}
             </div>
@@ -262,7 +272,6 @@
     
     const isCurrentlyOpen = activities.style.display === 'block';
     
-    // Cerrar todas
     document.querySelectorAll('.lesson-activities').forEach(el => {
       el.style.display = 'none';
     });
@@ -270,19 +279,16 @@
       el.style.transform = 'rotate(0deg)';
     });
     
-    // Abrir actual si estaba cerrada
     if (!isCurrentlyOpen) {
       activities.style.display = 'block';
       if (chevron) chevron.style.transform = 'rotate(180deg)';
       
-      // Scroll suave
       setTimeout(() => {
         lessonItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }, 150);
     }
   }
 
-  // Animación al scroll
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -299,4 +305,4 @@
     observer.observe(item);
   });
 </script>
-{% endblock %}   
+{% endblock %}

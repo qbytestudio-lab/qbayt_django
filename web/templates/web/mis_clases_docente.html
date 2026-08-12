@@ -172,7 +172,11 @@
           <i class="bi bi-people"></i>
           {{ clase.estudiantes.count }} inscritos
         </span>
+        <span class="badge" style="background: rgba(124, 111, 255, 0.15); color: #7c6fff; font-weight: 600; padding: 0.3em 0.6em; border-radius: 4px; font-size: 0.75rem; margin-bottom: 0.5rem; display: inline-block;">
+      <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
+    </span>
       </div>
+      
 
       <!-- Code -->
       <div class="class-code">
@@ -275,6 +279,20 @@
             <input type="text" class="form-control" name="nombre" placeholder="Ej: Entrenamiento auditivo I" required>
           </div>
 
+          <!-- NUEVO CAMPO: Categoría del Tema -->
+          <div class="mb-3">
+            <label class="form-label">
+              Categoría del tema
+              <span class="text-danger">*</span>
+            </label>
+            <select class="form-select" name="categoria_tema" required>
+              <option value="" disabled selected>Selecciona una categoría...</option>
+              <option value="armonia">Armonía</option>
+              <option value="ritmo">Ritmo</option>
+              <option value="melodia">Melodía</option>
+            </select>
+          </div>
+
           <div class="mb-3">
             <label class="form-label">
               Descripción
@@ -366,7 +384,6 @@
         </div>
 
       </form>
-
     </div>
   </div>
 </div>

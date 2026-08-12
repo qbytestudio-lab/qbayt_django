@@ -139,8 +139,6 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
 # VISTA DEL DOCENTE: Calificar el intento de un estudiante
 def calificar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)
-    
-    # Obtenemos las respuestas asociadas a este intento
     respuestas = intento.respuestas.all()
     
     if request.method == 'POST':
@@ -154,29 +152,29 @@ def calificar_ejercicio(request, intento_id):
         nota = float(nota_str)
         intento.calificacion = nota
         intento.retroalimentacion = retro
+        intento.save() # Guardamos la calificación en este intento
         
-        # 📌 Define aquí tu nota mínima para aprobar (ej: 3.0)
         NOTA_MINIMA = 3.0 
-        
         ejercicio = intento.ejercicio
         clase_id = ejercicio.clase.id
         ejercicio_id = ejercicio.id
 
+        # Contamos cuántos intentos lleva en total este estudiante
+        total_intentos = IntentoEjercicio.objects.filter(
+            estudiante=intento.estudiante, 
+            ejercicio=ejercicio
+        ).count()
+
         if nota >= NOTA_MINIMA:
-            # 🟢 Aprobado
-            intento.save()
             messages.success(request, "¡Calificación guardada correctamente! El estudiante aprobó.")
         else:
-            # 🔴 Reprobado -> Reenvío automático para nuevo intento
-            messages.warning(request, f"Calificación menor a {NOTA_MINIMA}. El ejercicio ha sido reenviado para que el estudiante lo repita.")
-            
-            # Borramos las respuestas y el intento para que el estudiante pueda volver a responder
-            intento.respuestas.all().delete()
-            intento.delete()
+            if total_intentos < 2:
+                messages.warning(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante puede realizar un segundo y último intento.")
+            else:
+                messages.error(request, "Calificación menor a {NOTA_MINIMA}. El estudiante ha agotado sus 2 intentos y ya no puede reintentar.")
         
         return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
 
-    # Pasamos 'respuestas' al contexto del render
     return render(request, 'ejercicios/calificar_ejercicio.html', {
         'intento': intento,
         'respuestas': respuestas
@@ -200,17 +198,27 @@ def responder_actividad(request, pregunta_id): # Aquí 'pregunta_id' es el ID de
     ejercicio = get_object_or_404(Ejercicio, id=pregunta_id)
     clase = ejercicio.clase
 
+    # Contamos cuántos intentos ha hecho este estudiante para este ejercicio
+    intentos_realizados = IntentoEjercicio.objects.filter(
+        estudiante=request.user, 
+        ejercicio=ejercicio
+    ).count()
+
+    # Si ya alcanzó o superó los 2 intentos, bloqueamos
+    if intentos_realizados >= 2:
+        messages.error(request, "Ya no tienes más oportunidades para este ejercicio. Has agotado tus 2 intentos.")
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+
     if request.method == 'POST':
-        # 1. Creamos o recuperamos el intento de forma segura para soportar reenvíos
-        intento, created = IntentoEjercicio.objects.get_or_create(
+        # Creamos un NUEVO intento (Intento 1 o Intento 2) sin borrar el historial anterior
+        intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
-            ejercicio=ejercicio
+            ejercicio=ejercicio,
+            calificacion=None, # Pendiente de calificar
+            retroalimentacion=""
         )
 
-        # Limpiamos respuestas anteriores si se está reenviando
-        intento.respuestas.all().delete()
-
-        # 2. Guardamos las respuestas nuevas del formulario
+        # Guardamos las respuestas del formulario para este nuevo intento
         for pregunta in ejercicio.preguntas.all():
             opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
             if opcion_id:
@@ -224,7 +232,6 @@ def responder_actividad(request, pregunta_id): # Aquí 'pregunta_id' es el ID de
         messages.success(request, "¡Ejercicio enviado con éxito! Quedó pendiente de calificación.")
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-    # 3. Renderizamos utilizando la plantilla moderna dentro de ejercicios
     return render(request, 'ejercicios/resolver_ejercicio.html', {
         'ejercicio': ejercicio,
         'clase': clase,

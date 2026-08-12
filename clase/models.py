@@ -4,7 +4,14 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 class Clase(models.Model):
+    TEMA_CATEGORIAS = [
+        ('armonia', 'Armonía'),
+        ('ritmo', 'Ritmo'),
+        ('melodia', 'Melodía'),
+    ]
+
     nombre = models.CharField(max_length=100)
+    categoria_tema = models.CharField(max_length=20, choices=TEMA_CATEGORIAS, default='armonia') 
     descripcion = models.TextField(blank=True)
     docente = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clases_docente')
     estudiantes = models.ManyToManyField(User, related_name='clases_estudiante', blank=True)
@@ -137,3 +144,19 @@ class RespuestaEstudiante(models.Model):
 
     class Meta:
         unique_together = ('estudiante', 'pregunta')
+
+class InscripcionNivel(models.Model):
+    # 1. Define la variable AQUÍ ARRIBA dentro de la clase
+    NIVEL_CHOICES = [
+        ('1', '1 - Bajo'),
+        ('2', '2 - Medio'),
+        ('3', '3 - Intermedio'),
+        ('4', '4 - Experto'),
+    ]
+    
+    # 2. Ahora sí puedes usar la variable abajo
+    estudiante = models.OneToOneField(User, on_delete=models.CASCADE, related_name='nivel_estudiante')
+    nivel = models.CharField(max_length=10, choices=NIVEL_CHOICES, default='1')
+
+    def __str__(self):
+        return f"{self.estudiante.username} - {self.get_nivel_display()}"

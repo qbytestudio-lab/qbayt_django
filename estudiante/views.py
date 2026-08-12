@@ -3,9 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
 from docente.utils import calcular_progreso_clase
-from clase.models import Clase
+from clase.models import Clase, InscripcionNivel
 from docente.models import SolicitudClase, Actividad
+from django.contrib.auth.models import User
+from web.models import Perfil
 
+
+from django.contrib.auth import login
 def calcular_progreso_clase(estudiante, clase):
     """Devuelve el % de actividades completadas en una clase."""
     total_actividades = Actividad.objects.filter(leccion__clase=clase).count()
@@ -54,16 +58,17 @@ def perfil_estudiante(request):
         'ejercicios_hechos': ejercicios_hechos,
         'total_actividades': total_actividades,
     })
+
 def configurar_nivel(request):
-    # Seguridad: Si no pasó por el formulario de registro antes, lo regresamos
     if 'registro_temporal' not in request.session:
         return redirect('registro')
 
-    if request.method == 'POST':
-        datos = request.session['registro_temporal']
-        nivel_seleccionado = request.POST.get('nivel') # Asegúrate que tu input se llame 'nivel'
+    datos = request.session['registro_temporal']
 
-        # Ahora sí, creamos el usuario en la base de datos
+    if request.method == 'POST':
+        nivel_seleccionado = request.POST.get('nivel') # Aquí captura el '1', '2', '3' o '4'
+
+        # 1. Creamos el usuario
         user = User.objects.create_user(
             username=datos['username'],
             email=datos['email'],
@@ -73,16 +78,18 @@ def configurar_nivel(request):
         )
         user.save()
 
-        # Creamos su perfil asociado incluyendo el nivel seleccionado
-        Perfil.objects.create(user=user, rol=datos['rol'], nivel=nivel_seleccionado)
+        # 2. Creamos su perfil
+        Perfil.objects.create(user=user, rol=datos['rol'])
 
-        # Limpiamos la sesión temporal
+        # 3. ¡ESTO ES LO QUE FALTABA! Guardamos el nivel seleccionado en la app clase
+        InscripcionNivel.objects.create(estudiante=user, nivel=nivel_seleccionado)
+
+        # 4. Limpiamos la sesión temporal
         del request.session['registro_temporal']
 
-        # Iniciamos sesión automáticamente
+        # 5. Logueamos y redirigimos
         login(request, user)
-
-        messages.success(request, '¡Cuenta creada y nivel configurado con éxito!')
+        messages.success(request, '¡Cuenta creada con éxito!')
         return redirect('inicio')
 
     return render(request, 'estudiante/configurar_nivel.html')
@@ -96,15 +103,20 @@ def unirse_clase(request):
         codigo = request.POST.get('codigo', '').strip().upper()
 
         try:
-            clase = Clase.objects.get(codigo=codigo)
+            clase_nueva = Clase.objects.get(codigo=codigo)
 
-            if request.user in clase.estudiantes.all():
+            # Validamos si ya tiene otra clase en la misma categoría de tema
+            clases_misma_categoria = request.user.clases_estudiante.filter(categoria_tema=clase_nueva.categoria_tema)
+
+            if request.user in clase_nueva.estudiantes.all():
                 messages.warning(request, 'Ya estás en esta clase.')
+            elif clases_misma_categoria.exists():
+                messages.error(request, f'Ya estás inscrito en otra clase de la categoría "{clase_nueva.get_categoria_tema_display()}".')
             else:
-                clase.estudiantes.add(request.user)
-                messages.success(request, f'¡Te uniste a "{clase.nombre}"!')
+                clase_nueva.estudiantes.add(request.user)
+                messages.success(request, f'¡Te uniste a "{clase_nueva.nombre}"!')
 
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
 
         except Clase.DoesNotExist:
             messages.error(request, 'Código inválido.')
@@ -116,16 +128,24 @@ def unirse_clase(request):
 def solicitar_clase(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
+        
     if request.method == 'POST':
         clase_id = request.POST.get('clase_id')
-        clase = get_object_or_404(Clase, id=clase_id)
-        if request.user in clase.estudiantes.all():
+        clase_solicitada = get_object_or_404(Clase, id=clase_id)
+
+        # Validamos si ya tiene otra clase en la misma categoría de tema
+        clases_misma_categoria = request.user.clases_estudiante.filter(categoria_tema=clase_solicitada.categoria_tema)
+
+        if request.user in clase_solicitada.estudiantes.all():
             messages.warning(request, 'Ya estás en esta clase.')
-        elif SolicitudClase.objects.filter(clase=clase, estudiante=request.user, estado='pendiente').exists():
+        elif clases_misma_categoria.exists():
+            messages.error(request, f'Ya tienes una clase en la categoría "{clase_solicitada.get_categoria_tema_display()}".')
+        elif SolicitudClase.objects.filter(clase=clase_solicitada, estudiante=request.user, estado='pendiente').exists():
             messages.warning(request, 'Ya tienes una solicitud pendiente para esta clase.')
         else:
-            SolicitudClase.objects.create(clase=clase, estudiante=request.user)
-            messages.success(request, f'Solicitud enviada a "{clase.nombre}". Espera que el docente la acepte.')
+            SolicitudClase.objects.create(clase=clase_solicitada, estudiante=request.user)
+            messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
+            
     return redirect('estudiante:perfil_estudiante')
 
 @login_required

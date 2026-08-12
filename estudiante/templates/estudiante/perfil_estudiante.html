@@ -140,6 +140,14 @@
           </span>
         </div>
         <div class="info-field">
+          <span class="info-label">Nivel de entrenamiento</span>
+          <span class="info-value">
+            <span class="badge bg-secondary" style="font-weight: 600; padding: 0.4em 0.8em; border-radius: 6px;">
+              <i class="bi bi-music-note-beamed me-1"></i> {{ request.user.nivel_estudiante.get_nivel_display|default:"No asignado" }}
+            </span>
+          </span>
+        </div>
+        <div class="info-field">
           <span class="info-label">Miembro desde</span>
           <span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span>
         </div>
