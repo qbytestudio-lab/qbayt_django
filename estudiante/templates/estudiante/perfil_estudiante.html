@@ -139,74 +139,75 @@
             </span>
           </span>
         </div>
+
+        <!-- ✅ NIVEL DE ENTRENAMIENTO CORREGIDO -->
         <div class="info-field">
           <span class="info-label">Nivel de entrenamiento</span>
           <span class="info-value">
-            <span class="badge bg-secondary" style="font-weight: 600; padding: 0.4em 0.8em; border-radius: 6px;">
-              <i class="bi bi-music-note-beamed me-1"></i> {{ request.user.nivel_estudiante.get_nivel_display|default:"No asignado" }}
+            {% if request.user.nivel_estudiante %}
+            <span class="badge-nivel nivel-{{ request.user.nivel_estudiante.nivel }}">
+              <i class="bi bi-music-note-beamed me-1"></i>
+              {{ request.user.nivel_estudiante.get_nivel_display }}
             </span>
+            {% else %}
+            <span class="badge-nivel no-asignado">
+              <i class="bi bi-music-note-beamed me-1"></i>
+              No asignado
+            </span>
+            {% endif %}
           </span>
         </div>
-        <div class="info-field">
-          <span class="info-label">Miembro desde</span>
-          <span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span>
-        </div>
-        <div class="info-field">
-          <span class="info-label">Último acceso</span>
-          <span class="info-value">{{ request.user.last_login|date:"d \d\e F, H:i" }}</span>
-        </div>
-      </div>
 
-      <!-- Danger Zone -->
-      <div class="danger-zone">
-        <h4 class="danger-title">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          Zona de Peligro
-        </h4>
-        <p class="danger-text">Si eliminas tu cuenta, se borrarán permanentemente todos tus datos, progresos e
-          historial en la plataforma. Esta acción no se puede deshacer.</p>
-        <button class="btn-danger-spotify" data-bs-toggle="modal" data-bs-target="#modalEliminar">
-          <i class="bi bi-trash"></i> Eliminar mi cuenta permanentemente
-        </button>
+        <!-- Danger Zone -->
+        <div class="danger-zone">
+          <h4 class="danger-title">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Zona de Peligro
+          </h4>
+          <p class="danger-text">Si eliminas tu cuenta, se borrarán permanentemente todos tus datos, progresos e
+            historial en la plataforma. Esta acción no se puede deshacer.</p>
+          <button class="btn-danger-spotify" data-bs-toggle="modal" data-bs-target="#modalEliminar">
+            <i class="bi bi-trash"></i> Eliminar mi cuenta permanentemente
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- TAB: PENDIENTES -->
-  <div class="tab-pane" id="tab-pendientes">
-    <div class="section-card">
-      <div class="section-card-header">
-        <h2><i class="bi bi-hourglass-split"></i> Ejercicios pendientes</h2>
-        <span style="color: var(--spotify-subtext); font-size: 0.85rem;">
-          {{ pendientes_count }} pendiente{{ pendientes_count|pluralize:"s" }}
-        </span>
-      </div>
+    <!-- TAB: PENDIENTES -->
+    <div class="tab-pane" id="tab-pendientes">
+      <div class="section-card">
+        <div class="section-card-header">
+          <h2><i class="bi bi-hourglass-split"></i> Ejercicios pendientes</h2>
+          <span style="color: var(--spotify-subtext); font-size: 0.85rem;">
+            {{ pendientes_count }} pendiente{{ pendientes_count|pluralize:"s" }}
+          </span>
+        </div>
 
-      <div class="pending-list">
-        {% for item in pendientes %}
-        <div class="pending-item">
-          <div class="pending-icon">
-            <i class="bi bi-{% if item.tipo == 'quiz' %}patch-question{% else %}file-text{% endif %}"></i>
+        <div class="pending-list">
+          {% for item in pendientes %}
+          <div class="pending-item">
+            <div class="pending-icon">
+              <i class="bi bi-{% if item.tipo == 'quiz' %}patch-question{% else %}file-text{% endif %}"></i>
+            </div>
+            <div class="pending-info">
+              <h3>{{ item.titulo }}</h3>
+              <p><i class="bi bi-folder-fill me-1"></i> {{ item.clase_nombre }} · {{ item.leccion_titulo }}</p>
+            </div>
+            <a href="{% url 'detalle_actividad_estudiante' item.id %}" class="btn-do-it">
+              Resolver <i class="bi bi-arrow-right"></i>
+            </a>
           </div>
-          <div class="pending-info">
-            <h3>{{ item.titulo }}</h3>
-            <p><i class="bi bi-folder-fill me-1"></i> {{ item.clase_nombre }} · {{ item.leccion_titulo }}</p>
+          {% empty %}
+          <div class="empty-state">
+            <div class="empty-icon">
+              <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <p class="empty-text">¡No tienes actividades pendientes! 🎉</p>
           </div>
-          <a href="{% url 'detalle_actividad_estudiante' item.id %}" class="btn-do-it">
-            Resolver <i class="bi bi-arrow-right"></i>
-          </a>
+          {% endfor %}
         </div>
-        {% empty %}
-        <div class="empty-state">
-          <div class="empty-icon">
-            <i class="bi bi-check-circle-fill"></i>
-          </div>
-          <p class="empty-text">¡No tienes actividades pendientes! 🎉</p>
-        </div>
-        {% endfor %}
       </div>
     </div>
-  </div>
 
 </main>
 
@@ -221,7 +222,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
-      
+
       <form action="{% url 'editar_perfil' %}" method="POST">
         {% csrf_token %}
         <div class="modal-body">
@@ -264,8 +265,8 @@
       </div>
       <div class="modal-body">
         <p style="color: var(--spotify-text); margin-bottom: 0;">
-          Esta acción es <strong>irreversible</strong>. Se eliminarán permanentemente todos tus datos, clases,
-          progresos y certificados de la plataforma.
+          Esta acción es <strong>irreversible</strong>. Se eliminarán permanentemente todos tus datos, clases, progresos
+          y certificados de la plataforma.
         </p>
       </div>
       <div class="modal-footer">

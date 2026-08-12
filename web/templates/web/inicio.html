@@ -53,7 +53,6 @@
         <div class="stat-label">Cursos activos</div>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon-wrapper stat-icon-purple">
         <i class="bi bi-trophy-fill"></i>
@@ -63,7 +62,6 @@
         <div class="stat-label">Ejercicios completados</div>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon-wrapper stat-icon-pink">
         <i class="bi bi-lightning-charge-fill"></i>
@@ -73,7 +71,6 @@
         <div class="stat-label">Días de racha</div>
       </div>
     </div>
-
     <div class="stat-card">
       <div class="stat-icon-wrapper stat-icon-orange">
         <i class="bi bi-clock-fill"></i>
@@ -100,12 +97,10 @@
     {% for curso in cursos_teoria %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
       <div style="position: relative;">
-        <!-- IMAGEN UNIFICADA -->
         <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
              alt="{{ curso.nombre }}" class="course-card-img"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         
-        <!-- FALLBACK -->
         <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #7c6fff, #5a4fcf); align-items:center; justify-content:center;">
           <i class="bi bi-music-note-list" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
         </div>
@@ -171,7 +166,8 @@
             </div>
 
             <div style="text-align: right; margin-top: 1.5rem;">
-              <a href="#" class="btn-spotify-success">
+              <!-- ✅ BOTÓN CORREGIDO -->
+              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
                 <i class="bi bi-play-circle-fill"></i> Unirse y empezar
               </a>
             </div>
@@ -202,12 +198,10 @@
     {% for curso in cursos_auditivo %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalAud{{ curso.id }}">
       <div style="position: relative;">
-        <!-- IMAGEN UNIFICADA -->
         <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
              alt="{{ curso.nombre }}" class="course-card-img"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         
-        <!-- FALLBACK -->
         <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #1db954, #169c46); align-items:center; justify-content:center;">
           <i class="bi bi-ear" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
         </div>
@@ -273,7 +267,8 @@
             </div>
 
             <div style="text-align: right; margin-top: 1.5rem;">
-              <a href="#" class="btn-spotify-success">
+              <!-- ✅ BOTÓN CORREGIDO -->
+              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
                 <i class="bi bi-play-circle-fill"></i> Unirse y empezar
               </a>
             </div>
@@ -304,12 +299,10 @@
     {% for curso in cursos_instrumento %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalInst{{ curso.id }}">
       <div style="position: relative;">
-        <!-- IMAGEN UNIFICADA -->
         <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
              alt="{{ curso.nombre }}" class="course-card-img"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
         
-        <!-- FALLBACK -->
         <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #ff6b9d, #e91429); align-items:center; justify-content:center;">
           <i class="bi bi-music-note-beamed" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
         </div>
@@ -375,7 +368,8 @@
             </div>
 
             <div style="text-align: right; margin-top: 1.5rem;">
-              <a href="#" class="btn-spotify-success">
+              <!-- ✅ BOTÓN CORREGIDO -->
+              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
                 <i class="bi bi-play-circle-fill"></i> Unirse y empezar
               </a>
             </div>
@@ -397,12 +391,7 @@
 
 {% block extra_js %}
 <script>
-  // Animación de las tarjetas al hacer scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px'
-  };
-
+  const observerOptions = { threshold: 0.1, rootMargin: '0px' };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -419,14 +408,9 @@
     observer.observe(card);
   });
 
-  // Efecto hover en play button
   document.querySelectorAll('.course-play-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', function() {
-      this.style.transform = 'scale(1.1)';
-    });
-    btn.addEventListener('mouseleave', function() {
-      this.style.transform = 'scale(1)';
-    });
+    btn.addEventListener('mouseenter', function() { this.style.transform = 'scale(1.1)'; });
+    btn.addEventListener('mouseleave', function() { this.style.transform = 'scale(1)'; });
   });
 </script>
 {% endblock %}
