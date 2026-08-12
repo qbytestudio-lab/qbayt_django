@@ -1,0 +1,208 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ curso.nombre }} — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'clase/css/continuar_curso.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="learning-container">
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--         SIDEBAR - PROGRESO            -->
+  <!-- ═══════════════════════════════════════ -->
+  <aside class="learning-sidebar">
+    <h3 class="sidebar-title">
+      <i class="bi bi-collection-play"></i> {{ curso.nombre }}
+    </h3>
+
+    <div class="module-list">
+      {% for modulo in curso.modulos.all %}
+      <a href="?modulo={{ modulo.id }}" class="module-item 
+        {% if modulo_actual and modulo_actual.id == modulo.id %}active{% endif %}
+        {% if modulo.id in modulos_completados %}completed{% endif %}">
+        <div class="module-number">
+          {% if modulo.id in modulos_completados %}
+          <i class="bi bi-check-lg"></i>
+          {% else %}
+          {{ forloop.counter }}
+          {% endif %}
+        </div>
+        <div class="module-info">
+          <div class="module-name">{{ modulo.titulo }}</div>
+          <div class="module-status">
+            {% if modulo.id in modulos_completados %}
+            Completado
+            {% elif modulo_actual and modulo_actual.id == modulo.id %}
+            En progreso
+            {% else %}
+            Pendiente
+            {% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+
+    <!-- Overall Progress -->
+    <div class="overall-progress">
+      <div class="progress-label">
+        <span>Progreso total</span>
+        <span>{{ progreso_total }}%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ progreso_total }}%;"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!--         MAIN CONTENT                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <main class="learning-content">
+
+    {% if modulo_actual %}
+    
+    <!-- Contenido del módulo -->
+    <div class="content-card">
+      <div class="content-card-header">
+        <div class="section-label">Módulo {{ modulo_actual.orden }}</div>
+        <h3>{{ modulo_actual.titulo }}</h3>
+      </div>
+      <div class="content-card-body">
+        {{ modulo_actual.contenido|safe|linebreaks }}
+      </div>
+    </div>
+
+    <!-- Quiz del módulo -->
+    {% if modulo_actual.preguntas.all %}
+    <div class="quiz-section" id="quizSection">
+      <h3 class="quiz-title">
+        <i class="bi bi-patch-question-fill"></i>
+        Verifica tu conocimiento
+      </h3>
+
+      <form id="quizForm" onsubmit="return checkQuiz(event)">
+        {% for pregunta in modulo_actual.preguntas.all %}
+        <div class="quiz-question">
+          <p>{{ forloop.counter }}. {{ pregunta.texto }}</p>
+          <div class="quiz-options">
+            {% for opcion in pregunta.opciones.all %}
+            <label class="quiz-option" data-correct="{{ opcion.es_correcta|lower }}">
+              <div class="quiz-radio"></div>
+              <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" style="display:none;">
+              {{ opcion.texto }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="btn-submit-quiz">
+          <i class="bi bi-check-lg"></i> Verificar respuestas
+        </button>
+      </form>
+
+      <div id="quizResult" style="display:none;"></div>
+    </div>
+    {% endif %}
+
+    <!-- Navegación -->
+    <div class="content-navigation">
+      {% if modulo_anterior %}
+      <a href="?modulo={{ modulo_anterior.id }}" class="btn-nav btn-prev">
+        <i class="bi bi-arrow-left"></i> Módulo anterior
+      </a>
+      {% else %}
+      <div></div>
+      {% endif %}
+
+      {% if modulo_siguiente %}
+      <a href="?modulo={{ modulo_siguiente.id }}" class="btn-nav btn-next">
+        Siguiente módulo <i class="bi bi-arrow-right"></i>
+      </a>
+      {% else %}
+      <a href="{% url 'cursos' %}" class="btn-nav btn-next btn-finish">
+        <i class="bi bi-check-lg"></i> Finalizar curso
+      </a>
+      {% endif %}
+    </div>
+
+    {% else %}
+    <!-- Empty State -->
+    <div class="empty-state">
+      <i class="bi bi-collection-play"></i>
+      <h2>Selecciona un módulo</h2>
+      <p>Elige un módulo del panel izquierdo para comenzar a aprender</p>
+    </div>
+    {% endif %}
+
+  </main>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Seleccionar opción de quiz
+  document.querySelectorAll('.quiz-option').forEach(option => {
+    option.addEventListener('click', function() {
+      const parent = this.closest('.quiz-question');
+      parent.querySelectorAll('.quiz-option').forEach(opt => opt.classList.remove('selected'));
+      this.classList.add('selected');
+      this.querySelector('input').checked = true;
+    });
+  });
+
+  // Verificar quiz
+  function checkQuiz(event) {
+    event.preventDefault();
+    
+    const questions = document.querySelectorAll('.quiz-question');
+    let correct = 0;
+    let total = questions.length;
+    
+    questions.forEach(question => {
+      const selected = question.querySelector('.quiz-option.selected');
+      const allOptions = question.querySelectorAll('.quiz-option');
+      
+      allOptions.forEach(opt => {
+        if (opt.dataset.correct === 'true') {
+          opt.classList.add('correct');
+        }
+        if (opt.classList.contains('selected') && opt.dataset.correct !== 'true') {
+          opt.classList.add('incorrect');
+        }
+      });
+      
+      if (selected && selected.dataset.correct === 'true') {
+        correct++;
+      }
+    });
+    
+    const resultDiv = document.getElementById('quizResult');
+    const passed = correct === total;
+    
+    resultDiv.style.display = 'block';
+    resultDiv.className = 'quiz-result ' + (passed ? 'passed' : 'failed');
+    resultDiv.innerHTML = `
+      <i class="bi bi-${passed ? 'trophy-fill' : 'emoji-neutral-fill'}"></i>
+      <h4>${passed ? '¡Excelente!' : 'Sigue intentando'}</h4>
+      <p>Respondiste ${correct} de ${total} preguntas correctamente.</p>
+      ${passed ? '<p>✅ Has completado este módulo</p>' : '<p>Repasa el contenido e intenta de nuevo</p>'}
+    `;
+    
+    // Deshabilitar opciones
+    document.querySelectorAll('.quiz-option').forEach(opt => {
+      opt.style.pointerEvents = 'none';
+    });
+    
+    document.querySelector('.btn-submit-quiz').style.display = 'none';
+    
+    return false;
+  }
+</script>
+{% endblock %}
