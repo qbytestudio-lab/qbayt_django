@@ -5,7 +5,7 @@ from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required, user_passes_test
 from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
-from .models import Curso, InscripcionCurso
+from .models import Curso, InscripcionCurso, Modulo
 from docente.utils import calcular_progreso_clase
 from django.shortcuts import get_object_or_404
 import json
@@ -457,3 +457,55 @@ def calendario(request):
     }
     
     return render(request, 'web/calendario.html', context)
+
+
+@login_required
+def continuar_curso(request, curso_id):
+    curso = get_object_or_404(Curso, id=curso_id)
+    
+    # ✅ Cambia 'orden' por 'id' (o quita el order_by si no tienes campo de orden)
+    modulos = curso.modulos.all().order_by('id')
+    
+    # Obtener módulo actual (por parámetro o el primero)
+    modulo_id = request.GET.get('modulo')
+    if modulo_id:
+        modulo_actual = get_object_or_404(Modulo, id=modulo_id, curso=curso)
+    else:
+        modulo_actual = modulos.first()
+    
+    # Módulos completados (simulado - deberías guardarlo en BD)
+    modulos_completados = request.session.get(f'completados_{curso_id}', [])
+    
+    # Calcular progreso
+    total_modulos = modulos.count()
+    completados_count = len(modulos_completados)
+    progreso_total = int((completados_count / total_modulos) * 100) if total_modulos > 0 else 0
+    
+    # Módulos anterior y siguiente
+    modulo_anterior = None
+    modulo_siguiente = None
+    
+    if modulo_actual:
+        modulos_list = list(modulos)
+        # ✅ Usa index() para encontrar la posición
+        try:
+            current_index = modulos_list.index(modulo_actual)
+            
+            if current_index > 0:
+                modulo_anterior = modulos_list[current_index - 1]
+            if current_index < len(modulos_list) - 1:
+                modulo_siguiente = modulos_list[current_index + 1]
+        except ValueError:
+            pass
+    
+    context = {
+        'curso': curso,
+        'modulos': modulos,
+        'modulo_actual': modulo_actual,
+        'modulo_anterior': modulo_anterior,
+        'modulo_siguiente': modulo_siguiente,
+        'modulos_completados': modulos_completados,
+        'progreso_total': progreso_total,
+    }
+    
+    return render(request, 'clase/continuar_curso.html', context)

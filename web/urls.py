@@ -24,6 +24,7 @@ urlpatterns = [
     path('crear-curso/',views.crear_curso, name='crear_curso'),
     path('cursos/eliminar-propio/<int:curso_id>/', views.eliminar_curso_propio, name='eliminar_curso_propio'),  # ✅ NUEVO
     path('agregar_curso/<int:curso_id>/', views.agregar_curso, name='agregar_curso'),
-    path('detalle_curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),  # ✅ NUEVA URL
+    path('detalle_curso/<int:curso_id>/', views.detalle_curso, name='detalle_curso'),
+    path('curso/<int:curso_id>/continuar/', views.continuar_curso, name='continuar_curso'),  # ✅ NUEVA URL
     
 ]

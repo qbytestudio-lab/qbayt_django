@@ -54,7 +54,7 @@
                 <!-- Acciones -->
                 <div class="detail-actions">
                     {% if es_creador %}
-                        <a href="#" class="btn-course-primary" style="background: #ff9f43; flex: 0 1 auto;">
+                        <a href="{% url 'editar_curso' curso.id %}" class="btn-course-primary" style="background: #ff9f43; flex: 0 1 auto;">
                             <i class="bi bi-pencil-fill"></i> Editar curso
                         </a>
                         <a href="{% url 'eliminar_curso_propio' curso.id %}"
@@ -65,7 +65,8 @@
                     {% endif %}
 
                     {% if esta_inscrito %}
-                        <a href="#" class="btn-course-primary" style="background: var(--spotify-green); flex: 0 1 auto;">
+                        <!-- ✅ BOTÓN CORREGIDO - Usa la URL correcta -->
+                        <a href="{% url 'continuar_curso' curso.id %}" class="btn-course-primary" style="background: var(--spotify-green); flex: 0 1 auto;">
                             <i class="bi bi-play-fill"></i> Continuar aprendiendo
                         </a>
                     {% else %}
@@ -153,7 +154,6 @@
 
 {% block extra_js %}
 <script>
-    // Animación de entrada
     const observerOptions = { threshold: 0.1, rootMargin: '0px' };
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {

@@ -66,11 +66,15 @@ class InscripcionCurso(models.Model):
 
 class Modulo(models.Model):
     curso = models.ForeignKey(Curso, on_delete=models.CASCADE, related_name='modulos')
-    nombre = models.CharField(max_length=150)
-    contenido = models.TextField(help_text="Qué se enseñará en este módulo")
-
+    nombre = models.CharField(max_length=200)
+    contenido = models.TextField()
+    orden = models.IntegerField(default=1)  # ← Agrega este campo
+    
+    class Meta:
+        ordering = ['orden']  # ← Ordenar por este campo
+    
     def __str__(self):
-        return f"{self.curso.nombre} - {self.nombre}"
+        return self.nombre
 
 class Usuario(AbstractUser):
   nivel_musical = models.IntegerField(default=1, blank=True, null=True)
