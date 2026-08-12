@@ -16,8 +16,7 @@
   {% for message in messages %}
   <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert"
     style="background: {% if message.tags == 'success' %}#1db954{% else %}#e91429{% endif %}; color: #fff; border: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">
-    <i
-      class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}-fill me-2"></i>
+    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}-fill me-2"></i>
     {{ message }}
     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
   </div>
@@ -95,7 +94,7 @@
       <i class="bi bi-bell-fill"></i>
       Solicitudes de ingreso
     </h2>
-    <span class="solicitudes-count">{{ solicitudes_pendientes.count }} pendiente{{solicitudes_pendientes.count|pluralize:"s" }}</span>
+    <span class="solicitudes-count">{{ solicitudes_pendientes.count }} pendiente{{ solicitudes_pendientes.count|pluralize:"s" }}</span>
   </div>
 
   <div class="solicitudes-list">
@@ -139,14 +138,12 @@
   <div class="class-card">
 
     <!-- Card Image -->
-    <div class="class-card-image {% if clase.imagen %}has-image{% endif %}" {% if clase.imagen %}
-      style="background-image:url('{{ clase.imagen.url }}');" {% endif %}>
+    <div class="class-card-image {% if clase.imagen %}has-image{% endif %}" 
+         {% if clase.imagen %}style="background-image:url('{{ clase.imagen.url }}');"{% endif %}>
       {% if not clase.imagen %}
       <i class="bi bi-music-note-beamed"></i>
       {% endif %}
-
       <div class="class-card-overlay"></div>
-
       <div class="students-count">
         <i class="bi bi-people-fill"></i>
         {{ clase.estudiantes.count }} estudiante{{ clase.estudiantes.count|pluralize:"s" }}
@@ -171,11 +168,13 @@
           <i class="bi bi-people"></i>
           {{ clase.estudiantes.count }} inscritos
         </span>
-        <span class="badge" style="background: rgba(124, 111, 255, 0.15); color: #7c6fff; font-weight: 600; padding: 0.3em 0.6em; border-radius: 4px; font-size: 0.75rem; margin-bottom: 0.5rem; display: inline-block;">
-      <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
-    </span>
       </div>
-      
+
+      <!-- ✅ BADGE DE CATEGORÍA - CORREGIDO -->
+      <div class="class-category-badge">
+        <i class="bi bi-tag-fill"></i> 
+        {{ clase.get_categoria_tema_display|default:"Sin categoría" }}
+      </div>
 
       <!-- Code -->
       <div class="class-code">
@@ -254,36 +253,26 @@
 <div class="modal fade" id="modalCrearClase" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-
       <div class="modal-header">
         <h5 class="modal-title">
           <i class="bi bi-plus-circle me-2" style="color:#7c6fff;"></i>
           Nueva clase
         </h5>
-
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
       <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-
         <div class="modal-body">
 
           <div class="mb-3">
-            <label class="form-label">
-              Nombre de la clase
-              <span class="text-danger">*</span>
-            </label>
-
+            <label class="form-label">Nombre de la clase <span class="text-danger">*</span></label>
             <input type="text" class="form-control" name="nombre" placeholder="Ej: Entrenamiento auditivo I" required>
           </div>
 
-          <!-- NUEVO CAMPO: Categoría del Tema -->
+          <!-- Categoría del Tema -->
           <div class="mb-3">
-            <label class="form-label">
-              Categoría del tema
-              <span class="text-danger">*</span>
-            </label>
+            <label class="form-label">Categoría del tema <span class="text-danger">*</span></label>
             <select class="form-select" name="categoria_tema" required>
               <option value="" disabled selected>Selecciona una categoría...</option>
               <option value="armonia">Armonía</option>
@@ -293,95 +282,52 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">
-              Descripción
-            </label>
-
-            <textarea class="form-control" name="descripcion" rows="3"
-              placeholder="Describe de qué trata esta clase..."></textarea>
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" name="descripcion" rows="3" placeholder="Describe de qué trata esta clase..."></textarea>
           </div>
 
           <div class="row">
-
             <div class="col-md-6 mb-3">
-              <label class="form-label">
-                Fecha de inicio
-              </label>
-
+              <label class="form-label">Fecha de inicio</label>
               <input type="date" class="form-control" name="fecha_inicio">
             </div>
-
             <div class="col-md-6 mb-3">
-              <label class="form-label">
-                Fecha de finalización
-              </label>
-
+              <label class="form-label">Fecha de finalización</label>
               <input type="date" class="form-control" name="fecha_fin">
             </div>
-
           </div>
 
           <div class="row">
-
             <div class="col-md-6 mb-3">
-
-              <label class="form-label">
-                Máximo de estudiantes
-              </label>
-
+              <label class="form-label">Máximo de estudiantes</label>
               <input type="number" class="form-control" name="max_estudiantes" value="35" min="1" max="35" required>
-
             </div>
-
             <div class="col-md-6 mb-3">
-
-              <label class="form-label">
-                Nivel previo (opcional)
-              </label>
-
+              <label class="form-label">Nivel previo (opcional)</label>
               <select class="form-select" name="nivel_previo">
                 <option value="">Ninguno</option>
-
                 {% for clase in clases_docente %}
-                <option value="{{ clase.id }}">
-                  {{ clase.nombre }}
-                </option>
+                <option value="{{ clase.id }}">{{ clase.nombre }}</option>
                 {% endfor %}
-
               </select>
-
             </div>
-
           </div>
 
           <div class="mb-3">
-            <label class="form-label">
-              Imagen de portada (opcional)
-            </label>
-
+            <label class="form-label">Imagen de portada (opcional)</label>
             <input type="file" class="form-control" name="imagen" accept="image/*" style="padding:.5rem!important;">
           </div>
 
           <div class="alert-info-spotify">
             <i class="bi bi-info-circle me-2"></i>
-
             Se generará automáticamente un código único de acceso para que los estudiantes puedan unirse a la clase.
           </div>
 
         </div>
-
         <div class="modal-footer">
-
-          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">
-            Cancelar
-          </button>
-
-          <button type="submit" class="btn-spotify-purple">
-            Crear clase
-          </button>
-
+          <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn-spotify-purple">Crear clase</button>
         </div>
-
       </form>
     </div>
   </div>
@@ -391,10 +337,8 @@
 
 {% block extra_js %}
 <script>
-  // Copiar código al portapapeles
   function copyCode(code) {
     navigator.clipboard.writeText(code).then(() => {
-      // Mostrar feedback visual
       const btns = document.querySelectorAll('.copy-btn');
       btns.forEach(btn => {
         const icon = btn.querySelector('i');
@@ -410,12 +354,7 @@
     });
   }
 
-  // Animación de cards al hacer scroll
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px'
-  };
-
+  const observerOptions = { threshold: 0.1, rootMargin: '0px' };
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -432,10 +371,8 @@
     observer.observe(card);
   });
 
-  // Auto-dismiss alerts
   setTimeout(() => {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
+    document.querySelectorAll('.alert').forEach(alert => {
       const bsAlert = new bootstrap.Alert(alert);
       bsAlert.close();
     });
