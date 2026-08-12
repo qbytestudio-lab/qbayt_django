@@ -193,28 +193,31 @@ def explorar_clases(request):
 
 @login_required
 def detalle_clase_estudiante(request, clase_id):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+        
     clase = get_object_or_404(Clase, id=clase_id)
     
-    # Validar si el usuario sigue inscrito (por si fue expulsado por bloqueo)
     if request.user not in clase.estudiantes.all():
         messages.error(request, "No tienes acceso a esta clase o ha sido bloqueada por límite de reprobaciones.")
         return redirect('estudiante:dashboard')
     
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    
-    clase = get_object_or_404(Clase, id=clase_id, estudiantes=request.user)
     ejercicios = clase.ejercicios.all()
 
-    # Adjuntamos el intento exclusivo del usuario actual a cada ejercicio
+    # Recorremos los ejercicios para calcular los intentos por ejercicio
     for ejercicio in ejercicios:
         ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
+        ejercicio.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
+
+    # 🔍 Obtenemos la solicitud general de la clase (para los intentos de inscripción/curso)
+    solicitud = SolicitudClase.objects.filter(estudiante=request.user, clase=clase).first()
 
     return render(request, 'estudiante/detalle_clase_estudiante.html', {
         'clase': clase,
         'ejercicios': ejercicios,
+        'solicitud': solicitud, # 👈 Esta variable es clave
     })
-
+    
 @login_required
 def detalle_actividad_estudiante(request, actividad_id):
     if request.user.perfil.rol != 'estudiante':
