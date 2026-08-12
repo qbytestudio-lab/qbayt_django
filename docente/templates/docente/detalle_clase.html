@@ -72,7 +72,7 @@
                 </div>
                 <span class="code-hint">← Comparte este código</span>
 
-                <!-- BOTÓN PDF INSERTADO AQUÍ -->
+                <!-- BOTÓN PDF -->
                 <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings" title="Descargar PDF"
                     style="background: var(--accent-purple); color: white; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%;">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
@@ -103,20 +103,20 @@
         </div>
     </section>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN CONTENT (GRID DE 2 COLUMNAS EQUILIBRADO) -->
     <main class="content-area">
         <div class="container">
             <div class="row g-4">
 
-                <!-- LEFT COLUMN -->
-                <div class="col-lg-5">
+                <!-- COLUMNA IZQUIERDA (Panel de Gestión: Solicitudes, Añadir, Inscritos) -->
+                <div class="col-lg-4">
 
                     <!-- SOLICITUDES -->
-                    <div class="section-card">
+                    <div class="section-card mb-4">
                         <div class="section-header">
                             <h3 class="section-title">
                                 <i class="bi bi-bell-fill" style="color: var(--accent-orange);"></i>
-                                Solicitudes pendientes
+                                Solicitudes
                                 {% if solicitudes %}<span class="section-badge orange">{{ solicitudes.count }}</span>{% endif %}
                             </h3>
                         </div>
@@ -138,12 +138,12 @@
                         </div>
                         {% endfor %}
                         {% else %}
-                        <p class="empty-msg"><i class="bi bi-check-circle-me-2"></i>Sin solicitudes pendientes</p>
+                        <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
                         {% endif %}
                     </div>
 
                     <!-- AGREGAR ESTUDIANTE -->
-                    <div class="section-card">
+                    <div class="section-card mb-4">
                         <h3 class="section-title" style="margin-bottom: 1rem;">
                             <i class="bi bi-person-plus-fill" style="color: var(--accent-purple);"></i>
                             Agregar estudiante
@@ -155,153 +155,148 @@
                         </form>
                     </div>
 
-                    <!-- ESTUDIANTES -->
-<div class="section-card">
-    <div class="section-header">
-        <h3 class="section-title">
-            <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
-            Estudiantes inscritos
-            <span class="section-badge purple">{{ clase.estudiantes.count }}</span>
-        </h3>
-    </div>
-
-    <div class="search-bar">
-        <i class="bi bi-search"></i>
-        <input type="text" placeholder="Buscar estudiante..." id="searchInput">
-    </div>
-
-    {% if clase.estudiantes.all %}
-    {% for estudiante in clase.estudiantes.all %}
-    <div class="student-row">
-        <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
-        <div class="student-info">
-            <h4 class="d-flex align-items-center gap-2 flex-wrap">
-                {{ estudiante.get_full_name|default:estudiante.username }}
-                
-                <!-- 🟢 CONTADOR DE INTENTO (Solo aparece si ya tiene más de 1 intento registrado) -->
-                {% with sol=estudiante.solicitudes_clase.first %}
-                  {% if sol and sol.intentos > 1 %}
-                    <span class="status-badge {% if sol.intentos >= 2 %}text-danger border-danger{% else %}text-warning border-warning{% endif %}" style="font-size: 0.65rem; padding: 0.15rem 0.5rem; background: rgba(255,255,255,0.03);">
-                      Intento: {{ sol.intentos }}/2
-                      {% if sol.bloqueado %} (Bloqueado){% endif %}
-                    </span>
-                  {% endif %}
-                {% endwith %}
-            </h4>
-            <p>@{{ estudiante.username }}</p>
-        </div>
-        <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}"
-            class="btn-danger-soft"
-            onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
-            <i class="bi bi-person-dash"></i> Remover
-        </a>
-    </div>
-    {% endfor %}
-    {% else %}
-    <p class="empty-msg">No hay estudiantes inscritos aún</p>
-    {% endif %}
-</div>
-                <!-- RIGHT COLUMN -->
-                <div class="col-lg-7">
-
-                    <!-- LECCIONES -->
+                    <!-- ESTUDIANTES INSCRITOS -->
                     <div class="section-card">
+                        <div class="section-header">
+                            <h3 class="section-title">
+                                <i class="bi bi-people-fill" style="color: var(--accent-purple);"></i>
+                                Inscritos
+                                <span class="section-badge purple">{{ clase.estudiantes.count }}</span>
+                            </h3>
+                        </div>
+
+                        <div class="search-bar mb-3">
+                            <i class="bi bi-search"></i>
+                            <input type="text" placeholder="Buscar estudiante..." id="searchInput">
+                        </div>
+
+                        {% if clase.estudiantes.all %}
+                        {% for estudiante in clase.estudiantes.all %}
+                        <div class="student-row">
+                            <div class="student-avatar">{{ estudiante.username|first|upper }}</div>
+                            <div class="student-info">
+                                <h4 class="d-flex align-items-center gap-2 flex-wrap m-0" style="font-size: 0.9rem;">
+                                    {{ estudiante.get_full_name|default:estudiante.username }}
+                                    
+                                    <!-- CONTADOR DE INTENTO -->
+                                    {% with sol=estudiante.solicitudes_clase.first %}
+                                      {% if sol and sol.intentos > 1 %}
+                                        <span class="status-badge {% if sol.intentos >= 2 %}text-danger border-danger{% else %}text-warning border-warning{% endif %}" style="font-size: 0.60rem; padding: 0.1rem 0.4rem; background: rgba(255,255,255,0.03);">
+                                          Intento: {{ sol.intentos }}/2
+                                          {% if sol.bloqueado %} (Bloq){% endif %}
+                                        </span>
+                                      {% endif %}
+                                    {% endwith %}
+                                </h4>
+                                <p class="m-0" style="font-size: 0.75rem;">@{{ estudiante.username }}</p>
+                            </div>
+                            <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}"
+                                class="btn-danger-soft"
+                                onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
+                                <i class="bi bi-person-dash"></i> Remover
+                            </a>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="empty-msg">No hay estudiantes inscritos aún</p>
+                        {% endif %}
+                    </div>
+
+                </div>
+
+                <!-- COLUMNA DERECHA (Contenido Principal: Ejercicios y Anuncios) -->
+                <div class="col-lg-8">
+
+                    <!-- LECCIONES / EJERCICIOS -->
+                    <div class="section-card mb-4">
                         <div class="section-header">
                             <h3 class="section-title">
                                 <i class="bi bi-collection-play-fill" style="color: var(--accent-purple);"></i>
                                 Contenido de la clase
                             </h3>
-                            <!-- Cambiamos el <button> por un <a> estilizado con tus mismas clases -->
                             <a href="{% url 'crear_ejercicio' clase.id %}" class="btn-add purple" style="text-decoration: none;">
                                 <i class="bi bi-plus-lg"></i> Crear Ejercicio
                             </a>
                         </div>
-                        <!-- Lista de Ejercicios Reales -->
-    <div class="ejercicios-container mt-3" style="display: flex; flex-direction: column; gap: 12px;">
-    {% if ejercicios %}
-        {% for ejercicio in ejercicios %}
-            <div class="ejercicio-item" style="background: #1f1f1f; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <h4 style="margin: 0; font-size: 1.1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: #fff;">
-                        {{ ejercicio.titulo }}
-                    </h4>
-                    {% if ejercicio.descripcion %}
-                        <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #b3b3b3;">
-                            {{ ejercicio.descripcion }}
-                        </p>
-                    {% endif %}
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <!-- Badge de Preguntas -->
-                    <span class="badge" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem;">
-                        <i class="bi bi-question-circle-fill me-1"></i><a href="{% url 'detalle_ejercicio_docente' clase.id ejercicio.id %}" class="badge bg-purple text-decoration-none p-2">
-                ❓ {{ ejercicio.preguntas.count }} preguntas
-            </a>
-                       
-                    </span>
 
-                    <!-- Botón de Editar -->
-                    <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" 
-                       class="btn btn-sm" 
-                       style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; border-radius: 8px; padding: 6px 10px; transition: 0.2s;"
-                       title="Editar ejercicio">
-                        <i class="bi bi-pencil-square"></i>
-                    </a>
-                    
-                    
+                        <!-- Lista de Ejercicios -->
+                        <div class="ejercicios-container mt-3" style="display: flex; flex-direction: column; gap: 12px;">
+                        {% if ejercicios %}
+                            {% for ejercicio in ejercicios %}
+                                <div class="ejercicio-item" style="background: #1f1f1f; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+                                    <div>
+                                        <h4 style="margin: 0; font-size: 1.1rem; font-family: 'DM Sans', sans-serif; font-weight: 600; color: #fff;">
+                                            {{ ejercicio.titulo }}
+                                        </h4>
+                                        {% if ejercicio.descripcion %}
+                                            <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #b3b3b3;">
+                                                {{ ejercicio.descripcion }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div style="display: flex; align-items: center; gap: 8px;">
+                                        <!-- Badge de Preguntas -->
+                                        <a href="{% url 'detalle_ejercicio_docente' clase.id ejercicio.id %}" class="badge text-decoration-none d-flex align-items-center" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 10px; border-radius: 20px; font-size: 0.75rem;">
+                                            ❓ {{ ejercicio.preguntas.count }} pgs
+                                        </a>
 
-                    <!-- NUEVO BOTÓN DE ELIMINAR: Ahora abre el modal usando "data-bs-target" -->
-                    <button type="button" 
-                            class="btn btn-sm" 
-                            style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 8px; padding: 6px 10px; transition: 0.2s;"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#deleteModal{{ ejercicio.id }}"
-                            title="Eliminar ejercicio">
-                        <i class="bi bi-trash-fill"></i>
-                    </button>
-                </div>
-            </div>
+                                        <!-- Botón de Editar -->
+                                        <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" 
+                                           class="btn btn-sm" 
+                                           style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; border-radius: 8px; padding: 6px 10px;"
+                                           title="Editar ejercicio">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </a>
 
-            <!-- MODAL DE CONFIRMACIÓN (Uno único por cada ejercicio en el ciclo) -->
-            <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ ejercicio.id }}" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <!-- Diseñado con el estilo oscuro de QBYT -->
-                    <div class="modal-content" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
-                        <div class="modal-header border-0 pb-0">
-                            <h5 class="modal-title text-white" id="deleteModalLabel{{ ejercicio.id }}" style="font-family: 'DM Sans', sans-serif; font-weight: 600;">
-                                ¿Eliminar ejercicio?
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body py-3">
-                            <p class="mb-0" style="color: #b3b3b3; font-size: 0.95rem;">
-                                ¿Estás seguro de que deseas eliminar permanentemente el ejercicio <strong class="text-white">"{{ ejercicio.titulo }}"</strong>? Esta acción no se puede deshacer.
-                            </p>
-                        </div>
-                        <div class="modal-footer border-0 pt-0 d-flex gap-2">
-                            <button type="button" class="btn btn-sm text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 16px;" data-bs-dismiss="modal">
-                                Cancelar
-                            </button>
-                            <!-- El formulario real de Django se procesa aquí -->
-                            <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm" style="background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
-                                    Sí, eliminar
-                                </button>
-                            </form>
+                                        <!-- Botón de Eliminar -->
+                                        <button type="button" 
+                                                class="btn btn-sm" 
+                                                style="background: rgba(220, 53, 69, 0.1); color: #dc3545; border: 1px solid #dc3545; border-radius: 8px; padding: 6px 10px;"
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal{{ ejercicio.id }}"
+                                                title="Eliminar ejercicio">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- MODAL DE ELIMINACIÓN DE EJERCICIO -->
+                                <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="modal-title text-white" style="font-family: 'DM Sans', sans-serif; font-weight: 600;">
+                                                    ¿Eliminar ejercicio?
+                                                </h5>
+                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body py-3">
+                                                <p class="mb-0" style="color: #b3b3b3; font-size: 0.95rem;">
+                                                    ¿Estás seguro de que deseas eliminar permanentemente el ejercicio <strong class="text-white">"{{ ejercicio.titulo }}"</strong>?
+                                                </p>
+                                            </div>
+                                            <div class="modal-footer border-0 pt-0 d-flex gap-2">
+                                                <button type="button" class="btn btn-sm text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 16px;" data-bs-dismiss="modal">
+                                                    Cancelar
+                                                </button>
+                                                <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin: 0;">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm" style="background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
+                                                        Sí, eliminar
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <p class="text-muted small m-0 text-center py-3">No hay ejercicios creados aún. ¡Crea el primero!</p>
+                        {% endif %}
                         </div>
                     </div>
-                </div>
-            </div>
 
-        {% endfor %}
-    {% else %}
-            <!-- Esto se muestra solo si la lista de ejercicios está vacía -->
-            <p class="text-muted small m-0 text-center py-3">No hay ejercicios creados aún. ¡Crea el primero!</p>
-        {% endif %}
-    </div>
-</div>
                     <!-- ANUNCIOS -->
                     <div class="section-card">
                         <div class="section-header">
@@ -315,7 +310,7 @@
                         </div>
 
                         {% for anuncio in anuncios %}
-                        <div class="announcement-item">
+                        <div class="announcement-item mt-3">
                             <div class="announcement-header">
                                 <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
                                 <div>
@@ -330,7 +325,7 @@
                             <p class="announcement-text">{{ anuncio.texto }}</p>
                         </div>
                         {% empty %}
-                        <p class="empty-msg">No hay anuncios aún</p>
+                        <p class="empty-msg mt-3">No hay anuncios aún</p>
                         {% endfor %}
                     </div>
 
@@ -340,50 +335,13 @@
         </div>
     </main>
 
-    <!-- MODAL: Nueva Lección -->
-    <div class="modal fade" id="modalLeccion" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-plus-circle" style="color:var(--accent-purple)"></i> Nueva
-                        lección</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <form action="{% url 'crear_leccion' clase.id %}" method="POST">
-                    {% csrf_token %}
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Título <span style="color:var(--danger)">*</span></label>
-                            <input type="text" class="form-control" name="titulo"
-                                placeholder="Ej: Introducción a la clase" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Descripción (opcional)</label>
-                            <input type="text" class="form-control" name="descripcion" placeholder="Breve descripción">
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="disponible" id="disponible" checked>
-                            <label class="form-check-label" for="disponible"
-                                style="color:var(--spotify-subtext); font-size:0.85rem;">Disponible para
-                                estudiantes</label>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn-modal-primary">Agregar lección</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
+    <!-- MODALES RESTANTES (Anuncios, Editar Clase, Eliminar Clase) -->
     <!-- MODAL: Publicar Anuncio -->
     <div class="modal fade" id="modalAnuncio" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-megaphone-fill" style="color:var(--accent-orange)"></i>
-                        Publicar anuncio</h5>
+                    <h5 class="modal-title"><i class="bi bi-megaphone-fill" style="color:var(--accent-orange)"></i> Publicar anuncio</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{% url 'crear_anuncio' clase.id %}" method="POST">
@@ -391,8 +349,7 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Mensaje <span style="color:var(--danger)">*</span></label>
-                            <textarea class="form-control" name="texto" rows="4"
-                                placeholder="Escribe el anuncio para tus estudiantes..." required></textarea>
+                            <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio..." required></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -409,8 +366,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><i class="bi bi-pencil-square" style="color:var(--accent-purple)"></i>
-                        Editar clase</h5>
+                    <h5 class="modal-title"><i class="bi bi-pencil-square" style="color:var(--accent-purple)"></i> Editar clase</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data">
@@ -422,13 +378,11 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descripción</label>
-                            <textarea name="descripcion" class="form-control"
-                                rows="3">{{ clase.descripcion }}</textarea>
+                            <textarea name="descripcion" class="form-control" rows="3">{{ clase.descripcion }}</textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Cambiar imagen de portada (opcional)</label>
-                            <input type="file" name="imagen" class="form-control" accept="image/*"
-                                style="padding:0.5rem!important;">
+                            <input type="file" name="imagen" class="form-control" accept="image/*" style="padding:0.5rem!important;">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -448,11 +402,9 @@
                     <div class="delete-modal-icon">
                         <i class="bi bi-exclamation-triangle-fill"></i>
                     </div>
-                    <h5 style="font-family:'Syne',sans-serif; font-weight:700; margin-bottom:0.5rem;">¿Eliminar la
-                        clase?</h5>
+                    <h5 style="font-family:'Syne',sans-serif; font-weight:700; margin-bottom:0.5rem;">¿Eliminar la clase?</h5>
                     <p style="color:var(--spotify-subtext); font-size:0.9rem; margin-bottom:2rem;">
-                        Esta acción borrará <strong>{{ clase.nombre }}</strong> de forma definitiva. Se perderán todos
-                        los datos.
+                        Esta acción borrará <strong>{{ clase.nombre }}</strong> de forma definitiva.
                     </p>
                     <div class="d-flex gap-3 justify-content-center">
                         <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
