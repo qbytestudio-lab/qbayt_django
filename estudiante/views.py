@@ -265,4 +265,31 @@ def detalle_actividad_estudiante(request, actividad_id):
         'puntaje': puntaje,
     })
 
+@login_required
+def mis_calificaciones_estudiante(request):
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+    
+    # 🟢 Solución directa: Buscamos las clases filtrando por el ManyToManyField 'estudiantes'
+    clases = Clase.objects.filter(estudiantes=request.user)
+    
+    reporte_clases = []
+    for clase in clases:
+        ejercicios = clase.ejercicios.all().order_by('id')
+        
+        ejercicios_con_intentos = []
+        for ejercicio in ejercicios:
+            intento = ejercicio.intentos.filter(estudiante=request.user).first()
+            ejercicios_con_intentos.append({
+                'ejercicio': ejercicio,
+                'intento': intento
+            })
+            
+        reporte_clases.append({
+            'clase': clase,
+            'ejercicios': ejercicios_con_intentos
+        })
 
+    return render(request, 'estudiante/mis_calificaciones.html', {
+        'reporte_clases': reporte_clases,
+    })
