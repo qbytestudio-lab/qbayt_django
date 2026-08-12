@@ -7,121 +7,119 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'estudiante/css/explorar.css' %}">
-<link rel="stylesheet" href="{% static 'estudiante/css/perfil_estudiante.css' %}">
 {% endblock %}
 
 {% block content %}
 
+  <!-- Floating Messages -->
   {% if messages %}
   <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    <div class="alert-floating {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
+      {% if message.tags == 'success' %}
+      <i class="bi bi-check-circle-fill me-2"></i>
+      {% else %}
+      <i class="bi bi-exclamation-circle-fill me-2"></i>
+      {% endif %}
       {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
     </div>
     {% endfor %}
   </div>
   {% endif %}
 
   <!-- Hero Section -->
-  <div class="mb-5">
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
-      <div>
-        <h2 style="font-family:'Syne',sans-serif; font-weight:800; font-size:2.2rem; margin-bottom:0.2rem; color:#fff; letter-spacing:-0.5px;">
-          Descubrir clases
-        </h2>
-        <p style="color:#b3b3b3; font-size:0.95rem; font-weight:400;">Encuentra tu próxima clase. Solicita acceso o usa un código directo.</p>
-      </div>
-      <div style="display:flex; gap:0.75rem;">
-        <button style="background:transparent; border:1px solid #727272; color:#a7a7a7; font-weight:600; font-size:0.85rem; padding:0.55rem 1.2rem; border-radius:20px; cursor:pointer; transition:all 0.2s;">
-          <i class="bi bi-funnel me-1"></i>Filtrar
-        </button>
-        <button style="background:transparent; border:1px solid #727272; color:#a7a7a7; font-weight:600; font-size:0.85rem; padding:0.55rem 1.2rem; border-radius:20px; cursor:pointer; transition:all 0.2s;">
-          <i class="bi bi-sort-down me-1"></i>Ordenar
-        </button>
-      </div>
+  <div class="explore-hero">
+    <div>
+      <h1 class="explore-title">Descubrir clases</h1>
+      <p class="explore-subtitle">Encuentra tu próxima clase. Solicita acceso o usa un código directo.</p>
+    </div>
+    <div class="explore-actions">
+      <button class="btn-outline-filter">
+        <i class="bi bi-funnel"></i> Filtrar
+      </button>
+      <button class="btn-outline-filter">
+        <i class="bi bi-sort-down"></i> Ordenar
+      </button>
     </div>
   </div>
 
-  <!-- Código de Clase Card -->
-  <div class="mb-5" style="background:linear-gradient(135deg, #1db954 0%, #169c46 100%); border-radius:12px; padding:1.8rem; position:relative; overflow:hidden;">
-    <div style="position:absolute; right:-20px; top:-30px; opacity:0.15; font-size:8rem; color:#fff;">
-      <i class="bi bi-music-note-beamed"></i>
-    </div>
-    <h3 style="font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; margin-bottom:1.2rem; color:#fff; position:relative; z-index:1;">
-      <i class="bi bi-shield-check me-2"></i>¿Tienes un código de acceso?
+  <!-- Código de Acceso -->
+  <div class="code-card">
+    <h3 class="code-card-title">
+      <i class="bi bi-shield-check"></i> ¿Tienes un código de acceso?
     </h3>
-    <form action="{% url 'estudiante:unirse_clase' %}" method="POST" class="d-flex gap-2" style="position:relative; z-index:1;">
+    <form action="{% url 'estudiante:unirse_clase' %}" method="POST" class="code-card-form">
       {% csrf_token %}
-      <input type="text" name="codigo" class="form-control text-uppercase" placeholder="Ingresa tu código"
-        maxlength="8" required
-        style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.3); color:#fff; letter-spacing:0.2em; font-weight:700; max-width:280px; border-radius:8px; backdrop-filter:blur(10px);">
-      <button type="submit" style="background:#fff; border:none; color:#169c46; font-weight:700; font-size:0.85rem; padding:0.6rem 1.8rem; border-radius:8px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;">
-        Unirse
+      <input type="text" name="codigo" class="code-input" placeholder="Ingresa tu código" maxlength="8" required>
+      <button type="submit" class="btn-join">
+        <i class="bi bi-box-arrow-in-right me-1"></i> Unirse
       </button>
     </form>
   </div>
 
   <!-- Search Bar -->
-  <div class="search-bar mb-4" style="display:flex; align-items:center; gap:0.75rem; background:#2a2a2a; border-radius:8px; padding:0.8rem 1.25rem; transition:all 0.2s;">
-    <i class="bi bi-search" style="color:#6a6a6a; font-size:1.2rem;"></i>
-    <input type="text" placeholder="¿Qué quieres aprender hoy?" id="searchInput"
-      style="background:none; border:none; outline:none; color:#fff; font-size:0.95rem; width:100%; font-weight:500;">
+  <div class="search-bar">
+    <i class="bi bi-search"></i>
+    <input type="text" placeholder="¿Qué quieres aprender hoy?" id="searchInput">
   </div>
 
   <!-- Category Pills -->
-  <div class="mb-5" style="display:flex; gap:0.6rem; flex-wrap:wrap; overflow-x:auto; padding-bottom:0.5rem;">
-    <button style="background:#1db954; border:none; color:#fff; font-weight:600; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap;">Todo</button>
-    <button style="background:#333; border:none; color:#d1d1d1; font-weight:500; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all 0.2s;">Música</button>
-    <button style="background:#333; border:none; color:#d1d1d1; font-weight:500; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all 0.2s;">Producción</button>
-    <button style="background:#333; border:none; color:#d1d1d1; font-weight:500; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all 0.2s;">Teoría</button>
-    <button style="background:#333; border:none; color:#d1d1d1; font-weight:500; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all 0.2s;">Composición</button>
-    <button style="background:#333; border:none; color:#d1d1d1; font-weight:500; font-size:0.8rem; padding:0.5rem 1.2rem; border-radius:20px; cursor:pointer; white-space:nowrap; transition:all 0.2s;">Mezcla</button>
+  <div class="category-pills">
+    <button class="category-pill active" onclick="filterCategory('all', this)">Todo</button>
+    <button class="category-pill" onclick="filterCategory('musica', this)">🎵 Música</button>
+    <button class="category-pill" onclick="filterCategory('produccion', this)">🎛️ Producción</button>
+    <button class="category-pill" onclick="filterCategory('teoria', this)">📚 Teoría</button>
+    <button class="category-pill" onclick="filterCategory('composicion', this)">✍️ Composición</button>
+    <button class="category-pill" onclick="filterCategory('mezcla', this)">🎚️ Mezcla</button>
   </div>
 
+  <!-- Classes Grid -->
   {% if clases %}
-  <div class="row g-3" id="clasesGrid">
+  <div class="classes-grid" id="clasesGrid">
     {% for clase in clases %}
-    <div class="col-md-3 col-sm-6 clase-item">
-      <div style="background:#181818; border-radius:10px; padding:1.2rem; height:100%; display:flex; flex-direction:column; transition:all 0.3s; cursor:pointer; position:relative;"
-           onmouseover="this.style.background='#282828'" 
-           onmouseout="this.style.background='#181818'">
-        
-        <!-- Card Image -->
-        <div style="width:100%; aspect-ratio:1; background:linear-gradient(135deg, #1db954 0%, #169c46 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:2.5rem; color:#fff; margin-bottom:1rem; position:relative; overflow:hidden; box-shadow:0 8px 24px rgba(0,0,0,0.3);">
-          <i class="bi bi-play-circle-fill" style="font-size:3rem; opacity:0.9;"></i>
+    <div class="class-card" data-category="{{ clase.categoria|default:'musica' }}">
+      
+      <!-- ✅ Card Image - CORREGIDO para mostrar imagen -->
+      <div class="class-card-image {% if not clase.imagen %}no-image{% endif %}">
+        {% if clase.imagen %}
+        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" loading="lazy">
+        {% else %}
+        <i class="bi bi-music-note-beamed"></i>
+        {% endif %}
+        <div class="class-card-image-overlay"></div>
+        <div class="class-play-btn">
+          <i class="bi bi-play-fill"></i>
         </div>
-        
-        <!-- Card Content -->
-        <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; margin-bottom:0.3rem; color:#fff; line-height:1.3;">{{ clase.nombre }}</div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="class-card-body">
+        <h3 class="class-card-title">{{ clase.nombre }}</h3>
         
         {% if clase.descripcion %}
-        <div style="color:#a7a7a7; font-size:0.8rem; line-height:1.4; margin-bottom:0.8rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
-          {{ clase.descripcion|truncatechars:100 }}
-        </div>
+        <p class="class-card-description">{{ clase.descripcion|truncatechars:100 }}</p>
         {% endif %}
-        
-        <!-- Metadata -->
-        <div style="display:flex; align-items:center; gap:1rem; margin-bottom:1rem; flex-wrap:wrap;">
-          <span style="color:#6a6a6a; font-size:0.75rem; display:flex; align-items:center; gap:0.3rem;">
-            <i class="bi bi-people-fill" style="font-size:0.7rem;"></i> {{ clase.estudiantes.count }}
+
+        <div class="class-card-meta">
+          <span class="class-card-meta-item">
+            <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }}
           </span>
-          <span style="color:#6a6a6a; font-size:0.75rem; display:flex; align-items:center; gap:0.3rem;">
-            <i class="bi bi-person-badge" style="font-size:0.7rem;"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
+          <span class="class-card-meta-item">
+            <i class="bi bi-person-badge"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
           </span>
         </div>
 
-        <!-- Action Button -->
-        <div class="mt-auto">
+        <div class="class-card-footer">
           {% if clase.id in solicitudes_enviadas %}
-          <div style="width:100%; background:transparent; border:1px solid #ffa500; color:#ffa500; font-size:0.8rem; padding:0.55rem; border-radius:20px; text-align:center; font-weight:600;">
-            <i class="bi bi-clock me-1"></i> Pendiente
+          <div class="btn-pendiente">
+            <i class="bi bi-clock"></i> Solicitud pendiente
           </div>
           {% else %}
           <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
             {% csrf_token %}
             <input type="hidden" name="clase_id" value="{{ clase.id }}">
-            <button type="submit" style="width:100%; background:#1db954; border:none; color:#fff; font-weight:700; font-size:0.8rem; padding:0.55rem; border-radius:20px; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px;">
+            <button type="submit" class="btn-solicitar">
               Solicitar acceso
             </button>
           </form>
@@ -132,12 +130,12 @@
     {% endfor %}
   </div>
   {% else %}
-  <div style="text-align:center; padding:6rem 0;">
-    <div style="font-size:4rem; margin-bottom:1.5rem; opacity:0.3;">
+  <div class="empty-state">
+    <div class="empty-state-icon">
       <i class="bi bi-headphones"></i>
     </div>
-    <p style="color:#6a6a6a; font-size:1.1rem; font-weight:500; margin-bottom:0.5rem;">No hay clases disponibles</p>
-    <p style="color:#4a4a4a; font-size:0.9rem;">Vuelve más tarde para descubrir nuevas clases</p>
+    <p class="empty-state-title">No hay clases disponibles</p>
+    <p class="empty-state-text">Vuelve más tarde para descubrir nuevas clases</p>
   </div>
   {% endif %}
 
@@ -145,57 +143,51 @@
 
 {% block extra_js %}
 <script>
+  // Search functionality
   document.getElementById('searchInput').addEventListener('input', function() {
     const q = this.value.toLowerCase();
-    document.querySelectorAll('.clase-item').forEach(item => {
-      item.style.display = item.textContent.toLowerCase().includes(q) ? '' : 'none';
+    document.querySelectorAll('.class-card').forEach(item => {
+      const text = item.textContent.toLowerCase();
+      item.style.display = text.includes(q) ? '' : 'none';
     });
   });
 
-  // Hover effect for category pills
-  document.querySelectorAll('.filter-pill').forEach(pill => {
+  // Category filter
+  function filterCategory(category, btn) {
+    document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    
+    document.querySelectorAll('.class-card').forEach(card => {
+      if (category === 'all') {
+        card.style.display = '';
+      } else {
+        card.style.display = card.dataset.category === category ? '' : 'none';
+      }
+    });
+  }
+
+  // Hover effects for category pills
+  document.querySelectorAll('.category-pill').forEach(pill => {
     pill.addEventListener('mouseenter', function() {
-      if(this.style.background !== 'rgb(29, 185, 84)') {
+      if (!this.classList.contains('active')) {
         this.style.background = '#3e3e3e';
+        this.style.color = '#fff';
       }
     });
     pill.addEventListener('mouseleave', function() {
-      if(this.style.background !== 'rgb(29, 185, 84)') {
+      if (!this.classList.contains('active')) {
         this.style.background = '#333';
+        this.style.color = '#d1d1d1';
       }
     });
   });
-</script>
 
-<style>
-  /* Custom scrollbar for webkit browsers */
-  ::-webkit-scrollbar {
-    height: 6px;
-    width: 6px;
-  }
-  
-  ::-webkit-scrollbar-track {
-    background: #121212;
-  }
-  
-  ::-webkit-scrollbar-thumb {
-    background: #535353;
-    border-radius: 3px;
-  }
-  
-  ::-webkit-scrollbar-thumb:hover {
-    background: #6a6a6a;
-  }
-  
-  /* Focus styles */
-  input:focus {
-    outline: none !important;
-    box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.5) !important;
-  }
-  
-  /* Button hover animations */
-  button:hover {
-    transform: scale(1.02);
-  }
-</style>
+  // Auto-dismiss alerts
+  setTimeout(() => {
+    document.querySelectorAll('.alert-floating').forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 4000);
+</script>
 {% endblock %}

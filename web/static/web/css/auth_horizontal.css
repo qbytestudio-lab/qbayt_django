@@ -1,0 +1,447 @@
+/* ============================================ */
+/*    REGISTRO HORIZONTAL - SPOTIFY STYLE      */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-green: #1db954;
+  --spotify-green-hover: #1ed760;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --spotify-danger: #e91429;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--spotify-black);
+  color: var(--spotify-text);
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         LAYOUT HORIZONTAL                  */
+/* ═══════════════════════════════════════════ */
+
+.register-horizontal {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         LADO IZQUIERDO - INFO              */
+/* ═══════════════════════════════════════════ */
+
+.register-side {
+  flex: 1;
+  background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.register-side::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -30%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.register-side::after {
+  content: '';
+  position: absolute;
+  bottom: -20%;
+  left: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+.register-side-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+}
+
+.register-side-content .side-icon {
+  font-size: 5rem;
+  display: block;
+  margin-bottom: 1rem;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.register-side-content h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.5px;
+}
+
+.register-side-content p {
+  opacity: 0.9;
+  font-size: 1rem;
+  margin-bottom: 2rem;
+}
+
+.side-features {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 2rem;
+}
+
+.side-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.side-feature i {
+  font-size: 1rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         LADO DERECHO - FORMULARIO          */
+/* ═══════════════════════════════════════════ */
+
+.register-form-side {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--spotify-black);
+}
+
+.register-form-container {
+  width: 100%;
+  max-width: 420px;
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ═══════════════════════════════════════════ */
+/*         HEADER                             */
+/* ═══════════════════════════════════════════ */
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.auth-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 0.75rem;
+  color: var(--spotify-green);
+  animation: bounceIcon 2s ease-in-out infinite;
+}
+
+@keyframes bounceIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.auth-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.auth-header p {
+  color: var(--spotify-subtext);
+  font-size: 0.95rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         FORM ELEMENTS                      */
+/* ═══════════════════════════════════════════ */
+
+.form-label {
+  color: var(--spotify-subtext);
+  font-weight: 600;
+  font-size: 0.82rem;
+  margin-bottom: 0.4rem;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-group-text {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-right: none !important;
+  color: var(--spotify-muted) !important;
+  padding: 0.7rem 0.9rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.form-control {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-left: none !important;
+  color: #ffffff !important;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  box-shadow: none !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.form-control::placeholder {
+  color: #535353;
+  font-weight: 400;
+}
+
+.input-group:focus-within .input-group-text {
+  border-color: var(--spotify-green) !important;
+  color: var(--spotify-green) !important;
+  background: rgba(29, 185, 84, 0.1) !important;
+}
+
+.input-group:focus-within .form-control {
+  border-color: var(--spotify-green) !important;
+}
+
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         ROLE SELECTOR                      */
+/* ═══════════════════════════════════════════ */
+
+.rol-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.btn-rol {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 2px solid rgba(255, 255, 255, 0.08) !important;
+  color: var(--spotify-muted) !important;
+  padding: 1rem !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer;
+  text-align: center;
+}
+
+.btn-rol i {
+  font-size: 1.5rem;
+  margin-bottom: 0.3rem;
+  transition: all 0.3s ease;
+}
+
+.btn-rol:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  color: var(--spotify-subtext) !important;
+}
+
+.btn-check:checked + .btn-rol {
+  background: rgba(29, 185, 84, 0.12) !important;
+  border-color: var(--spotify-green) !important;
+  color: #1ed760 !important;
+  box-shadow: 0 0 20px rgba(29, 185, 84, 0.15);
+}
+
+.btn-check:checked + .btn-rol i {
+  color: var(--spotify-green);
+  transform: scale(1.1);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         BUTTON                             */
+/* ═══════════════════════════════════════════ */
+
+.btn-auth {
+  padding: 0.85rem !important;
+  border-radius: 25px !important;
+  font-weight: 700 !important;
+  font-size: 0.95rem !important;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease !important;
+  position: relative;
+  overflow: hidden;
+  border: none !important;
+  width: 100%;
+  cursor: pointer;
+  background: var(--spotify-green) !important;
+  color: #000000 !important;
+}
+
+.btn-auth::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-auth:hover {
+  background: var(--spotify-green-hover) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
+  color: #000000 !important;
+}
+
+.btn-auth:hover::before {
+  left: 100%;
+}
+
+.btn-auth:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         FOOTER                             */
+/* ═══════════════════════════════════════════ */
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--spotify-muted);
+  font-size: 0.85rem;
+}
+
+.auth-footer a {
+  color: var(--spotify-green);
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.auth-footer a:hover {
+  color: var(--spotify-green-hover);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         ALERTS                             */
+/* ═══════════════════════════════════════════ */
+
+.alert {
+  border-radius: 10px !important;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.85rem;
+  border: none !important;
+  animation: slideDown 0.3s ease;
+  font-weight: 500;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.alert-success {
+  background: rgba(29, 185, 84, 0.2) !important;
+  color: #1ed760 !important;
+  border: 1px solid rgba(29, 185, 84, 0.3) !important;
+}
+
+.alert-danger {
+  background: rgba(233, 20, 41, 0.2) !important;
+  color: #ff4444 !important;
+  border: 1px solid rgba(233, 20, 41, 0.35) !important;
+  animation: shakeError 0.5s ease;
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.btn-close {
+  filter: brightness(0) invert(0.7);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE                         */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .register-horizontal {
+    flex-direction: column;
+  }
+  
+  .register-side {
+    padding: 2rem 1.5rem;
+  }
+  
+  .register-side-content .side-icon {
+    font-size: 3rem;
+  }
+  
+  .register-side-content h2 {
+    font-size: 1.6rem;
+  }
+  
+  .register-form-side {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .rol-selector {
+    grid-template-columns: 1fr;
+  }
+  
+  .btn-auth {
+    padding: 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+}

@@ -35,32 +35,35 @@
         <p>Inicia sesión para continuar</p>
       </div>
 
-      <!-- Messages - CORREGIDO -->
+      <!-- ✅ MENSAJES - CORREGIDO PARA QUE EL ERROR SE VEA ROJO -->
       {% if messages %}
       {% for msg in messages %}
-      <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
-        {% if msg.tags == 'success' %}
-        <i class="bi bi-check-circle-fill me-2"></i>
-        {% elif msg.tags == 'danger' or msg.tags == 'error' %}
+      <div class="alert 
+        {% if 'error' in msg.tags|lower or 'danger' in msg.tags|lower or msg.level == 40 %}
+          alert-danger
+        {% elif 'success' in msg.tags|lower %}
+          alert-success
+        {% elif 'warning' in msg.tags|lower %}
+          alert-warning
+        {% else %}
+          alert-info
+        {% endif %} 
+        alert-dismissible fade show" role="alert">
+        
+        {% if 'error' in msg.tags|lower or 'danger' in msg.tags|lower or msg.level == 40 %}
         <i class="bi bi-exclamation-circle-fill me-2"></i>
-        {% elif msg.tags == 'warning' %}
+        {% elif 'success' in msg.tags|lower %}
+        <i class="bi bi-check-circle-fill me-2"></i>
+        {% elif 'warning' in msg.tags|lower %}
         <i class="bi bi-exclamation-triangle-fill me-2"></i>
         {% else %}
         <i class="bi bi-info-circle-fill me-2"></i>
         {% endif %}
+        
         {{ msg }}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       </div>
       {% endfor %}
-      {% endif %}
-
-      <!-- Mostrar errores del formulario si existen -->
-      {% if form.errors %}
-      <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        <i class="bi bi-exclamation-circle-fill me-2"></i>
-        Usuario o contraseña incorrectos. Intenta de nuevo.
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      </div>
       {% endif %}
 
       <!-- Login Form -->
@@ -83,7 +86,7 @@
           </div>
         </div>
 
-        <!-- ✅ BOTÓN CORREGIDO: btn-auth-login (verde) -->
+        <!-- Botón verde -->
         <button type="submit" class="btn btn-auth btn-auth-login w-100">
           <i class="bi bi-box-arrow-in-right me-2"></i> Iniciar sesión
         </button>

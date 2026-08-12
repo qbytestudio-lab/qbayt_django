@@ -1,7 +1,10 @@
-/* ========== PERFIL SPOTIFY STYLE ========== */
+/* ============================================ */
+/*      PERFIL ESTUDIANTE - SPOTIFY STYLE      */
+/* ============================================ */
+
 :root {
   --spotify-black: #121212;
-  --spotify-dark-gray: #181818;
+  --spotify-dark: #181818;
   --spotify-gray: #282828;
   --spotify-light-gray: #535353;
   --spotify-green: #1db954;
@@ -10,20 +13,20 @@
   --spotify-subtext: #b3b3b3;
   --spotify-muted: #6a6a6a;
   --spotify-danger: #e91429;
+  --accent-orange: #ff9f43;
+  --accent-blue: #40a9ff;
 }
 
 body {
-  background-color: var(--spotify-black) !important;
+  background-color: var(--spotify-black);
   color: var(--spotify-text);
+  font-family: 'DM Sans', sans-serif;
 }
 
-.profile-container {
-  padding: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-}
+/* ═══════════════════════════════════════════ */
+/*         PROFILE HERO                       */
+/* ═══════════════════════════════════════════ */
 
-/* ========== HERO SECTION ========== */
 .profile-hero {
   background: linear-gradient(180deg, #1db954 0%, #121212 100%);
   padding: 3rem 2rem 2rem;
@@ -38,7 +41,7 @@ body {
   right: -10%;
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
   border-radius: 50%;
 }
 
@@ -52,7 +55,7 @@ body {
   margin-bottom: 2rem;
 }
 
-/* Avatar */
+/* ── Avatar ── */
 .avatar-container {
   position: relative;
   flex-shrink: 0;
@@ -68,9 +71,8 @@ body {
   justify-content: center;
   font-size: 4rem;
   color: var(--spotify-green);
-  border: 4px solid rgba(255,255,255,0.1);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  position: relative;
+  border: 4px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease;
 }
 
@@ -99,7 +101,7 @@ body {
   transform: scale(1.1);
 }
 
-/* Profile Info */
+/* ── Profile Info ── */
 .profile-info {
   flex: 1;
 }
@@ -108,9 +110,9 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: #fff;
+  background: rgba(29, 185, 84, 0.15);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  color: #1ed760;
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   font-size: 0.8rem;
@@ -129,7 +131,7 @@ body {
 }
 
 .profile-meta {
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   display: flex;
   align-items: center;
@@ -138,13 +140,13 @@ body {
 }
 
 .meta-separator {
-  color: rgba(255,255,255,0.3);
+  color: rgba(255, 255, 255, 0.3);
 }
 
-/* Edit Button */
+/* ── Edit Button ── */
 .btn-edit-profile {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   color: #fff;
   padding: 0.6rem 1.5rem;
   border-radius: 20px;
@@ -160,12 +162,12 @@ body {
 }
 
 .btn-edit-profile:hover {
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   transform: scale(1.05);
   color: #fff;
 }
 
-/* Quick Stats */
+/* ── Quick Stats ── */
 .quick-stats {
   display: flex;
   gap: 0.8rem;
@@ -175,9 +177,9 @@ body {
 }
 
 .stat-pill {
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 0.8rem 1.2rem;
   display: flex;
@@ -191,7 +193,7 @@ body {
 }
 
 .stat-pill:hover {
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
 }
 
@@ -208,15 +210,18 @@ body {
 }
 
 .stat-label {
-  color: rgba(255,255,255,0.6);
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.8rem;
   font-weight: 500;
 }
 
-/* ========== TABS ========== */
+/* ═══════════════════════════════════════════ */
+/*         TABS BAR                           */
+/* ═══════════════════════════════════════════ */
+
 .profile-tabs-bar {
-  background: var(--spotify-dark-gray);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: var(--spotify-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -255,7 +260,10 @@ body {
   border-bottom-color: var(--spotify-green);
 }
 
-/* ========== MAIN CONTENT ========== */
+/* ═══════════════════════════════════════════ */
+/*         MAIN CONTENT                       */
+/* ═══════════════════════════════════════════ */
+
 .profile-body {
   padding: 2rem;
   max-width: 1200px;
@@ -272,22 +280,19 @@ body {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* ========== SECTION CARDS ========== */
+/* ═══════════════════════════════════════════ */
+/*         SECTION CARDS                      */
+/* ═══════════════════════════════════════════ */
+
 .section-card {
-  background: var(--spotify-dark-gray);
+  background: var(--spotify-dark);
   border-radius: 12px;
   padding: 2rem;
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   margin-bottom: 1.5rem;
 }
 
@@ -297,7 +302,7 @@ body {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .section-card-header h2 {
@@ -327,10 +332,13 @@ body {
 }
 
 .btn-link-accent:hover {
-  color: var(--spotify-text);
+  color: var(--spotify-green);
 }
 
-/* ========== INFO GRID ========== */
+/* ═══════════════════════════════════════════ */
+/*         INFO GRID                          */
+/* ═══════════════════════════════════════════ */
+
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -339,15 +347,15 @@ body {
 
 .info-field {
   padding: 1rem;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.03);
   border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   transition: all 0.2s;
 }
 
 .info-field:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .info-label {
@@ -366,26 +374,74 @@ body {
   font-weight: 500;
 }
 
+/* ── Badge Rol ── */
 .badge-role {
   display: inline-flex;
   align-items: center;
-  padding: 0.2rem 0.7rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
 }
 
 .badge-role.estudiante {
-  background: rgba(29,185,84,0.15);
+  background: rgba(29, 185, 84, 0.12);
   color: var(--spotify-green);
-  border: 1px solid rgba(29,185,84,0.3);
+  border: 1px solid rgba(29, 185, 84, 0.25);
 }
 
-/* ========== DANGER ZONE ========== */
+/* ── Badge Nivel de Entrenamiento ── */
+.badge-nivel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-nivel.basico {
+  background: rgba(29, 185, 84, 0.12);
+  color: #1ed760;
+  border: 1px solid rgba(29, 185, 84, 0.2);
+}
+
+.badge-nivel.intermedio {
+  background: rgba(255, 159, 67, 0.12);
+  color: #ffb366;
+  border: 1px solid rgba(255, 159, 67, 0.2);
+}
+
+.badge-nivel.avanzado {
+  background: rgba(233, 20, 41, 0.12);
+  color: #ff6b7a;
+  border: 1px solid rgba(233, 20, 41, 0.2);
+}
+
+.badge-nivel.experto {
+  background: rgba(124, 111, 255, 0.12);
+  color: #c4baff;
+  border: 1px solid rgba(124, 111, 255, 0.2);
+}
+
+/* Nivel no asignado */
+.badge-nivel.no-asignado {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--spotify-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         DANGER ZONE                        */
+/* ═══════════════════════════════════════════ */
+
 .danger-zone {
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.05);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .danger-title {
@@ -420,11 +476,14 @@ body {
 }
 
 .btn-danger-spotify:hover {
-  background: rgba(233,20,41,0.1);
+  background: rgba(233, 20, 41, 0.1);
   transform: scale(1.05);
 }
 
-/* ========== PENDING LIST ========== */
+/* ═══════════════════════════════════════════ */
+/*         PENDING LIST                       */
+/* ═══════════════════════════════════════════ */
+
 .pending-list {
   display: flex;
   flex-direction: column;
@@ -436,15 +495,15 @@ body {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: rgba(255,255,255,0.02);
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   transition: all 0.2s;
   border: 1px solid transparent;
 }
 
 .pending-item:hover {
-  background: rgba(255,255,255,0.04);
-  border-color: rgba(255,255,255,0.05);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .pending-icon {
@@ -455,7 +514,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 1.3rem;
-  background: rgba(29,185,84,0.1);
+  background: rgba(29, 185, 84, 0.1);
   color: var(--spotify-green);
   flex-shrink: 0;
 }
@@ -479,7 +538,7 @@ body {
 
 .btn-do-it {
   background: var(--spotify-green);
-  color: #fff;
+  color: #000;
   border: none;
   padding: 0.5rem 1.2rem;
   border-radius: 20px;
@@ -496,10 +555,13 @@ body {
 .btn-do-it:hover {
   background: var(--spotify-green-hover);
   transform: scale(1.05);
-  color: #fff;
+  color: #000;
 }
 
-/* ========== EMPTY STATE ========== */
+/* ═══════════════════════════════════════════ */
+/*         EMPTY STATE                        */
+/* ═══════════════════════════════════════════ */
+
 .empty-state {
   text-align: center;
   padding: 3rem 1rem;
@@ -517,16 +579,19 @@ body {
   font-size: 0.95rem;
 }
 
-/* ========== MODALS ========== */
+/* ═══════════════════════════════════════════ */
+/*         MODALS                             */
+/* ═══════════════════════════════════════════ */
+
 .modal-content {
   background: var(--spotify-gray) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   border-radius: 16px !important;
   color: var(--spotify-text) !important;
 }
 
 .modal-header {
-  border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
   padding: 1.5rem !important;
 }
 
@@ -541,7 +606,7 @@ body {
 }
 
 .modal-footer {
-  border-top: 1px solid rgba(255,255,255,0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
   padding: 1.5rem !important;
 }
 
@@ -558,8 +623,8 @@ body {
 }
 
 .form-control {
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   color: var(--spotify-text) !important;
   border-radius: 8px !important;
   padding: 0.7rem 1rem !important;
@@ -567,13 +632,13 @@ body {
 
 .form-control:focus {
   border-color: var(--spotify-green) !important;
-  box-shadow: 0 0 0 2px rgba(29,185,84,0.2) !important;
-  background: rgba(255,255,255,0.08) !important;
+  box-shadow: 0 0 0 2px rgba(29, 185, 84, 0.2) !important;
+  background: rgba(255, 255, 255, 0.08) !important;
 }
 
 .btn-spotify-primary {
   background: var(--spotify-green);
-  color: #fff;
+  color: #000;
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 20px;
@@ -606,31 +671,42 @@ body {
   filter: brightness(0) invert(1);
 }
 
-/* ========== FOOTER ========== */
-.footer-divider {
-  border-color: rgba(255,255,255,0.05);
+/* ═══════════════════════════════════════════ */
+/*         ALERTS                             */
+/* ═══════════════════════════════════════════ */
+
+.alert {
+  border-radius: 10px !important;
+  padding: 0.8rem 1rem !important;
+  font-size: 0.85rem;
+  border: none !important;
 }
 
-/* ========== SCROLLBAR ========== */
-::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
+.alert-success {
+  background: rgba(29, 185, 84, 0.2) !important;
+  color: #1ed760 !important;
+  border: 1px solid rgba(29, 185, 84, 0.3) !important;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--spotify-black);
+.alert-danger {
+  background: rgba(233, 20, 41, 0.2) !important;
+  color: #ff4444 !important;
+  border: 1px solid rgba(233, 20, 41, 0.3) !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--spotify-light-gray);
-  border-radius: 3px;
-}
+/* ═══════════════════════════════════════════ */
+/*         SCROLLBAR                          */
+/* ═══════════════════════════════════════════ */
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--spotify-muted);
-}
+::-webkit-scrollbar { height: 6px; width: 6px; }
+::-webkit-scrollbar-track { background: var(--spotify-black); }
+::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--spotify-muted); }
 
-/* ========== RESPONSIVE ========== */
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE                         */
+/* ═══════════════════════════════════════════ */
+
 @media (max-width: 768px) {
   .profile-hero {
     padding: 2rem 1rem 1.5rem;
@@ -668,4 +744,44 @@ body {
   .stat-pill {
     flex: 0 1 auto;
   }
+}
+
+@media (max-width: 480px) {
+  .profile-username {
+    font-size: 1.4rem;
+  }
+
+  .section-card {
+    padding: 1.2rem;
+  }
+}
+/* Niveles de entrenamiento */
+.badge-nivel.nivel-1 {
+  background: rgba(29, 185, 84, 0.12);
+  color: #1ed760;
+  border: 1px solid rgba(29, 185, 84, 0.2);
+}
+
+.badge-nivel.nivel-2 {
+  background: rgba(64, 169, 255, 0.12);
+  color: #40a9ff;
+  border: 1px solid rgba(64, 169, 255, 0.2);
+}
+
+.badge-nivel.nivel-3 {
+  background: rgba(255, 159, 67, 0.12);
+  color: #ffb366;
+  border: 1px solid rgba(255, 159, 67, 0.2);
+}
+
+.badge-nivel.nivel-4 {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.badge-nivel.no-asignado {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--spotify-muted);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
