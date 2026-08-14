@@ -84,13 +84,15 @@ body::before {
 .logo-box {
   width: 40px;
   height: 40px;
-  background: var(--spotify-green);
-  border-radius: 50%;
+  background: transparent;
+  border-radius: 40%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
-  transition: transform 0.2s;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+  border: 2px solid var(--spotify-text);  /* ← Borde delgado de 2px */
 }
 
 .logo-box:hover {
@@ -100,8 +102,8 @@ body::before {
 .logo-box img {
   width: 24px;
   height: 24px;
-  object-fit: contain;
-  filter: brightness(0);
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .logo-text {
