@@ -1,244 +1,445 @@
-import json
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib import messages
-from django.http import JsonResponse
-from clase.models import Clase
-from .models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
+from decimal import Decimal, InvalidOperation
 
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect, render
+
+from .models import (
+    Ejercicio,
+    Pregunta,
+    Opcion,
+    IntentoEjercicio,
+    RespuestaEstudiante,
+)
+from clase.models import Clase
+# ============================================================
+# Vista intermedia
+# ============================================================
+@login_required
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
-    
-    # Si la petición viene por JSON (desde el script interactivo)
-    if request.method == 'POST' and request.content_type == 'application/json':
-        try:
-            data = json.loads(request.body)
-            titulo = data.get('titulo')
-            descripcion = data.get('descripcion', '')
-            
-            # 🔧 Corrección aquí: extraemos del JSON 'data' en lugar de request.POST
-            fecha_limite = data.get('fecha_limite') or None
-            
-            preguntas_data = data.get('preguntas', [])
 
-            if not titulo:
-                return JsonResponse({'status': 'error', 'message': 'El título es obligatorio.'}, status=400)
-
-            # 1. Creamos el Ejercicio incluyendo la fecha límite
-            ejercicio = Ejercicio.objects.create(
-                clase=clase,
-                titulo=titulo,
-                descripcion=descripcion,
-                fecha_limite=fecha_limite  # ➕ Se asigna aquí
-            )
-
-            # 2. Recorremos y guardamos preguntas y opciones
-            for p_data in preguntas_data:
-                enunciado = p_data.get('texto')
-                if enunciado:
-                    pregunta = Pregunta.objects.create(
-                        ejercicio=ejercicio,
-                        enunciado=enunciado
-                    )
-
-                    opciones_data = p_data.get('opciones', [])
-                    for o_data in opciones_data:
-                        contenido_opcion = o_data.get('texto')
-                        if contenido_opcion:
-                            Opcion.objects.create(
-                                pregunta=pregunta,
-                                texto_opcion=contenido_opcion,
-                                es_correcta=o_data.get('es_correcta', False)
-                            )
-
-            return JsonResponse({'status': 'success', 'message': '¡Ejercicio creado con éxito!'})
-        
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-    return render(request, 'ejercicios/crear_ejercicio.html', {'clase': clase})
-    
-def eliminar_ejercicio(request, clase_id, ejercicio_id):
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase_id=clase_id)
-    
-    if request.method == 'POST':
-        ejercicio.delete()
-        messages.success(request, "¡Ejercicio eliminado correctamente!")
-        return redirect('detalle_clase', clase_id=clase_id)
-        
-    return redirect('detalle_clase', clase_id=clase_id)
+    return render(
+        request,
+        'ejercicios/crear_ejercicio.html',
+        {'clase': clase}
+    )
 
 
-def editar_ejercicio(request, clase_id, ejercicio_id):
+
+# ============================================================
+# CREAR QUIZ
+# ============================================================
+
+@login_required
+def crear_quiz(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
-    # Manejo de actualización por JSON
-    if request.method == 'POST' and request.content_type == 'application/json':
-        try:
-            data = json.loads(request.body)
-            titulo = data.get('titulo')
-            descripcion = data.get('descripcion', '')
-            preguntas_data = data.get('preguntas', [])
 
-            if not titulo:
-                return JsonResponse({'status': 'error', 'message': 'El título es obligatorio.'}, status=400)
-
-            # Actualizamos datos principales
-            ejercicio.titulo = titulo
-            ejercicio.descripcion = descripcion
-            ejercicio.save()
-
-            # Reemplazamos las preguntas anteriores limpiando y creando las nuevas
-            ejercicio.preguntas.all().delete()
-
-            for p_data in preguntas_data:
-                enunciado = p_data.get('texto')
-                if enunciado:
-                    pregunta = Pregunta.objects.create(
-                        ejercicio=ejercicio,
-                        enunciado=enunciado
-                    )
-
-                    opciones_data = p_data.get('opciones', [])
-                    for o_data in opciones_data:
-                        contenido_opcion = o_data.get('texto')
-                        if contenido_opcion:
-                            Opcion.objects.create(
-                                pregunta=pregunta,
-                                texto_opcion=contenido_opcion,
-                                es_correcta=o_data.get('es_correcta', False)
-                            )
-
-            return JsonResponse({'status': 'success', 'message': '¡Ejercicio actualizado con éxito!'})
-        
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-    return render(request, 'ejercicios/editar_ejercicio.html', {
-        'clase': clase,
-        'ejercicio': ejercicio
-    })
-
-    
-    
-def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
-    clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
-    # Obtenemos todos los intentos de los estudiantes para este ejercicio
-    intentos = IntentoEjercicio.objects.filter(ejercicio=ejercicio).order_by('-fecha_envio')
-
-    return render(request, 'ejercicios/detalle_ejercicio_docente.html', {
-        'clase': clase,
-        'ejercicio': ejercicio,
-        'intentos': intentos
-    })
-
-
-
-# VISTA DEL DOCENTE: Calificar el intento de un estudiante
-def calificar_ejercicio(request, intento_id):
-    intento = get_object_or_404(IntentoEjercicio, id=intento_id)
-    respuestas = intento.respuestas.all()
-    
     if request.method == 'POST':
-        nota_str = request.POST.get('calificacion')
-        retro = request.POST.get('retroalimentacion', '')
-        
-        if not nota_str:
-            messages.error(request, "Por favor ingresa una calificación.")
+
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
             return redirect(request.path)
 
-        nota = float(nota_str)
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='quiz'
+        )
+
+        messages.success(
+            request,
+            'Quiz creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_quiz.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CREAR QUIZ CON IMAGEN
+# ============================================================
+
+@login_required
+def crear_imagen_quiz(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if request.method == 'POST':
+
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        imagen = request.FILES.get('imagen_principal')
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(request.path)
+
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            imagen_principal=imagen,
+            tipo='imagen_quiz'
+        )
+
+        messages.success(
+            request,
+            'Ejercicio de imagen creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_imagen_quiz.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CREAR JUEGO
+# ============================================================
+
+@login_required
+def crear_juego(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if request.method == 'POST':
+
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        juego_tipo = request.POST.get('juego_tipo', '').strip()
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(request.path)
+
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            juego_tipo=juego_tipo,
+            tipo='juego'
+        )
+
+        messages.success(
+            request,
+            'Juego creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_juego.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CREAR TEXTO
+# ============================================================
+
+@login_required
+def crear_texto(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if request.method == 'POST':
+
+        titulo = request.POST.get('titulo', '').strip()
+        contenido = request.POST.get('contenido', '').strip()
+        imagen = request.FILES.get('imagen')
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(request.path)
+
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            contenido=contenido,
+            imagen_principal=imagen,
+            tipo='texto'
+        )
+
+        messages.success(
+            request,
+            'Texto creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_texto.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CREAR VERDADERO / FALSO
+# ============================================================
+
+@login_required
+def crear_verdadero_falso(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if request.method == 'POST':
+
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(request.path)
+
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='verdadero_falso'
+        )
+
+        messages.success(
+            request,
+            'Ejercicio V/F creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_verdadero_falso.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CREAR COMPLETAR
+# ============================================================
+
+@login_required
+def crear_completar(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if request.method == 'POST':
+
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(request.path)
+
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='completar'
+        )
+
+        messages.success(
+            request,
+            'Ejercicio de completar creado exitosamente.'
+        )
+
+        return redirect(
+            'detalle_clase',
+            clase_id=clase.id
+        )
+
+    return render(
+        request,
+        'ejercicios/crear_completar.html',
+        {'clase': clase}
+    )
+
+
+# ============================================================
+# CALIFICAR EJERCICIO
+# ============================================================
+
+@login_required
+def calificar_ejercicio(request, intento_id):
+
+    intento = get_object_or_404(
+        IntentoEjercicio,
+        id=intento_id
+    )
+
+    respuestas = intento.respuestas.select_related(
+        'pregunta',
+        'opcion_seleccionada'
+    ).all()
+
+    if request.method == 'POST':
+
+        nota_str = request.POST.get('calificacion', '').strip()
+        retroalimentacion = request.POST.get(
+            'retroalimentacion',
+            ''
+        ).strip()
+
+        if not nota_str:
+            messages.error(
+                request,
+                'Por favor ingresa una calificación.'
+            )
+
+            return redirect(request.path)
+
+        try:
+            nota = Decimal(nota_str)
+        except InvalidOperation:
+            messages.error(
+                request,
+                'La calificación ingresada no es válida.'
+            )
+
+            return redirect(request.path)
+
+        if nota < Decimal('1.0') or nota > Decimal('5.0'):
+            messages.error(
+                request,
+                'La calificación debe estar entre 1.0 y 5.0.'
+            )
+
+            return redirect(request.path)
+
+        NOTA_MINIMA = Decimal('3.0')
+
         intento.calificacion = nota
-        intento.retroalimentacion = retro
-        intento.save() # Guardamos la calificación en este intento
-        
-        NOTA_MINIMA = 3.0 
+        intento.retroalimentacion = retroalimentacion
+        intento.aprobado = nota >= NOTA_MINIMA
+
+        intento.save()
+
         ejercicio = intento.ejercicio
         clase = ejercicio.clase
         estudiante = intento.estudiante
-        clase_id = clase.id
-        ejercicio_id = ejercicio.id
 
-        # Contamos cuántos intentos lleva en total este estudiante
         total_intentos = IntentoEjercicio.objects.filter(
-            estudiante=estudiante, 
+            estudiante=estudiante,
             ejercicio=ejercicio
         ).count()
 
-        if nota >= NOTA_MINIMA:
-            messages.success(request, "¡Calificación guardada correctamente! El estudiante aprobó.")
+        if intento.aprobado:
+
+            messages.success(
+                request,
+                '¡Calificación guardada correctamente! '
+                'El estudiante aprobó.'
+            )
+
         else:
+
             if total_intentos < 2:
-                messages.warning(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante puede realizar un segundo y último intento.")
-            else:
-                # 🔴 BLOQUEO DEL CURSO: Si ya cumplió 2 intentos y volvió a reprobar
-                messages.error(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante ha agotado sus 2 intentos y ha sido bloqueado de la clase.")
-                
-                # Removemos al estudiante del curso para denegarle el acceso por completo
-                if estudiante in clase.estudiantes.all():
-                    clase.estudiantes.remove(estudiante)
-        
-        return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
 
-    return render(request, 'ejercicios/calificar_ejercicio.html', {
-        'intento': intento,
-        'respuestas': respuestas
-    })
-
-def reenviar_ejercicio(request, intento_id):
-    intento = get_object_or_404(IntentoEjercicio, id=intento_id)
-    clase_id = intento.ejercicio.clase.id
-    ejercicio_id = intento.ejercicio.id
-    
-    # Borramos las respuestas y el intento para que el estudiante pueda volver a hacerlo
-    intento.respuestas.all().delete()
-    intento.delete()
-    
-    messages.warning(request, "El ejercicio ha sido reenviado para que el estudiante lo vuelva a realizar.")
-    return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
-
-
-def responder_actividad(request, pregunta_id): # Aquí 'pregunta_id' es el ID del Ejercicio
-    ejercicio = get_object_or_404(Ejercicio, id=pregunta_id)
-    clase = ejercicio.clase
-
-    # Contamos cuántos intentos ha hecho este estudiante para este ejercicio
-    intentos_realizados = IntentoEjercicio.objects.filter(
-        estudiante=request.user, 
-        ejercicio=ejercicio
-    ).count()
-
-    # Si ya alcanzó o superó los 2 intentos, bloqueamos
-    if intentos_realizados >= 2:
-        messages.error(request, "Ya no tienes más oportunidades para este ejercicio. Has agotado tus 2 intentos.")
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-
-    if request.method == 'POST':
-        # Creamos un NUEVO intento (Intento 1 o Intento 2) sin borrar el historial anterior
-        intento = IntentoEjercicio.objects.create(
-            estudiante=request.user,
-            ejercicio=ejercicio,
-            calificacion=None, # Pendiente de calificar
-            retroalimentacion=""
-        )
-
-        # Guardamos las respuestas del formulario para este nuevo intento
-        for pregunta in ejercicio.preguntas.all():
-            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
-            if opcion_id:
-                opcion_seleccionada = get_object_or_404(Opcion, id=opcion_id)
-                RespuestaEstudiante.objects.create(
-                    intento=intento,
-                    pregunta=pregunta,
-                    opcion_seleccionada=opcion_seleccionada
+                messages.warning(
+                    request,
+                    f'Calificación menor a {NOTA_MINIMA}. '
+                    'El estudiante puede realizar un segundo '
+                    'y último intento.'
                 )
 
-        messages.success(request, "¡Ejercicio enviado con éxito! Quedó pendiente de calificación.")
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+            else:
 
-    return render(request, 'ejercicios/resolver_ejercicio.html', {
-        'ejercicio': ejercicio,
-        'clase': clase,
-    })
+                messages.error(
+                    request,
+                    f'Calificación menor a {NOTA_MINIMA}. '
+                    'El estudiante ha agotado sus 2 intentos '
+                    'y ha sido bloqueado de la clase.'
+                )
+
+                if estudiante in clase.estudiantes.all():
+                    clase.estudiantes.remove(estudiante)
+
+        return redirect(
+            'detalle_ejercicio_docente',
+            clase_id=clase.id,
+            ejercicio_id=ejercicio.id
+        )
+
+    return render(
+        request,
+        'ejercicios/calificar_ejercicio.html',
+        {
+            'intento': intento,
+            'respuestas': respuestas,
+        }
+    )
+
+
+#def calificar_ejercicio(request, intento_id):
+#    intento = get_object_or_404(IntentoEjercicio, id=intento_id)
+#    respuestas = intento.respuestas.all()
+#    
+#    if request.method == 'POST':
+#        nota_str = request.POST.get('calificacion')
+#        retro = request.POST.get('retroalimentacion', '')
+#        
+#        if not nota_str:
+#            messages.error(request, "Por favor ingresa una calificación.")
+#            return redirect(request.path)
+
+#        nota = float(nota_str)
+#        intento.calificacion = nota
+#        intento.retroalimentacion = retro
+#        intento.save() # Guardamos la calificación en este intento
+#        
+#        NOTA_MINIMA = 3.0 
+#        ejercicio = intento.ejercicio
+#        clase = ejercicio.clase
+#        estudiante = intento.estudiante
+#        clase_id = clase.id
+#        ejercicio_id = ejercicio.id
+
+        # Contamos cuántos intentos lleva en total este estudiante
+#        total_intentos = IntentoEjercicio.objects.filter(
+#            estudiante=estudiante, 
+#            ejercicio=ejercicio
+#        ).count()
+
+#        if nota >= NOTA_MINIMA:
+#            messages.success(request, "¡Calificación guardada correctamente! El estudiante aprobó.")
+#        else:
+#            if total_intentos < 2:
+#                messages.warning(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante puede realizar un segundo y último intento.")
+#            else:
+#                # 🔴 BLOQUEO DEL CURSO: Si ya cumplió 2 intentos y volvió a reprobar
+#                messages.error(request, f"Calificación menor a {NOTA_MINIMA}. El estudiante ha agotado sus 2 intentos y ha sido bloqueado de la clase.")
+#                
+                # Removemos al estudiante del curso para denegarle el acceso por completo
+#                if estudiante in clase.estudiantes.all():
+#                    clase.estudiantes.remove(estudiante)
+#        
+#        return redirect('detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
+
+#    return render(request, 'ejercicios/calificar_ejercicio.html', {
+#        'intento': intento,
+#        'respuestas': respuestas
+#    })

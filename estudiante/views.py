@@ -7,9 +7,8 @@ from clase.models import Clase, InscripcionNivel
 from docente.models import SolicitudClase, Actividad
 from django.contrib.auth.models import User
 from web.models import Perfil
-
-
 from django.contrib.auth import login
+
 def calcular_progreso_clase(estudiante, clase):
     """Devuelve el % de actividades completadas en una clase."""
     total_actividades = Actividad.objects.filter(leccion__clase=clase).count()
@@ -218,53 +217,6 @@ def detalle_clase_estudiante(request, clase_id):
         'solicitud': solicitud, # 👈 Esta variable es clave
     })
     
-@login_required
-def detalle_actividad_estudiante(request, actividad_id):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    actividad = get_object_or_404(Actividad, id=actividad_id)
-    clase = actividad.leccion.clase
-
-    # Verificar que el estudiante está en la clase
-    if request.user not in clase.estudiantes.all():
-        return redirect('inicio')
-
-    ya_respondio = RespuestaEstudiante.objects.filter(
-        estudiante=request.user, actividad=actividad
-    ).exists()
-
-    revision = []
-    correctas = incorrectas = total = puntaje = 0
-
-    if ya_respondio:
-        respuestas = RespuestaEstudiante.objects.filter(
-            estudiante=request.user, actividad=actividad
-        ).select_related('pregunta', 'opcion')
-        total = respuestas.count()
-        for resp in respuestas:
-            es_correcta = resp.opcion.es_correcta
-            if es_correcta:
-                correctas += 1
-            else:
-                incorrectas += 1
-            revision.append({
-                'pregunta': resp.pregunta,
-                'respuesta': resp.opcion,
-                'es_correcta': es_correcta,
-            })
-        puntaje = round((correctas / total) * 100) if total > 0 else 0
-
-    return render(request, 'detalle_actividad_estudiante.html', {
-        'actividad': actividad,
-        'clase': clase,
-        'ya_respondio': ya_respondio,
-        'revision': revision,
-        'correctas': correctas,
-        'incorrectas': incorrectas,
-        'total': total,
-        'puntaje': puntaje,
-    })
-
 @login_required
 def mis_calificaciones_estudiante(request):
     if request.user.perfil.rol != 'estudiante':

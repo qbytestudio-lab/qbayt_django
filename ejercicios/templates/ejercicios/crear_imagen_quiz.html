@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Imagen + Quiz — QBYT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ejercicios/css/crear_imagen_quiz.css' %}">
+</head>
+<body>
+
+<div class="imagen-quiz-container">
+    <h1 class="imagen-quiz-title">
+        <i class="bi bi-image-fill"></i> Crear Imagen + Quiz
+    </h1>
+    <p style="color: var(--spotify-subtext); margin-bottom: 2rem;">
+        Estilo Cisco NetAcad: Imagen grande con preguntas debajo
+    </p>
+
+    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" name="tipo" value="imagen_quiz">
+
+        <!-- Imagen Principal -->
+        <div class="form-card">
+            <label class="form-label" style="font-size: 1rem; font-weight: 700; color: #fff;">Imagen principal *</label>
+            <div class="image-upload-area" onclick="document.getElementById('imagenInput').click()">
+                <i class="bi bi-cloud-upload"></i>
+                <p>Haz clic para subir la imagen</p>
+                <p style="font-size: 0.8rem; color: var(--spotify-muted);">PNG, JPG, GIF (máx 5MB)</p>
+                <img id="imagePreview" class="image-preview">
+            </div>
+            <input type="file" id="imagenInput" name="imagen_principal" accept="image/*" style="display:none;" onchange="previewImage(this)" required>
+        </div>
+
+        <!-- Preguntas -->
+        <div id="preguntasContainer"></div>
+
+        <button type="button" class="btn-add" onclick="agregarPregunta()" style="margin-bottom: 2rem;">
+            <i class="bi bi-plus-lg"></i> Agregar pregunta
+        </button>
+
+        <div style="text-align: right;">
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-lg"></i> Crear Ejercicio
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function previewImage(input) {
+    const preview = document.getElementById('imagePreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.classList.add('show');
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+let preguntaCount = 0;
+
+function agregarPregunta() {
+    preguntaCount++;
+    const container = document.getElementById('preguntasContainer');
+    const div = document.createElement('div');
+    div.className = 'form-card';
+    div.innerHTML = `
+        <h4 style="color: #fff; margin-bottom: 1rem;">Pregunta ${preguntaCount}</h4>
+        <div class="mb-3">
+            <input type="text" name="pregunta_${preguntaCount}" class="form-control" 
+                   placeholder="Escribe la pregunta..." required style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; width: 100%;">
+        </div>
+        ${[1,2,3,4].map(j => `
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                <input type="radio" name="correcta_${preguntaCount}" value="${j}" 
+                       style="accent-color: #1db954; width: 18px; height: 18px; cursor: pointer;" ${j === 1 ? 'checked' : ''}>
+                <input type="text" name="opcion_${preguntaCount}_${j}" 
+                       placeholder="Opción ${j}" ${j <= 2 ? 'required' : ''}
+                       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; flex: 1;">
+            </div>
+        `).join('')}
+    `;
+    container.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+agregarPregunta();
+</script>
+</body>
+</html>

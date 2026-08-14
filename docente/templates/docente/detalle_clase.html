@@ -13,6 +13,7 @@
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{% static 'docente/css/detalle_clase.css' %}">
+    <link rel="stylesheet" href="{% static 'docente/css/seleccionar_ejercicios.css' %}">
 </head>
 
 <body>
@@ -214,9 +215,9 @@
                                 <i class="bi bi-collection-play-fill" style="color: var(--accent-purple);"></i>
                                 Contenido de la clase
                             </h3>
-                            <a href="{% url 'crear_ejercicio' clase.id %}" class="btn-add purple" style="text-decoration: none;">
+                            <button class="btn-add purple" data-bs-toggle="modal" data-bs-target="#modalTipoEjercicio">
                                 <i class="bi bi-plus-lg"></i> Crear Ejercicio
-                            </a>
+                            </button>
                         </div>
 
                         <!-- Lista de Ejercicios -->
@@ -237,12 +238,12 @@
                                     
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <!-- Badge de Preguntas -->
-                                        <a href="{% url 'detalle_ejercicio_docente' clase.id ejercicio.id %}" class="badge text-decoration-none d-flex align-items-center" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 10px; border-radius: 20px; font-size: 0.75rem;">
+                                        <a href="#" class="badge text-decoration-none d-flex align-items-center" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 10px; border-radius: 20px; font-size: 0.75rem;">
                                             ❓ {{ ejercicio.preguntas.count }} pgs
                                         </a>
 
                                         <!-- Botón de Editar -->
-                                        <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" 
+                                        <a href="#" 
                                            class="btn btn-sm" 
                                            style="background: rgba(255, 193, 7, 0.1); color: #ffc107; border: 1px solid #ffc107; border-radius: 8px; padding: 6px 10px;"
                                            title="Editar ejercicio">
@@ -280,7 +281,7 @@
                                                 <button type="button" class="btn btn-sm text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 16px;" data-bs-dismiss="modal">
                                                     Cancelar
                                                 </button>
-                                                <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin: 0;">
+                                                <form action="#" method="POST" style="margin: 0;">
                                                     {% csrf_token %}
                                                     <button type="submit" class="btn btn-sm" style="background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
                                                         Sí, eliminar
@@ -417,8 +418,89 @@
             </div>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+   <!-- ═══════════════════════════════════════════ -->
+    <!-- MODAL: SELECCIONAR TIPO DE EJERCICIO     -->
+    <!-- ═══════════════════════════════════════════ -->
+<div class="modal fade" id="modalTipoEjercicio" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content tipo-ejercicio-modal">
+            
+            <div class="modal-header border-0 pb-0">
+                <h3 class="modal-title w-100 text-center">
+                    <i class="bi bi-plus-circle-fill"></i> 
+                    ¿Qué tipo de ejercicio quieres crear?
+                </h3>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <div class="modal-body px-4 pb-4">
+                <p class="text-center text-muted mb-4" style="font-size: 0.9rem;">
+                    Elige el formato que mejor se adapte a tu contenido
+                </p>
+                
+                <div class="ejercicio-options-grid">
+                    
+                    <!-- ✅ Quiz -->
+                    <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
+                        <h4 class="option-title">Quiz de Selección Múltiple</h4>
+                        <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.</p>
+                        <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
+                    </a>
+                    
+                    <!-- Imagen + Quiz -->
+                    <a href="{% url 'ejercicios:crear_imagen_quiz' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon imagen-icon"><i class="bi bi-image-fill"></i></div>
+                        <h4 class="option-title">Imagen + Quiz</h4>
+                        <p class="option-desc">Una imagen grande con preguntas de opción múltiple debajo.</p>
+                        <span class="option-badge badge-cyan"><i class="bi bi-camera-fill"></i> Estilo Cisco NetAcad</span>
+                    </a>
+                    
+                    <!-- Juego -->
+                    <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
+                        <h4 class="option-title">Juego Interactivo</h4>
+                        <p class="option-desc">Gamificación: emparejar, ordenar, o completar con puntaje.</p>
+                        <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y premios</span>
+                    </a>
+                    
+                    <!-- Texto -->
+                    <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
+                        <h4 class="option-title">Texto / Lectura</h4>
+                        <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
+                        <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
+                    </a>
+                    
+                    <!-- Verdadero/Falso -->
+                    <a href="{% url 'ejercicios:crear_verdadero_falso' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon vf-icon"><i class="bi bi-check-circle-fill"></i></div>
+                        <h4 class="option-title">Verdadero o Falso</h4>
+                        <p class="option-desc">Afirmaciones rápidas donde el estudiante elige V o F.</p>
+                        <span class="option-badge badge-pink"><i class="bi bi-lightning-fill"></i> Rápido y efectivo</span>
+                    </a>
+                    
+                    <!-- Completar -->
+                    <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon completar-icon"><i class="bi bi-input-cursor-text"></i></div>
+                        <h4 class="option-title">Completar Espacios</h4>
+                        <p class="option-desc">Frases con espacios en blanco que el estudiante debe rellenar.</p>
+                        <span class="option-badge badge-yellow"><i class="bi bi-pencil-fill"></i> Rellenar huecos</span>
+                    </a>
+                    
+                </div>
+            </div>
+            
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+ <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function copiarCodigo() {
             navigator.clipboard.writeText('{{ clase.codigo }}');

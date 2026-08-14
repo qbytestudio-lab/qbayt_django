@@ -1,5 +1,5 @@
 /* ============================================ */
-/*  DETALLE CLASE DOCENTE - SPOTIFY STYLE      */
+/*  DETALLE CLASE DOCENTE - SPOTIFY PREMIUM    */
 /* ============================================ */
 
 :root {
@@ -16,8 +16,11 @@
   --accent-purple-hover: #9b8fff;
   --accent-pink: #b06fff;
   --accent-orange: #ff9f43;
+  --accent-yellow: #ffc107;
   --danger: #e91429;
 }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
   background: var(--spotify-black);
@@ -35,6 +38,7 @@ body {
   z-index: 100;
   background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   padding: 0.85rem 0;
 }
@@ -43,6 +47,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
 }
 
 .logo-area {
@@ -50,6 +55,7 @@ body {
   align-items: center;
   gap: 0.65rem;
   text-decoration: none;
+  flex-shrink: 0;
 }
 
 .logo-box {
@@ -75,21 +81,27 @@ body {
   margin: 0;
 }
 
-.auth-buttons { display: flex; gap: 0.75rem; }
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
 
 .btn-topbar {
   background: transparent;
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: var(--spotify-text);
-  padding: 0.5rem 1.2rem;
+  padding: 0.45rem 1rem;
   border-radius: 20px;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  white-space: nowrap;
 }
 
 .btn-topbar:hover {
@@ -102,6 +114,18 @@ body {
   border-color: var(--danger);
   color: var(--danger);
   background: rgba(233, 20, 41, 0.1);
+}
+
+.btn-topbar.stats {
+  background: rgba(124, 111, 255, 0.12);
+  border: 1px solid rgba(124, 111, 255, 0.25);
+  color: #a89fff;
+}
+
+.btn-topbar.stats:hover {
+  background: rgba(124, 111, 255, 0.2);
+  color: #c4baff;
+  border-color: rgba(124, 111, 255, 0.4);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -123,11 +147,13 @@ body {
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.25rem;
   transition: color 0.2s;
 }
 
 .back-link:hover { color: var(--spotify-text); }
+.back-link i { transition: transform 0.2s; }
+.back-link:hover i { transform: translateX(-3px); }
 
 .class-title {
   font-family: 'Syne', sans-serif;
@@ -160,11 +186,18 @@ body {
   gap: 0.4rem;
   color: var(--spotify-muted);
   font-size: 0.82rem;
+  font-weight: 500;
 }
 
-.class-meta-item i { font-size: 0.9rem; }
+.class-meta-item i { 
+  color: var(--accent-purple);
+  font-size: 0.9rem; 
+}
 
-/* Code Badge */
+/* ═══════════════════════════════════════════ */
+/*         CODE BADGE                         */
+/* ═══════════════════════════════════════════ */
+
 .code-badge {
   display: inline-flex;
   align-items: center;
@@ -192,7 +225,10 @@ body {
   font-size: 0.78rem;
 }
 
-/* Settings Button */
+/* ═══════════════════════════════════════════ */
+/*         SETTINGS BUTTON                    */
+/* ═══════════════════════════════════════════ */
+
 .btn-settings {
   width: 40px;
   height: 40px;
@@ -206,11 +242,23 @@ body {
   cursor: pointer;
   transition: all 0.2s;
   font-size: 1.1rem;
+  text-decoration: none;
 }
 
 .btn-settings:hover {
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
+}
+
+.btn-pdf {
+  background: var(--accent-purple);
+  border: 1px solid var(--accent-purple);
+  color: #fff;
+}
+
+.btn-pdf:hover {
+  background: var(--accent-purple-hover);
+  border-color: var(--accent-purple-hover);
 }
 
 /* Dropdown */
@@ -263,6 +311,11 @@ body {
   border-radius: 14px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.section-card:hover {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .section-header {
@@ -309,9 +362,10 @@ body {
   border-radius: 20px;
   cursor: pointer;
   transition: all 0.2s;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  text-decoration: none;
 }
 
 .btn-add.purple { background: var(--accent-purple); }
@@ -322,6 +376,7 @@ body {
   border: 1px solid rgba(255, 159, 67, 0.2);
   color: var(--accent-orange);
 }
+
 .btn-add.orange:hover {
   background: rgba(255, 159, 67, 0.2);
   color: #ffb366;
@@ -387,10 +442,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 0;
+  padding: 0.75rem 0.5rem;
+  border-radius: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  transition: background 0.2s;
 }
 
+.solicitud-row:hover { background: rgba(255, 255, 255, 0.02); }
 .solicitud-row:last-child { border-bottom: none; }
 
 .solicitud-avatar {
@@ -416,6 +474,9 @@ body {
   display: block;
   font-size: 0.88rem;
   color: var(--spotify-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .solicitud-info span {
@@ -442,11 +503,12 @@ body {
   font-size: 0.85rem;
   outline: none;
   transition: all 0.2s;
+  min-width: 0;
 }
 
 .add-student-form input:focus {
   border-color: var(--accent-purple);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 2px rgba(124, 111, 255, 0.15);
 }
 
 .add-student-form input::placeholder { color: var(--spotify-muted); }
@@ -484,7 +546,7 @@ body {
 
 .search-bar:focus-within {
   border-color: var(--accent-purple);
-  background: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 0 0 2px rgba(124, 111, 255, 0.1);
 }
 
 .search-bar i { color: var(--spotify-muted); font-size: 0.9rem; }
@@ -539,6 +601,10 @@ body {
   font-weight: 600;
   color: var(--spotify-text);
   margin: 0 0 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
 .student-info p {
@@ -547,71 +613,114 @@ body {
   margin: 0;
 }
 
-/* ═══════════════════════════════════════════ */
-/*         LESSONS LIST                       */
-/* ═══════════════════════════════════════════ */
-
-.lesson-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.8rem 1rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s;
-}
-
-.lesson-item:hover {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(124, 111, 255, 0.15);
-}
-
-.lesson-link {
-  color: var(--spotify-text);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.9rem;
-  flex: 1;
-  transition: color 0.2s;
-}
-
-.lesson-link:hover { color: var(--accent-purple); }
-
-.lesson-desc {
-  font-size: 0.75rem;
-  color: var(--spotify-muted);
-  margin-top: 0.15rem;
-}
-
-.lesson-status {
-  padding: 0.2rem 0.6rem;
+/* Contador de intentos */
+.intento-badge {
+  font-size: 0.6rem;
+  padding: 0.15rem 0.5rem;
   border-radius: 20px;
-  font-size: 0.7rem;
   font-weight: 700;
+  background: rgba(255, 255, 255, 0.05);
   white-space: nowrap;
 }
 
-.lesson-status.available {
-  background: rgba(29, 185, 84, 0.1);
-  color: var(--spotify-green);
+.intento-badge.warning {
+  background: rgba(255, 159, 67, 0.12);
+  color: var(--accent-orange);
+  border: 1px solid rgba(255, 159, 67, 0.25);
 }
 
-.lesson-status.locked {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--spotify-muted);
+.intento-badge.danger {
+  background: rgba(233, 20, 41, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(233, 20, 41, 0.25);
 }
 
-.btn-delete-lesson {
-  color: rgba(233, 20, 41, 0.5);
-  font-size: 0.9rem;
-  padding: 0.25rem 0.5rem;
+/* ═══════════════════════════════════════════ */
+/*         EJERCICIOS LIST                    */
+/* ═══════════════════════════════════════════ */
+
+.ejercicio-item {
+  background: #1f1f1f;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s ease;
+  flex-wrap: wrap;
+}
+
+.ejercicio-item:hover {
+  background: #242424;
+  border-color: rgba(124, 111, 255, 0.2);
+}
+
+.ejercicio-item h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.ejercicio-item p {
+  margin: 4px 0 0 0;
+  font-size: 0.82rem;
+  color: var(--spotify-subtext);
+}
+
+.ejercicio-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-ejercicio {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
   text-decoration: none;
-  transition: color 0.2s;
+  border: 1px solid transparent;
 }
 
-.btn-delete-lesson:hover { color: var(--danger); }
+.btn-ejercicio-preguntas {
+  background: rgba(124, 111, 255, 0.1);
+  color: var(--accent-purple);
+  border-color: rgba(124, 111, 255, 0.25);
+}
+
+.btn-ejercicio-preguntas:hover {
+  background: rgba(124, 111, 255, 0.2);
+  color: #c4baff;
+}
+
+.btn-ejercicio-editar {
+  background: rgba(255, 193, 7, 0.1);
+  color: var(--accent-yellow);
+  border-color: rgba(255, 193, 7, 0.25);
+}
+
+.btn-ejercicio-editar:hover {
+  background: rgba(255, 193, 7, 0.2);
+}
+
+.btn-ejercicio-eliminar {
+  background: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+  border-color: rgba(220, 53, 69, 0.25);
+}
+
+.btn-ejercicio-eliminar:hover {
+  background: rgba(220, 53, 69, 0.2);
+}
 
 /* ═══════════════════════════════════════════ */
 /*         ANNOUNCEMENTS                      */
@@ -817,7 +926,6 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 .btn-close-white { filter: brightness(0) invert(1); }
 
-/* Delete Modal */
 .delete-modal-icon {
   font-size: 3.5rem;
   color: var(--danger);
@@ -877,9 +985,13 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   .class-meta { gap: 0.75rem; }
   .section-card { padding: 1.2rem; }
   .topbar { padding: 0.7rem 0; }
+  .auth-buttons { gap: 0.4rem; }
+  .btn-topbar { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
 }
 
 @media (max-width: 480px) {
   .class-title { font-size: 1.2rem; }
   .add-student-form { flex-direction: column; }
+  .ejercicio-item { flex-direction: column; align-items: flex-start; }
+  .ejercicio-actions { width: 100%; }
 }

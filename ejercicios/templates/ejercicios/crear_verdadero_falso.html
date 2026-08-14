@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Verdadero/Falso — QBYT</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ejercicios/css/crear_verdadero_falso.css' %}">
+</head>
+<body>
+
+<div class="vf-creator-container">
+    
+    <!-- Header -->
+    <div class="vf-header">
+        <h1 class="vf-title">
+            <i class="bi bi-check-circle-fill"></i> Crear Verdadero o Falso
+        </h1>
+        <p class="vf-subtitle">Crea afirmaciones rápidas para evaluar a tus estudiantes</p>
+    </div>
+
+    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="tipo" value="verdadero_falso">
+
+        <!-- Info General -->
+        <div class="vf-form-card">
+            <div class="mb-3">
+                <label class="vf-form-label">
+                    Título del ejercicio <span class="required">*</span>
+                </label>
+                <input type="text" name="titulo" class="vf-form-control" 
+                       placeholder="Ej: Verdades sobre teoría musical" required>
+            </div>
+            <div class="mb-3">
+                <label class="vf-form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="vf-form-control" rows="2" 
+                          placeholder="Instrucciones para el estudiante..."></textarea>
+            </div>
+            <div class="mb-0">
+                <label class="vf-form-label">Fecha límite (opcional)</label>
+                <input type="datetime-local" name="fecha_limite" class="vf-form-control">
+            </div>
+        </div>
+
+        <!-- Afirmaciones -->
+        <div id="afirmacionesContainer"></div>
+
+        <!-- Botón Agregar -->
+        <button type="button" class="btn-add-afirmacion" onclick="agregarAfirmacion()">
+            <i class="bi bi-plus-lg"></i> Agregar afirmación
+        </button>
+
+        <!-- Submit -->
+        <div style="text-align: right;">
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-lg"></i> Crear Ejercicio
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<script>
+let count = 0;
+
+function agregarAfirmacion() {
+    count++;
+    const container = document.getElementById('afirmacionesContainer');
+    const div = document.createElement('div');
+    div.className = 'afirmacion-card';
+    div.id = `afirmacion-${count}`;
+    div.innerHTML = `
+        <div class="afirmacion-number">${count}</div>
+        
+        <button type="button" class="btn-delete-afirmacion" onclick="eliminarAfirmacion(${count})" title="Eliminar afirmación">
+            <i class="bi bi-trash"></i>
+        </button>
+        
+        <div class="mb-3 mt-2">
+            <label class="vf-form-label">Afirmación ${count} <span class="required">*</span></label>
+            <input type="text" name="afirmacion_${count}" class="vf-form-control" required
+                   placeholder="Ej: El acorde de Do mayor está formado por Do, Mi y Sol">
+        </div>
+        
+        <div class="vf-options">
+            <label class="vf-option-label">
+                <input type="radio" name="respuesta_${count}" value="verdadero" checked>
+                <span class="vf-text-verdadero">✓ Verdadero</span>
+            </label>
+            <label class="vf-option-label">
+                <input type="radio" name="respuesta_${count}" value="falso">
+                <span class="vf-text-falso">✗ Falso</span>
+            </label>
+        </div>
+    `;
+    
+    container.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Focus en el input
+    setTimeout(() => {
+        div.querySelector('input[type="text"]').focus();
+    }, 300);
+}
+
+function eliminarAfirmacion(id) {
+    const card = document.getElementById(`afirmacion-${id}`);
+    if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        card.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            card.remove();
+            renumerarAfirmaciones();
+        }, 300);
+    }
+}
+
+function renumerarAfirmaciones() {
+    const cards = document.querySelectorAll('.afirmacion-card');
+    count = cards.length;
+    cards.forEach((card, index) => {
+        const num = index + 1;
+        card.querySelector('.afirmacion-number').textContent = num;
+        card.querySelector('.vf-form-label').textContent = `Afirmación ${num} *`;
+        card.querySelector('input[type="text"]').name = `afirmacion_${num}`;
+        card.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.name = `respuesta_${num}`;
+        });
+    });
+}
+
+// Iniciar con 1 afirmación
+agregarAfirmacion();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

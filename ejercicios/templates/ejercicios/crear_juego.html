@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear Juego — QBYT</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'ejercicios/css/crear_juego.css' %}">
+</head>
+<body>
+
+<div class="juego-creator-container">
+    <h1 class="juego-creator-title">
+        <i class="bi bi-controller"></i> Crear Juego Interactivo
+    </h1>
+    <p style="color: var(--spotify-subtext); margin-bottom: 2rem;">
+        Elige el tipo de juego que quieres crear
+    </p>
+
+    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="tipo" value="juego">
+
+        <div class="form-card">
+            <label class="form-label" style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 1rem;">
+                Tipo de juego
+            </label>
+            <div class="juego-tipo-selector" id="juegoTipoSelector">
+                <div class="juego-tipo-card selected" data-tipo="emparejar" onclick="seleccionarTipo(this)">
+                    <i class="bi bi-grid-3x3-gap"></i>
+                    <h4>Emparejar</h4>
+                </div>
+                <div class="juego-tipo-card" data-tipo="ordenar" onclick="seleccionarTipo(this)">
+                    <i class="bi bi-arrow-down-up"></i>
+                    <h4>Ordenar Secuencia</h4>
+                </div>
+                <div class="juego-tipo-card" data-tipo="memoria" onclick="seleccionarTipo(this)">
+                    <i class="bi bi-card-image"></i>
+                    <h4>Memoria</h4>
+                </div>
+                <div class="juego-tipo-card" data-tipo="clasificar" onclick="seleccionarTipo(this)">
+                    <i class="bi bi-tags"></i>
+                    <h4>Clasificar</h4>
+                </div>
+            </div>
+            <input type="hidden" name="juego_tipo" id="juegoTipo" value="emparejar">
+        </div>
+
+        <div class="form-card">
+            <div class="mb-3">
+                <label class="form-label">Título del juego *</label>
+                <input type="text" name="titulo" class="form-control" 
+                       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; width: 100%;" 
+                       placeholder="Ej: Empareja los acordes" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Puntaje máximo</label>
+                <input type="number" name="puntaje_maximo" class="form-control" value="100" min="10" max="1000"
+                       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; width: 100%;">
+            </div>
+        </div>
+
+        <div style="text-align: right;">
+            <button type="submit" class="btn-submit" style="background: var(--accent-green); color: #000; border: none; padding: 0.85rem 2.5rem; border-radius: 25px; font-weight: 700; cursor: pointer;">
+                <i class="bi bi-check-lg"></i> Crear Juego
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+function seleccionarTipo(card) {
+    document.querySelectorAll('.juego-tipo-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    document.getElementById('juegoTipo').value = card.dataset.tipo;
+}
+</script>
+</body>
+</html>

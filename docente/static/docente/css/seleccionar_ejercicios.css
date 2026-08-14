@@ -1,0 +1,232 @@
+/* ============================================ */
+/*  SELECCIONAR TIPO EJERCICIO - SPOTIFY STYLE */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --accent-purple: #7c6fff;
+  --accent-green: #1db954;
+  --accent-orange: #ff9f43;
+  --accent-cyan: #00d4ff;
+  --accent-yellow: #ffc107;
+  --accent-pink: #ff6b9d;
+  --danger: #e91429;
+}
+
+body {
+  background: var(--spotify-black);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         MODAL CONTENT                      */
+/* ═══════════════════════════════════════════ */
+
+.tipo-ejercicio-modal {
+  background: var(--spotify-dark) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+  color: var(--spotify-text) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.tipo-ejercicio-modal .modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.tipo-ejercicio-modal .modal-title i {
+  color: var(--accent-purple);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         GRID DE OPCIONES                   */
+/* ═══════════════════════════════════════════ */
+
+.ejercicio-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         OPTION CARD                        */
+/* ═══════════════════════════════════════════ */
+
+.ejercicio-option-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 1.5rem;
+  text-decoration: none;
+  color: var(--spotify-text);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.ejercicio-option-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ejercicio-option-card:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  color: var(--spotify-text);
+}
+
+.ejercicio-option-card:hover::before {
+  opacity: 1;
+}
+
+/* Colores por tipo */
+.ejercicio-option-card:nth-child(1)::before { background: var(--accent-purple); }
+.ejercicio-option-card:nth-child(2)::before { background: var(--accent-cyan); }
+.ejercicio-option-card:nth-child(3)::before { background: var(--accent-green); }
+.ejercicio-option-card:nth-child(4)::before { background: var(--accent-orange); }
+.ejercicio-option-card:nth-child(5)::before { background: var(--accent-pink); }
+.ejercicio-option-card:nth-child(6)::before { background: var(--accent-yellow); }
+
+/* ═══════════════════════════════════════════ */
+/*         ICONOS                             */
+/* ═══════════════════════════════════════════ */
+
+.option-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.ejercicio-option-card:hover .option-icon {
+  transform: scale(1.1);
+}
+
+.quiz-icon { background: rgba(124, 111, 255, 0.15); color: var(--accent-purple); }
+.imagen-icon { background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan); }
+.juego-icon { background: rgba(29, 185, 84, 0.15); color: var(--accent-green); }
+.texto-icon { background: rgba(255, 159, 67, 0.15); color: var(--accent-orange); }
+.vf-icon { background: rgba(255, 107, 157, 0.15); color: var(--accent-pink); }
+.completar-icon { background: rgba(255, 193, 7, 0.15); color: var(--accent-yellow); }
+
+/* ═══════════════════════════════════════════ */
+/*         TÍTULOS Y DESCRIPCIÓN              */
+/* ═══════════════════════════════════════════ */
+
+.option-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #fff;
+  margin-bottom: 0.4rem;
+}
+
+.option-desc {
+  color: var(--spotify-subtext);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  flex: 1;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         BADGES                             */
+/* ═══════════════════════════════════════════ */
+
+.option-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  align-self: flex-start;
+  border: 1px solid transparent;
+}
+
+.badge-purple { background: rgba(124, 111, 255, 0.12); color: var(--accent-purple); border-color: rgba(124, 111, 255, 0.2); }
+.badge-cyan { background: rgba(0, 212, 255, 0.12); color: var(--accent-cyan); border-color: rgba(0, 212, 255, 0.2); }
+.badge-green { background: rgba(29, 185, 84, 0.12); color: var(--accent-green); border-color: rgba(29, 185, 84, 0.2); }
+.badge-orange { background: rgba(255, 159, 67, 0.12); color: var(--accent-orange); border-color: rgba(255, 159, 67, 0.2); }
+.badge-pink { background: rgba(255, 107, 157, 0.12); color: var(--accent-pink); border-color: rgba(255, 107, 157, 0.2); }
+.badge-yellow { background: rgba(255, 193, 7, 0.12); color: var(--accent-yellow); border-color: rgba(255, 193, 7, 0.2); }
+
+/* ═══════════════════════════════════════════ */
+/*         BOTÓN CANCELAR                     */
+/* ═══════════════════════════════════════════ */
+
+.btn-cancelar {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--spotify-subtext);
+  padding: 0.6rem 2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-cancelar:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE                         */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .ejercicio-options-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tipo-ejercicio-modal .modal-title {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ejercicio-option-card {
+    padding: 1.2rem;
+  }
+  
+  .option-icon {
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+}

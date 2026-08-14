@@ -1,0 +1,67 @@
+/* ============================================ */
+/*    CREAR JUEGO INTERACTIVO                  */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-green: #1db954;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --accent-green: #1db954;
+  --danger: #e91429;
+}
+
+body { background: var(--spotify-black); color: var(--spotify-text); font-family: 'DM Sans', sans-serif; }
+
+.juego-creator-container { max-width: 800px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+.juego-creator-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.juego-creator-title i { color: var(--accent-green); }
+
+.form-card {
+  background: var(--spotify-dark);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.juego-tipo-selector {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.juego-tipo-card {
+  background: rgba(255,255,255,0.03);
+  border: 2px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  padding: 1.2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.juego-tipo-card:hover {
+  border-color: var(--accent-green);
+  background: rgba(29,185,84,0.05);
+}
+
+.juego-tipo-card.selected {
+  border-color: var(--accent-green);
+  background: rgba(29,185,84,0.1);
+}
+
+.juego-tipo-card i { font-size: 2rem; color: var(--accent-green); margin-bottom: 0.5rem; display: block; }
+
+.juego-tipo-card h4 { font-size: 0.85rem; color: #fff; margin: 0; }

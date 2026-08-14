@@ -1,0 +1,339 @@
+/* ============================================ */
+/*    CREAR VERDADERO/FALSO - SPOTIFY STYLE    */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-green: #1db954;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --accent-pink: #ff6b9d;
+  --accent-pink-hover: #ff85b5;
+  --danger: #e91429;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--spotify-black);
+  color: var(--spotify-text);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         CONTAINER                          */
+/* ═══════════════════════════════════════════ */
+
+.vf-creator-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         HEADER                             */
+/* ═══════════════════════════════════════════ */
+
+.vf-header {
+  margin-bottom: 2rem;
+}
+
+.vf-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2rem;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.vf-title i {
+  color: var(--accent-pink);
+}
+
+.vf-subtitle {
+  color: var(--spotify-subtext);
+  font-size: 0.95rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         FORM CARD                          */
+/* ═══════════════════════════════════════════ */
+
+.vf-form-card {
+  background: var(--spotify-dark);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.vf-form-label {
+  color: var(--spotify-subtext);
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.vf-form-label .required {
+  color: var(--danger);
+}
+
+.vf-form-control {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  width: 100%;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.vf-form-control:focus {
+  border-color: var(--accent-pink);
+  box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.15);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.vf-form-control::placeholder {
+  color: var(--spotify-muted);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         AFIRMACIÓN CARD                    */
+/* ═══════════════════════════════════════════ */
+
+.afirmacion-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: 4px solid var(--accent-pink);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.afirmacion-card:hover {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 107, 157, 0.2);
+}
+
+.afirmacion-number {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 32px;
+  height: 32px;
+  background: var(--accent-pink);
+  color: #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         OPCIONES V/F                       */
+/* ═══════════════════════════════════════════ */
+
+.vf-options {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.vf-option-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+}
+
+.vf-option-label:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vf-option-label input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.vf-option-label input[value="verdadero"] {
+  accent-color: var(--spotify-green);
+}
+
+.vf-option-label input[value="falso"] {
+  accent-color: var(--danger);
+}
+
+.vf-text-verdadero {
+  color: var(--spotify-green);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.vf-text-falso {
+  color: var(--danger);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         BOTONES                            */
+/* ═══════════════════════════════════════════ */
+
+.btn-add-afirmacion {
+  background: rgba(255, 107, 157, 0.1);
+  border: 2px dashed rgba(255, 107, 157, 0.3);
+  color: var(--accent-pink);
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+
+.btn-add-afirmacion:hover {
+  background: var(--accent-pink);
+  color: #000;
+  border-style: solid;
+  border-color: var(--accent-pink);
+}
+
+.btn-submit {
+  background: var(--accent-pink);
+  color: #000;
+  border: none;
+  padding: 0.85rem 2.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-submit:hover {
+  background: var(--accent-pink-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 107, 157, 0.3);
+  color: #000;
+}
+
+.btn-submit:hover::before {
+  left: 100%;
+}
+
+.btn-submit:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         DELETE BUTTON                      */
+/* ═══════════════════════════════════════════ */
+
+.btn-delete-afirmacion {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(233, 20, 41, 0.08);
+  border: 1px solid rgba(233, 20, 41, 0.15);
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.btn-delete-afirmacion:hover {
+  background: rgba(233, 20, 41, 0.2);
+  color: #ff4444;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         ANIMATIONS                         */
+/* ═══════════════════════════════════════════ */
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.afirmacion-card {
+  animation: slideIn 0.3s ease forwards;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         SCROLLBAR                          */
+/* ═══════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #535353; border-radius: 3px; }
+
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE                         */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .vf-creator-container { padding: 1.5rem 1rem; }
+  .vf-title { font-size: 1.5rem; }
+  .vf-form-card { padding: 1.2rem; }
+  .afirmacion-card { padding: 1.2rem 1rem; }
+  .vf-options { flex-direction: column; gap: 0.5rem; }
+  .btn-submit { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .vf-title { font-size: 1.3rem; }
+  .afirmacion-number { width: 28px; height: 28px; font-size: 0.7rem; }
+}
