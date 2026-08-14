@@ -13,4 +13,5 @@ urlpatterns = [
     path('clase/<int:clase_id>/', views.detalle_clase_estudiante, name='detalle_clase_estudiante'),
     path('configurar-nivel/', views.configurar_nivel, name='configurar_nivel'),
     path('mis-calificaciones/', views.mis_calificaciones_estudiante, name='mis_calificaciones_estudiante'),
+    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/resolver/', views.resolver_ejercicio, name='resolver_ejercicio'),
 ]

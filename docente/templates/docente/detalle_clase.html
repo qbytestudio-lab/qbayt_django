@@ -238,7 +238,7 @@
                                     
                                     <div style="display: flex; align-items: center; gap: 8px;">
                                         <!-- Badge de Preguntas -->
-                                        <a href="#" class="badge text-decoration-none d-flex align-items-center" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 10px; border-radius: 20px; font-size: 0.75rem;">
+                                        <a href="{% url 'ejercicios:detalle_ejercicio_docente' ejercicio.clase.id ejercicio.id %}" class="badge text-decoration-none d-flex align-items-center" style="background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border: 1px solid var(--accent-purple); padding: 6px 10px; border-radius: 20px; font-size: 0.75rem;">
                                             ❓ {{ ejercicio.preguntas.count }} pgs
                                         </a>
 
@@ -261,35 +261,29 @@
                                         </button>
                                     </div>
                                 </div>
+                            <!-- MODAL DE ELIMINACIÓN DE EJERCICIO -->
+                                <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-labelledby="deleteModalLabel{{ ejercicio.id }}" aria-hidden="true">
+                                  <div class="modal-dialog">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h5 class="modal-title" id="deleteModalLabel{{ ejercicio.id }}">Confirmar eliminación</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        ¿Estás seguro de que deseas eliminar este ejercicio? Esta acción no se puede deshacer.
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
 
-                                <!-- MODAL DE ELIMINACIÓN DE EJERCICIO -->
-                                <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;">
-                                            <div class="modal-header border-0 pb-0">
-                                                <h5 class="modal-title text-white" style="font-family: 'DM Sans', sans-serif; font-weight: 600;">
-                                                    ¿Eliminar ejercicio?
-                                                </h5>
-                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body py-3">
-                                                <p class="mb-0" style="color: #b3b3b3; font-size: 0.95rem;">
-                                                    ¿Estás seguro de que deseas eliminar permanentemente el ejercicio <strong class="text-white">"{{ ejercicio.titulo }}"</strong>?
-                                                </p>
-                                            </div>
-                                            <div class="modal-footer border-0 pt-0 d-flex gap-2">
-                                                <button type="button" class="btn btn-sm text-white" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 8px 16px;" data-bs-dismiss="modal">
-                                                    Cancelar
-                                                </button>
-                                                <form action="#" method="POST" style="margin: 0;">
-                                                    {% csrf_token %}
-                                                    <button type="submit" class="btn btn-sm" style="background: #dc3545; color: #fff; border: none; border-radius: 8px; padding: 8px 16px; font-weight: 500;">
-                                                        Sí, eliminar
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
+                                        <!-- AQUÍ VA EL FORMULARIO QUE CONECTA CON LA VISTA -->
+                                        <form action="{% url 'ejercicios:eliminar_ejercicio' clase.id ejercicio.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Sí, eliminar</button>
+                                        </form>
+
+                                      </div>
                                     </div>
+                                  </div>
                                 </div>
                             {% endfor %}
                         {% else %}

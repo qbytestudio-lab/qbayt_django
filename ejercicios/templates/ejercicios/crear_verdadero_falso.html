@@ -23,7 +23,7 @@
         <p class="vf-subtitle">Crea afirmaciones rápidas para evaluar a tus estudiantes</p>
     </div>
 
-    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}">
+    <form method="POST" action="{% url 'ejercicios:crear_ejercicio' clase.id %}">
         {% csrf_token %}
         <input type="hidden" name="tipo" value="verdadero_falso">
 

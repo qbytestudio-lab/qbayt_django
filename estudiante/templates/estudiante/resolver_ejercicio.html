@@ -1,0 +1,80 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
+{% block page_title %}Resolver Ejercicio{% endblock %}
+{% block nav_clases %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/resolver_ejercicio.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="exercise-container">
+    
+    <!-- ENCABEZADO / INFORMACIÓN DEL EJERCICIO -->
+    <div class="section-card mb-4">
+        <div class="exercise-header-badge">
+            <i class="bi bi-journal-text icon-purple"></i> Evaluación Interactiva
+        </div>
+        <h2 class="exercise-main-title">{{ ejercicio.titulo }}</h2>
+        {% if ejercicio.descripcion %}
+        <p class="exercise-main-desc">{{ ejercicio.descripcion }}</p>
+        {% endif %}
+    </div>
+
+    <!-- FORMULARIO DE PREGUNTAS -->
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="questions-list">
+            {% for pregunta in ejercicio.preguntas.all %}
+            <div class="section-card question-card">
+                
+                <div class="question-title-wrapper">
+                    <div class="question-number">
+                        {{ forloop.counter }}
+                    </div>
+                    <h5 class="question-enunciado">
+                        {{ pregunta.enunciado }}
+                    </h5>
+                </div>
+
+                <!-- Si la pregunta tiene imagen opcional subida por el docente -->
+                {% if pregunta.imagen %}
+                <div class="mb-3">
+                    <img src="{{ pregunta.imagen.url }}" alt="Imagen de la pregunta" class="img-fluid rounded" style="max-height: 200px;">
+                </div>
+                {% endif %}
+                
+                <div class="options-list">
+                    {% for opcion in pregunta.opciones.all %}
+                    <label class="option-item" for="opcion_{{ opcion.id }}">
+                        <!-- Importante: el name usa el id de la pregunta para que la vista lo procese -->
+                        <input class="custom-radio" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" id="opcion_{{ opcion.id }}" required>
+                        <span class="option-custom-box"></span>
+                        <span class="option-text">{{ opcion.texto_opcion }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+
+            </div>
+            {% empty %}
+            <div class="alert alert-warning text-center">
+                Este ejercicio aún no tiene preguntas configuradas por el docente.
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- BOTÓN DE ENVÍO -->
+        {% if ejercicio.preguntas.all %}
+        <div class="form-submit-wrapper">
+            <button type="submit" class="btn-submit-exercise">
+                <i class="bi bi-send-fill"></i> Enviar Respuestas al Docente
+            </button>
+        </div>
+        {% endif %}
+
+    </form>
+</div>
+{% endblock %}

@@ -245,3 +245,37 @@ def mis_calificaciones_estudiante(request):
     return render(request, 'estudiante/mis_calificaciones.html', {
         'reporte_clases': reporte_clases,
     })
+
+@login_required
+def resolver_ejercicio(request, clase_id, ejercicio_id):
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+    
+    if request.method == 'POST':
+        preguntas = ejercicio.preguntas.all()
+        
+        # 1. Creamos el intento como pendiente (sin calificación automática)
+        intento = IntentoEjercicio.objects.create(
+            estudiante=request.user,
+            ejercicio=ejercicio,
+            calificacion=None,      # Sin nota aún
+            aprobado=False          # Pendiente de revisión
+        )
+        
+        # 2. Guardamos las respuestas del estudiante para que el docente las vea después
+        for pregunta in preguntas:
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            if opcion_id:
+                opcion_seleccionada = Opcion.objects.filter(id=opcion_id, pregunta=pregunta).first()
+                if opcion_seleccionada:
+                    RespuestaEstudiante.objects.create(
+                        intento=intento,
+                        pregunta=pregunta,
+                        opcion_seleccionada=opcion_seleccionada
+                    )
+            
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
+
+    return render(request, 'estudiante/resolver_ejercicio.html', {
+        'ejercicio': ejercicio,
+        'clase_id': clase_id
+    })

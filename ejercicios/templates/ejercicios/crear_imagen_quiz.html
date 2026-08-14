@@ -19,7 +19,7 @@
         Estilo Cisco NetAcad: Imagen grande con preguntas debajo
     </p>
 
-    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'ejercicios:crear_ejercicio' clase.id %}" enctype="multipart/form-data">
         {% csrf_token %}
         <input type="hidden" name="tipo" value="imagen_quiz">
 

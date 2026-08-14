@@ -1,0 +1,242 @@
+/* ============================================ */
+/* detalle DOCENTE - */
+/* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-light-gray: #535353;
+  --spotify-green: #1db954;
+  --spotify-green-hover: #1ed760;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --accent-purple: #7c6fff;
+  --accent-purple-hover: #9b8fff;
+  --accent-pink: #b06fff;
+  --accent-orange: #ff9f43;
+  --danger: #e91429;
+}
+
+body {
+  background: var(--spotify-black) !important;
+  color: var(--spotify-text);
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ═══════════════════════════════════════════ */
+/* MAIN CONTAINER */
+/* ═══════════════════════════════════════════ */
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* EXERCISE HEADER CARD */
+/* ═══════════════════════════════════════════ */
+
+.card {
+  background: var(--spotify-dark) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 14px !important;
+  padding: 2rem !important;
+  margin-bottom: 1.5rem !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: rgba(124, 111, 255, 0.12) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.card h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--spotify-text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.3px;
+}
+
+.card .text-muted {
+  color: var(--spotify-subtext) !important;
+  font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* SECTION TITLE */
+/* ═══════════════════════════════════════════ */
+
+.card h4 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--spotify-text);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.card h4 i {
+  color: var(--accent-purple);
+  font-size: 1.2rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* TABLE */
+/* ═══════════════════════════════════════════ */
+
+.table-responsive {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.table {
+  margin-bottom: 0 !important;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.table thead th {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--spotify-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid rgba(124, 111, 255, 0.15);
+  font-weight: 700;
+}
+
+.table tbody td {
+  padding: 0.85rem 1rem;
+  font-size: 0.88rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: var(--spotify-subtext);
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background: rgba(124, 111, 255, 0.04) !important;
+}
+
+.table tbody tr:hover td {
+  color: var(--spotify-text);
+}
+
+/* Estudiante nombre */
+.table tbody td:first-child {
+  font-weight: 600;
+  color: var(--spotify-text);
+}
+
+.table tbody td:first-child i {
+  color: var(--accent-purple);
+  margin-right: 0.4rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BADGES */
+/* ═══════════════════════════════════════════ */
+
+.badge {
+  padding: 0.35rem 0.75rem !important;
+  border-radius: 20px !important;
+  font-size: 0.78rem !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.3px;
+}
+
+.badge.bg-success {
+  background: rgba(29, 185, 84, 0.15) !important;
+  color: var(--spotify-green) !important;
+  border: 1px solid rgba(29, 185, 84, 0.2);
+}
+
+.badge.bg-warning {
+  background: rgba(255, 159, 67, 0.15) !important;
+  color: var(--accent-orange) !important;
+  border: 1px solid rgba(255, 159, 67, 0.2);
+}
+
+/* ═══════════════════════════════════════════ */
+/* BUTTONS */
+/* ═══════════════════════════════════════════ */
+
+.btn-sm {
+  padding: 0.45rem 1rem !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  font-size: 0.8rem !important;
+  transition: all 0.2s ease !important;
+  letter-spacing: 0.3px;
+}
+
+.btn-primary {
+  background: var(--accent-purple) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  background: var(--accent-purple-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.3);
+}
+
+/* ═══════════════════════════════════════════ */
+/* EMPTY STATE */
+/* ═══════════════════════════════════════════ */
+
+.text-center.py-4 {
+  padding: 3rem 1rem !important;
+}
+
+.text-center .bi-inbox {
+  font-size: 3rem !important;
+  color: var(--spotify-light-gray);
+  opacity: 0.4;
+}
+
+.text-center p {
+  color: var(--spotify-subtext);
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* SCROLLBAR */
+/* ═══════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--spotify-black); }
+::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--spotify-muted); }
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .container { padding: 1.5rem 1rem; }
+  .card { padding: 1.5rem !important; }
+  .card h2 { font-size: 1.3rem; }
+  .table thead th { font-size: 0.7rem; padding: 0.6rem 0.7rem; }
+  .table tbody td { font-size: 0.82rem; padding: 0.6rem 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  .card h2 { font-size: 1.1rem; }
+  .badge { font-size: 0.7rem !important; padding: 0.25rem 0.6rem !important; }
+  .btn-sm { font-size: 0.75rem !important; padding: 0.4rem 0.8rem !important; }
+}

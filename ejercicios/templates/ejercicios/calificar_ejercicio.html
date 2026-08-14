@@ -13,7 +13,7 @@
 
   <!-- BACK NAVIGATION -->
   <div class="back-nav">
-    <a href="{% url 'detalle_ejercicio_docente' intento.ejercicio.clase.id intento.ejercicio.id %}" class="btn-back">
+    <a href="{% url 'ejercicios:detalle_ejercicio_docente' clase.id ejercicio.id %}" class="btn-back">
       <i class="bi bi-arrow-left"></i> Volver al ejercicio
     </a>
   </div>
@@ -116,23 +116,20 @@
                   placeholder="Escribe comentarios, observaciones y sugerencias para el estudiante...">{{ intento.retroalimentacion|default:'' }}</textarea>
       </div>
 
-      <!-- Action Buttons -->
-      <div class="form-actions">
-        <a href="{% url 'reenviar_ejercicio' intento.id %}" 
-           class="btn-reject"
-           onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
-          <i class="bi bi-arrow-counterclockwise"></i>
-          Rechazar y reenviar ejercicio
-        </a>
-        <button type="submit" class="btn-save">
-          <i class="bi bi-check-lg"></i>
-          Guardar calificación
-        </button>
-      </div>
-
-    </form>
-  </div>
-
+     <!-- Action Buttons -->
+<div class="form-actions">
+    <!-- Reemplazamos el href="#" por la etiqueta de URL de Django -->
+    <a href="{% url 'ejercicios:reenviar_ejercicio' intento.id %}" 
+       class="btn-reject"
+       onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
+        <i class="bi bi-arrow-counterclockwise"></i>
+        Rechazar y reenviar ejercicio
+    </a>
+    
+    <button type="submit" class="btn-save">
+        <i class="bi bi-check-lg"></i>
+        Guardar calificación
+    </button>
 </div>
 
 {% endblock %}

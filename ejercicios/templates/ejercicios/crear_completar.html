@@ -25,7 +25,7 @@
         </p>
     </div>
 
-    <form method="POST" action="{% url 'crear_ejercicio' clase.id %}">
+    <form method="POST" action="{% url 'ejercicios:crear_ejercicio' clase.id %}">
         {% csrf_token %}
         <input type="hidden" name="tipo" value="completar">
 
