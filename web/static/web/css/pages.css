@@ -103,7 +103,7 @@ body::before {
   width: 24px;
   height: 24px;
   object-fit: cover;
-  border-radius: 50%;
+  border-radius: 30%;
 }
 
 .logo-text {
