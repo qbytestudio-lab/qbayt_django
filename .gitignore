@@ -27,10 +27,6 @@ __pycache__/
 .env
 .env.local
 
-# --- MULTIMEDIA Y ESTÁTICOS RECOPILADOS ---
-# Si en el futuro tus usuarios suben fotos de perfil o archivos de audio
-/media/
-/staticfiles/
 
 # --- EDITORES DE CÓDIGO Y SISTEMA ---
 .vscode/

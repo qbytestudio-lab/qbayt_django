@@ -1,15 +1,27 @@
 {% extends 'web/base.html' %}
 {% load static %}
 
+{% block title %}Mis Calificaciones — QBYT{% endblock %}
+
 {% block extra_css %}
-   <link rel="stylesheet" href="{% static 'estudiante/css/mis_calificaciones.css' %}">
+<link rel="stylesheet" href="{% static 'estudiante/css/mis_calificaciones.css' %}">
 {% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="d-flex align-items-center mb-4">
-        <h1 class="fw-bold text-white m-0">
-            <i class="bi bi-journal-check text-purple me-2" style="color: var(--accent-purple);"></i> 
+
+<div class="calificaciones-container">
+
+    <!-- ✅ FLECHA PARA REGRESAR -->
+    <div class="back-nav mb-3">
+        <a href="javascript:history.back()" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Volver a la clase
+        </a>
+    </div>
+
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-journal-check"></i> 
             Mis Calificaciones y Notas
         </h1>
     </div>
@@ -17,67 +29,111 @@
     {% if reporte_clases %}
         <div class="d-flex flex-column gap-4">
             {% for item in reporte_clases %}
-            <div class="section-card" style="background: var(--bg-card); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 1.5rem;">
+            <div class="section-card">
                 
-                <!-- TÍTULO DE LA CLASE -->
-                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom border-secondary border-opacity-10">
-                    <h3 class="text-white m-0" style="font-size: 1.2rem; font-family: 'Syne', sans-serif;">
-                        <i class="bi bi-folder-fill text-purple me-2"></i> {{ item.clase.nombre }}
+                <!-- Header de la Clase -->
+                <div class="clase-header">
+                    <h3 class="clase-titulo">
+                        <i class="bi bi-folder-fill"></i> {{ item.clase.nombre }}
                     </h3>
-                    <span class="text-muted" style="font-size: 0.8rem;">Docente: {{ item.clase.docente.get_full_name|default:item.clase.docente.username }}</span>
+                    <span class="docente-label">
+                        <i class="bi bi-person-badge"></i> 
+                        Docente: {{ item.clase.docente.get_full_name|default:item.clase.docente.username }}
+                    </span>
                 </div>
 
-                <!-- LISTA DE EJERCICIOS ORDENADOS POR CREACIÓN -->
+                <!-- Lista de Ejercicios -->
                 {% if item.ejercicios %}
-                <div class="d-flex flex-column gap-3">
+                <div class="ejercicios-list">
                     {% for data in item.ejercicios %}
-                    <div class="p-3 rounded-3" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);">
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                            <div>
-                                <span class="badge bg-secondary bg-opacity-10 text-muted mb-1" style="font-size: 0.7rem;">Ejercicio #{{ forloop.counter }}</span>
-                                <h4 class="text-white m-0" style="font-size: 1rem; font-weight: 600;">{{ data.ejercicio.titulo }}</h4>
+                    <div class="ejercicio-calificacion-item">
+                        
+                        <div class="ejercicio-header">
+                            <div class="ejercicio-info">
+                                <span class="ejercicio-number-badge">
+                                    Ejercicio #{{ forloop.counter }}
+                                </span>
+                                <h4 class="ejercicio-titulo">{{ data.ejercicio.titulo }}</h4>
                             </div>
 
-                            <!-- NOTA / CALIFICACIÓN -->
+                            <!-- Badge de Calificación -->
                             <div>
                                 {% if data.intento and data.intento.calificacion is not None %}
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2" style="font-size: 0.85rem; font-weight: 600;">
-                                        <i class="bi bi-check-circle-fill me-1"></i> {{ data.intento.calificacion }}/5.0
+                                    <span class="badge-calificacion badge-success">
+                                        <i class="bi bi-check-circle-fill"></i> 
+                                        {{ data.intento.calificacion }}/5.0
                                     </span>
                                 {% elif data.intento and data.intento.calificacion is None %}
-                                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2" style="font-size: 0.85rem; font-weight: 600;">
-                                        <i class="bi bi-clock-fill me-1"></i> Pendiente de revisión
+                                    <span class="badge-calificacion badge-warning">
+                                        <i class="bi bi-clock-fill"></i> 
+                                        Pendiente de revisión
                                     </span>
                                 {% else %}
-                                    <span class="badge bg-secondary bg-opacity-10 text-muted border border-secondary border-opacity-25 px-3 py-2" style="font-size: 0.85rem;">
+                                    <span class="badge-calificacion badge-muted">
+                                        <i class="bi bi-dash-circle"></i> 
                                         No enviado
                                     </span>
                                 {% endif %}
                             </div>
                         </div>
 
-                        <!-- FEEDBACK DEL DOCENTE SI EXISTE -->
+                        <!-- Feedback del Docente -->
                         {% if data.intento and data.intento.retroalimentacion %}
-                        <div class="mt-2 pt-2 border-top border-secondary border-opacity-10 text-muted" style="font-size: 0.85rem;">
-                            <strong class="text-white"><i class="bi bi-chat-square-text-fill text-purple me-1"></i> Feedback:</strong> 
+                        <div class="feedback-box">
+                            <strong>
+                                <i class="bi bi-chat-square-text-fill"></i> Feedback:
+                            </strong> 
                             {{ data.intento.retroalimentacion }}
                         </div>
                         {% endif %}
+
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
-                <p class="text-muted m-0 small">Esta clase aún no tiene ejercicios creados.</p>
+                <p class="empty-text m-0" style="font-size: 0.85rem;">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Esta clase aún no tiene ejercicios creados.
+                </p>
                 {% endif %}
 
             </div>
             {% endfor %}
         </div>
     {% else %}
-    <div class="text-center py-5 text-muted section-card" style="background: var(--bg-card); border-radius: 16px;">
-        <i class="bi bi-journal-x fs-1 mb-2 d-block text-secondary"></i>
-        <p class="m-0">No estás inscrito en ninguna clase o no hay registros disponibles.</p>
+    <!-- Empty State -->
+    <div class="section-card">
+        <div class="empty-state">
+            <i class="bi bi-journal-x empty-icon"></i>
+            <p class="empty-text">
+                No estás inscrito en ninguna clase o no hay registros disponibles.
+            </p>
+        </div>
     </div>
     {% endif %}
+
 </div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animación de entrada
+    const observerOptions = { threshold: 0.1, rootMargin: '0px' };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.ejercicio-calificacion-item, .section-card').forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(15px)';
+        el.style.transition = `all 0.4s ease ${index * 0.05}s`;
+        observer.observe(el);
+    });
+</script>
 {% endblock %}

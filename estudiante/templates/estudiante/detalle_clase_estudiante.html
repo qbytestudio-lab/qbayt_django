@@ -51,9 +51,9 @@
          class="btn-leave-class">
         <i class="bi bi-box-arrow-right"></i> Salir de la clase
       </a>
-      <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-topbar">
-    <i class="bi bi-star-fill"></i> Calificaciones
-</a>
+      <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
+        <i class="bi bi-star-fill"></i> Calificaciones
+      </a>
     </div>
   </div>
 </div>
@@ -90,20 +90,20 @@
             <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
               {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
                 {% if intento and intento.calificacion is not None %}
-                  <span class="status-badge" style="background: rgba(29,185,84,0.15); color: #1db954; border: 1px solid rgba(29,185,84,0.2);">
+                  <span class="status-badge calificado">
                     <i class="bi bi-check-circle-fill"></i> {{ intento.calificacion }}/5.0
                   </span>
                 {% elif intento and intento.calificacion is None %}
-                  <span class="status-badge" style="background: rgba(255,159,67,0.15); color: #ff9f43; border: 1px solid rgba(255,159,67,0.2);">
+                  <span class="status-badge pendiente">
                     <i class="bi bi-clock-fill"></i> Pendiente
                   </span>
                 {% else %}
                   {% if total >= 2 %}
-                    <span class="status-badge" style="background: rgba(255,75,75,0.15); color: #ff4b4b; border: 1px solid rgba(255,75,75,0.2);">
+                    <span class="status-badge sin-intentos">
                       <i class="bi bi-x-circle-fill"></i> Sin intentos
                     </span>
                   {% else %}
-                    <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="status-badge available-badge">
+                    <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="status-badge available-badge">
                       <i class="bi bi-play-fill"></i> Resolver
                     </a>
                   {% endif %}
@@ -113,7 +113,7 @@
             </div>
           </div>
 
-          <!-- FEEDBACK DEL DOCENTE (INTEGRADO CON TUS CLASES CSS) -->
+          <!-- FEEDBACK DEL DOCENTE -->
           {% with intento=ejercicio.mi_intento %}
             {% if intento and intento.retroalimentacion %}
             <div class="feedback-section">
@@ -151,7 +151,7 @@
             <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
               {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
                 {% if intento and intento.calificacion is not None %}
-                  <!-- Ya está calificado, no mostramos texto de intentos aquí abajo -->
+                  <!-- Ya calificado -->
                 {% elif intento and intento.calificacion is None %}
                   <span class="text-warning" style="font-size: 0.85rem; font-weight: 500;">
                     <i class="bi bi-clock-fill"></i> Esperando revisión del docente.
@@ -161,7 +161,7 @@
                     <i class="bi bi-exclamation-triangle-fill"></i> Has agotado tus 2 oportunidades.
                   </span>
                 {% else %}
-                  <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="resolve-link">
+                  <a href="{% url 'resolver_ejercicio' ejercicio.id %}" class="resolve-link">
                     Ir a resolver <i class="bi bi-arrow-right"></i>
                   </a>
                 {% endif %}
@@ -240,7 +240,7 @@
         <span class="section-badge">{{ clase.estudiantes.count }}</span>
       </div>
       
-      <div class="classmates-list" style="max-height: 320px; overflow-y: auto;">
+      <div class="classmates-list">
         {% for estudiante in clase.estudiantes.all %}
         <div class="classmate-item">
           <div class="classmate-avatar color-{{ forloop.counter|divisibleby:2|yesno:'1,2' }}">
