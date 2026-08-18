@@ -1,5 +1,5 @@
 /* ============================================ */
-/* detalle DOCENTE - */
+/* detalle DOCENTE - SPOTIFY STYLE */
 /* ============================================ */
 
 :root {
@@ -23,6 +23,55 @@ body {
   background: var(--spotify-black) !important;
   color: var(--spotify-text);
   font-family: 'DM Sans', sans-serif;
+}
+
+/* ═══════════════════════════════════════════ */
+/* BACK NAVIGATION */
+/* ═══════════════════════════════════════════ */
+
+.back-nav {
+  margin-bottom: 2rem;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 1.5rem;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--spotify-subtext);
+  padding: 0.6rem 1.3rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+}
+
+.btn-back:hover {
+  background: rgba(124, 111, 255, 0.12);
+  color: #c4baff;
+  border-color: rgba(124, 111, 255, 0.3);
+  transform: translateX(-3px);
+}
+
+.btn-back i {
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.btn-back:hover i {
+  transform: translateX(-3px);
+}
+
+.btn-back:active {
+  transform: translateX(-1px) scale(0.98);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -134,7 +183,6 @@ body {
   color: var(--spotify-text);
 }
 
-/* Estudiante nombre */
 .table tbody td:first-child {
   font-weight: 600;
   color: var(--spotify-text);
@@ -229,6 +277,7 @@ body {
 
 @media (max-width: 768px) {
   .container { padding: 1.5rem 1rem; }
+  .back-nav { padding: 0 1rem; }
   .card { padding: 1.5rem !important; }
   .card h2 { font-size: 1.3rem; }
   .table thead th { font-size: 0.7rem; padding: 0.6rem 0.7rem; }
@@ -239,4 +288,5 @@ body {
   .card h2 { font-size: 1.1rem; }
   .badge { font-size: 0.7rem !important; padding: 0.25rem 0.6rem !important; }
   .btn-sm { font-size: 0.75rem !important; padding: 0.4rem 0.8rem !important; }
+  .btn-back { font-size: 0.78rem; padding: 0.5rem 1rem; }
 }
