@@ -11,6 +11,8 @@ from django.shortcuts import get_object_or_404
 import json
 from datetime import datetime, timedelta
 from django.utils import timezone
+from django.db.models import Count, Q
+from ejercicios.models import Ejercicio, IntentoEjercicio 
 
 
 
@@ -335,55 +337,79 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def progreso(request):
+    # Obtener clases del estudiante
     clases = request.user.clases_estudiante.all()
-
+    
+    # IDs de ejercicios con intentos
+    ejercicios_completados = IntentoEjercicio.objects.filter(
+        estudiante=request.user
+    ).values_list('ejercicio_id', flat=True).distinct()
+    
+    # Ejercicios hechos
+    ejercicios_hechos = ejercicios_completados.count()
+    
+    # Ejercicios pendientes
+    ahora = timezone.now()
+    pendientes = Ejercicio.objects.filter(
+        clase__in=clases,
+        fecha_limite__isnull=False,
+        fecha_limite__gte=ahora
+    ).exclude(id__in=ejercicios_completados).select_related('clase')
+    
+    pendientes_count = pendientes.count()
+    
+    # Total de ejercicios
+    total_ejercicios = Ejercicio.objects.filter(clase__in=clases).count()
+    
+    # Progreso general
+    if total_ejercicios > 0:
+        progreso_general = round((ejercicios_hechos / total_ejercicios) * 100)
+    else:
+        progreso_general = 0
+    
+    # Progreso por clase
     progreso_clases = []
     for clase in clases:
+        total_clase = Ejercicio.objects.filter(clase=clase).count()
+        completados_clase = IntentoEjercicio.objects.filter(
+            estudiante=request.user,
+            ejercicio__clase=clase
+        ).values('ejercicio').distinct().count()
+        
+        porcentaje = round((completados_clase / total_clase) * 100) if total_clase > 0 else 0
+        
         progreso_clases.append({
             'clase': clase,
-            'porcentaje': calcular_progreso_clase(request.user, clase)
+            'total': total_clase,
+            'completados': completados_clase,
+            'porcentaje': porcentaje,
         })
-
-    progreso_general = round(sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases)) if progreso_clases else 0
-
-    ejercicios_hechos = RespuestaEstudiante.objects.filter(
+    
+    # Últimas actividades
+    actividades_lista = []
+    intentos = IntentoEjercicio.objects.filter(
         estudiante=request.user
-    ).values('actividad').distinct().count()
-
-    total_actividades = Actividad.objects.filter(leccion__clase__in=clases).count()
-    pendientes_count = total_actividades - ejercicios_hechos
-
-    # Últimas actividades completadas con su puntaje
-    respuestas = RespuestaEstudiante.objects.filter(
-        estudiante=request.user
-    ).select_related('actividad', 'actividad__leccion__clase', 'opcion').order_by('-fecha')
-
-    actividades_vistas = {}
-    for r in respuestas:
-        act_id = r.actividad_id
-        if act_id not in actividades_vistas:
-            actividades_vistas[act_id] = {'correctas': 0, 'total': 0, 'actividad': r.actividad}
-        actividades_vistas[act_id]['total'] += 1
-        if r.opcion.es_correcta:
-            actividades_vistas[act_id]['correctas'] += 1
-
-    actividades_completadas = []
-    for data in list(actividades_vistas.values())[:5]:
-        puntaje = round((data['correctas'] / data['total']) * 100) if data['total'] > 0 else 0
-        actividades_completadas.append({
-            'titulo': data['actividad'].titulo,
-            'clase_nombre': data['actividad'].leccion.clase.nombre,
-            'puntaje': puntaje,
+    ).select_related('ejercicio__clase').order_by('-fecha_envio')[:10]
+    
+    for intento in intentos:
+        actividades_lista.append({
+            'titulo': intento.ejercicio.titulo,
+            'clase_nombre': intento.ejercicio.clase.nombre,
+            'puntaje': intento.calificacion if intento.calificacion else 0,
+            'clase_id': intento.ejercicio.clase.id,
         })
-
-    return render(request, 'web/progreso.html', {
+    
+    context = {
         'clases': clases,
-        'progreso_clases': progreso_clases,
+        'total_clases': clases.count(),
+        'actividades_pendientes': pendientes_count,
+        'actividades_completadas': ejercicios_hechos,
         'progreso_general': progreso_general,
-        'ejercicios_hechos': ejercicios_hechos,
-        'pendientes_count': pendientes_count,
-        'actividades_completadas': actividades_completadas,
-    })
+        'progreso_clases': progreso_clases,
+        'actividades_lista': actividades_lista,
+    }
+    
+    return render(request, 'web/progreso.html', context)
 
 def certificados(request):
     return render(request, 'web/certificados.html')

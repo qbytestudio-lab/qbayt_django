@@ -785,3 +785,161 @@ body {
   color: var(--spotify-muted);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
+/* ═══════════════════════════════════════════ */
+/*         HISTORIAL                          */
+/* ═══════════════════════════════════════════ */
+
+.historial-filters {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--spotify-subtext);
+  padding: 0.45rem 1rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.filter-btn.active {
+  background: var(--spotify-green);
+  color: #000;
+  border-color: var(--spotify-green);
+  font-weight: 700;
+}
+
+.historial-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.historial-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 10px;
+  transition: all 0.2s;
+}
+
+.historial-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.historial-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.historial-item.estado-activa .historial-icon {
+  background: rgba(29, 185, 84, 0.12);
+  color: var(--spotify-green);
+}
+
+.historial-item.estado-completada .historial-icon {
+  background: rgba(124, 111, 255, 0.12);
+  color: var(--accent-purple);
+}
+
+.historial-item.estado-eliminada .historial-icon {
+  background: rgba(233, 20, 41, 0.12);
+  color: var(--danger);
+}
+
+.historial-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.historial-info h3 {
+  font-weight: 600;
+  font-size: 0.88rem;
+  color: #fff;
+  margin: 0 0 0.15rem;
+}
+
+.historial-info p {
+  font-size: 0.75rem;
+  color: var(--spotify-subtext);
+  margin: 0;
+}
+
+.historial-fecha {
+  font-size: 0.75rem;
+  color: var(--spotify-muted);
+  flex-shrink: 0;
+}
+
+.estado-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.estado-badge.activo {
+  background: rgba(29, 185, 84, 0.12);
+  color: var(--spotify-green);
+  border: 1px solid rgba(29, 185, 84, 0.2);
+}
+
+.estado-badge.completado {
+  background: rgba(124, 111, 255, 0.12);
+  color: var(--accent-purple);
+  border: 1px solid rgba(124, 111, 255, 0.2);
+}
+
+.estado-badge.eliminado {
+  background: rgba(233, 20, 41, 0.12);
+  color: var(--danger);
+  border: 1px solid rgba(233, 20, 41, 0.2);
+}
+
+@media (max-width: 768px) {
+  .historial-item {
+    flex-wrap: wrap;
+  }
+  
+  .historial-fecha {
+    width: 100%;
+    text-align: right;
+  }
+}
+/* Avatar con foto */
+.avatar-circle {
+  overflow: hidden;
+  position: relative;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}

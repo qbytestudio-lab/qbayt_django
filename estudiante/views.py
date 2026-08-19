@@ -1,24 +1,30 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
-from docente.utils import calcular_progreso_clase
-from clase.models import Clase, InscripcionNivel
-from docente.models import SolicitudClase, Actividad
 from django.contrib.auth.models import User
-from web.models import Perfil
 from django.contrib.auth import login
+from django.utils import timezone
+
+from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
+from clase.models import Clase, InscripcionNivel
+from docente.models import SolicitudClase
+from web.models import Perfil, InscripcionCurso
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+import json
 
 def calcular_progreso_clase(estudiante, clase):
-    """Devuelve el % de actividades completadas en una clase."""
-    total_actividades = Actividad.objects.filter(leccion__clase=clase).count()
-    if total_actividades == 0:
+    """Devuelve el % de ejercicios completados en una clase."""
+    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
+    if total_ejercicios == 0:
         return 0
-    completadas = RespuestaEstudiante.objects.filter(
+    
+    completados = IntentoEjercicio.objects.filter(
         estudiante=estudiante,
-        actividad__leccion__clase=clase
-    ).values('actividad').distinct().count()
-    return round((completadas / total_actividades) * 100)
+        ejercicio__clase=clase
+    ).values('ejercicio').distinct().count()
+    
+    return round((completados / total_ejercicios) * 100)
 
 
 @login_required
@@ -37,17 +43,74 @@ def perfil_estudiante(request):
             'porcentaje': calcular_progreso_clase(request.user, clase)
         })
 
-    # Progreso general (promedio de todas las clases)
+    # Progreso general
     if progreso_clases:
         progreso_general = round(sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases))
     else:
         progreso_general = 0
 
-        # Totales reales
-    total_actividades = Actividad.objects.filter(leccion__clase__in=clases).count()
+    # Ejercicios hechos
+    ejercicios_hechos = IntentoEjercicio.objects.filter(
+        estudiante=request.user
+    ).values('ejercicio').distinct().count()
+
+    # Pendientes
+    ahora = timezone.now()
     
-        # 🛠️ CORREGIDO: Usando 'intento__estudiante' y contando los ejercicios únicos a través del intento
-    ejercicios_hechos = RespuestaEstudiante.objects.filter(intento__estudiante=request.user).values('intento__ejercicio').distinct().count()
+    ejercicios_completados = IntentoEjercicio.objects.filter(
+        estudiante=request.user
+    ).values_list('ejercicio_id', flat=True).distinct()
+    
+    pendientes = Ejercicio.objects.filter(
+        clase__in=clases,
+        fecha_limite__isnull=False,
+        fecha_limite__gte=ahora
+    ).exclude(id__in=ejercicios_completados).select_related('clase')
+    
+    pendientes_count = pendientes.count()
+
+    # Historial
+    historial = []
+    
+    for clase in clases:
+        if clase.fecha_fin and clase.fecha_fin < ahora.date():
+            estado = 'completada'
+        else:
+            estado = 'activa'
+        
+        historial.append({
+            'nombre': clase.nombre,
+            'tipo': 'clase',
+            'estado': estado,
+            'docente_nombre': clase.docente.get_full_name() or clase.docente.username,
+            'fecha': clase.fecha_creacion,
+        })
+    
+    # Clases rechazadas/eliminadas
+    solicitudes_rechazadas = SolicitudClase.objects.filter(
+        estudiante=request.user,
+        estado='rechazada'
+    ).select_related('clase', 'clase__docente')
+    
+    for solicitud in solicitudes_rechazadas:
+        historial.append({
+            'nombre': solicitud.clase.nombre,
+            'tipo': 'clase',
+            'estado': 'eliminada',
+            'docente_nombre': solicitud.clase.docente.get_full_name() or solicitud.clase.docente.username,
+            'fecha': solicitud.fecha,
+        })
+    
+    # Cursos inscritos
+    cursos = InscripcionCurso.objects.filter(estudiante=request.user).select_related('curso')
+    for inscripcion in cursos:
+        historial.append({
+            'nombre': inscripcion.curso.nombre,
+            'tipo': 'curso',
+            'estado': 'activa',
+            'docente_nombre': 'N/A',
+            'fecha': getattr(inscripcion, 'fecha_inscripcion', timezone.now()),
+        })
 
     return render(request, 'estudiante/perfil_estudiante.html', {
         'clases': clases,
@@ -55,8 +118,13 @@ def perfil_estudiante(request):
         'progreso_clases': progreso_clases,
         'progreso_general': progreso_general,
         'ejercicios_hechos': ejercicios_hechos,
-        'total_actividades': total_actividades,
+        'pendientes': pendientes,
+        'pendientes_count': pendientes_count,
+        'historial': historial,
+        'clases_activas': clases.count(),
+        'clases_completadas': sum(1 for h in historial if h['estado'] == 'completada'),
     })
+
 
 def configurar_nivel(request):
     if 'registro_temporal' not in request.session:
@@ -65,9 +133,8 @@ def configurar_nivel(request):
     datos = request.session['registro_temporal']
 
     if request.method == 'POST':
-        nivel_seleccionado = request.POST.get('nivel') # Aquí captura el '1', '2', '3' o '4'
+        nivel_seleccionado = request.POST.get('nivel')
 
-        # 1. Creamos el usuario
         user = User.objects.create_user(
             username=datos['username'],
             email=datos['email'],
@@ -77,21 +144,17 @@ def configurar_nivel(request):
         )
         user.save()
 
-        # 2. Creamos su perfil
         Perfil.objects.create(user=user, rol=datos['rol'])
-
-        # 3. ¡ESTO ES LO QUE FALTABA! Guardamos el nivel seleccionado en la app clase
         InscripcionNivel.objects.create(estudiante=user, nivel=nivel_seleccionado)
 
-        # 4. Limpiamos la sesión temporal
         del request.session['registro_temporal']
 
-        # 5. Logueamos y redirigimos
         login(request, user)
         messages.success(request, '¡Cuenta creada con éxito!')
         return redirect('inicio')
 
     return render(request, 'estudiante/configurar_nivel.html')
+
 
 @login_required
 def unirse_clase(request):
@@ -104,24 +167,20 @@ def unirse_clase(request):
         try:
             clase_nueva = Clase.objects.get(codigo=codigo)
 
-            # Buscamos o creamos su registro de solicitud
             solicitud, created = SolicitudClase.objects.get_or_create(
                 estudiante=request.user,
                 clase=clase_nueva,
                 defaults={'estado': 'pendiente', 'intentos': 1}
             )
 
-            # Si está bloqueado permanentemente
             if solicitud.bloqueado:
                 messages.error(request, 'Has agotado tus 2 oportunidades en esta clase y estás bloqueado permanentemente.')
                 return redirect('estudiante:explorar_clases')
 
-            # Si ya está dentro de la clase
             if request.user in clase_nueva.estudiantes.all():
                 messages.warning(request, 'Ya estás en esta clase.')
                 return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
 
-            # Si la solicitud fue rechazada previamente y vuelve a intentarlo
             if not created and solicitud.estado == 'rechazada':
                 if solicitud.intentos < 2:
                     solicitud.intentos += 1
@@ -144,6 +203,7 @@ def unirse_clase(request):
 
     return redirect('estudiante:explorar_clases')
 
+
 @login_required
 def solicitar_clase(request):
     if request.user.perfil.rol != 'estudiante':
@@ -153,7 +213,6 @@ def solicitar_clase(request):
         clase_id = request.POST.get('clase_id')
         clase_solicitada = get_object_or_404(Clase, id=clase_id)
 
-        # Validamos si ya tiene otra clase en la misma categoría de tema
         clases_misma_categoria = request.user.clases_estudiante.filter(categoria_tema=clase_solicitada.categoria_tema)
 
         if request.user in clase_solicitada.estudiantes.all():
@@ -168,6 +227,7 @@ def solicitar_clase(request):
             
     return redirect('estudiante:perfil_estudiante')
 
+
 @login_required
 def salir_clase(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
@@ -176,6 +236,7 @@ def salir_clase(request, clase_id):
     clase.estudiantes.remove(request.user)
     messages.success(request, f'Saliste de "{clase.nombre}".')
     return redirect('estudiante:perfil_estudiante')
+
 
 @login_required
 def explorar_clases(request):
@@ -190,6 +251,7 @@ def explorar_clases(request):
         'solicitudes_enviadas': solicitudes_enviadas,
     })
 
+
 @login_required
 def detalle_clase_estudiante(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
@@ -198,31 +260,29 @@ def detalle_clase_estudiante(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
     
     if request.user not in clase.estudiantes.all():
-        messages.error(request, "No tienes acceso a esta clase o ha sido bloqueada por límite de reprobaciones.")
+        messages.error(request, "No tienes acceso a esta clase.")
         return redirect('estudiante:dashboard')
     
     ejercicios = clase.ejercicios.all()
 
-    # Recorremos los ejercicios para calcular los intentos por ejercicio
     for ejercicio in ejercicios:
         ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
         ejercicio.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
 
-    # 🔍 Obtenemos la solicitud general de la clase (para los intentos de inscripción/curso)
     solicitud = SolicitudClase.objects.filter(estudiante=request.user, clase=clase).first()
 
     return render(request, 'estudiante/detalle_clase_estudiante.html', {
         'clase': clase,
         'ejercicios': ejercicios,
-        'solicitud': solicitud, # 👈 Esta variable es clave
+        'solicitud': solicitud,
     })
-    
+
+
 @login_required
 def mis_calificaciones_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
     
-    # 🟢 Solución directa: Buscamos las clases filtrando por el ManyToManyField 'estudiantes'
     clases = Clase.objects.filter(estudiantes=request.user)
     
     reporte_clases = []
@@ -246,6 +306,7 @@ def mis_calificaciones_estudiante(request):
         'reporte_clases': reporte_clases,
     })
 
+
 @login_required
 def resolver_ejercicio(request, clase_id, ejercicio_id):
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
@@ -253,15 +314,13 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     if request.method == 'POST':
         preguntas = ejercicio.preguntas.all()
         
-        # 1. Creamos el intento como pendiente (sin calificación automática)
         intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
             ejercicio=ejercicio,
-            calificacion=None,      # Sin nota aún
-            aprobado=False          # Pendiente de revisión
+            calificacion=None,
+            aprobado=False
         )
         
-        # 2. Guardamos las respuestas del estudiante para que el docente las vea después
         for pregunta in preguntas:
             opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
             if opcion_id:
@@ -273,9 +332,28 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
                         opcion_seleccionada=opcion_seleccionada
                     )
             
+        messages.success(request, 'Ejercicio enviado. Espera la calificación del docente.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
 
     return render(request, 'estudiante/resolver_ejercicio.html', {
         'ejercicio': ejercicio,
         'clase_id': clase_id
     })
+@login_required
+@require_POST
+def subir_foto_perfil(request):
+    try:
+        foto = request.FILES.get('foto_perfil')
+        if not foto:
+            return JsonResponse({'success': False, 'error': 'No se recibió imagen'})
+        
+        # Obtener o crear el perfil
+        perfil, created = Perfil.objects.get_or_create(user=request.user)
+        
+        # Guardar foto
+        perfil.foto_perfil = foto
+        perfil.save()
+        
+        return JsonResponse({'success': True, 'url': perfil.foto_perfil.url})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})

@@ -49,7 +49,27 @@
   <div class="stats-grid">
     <div class="stat-card animate-in">
       <div class="stat-icon-wrapper stat-icon-green">
-        <i class="bi bi-lightning-charge-fill"></i>
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ actividades_completadas }}</div>
+        <div class="stat-label">Ejercicios completados</div>
+      </div>
+    </div>
+
+    <div class="stat-card animate-in">
+      <div class="stat-icon-wrapper stat-icon-orange">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ actividades_pendientes }}</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+    </div>
+
+    <div class="stat-card animate-in">
+      <div class="stat-icon-wrapper stat-icon-purple">
+        <i class="bi bi-graph-up-arrow"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ progreso_general }}%</div>
@@ -58,31 +78,11 @@
     </div>
 
     <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-purple">
-        <i class="bi bi-check2-circle"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ ejercicios_hechos }}</div>
-        <div class="stat-label">Ejercicios completados</div>
-      </div>
-    </div>
-
-    <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-orange">
-        <i class="bi bi-clipboard-x"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ pendientes_count }}</div>
-        <div class="stat-label">Pendientes</div>
-      </div>
-    </div>
-
-    <div class="stat-card animate-in">
       <div class="stat-icon-wrapper stat-icon-blue">
         <i class="bi bi-collection-play-fill"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-value">{{ clases.count }}</div>
+        <div class="stat-value">{{ total_clases }}</div>
         <div class="stat-label">Clases activas</div>
       </div>
     </div>
@@ -94,9 +94,6 @@
       <i class="bi bi-music-note-list"></i>
       Progreso por clase
     </h2>
-    {% if progreso_clases %}
-    <a href="#" class="see-all-link">Ver todas <i class="bi bi-chevron-right"></i></a>
-    {% endif %}
   </div>
 
   {% if progreso_clases %}
@@ -119,7 +116,7 @@
         <div class="progress-info">
           <span class="progress-text">
             <i class="bi bi-journal-check"></i>
-            {{ item.completados|default:"0" }}/{{ item.total|default:"0" }} lecciones
+            {{ item.completados }}/{{ item.total }} ejercicios
           </span>
           <span class="progress-percentage">{{ item.porcentaje }}%</span>
         </div>
@@ -145,27 +142,26 @@
     </div>
     <h3 class="empty-title">Aún no hay clases activas</h3>
     <p class="empty-text">Explora y únete a clases para comenzar tu viaje de aprendizaje</p>
-    <a href="{% url 'estudiante:explorar_clases' %}" class="btn-spotify">
+    <a href="{% url 'explorar_clases' %}" class="btn-spotify">
       <i class="bi bi-compass"></i> Descubrir clases
     </a>
   </div>
   {% endif %}
 
-  <!-- RECENT ACTIVITIES SECTION -->
-  {% if actividades_completadas %}
+  <!-- RECENT ACTIVITIES -->
+  {% if actividades_lista %}
   <div class="section-header">
     <h2 class="section-title">
       <i class="bi bi-clock-history"></i>
-      Últimas actividades
+      Últimos ejercicios
     </h2>
-    <a href="#" class="see-all-link">Historial completo <i class="bi bi-chevron-right"></i></a>
   </div>
 
   <div class="activities-list animate-in">
-    {% for act in actividades_completadas %}
+    {% for act in actividades_lista %}
     <div class="activity-item">
-      <div class="activity-icon {% if act.puntaje >= 70 %}high-score{% else %}low-score{% endif %}">
-        {% if act.puntaje >= 70 %}
+      <div class="activity-icon {% if act.puntaje >= 3 %}high-score{% else %}low-score{% endif %}">
+        {% if act.puntaje >= 3 %}
         <i class="bi bi-emoji-smile-fill"></i>
         {% else %}
         <i class="bi bi-emoji-neutral-fill"></i>
@@ -181,15 +177,13 @@
       </div>
       
       <div class="activity-score">
-        <span class="score-value {% if act.puntaje >= 70 %}high{% else %}low{% endif %}">
-          {{ act.puntaje }}%
-        </span>
-        <span class="score-badge {% if act.puntaje >= 70 %}excellent{% else %}good{% endif %}">
-          {% if act.puntaje >= 90 %}Excelente
-          {% elif act.puntaje >= 70 %}Bien
-          {% else %}Regular
-          {% endif %}
-        </span>
+        {% if act.puntaje %}
+        <span class="score-value score-small">{{ act.puntaje }}/5.0</span>
+        {% else %}
+        <a href="{% url 'detalle_curso' act.clase_id %}" class="score-value score-small pending-link">
+          Pendiente
+        </a>
+        {% endif %}
       </div>
     </div>
     {% endfor %}
@@ -213,7 +207,6 @@
       if (entry.isIntersecting) {
         entry.target.classList.add('animate-in');
         
-        // Animar barras de progreso
         const progressBars = entry.target.querySelectorAll('.mini-progress-fill, .progress-bar-fill');
         progressBars.forEach(bar => {
           const targetWidth = bar.style.width;
@@ -226,7 +219,6 @@
     });
   }, observerOptions);
 
-  // Observar elementos para animación
   document.querySelectorAll('.class-progress-list, .activities-list, .empty-state').forEach(el => {
     observer.observe(el);
   });
@@ -241,14 +233,5 @@
       this.style.transform = 'translateY(0)';
     });
   });
-
-  // Actualizar tiempo real (opcional)
-  function updateProgress() {
-    // Aquí puedes hacer fetch a una API para actualizar el progreso en tiempo real
-    console.log('Progreso actualizado');
-  }
-
-  // Actualizar cada 30 segundos
-  setInterval(updateProgress, 30000);
 </script>
 {% endblock %}

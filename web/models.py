@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User , AbstractUser
+from clase.models import Actividad, Opcion
 
 # Create your models here.
 class Perfil(models.Model):
