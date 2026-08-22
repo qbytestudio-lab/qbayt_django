@@ -101,17 +101,22 @@
                 <div class="proximos-list">
                     {% if proximos %}
                         {% for act in proximos|slice:":5" %}
-                        <a href="#" class="proximo-item">
+                        <a href="{% url 'detalle_curso' act.clase.id %}" class="proximo-item">
                             <div class="proximo-icon orange">
                                 <i class="bi bi-patch-question-fill"></i>
                             </div>
                             <div class="proximo-info">
                                 <div class="proximo-title">{{ act.titulo|truncatechars:25 }}</div>
                                 <div class="proximo-date">
-                                    <i class="bi bi-clock"></i> {{ act.fecha_limite|date:"d M · H:i" }}
-                                    <span style="color: var(--accent-orange); font-weight: 600; font-size: 0.65rem;">
-                                        {{ act.fecha_limite|timeuntil }}
-                                    </span>
+                                    <i class="bi bi-clock"></i> 
+                                    {% if act.fecha_limite %}
+                                        {{ act.fecha_limite|date:"d M · H:i" }}
+                                        <span style="color: var(--accent-orange); font-weight: 600; font-size: 0.65rem;">
+                                            {{ act.fecha_limite|timeuntil }}
+                                        </span>
+                                    {% else %}
+                                        <span style="color: var(--spotify-muted);">Sin fecha límite</span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="proximo-arrow">
@@ -150,7 +155,7 @@
     // ============================================
     // DATOS
     // ============================================
-    const eventosData = {{ eventos_json|safe }};
+    const eventosData = {{ eventos_json|safe|default:'[]' }};
 
     // ============================================
     // RENDERIZAR CALENDARIO
@@ -210,8 +215,9 @@
                 const showEvents = dayEvents.slice(0, maxShow);
                 showEvents.forEach(event => {
                     const tipo = event.tipo || 'clase';
+                    const url = event.url || '#';
                     html += `
-                        <div class="day-event ${tipo}" onclick="window.location.href='${event.url || '#'}'">
+                        <div class="day-event ${tipo}" onclick="window.location.href='${url}'" style="cursor: pointer;">
                             <span class="dot"></span>
                             <span>${event.title}</span>
                         </div>

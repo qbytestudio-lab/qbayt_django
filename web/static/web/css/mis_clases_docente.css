@@ -446,6 +446,7 @@ body {
   flex: 1;
 }
 
+/* Meta */
 .class-card-meta {
   display: flex; align-items: center; gap: 1rem;
   flex-wrap: wrap; margin-bottom: 0.75rem;
@@ -457,6 +458,34 @@ body {
 }
 
 .class-card-meta-item i { font-size: 0.75rem; }
+
+/* Badge de categoría */
+.class-category-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(124,111,255,0.15);
+  color: #a89fff;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  width: fit-content;
+  border: 1px solid rgba(124,111,255,0.2);
+  transition: all 0.2s;
+}
+
+.class-category-badge:hover {
+  background: rgba(124,111,255,0.25);
+  border-color: rgba(124,111,255,0.4);
+  transform: translateY(-1px);
+}
+
+.class-category-badge i {
+  font-size: 0.7rem;
+  color: #b06fff;
+}
 
 /* Code Display */
 .class-code {
@@ -475,14 +504,14 @@ body {
   font-family: 'Courier New', monospace;
 }
 
-.class-code .copy-btn {
+.copy-btn {
   margin-left: auto; background: transparent;
   border: none; color: #a89fff;
   cursor: pointer; font-size: 0.9rem;
   transition: all 0.2s; padding: 0.2rem;
 }
 
-.class-code .copy-btn:hover { color: #fff; transform: scale(1.2); }
+.copy-btn:hover { color: #fff; transform: scale(1.2); }
 
 /* Card Footer */
 .class-card-footer {

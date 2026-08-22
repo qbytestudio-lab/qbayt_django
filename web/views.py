@@ -340,20 +340,17 @@ def progreso(request):
     # Obtener clases del estudiante
     clases = request.user.clases_estudiante.all()
     
-    # IDs de ejercicios con intentos
+    # IDs de ejercicios con intentos (completados = tienen al menos un intento)
     ejercicios_completados = IntentoEjercicio.objects.filter(
         estudiante=request.user
     ).values_list('ejercicio_id', flat=True).distinct()
     
-    # Ejercicios hechos
+    # Ejercicios hechos (tienen al menos un intento)
     ejercicios_hechos = ejercicios_completados.count()
     
-    # Ejercicios pendientes
-    ahora = timezone.now()
+    # Ejercicios pendientes = TODOS los ejercicios de las clases que NO tienen intentos
     pendientes = Ejercicio.objects.filter(
-        clase__in=clases,
-        fecha_limite__isnull=False,
-        fecha_limite__gte=ahora
+        clase__in=clases
     ).exclude(id__in=ejercicios_completados).select_related('clase')
     
     pendientes_count = pendientes.count()
@@ -385,7 +382,7 @@ def progreso(request):
             'porcentaje': porcentaje,
         })
     
-    # Últimas actividades
+    # Últimas actividades (mantener tu lógica original)
     actividades_lista = []
     intentos = IntentoEjercicio.objects.filter(
         estudiante=request.user
@@ -397,6 +394,17 @@ def progreso(request):
             'clase_nombre': intento.ejercicio.clase.nombre,
             'puntaje': intento.calificacion if intento.calificacion else 0,
             'clase_id': intento.ejercicio.clase.id,
+        })
+    
+    # Agregar ejercicios pendientes a actividades_lista (sin intentos)
+    ejercicios_pendientes_lista = pendientes.order_by('-fecha_creacion')[:5]
+    
+    for ejercicio in ejercicios_pendientes_lista:
+        actividades_lista.append({
+            'titulo': ejercicio.titulo,
+            'clase_nombre': ejercicio.clase.nombre,
+            'puntaje': None,  # None = pendiente
+            'clase_id': ejercicio.clase.id,
         })
     
     context = {
@@ -434,57 +442,91 @@ def mis_clases(request):
 @login_required
 def calendario(request):
     """
-    Vista del calendario - Versión simplificada
+    Vista del calendario - Versión corregida
     """
-    from django.utils import timezone
-    import json
     
     usuario = request.user
     
-    # Obtener inscripciones del estudiante
-    inscripciones = InscripcionCurso.objects.filter(estudiante=usuario).select_related('curso')
+    # Importar modelos
+    from clase.models import Clase
+    from ejercicios.models import Ejercicio, IntentoEjercicio
     
-    # Eventos para FullCalendar
+    # Obtener las clases donde el estudiante está inscrito
+    clases_inscritas = Clase.objects.filter(estudiantes=usuario)
+    
+    # Inicializar contadores
+    actividades_pendientes_count = 0
+    actividades_completadas_count = 0
+    proximos = []
     eventos = []
     
-    # Agregar cursos como eventos
-    for insc in inscripciones:
-        fecha = insc.curso.fecha_creacion.date() if insc.curso.fecha_creacion else timezone.now().date()
+    # Agregar clases como eventos
+    for clase in clases_inscritas:
+        fecha = clase.fecha_inicio if clase.fecha_inicio else timezone.now().date()
         eventos.append({
-            'title': f'📚 {insc.curso.nombre}',
+            'title': f'📚 {clase.nombre}',
             'start': fecha.isoformat(),
             'tipo': 'clase',
-            'url': f'/cursos/detalle/{insc.curso.id}/',
-            'descripcion': f'Clase: {insc.curso.nombre}'
+            'url': f'/detalle_curso/{clase.id}/',
+            'descripcion': f'Clase: {clase.nombre}'
         })
     
-    # Eventos del día de hoy
-    hoy = timezone.now().date()
-    eventos_hoy = [e for e in eventos if e['start'] == hoy.isoformat()]
+    # Obtener ejercicios de las clases inscritas
+    ejercicios = Ejercicio.objects.filter(clase__in=clases_inscritas)
     
-    # Próximas entregas (vacío por ahora)
-    proximos = []
+    # Procesar cada ejercicio
+    for ejercicio in ejercicios:
+        # Verificar si el estudiante tiene intentos aprobados
+        intento_aprobado = IntentoEjercicio.objects.filter(
+            estudiante=usuario,
+            ejercicio=ejercicio,
+            aprobado=True
+        ).exists()
+        
+        if intento_aprobado:
+            # Ejercicio completado y aprobado
+            actividades_completadas_count += 1
+        else:
+            # Ejercicio pendiente
+            actividades_pendientes_count += 1
+            
+            # Agregar a próximos si tiene fecha límite futura
+            if ejercicio.fecha_limite and ejercicio.fecha_limite >= timezone.now():
+                proximos.append(ejercicio)
+            
+            # Agregar al calendario si tiene fecha límite
+            if ejercicio.fecha_limite:
+                eventos.append({
+                    'title': f'✏️ {ejercicio.titulo}',
+                    'start': ejercicio.fecha_limite.isoformat(),
+                    'tipo': 'actividad',
+                    'url': f'/detalle_curso/{ejercicio.clase.id}/',
+                })
+    
+    # Ordenar próximos por fecha límite
+    if proximos:
+        proximos.sort(key=lambda x: x.fecha_limite if x.fecha_limite else timezone.now())
+    
+    hoy = timezone.now()
     
     # Convertir a JSON
     eventos_json = json.dumps(eventos, default=str)
     
-    # Contar correctamente
-    total_clases = inscripciones.count()
+    # Eventos del día de hoy
+    eventos_hoy = [e for e in eventos if e['start'] == hoy.date().isoformat()]
     
     context = {
         'eventos_json': eventos_json,
         'eventos_hoy': eventos_hoy,
         'proximos': proximos,
-        'total_clases': total_clases,
-        'actividades_pendientes': 0,
-        'actividades_completadas': 0,
-        'hoy': hoy,
-        'clases': inscripciones,  # ✅ AGREGADO: Para compatibilidad
+        'total_clases': clases_inscritas.count(),
+        'actividades_pendientes': actividades_pendientes_count,
+        'actividades_completadas': actividades_completadas_count,
+        'hoy': hoy.date(),
+        'clases': clases_inscritas,
     }
     
     return render(request, 'web/calendario.html', context)
-
-
 @login_required
 def continuar_curso(request, curso_id):
     curso = get_object_or_404(Curso, id=curso_id)

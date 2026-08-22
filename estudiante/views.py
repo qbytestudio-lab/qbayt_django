@@ -339,21 +339,36 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         'ejercicio': ejercicio,
         'clase_id': clase_id
     })
+
 @login_required
 @require_POST
 def subir_foto_perfil(request):
     try:
         foto = request.FILES.get('foto_perfil')
+
         if not foto:
-            return JsonResponse({'success': False, 'error': 'No se recibió imagen'})
-        
-        # Obtener o crear el perfil
-        perfil, created = Perfil.objects.get_or_create(user=request.user)
-        
-        # Guardar foto
-        perfil.foto_perfil = foto
-        perfil.save()
-        
-        return JsonResponse({'success': True, 'url': perfil.foto_perfil.url})
+            return JsonResponse({
+                'success': False,
+                'error': 'No se recibió imagen'
+            })
+
+        perfil, created = Perfil.objects.get_or_create(
+            user=request.user
+        )
+
+        perfil.foto_perfil.save(
+            foto.name,
+            foto,
+            save=True
+        )
+
+        return JsonResponse({
+            'success': True,
+            'url': perfil.foto_perfil.url
+        })
+
     except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
