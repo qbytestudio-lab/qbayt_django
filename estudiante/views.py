@@ -259,6 +259,18 @@ def detalle_clase_estudiante(request, clase_id):
         
     clase = get_object_or_404(Clase, id=clase_id)
     
+    # 1. Validación de categoría: Verificar si ya está inscrito en OTRA clase de la misma categoría
+    if hasattr(clase, 'categoria') and clase.categoria:
+        otra_clase_misma_categoria = Clase.objects.filter(
+            categoria=clase.categoria,
+            estudiantes=request.user
+        ).exclude(id=clase.id).exists()
+        
+        if otra_clase_misma_categoria and request.user not in clase.estudiantes.all():
+            messages.error(request, "Ya estás participando en otra clase de esta misma categoría y no puedes ingresar a esta.")
+            return redirect('estudiante:dashboard')
+
+    # 2. Validación estándar de inscripción a la clase actual
     if request.user not in clase.estudiantes.all():
         messages.error(request, "No tienes acceso a esta clase.")
         return redirect('estudiante:dashboard')
