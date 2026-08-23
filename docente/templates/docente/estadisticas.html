@@ -71,8 +71,8 @@
         
         <div class="summary-card green">
           <div class="summary-icon"><i class="bi bi-list-task"></i></div>
-          <div class="summary-value green">{{ total_actividades }}</div>
-          <div class="summary-label">Actividades</div>
+          <div class="summary-value green">{{ total_ejercicios }}</div>
+          <div class="summary-label">Ejercicios</div>
         </div>
         
         <div class="summary-card orange">
@@ -82,14 +82,6 @@
           </div>
           <div class="summary-label">Progreso top</div>
         </div>
-        
-        <div class="summary-card pink">
-          <div class="summary-icon"><i class="bi bi-star-fill"></i></div>
-          <div class="summary-value pink">
-            {% if data_actividades %}{{ data_actividades.0.porcentaje }}%{% else %}0%{% endif %}
-          </div>
-          <div class="summary-label">Actividad más completada</div>
-        </div>
       </div>
 
       <!-- TABS -->
@@ -97,8 +89,8 @@
         <button class="tab-btn active" id="btnEstudiantes" onclick="cambiarTab('estudiantes')">
           <i class="bi bi-people-fill"></i> Por estudiante
         </button>
-        <button class="tab-btn" id="btnActividades" onclick="cambiarTab('actividades')">
-          <i class="bi bi-list-task"></i> Por actividad
+        <button class="tab-btn" id="btnEjercicios" onclick="cambiarTab('ejercicios')">
+          <i class="bi bi-list-task"></i> Por ejercicio
         </button>
       </div>
 
@@ -123,7 +115,7 @@
                 <div class="progress-bar">
                   <div class="progress-fill purple" style="width: {{ item.progreso }}%;"></div>
                 </div>
-                <span class="progress-text">{{ item.completadas }}/{{ item.total }} act.</span>
+                <span class="progress-text">{{ item.completadas }}/{{ item.total }} ejercicios</span>
               </div>
             </div>
 
@@ -135,12 +127,16 @@
               <div class="score-label">Progreso</div>
             </div>
 
-            <!-- Puntaje -->
+            <!-- Notas (enlace clickeable) -->
             <div class="score-display">
-              <div class="score-value {% if item.puntaje >= 70 %}high{% elif item.puntaje >= 40 %}medium{% elif item.puntaje > 0 %}low{% else %}neutral{% endif %}">
-                {% if item.puntaje > 0 %}{{ item.puntaje }}%{% else %}—{% endif %}
-              </div>
-              <div class="score-label">Puntaje</div>
+              <a href="{% url 'notas_estudiante' clase.id item.estudiante.id %}" class="notas-link">
+                <div class="score-value {% if item.puntaje >= 70 %}high{% elif item.puntaje >= 40 %}medium{% elif item.puntaje > 0 %}low{% else %}neutral{% endif %}">
+                  {% if item.puntaje > 0 %}{{ item.puntaje }}%{% else %}—{% endif %}
+                </div>
+                <div class="score-label">
+                  <i class="bi bi-eye-fill"></i> Ver notas
+                </div>
+              </a>
             </div>
 
             <!-- Estado -->
@@ -162,44 +158,49 @@
         {% endif %}
       </div>
 
-      <!-- TAB: POR ACTIVIDAD -->
-      <div id="tab-actividades" style="display:none;">
-        {% if data_actividades %}
-          {% for item in data_actividades %}
+      <!-- TAB: POR EJERCICIO -->
+      <div id="tab-ejercicios" style="display:none;">
+        {% if data_ejercicios %}
+          {% for item in data_ejercicios %}
           <div class="activity-row">
             
             <!-- Icon -->
-            <div class="activity-icon {% if item.actividad.tipo == 'quiz' %}quiz{% else %}texto{% endif %}">
-              <i class="bi bi-{% if item.actividad.tipo == 'quiz' %}patch-question-fill{% else %}file-text-fill{% endif %}"></i>
+            <div class="activity-icon {{ item.ejercicio.tipo }}">
+              <i class="bi bi-{% if 'quiz' in item.ejercicio.tipo %}patch-question-fill{% elif item.ejercicio.tipo == 'juego' %}controller{% elif item.ejercicio.tipo == 'texto' %}file-text-fill{% elif item.ejercicio.tipo == 'verdadero_falso' %}check-circle-fill{% elif item.ejercicio.tipo == 'completar' %}input-cursor-text{% else %}file-text-fill{% endif %}"></i>
             </div>
 
             <!-- Info -->
             <div class="activity-info">
-              <div class="activity-title">{{ item.actividad.titulo }}</div>
+              <div class="activity-title">{{ item.ejercicio.titulo }}</div>
               <div class="activity-meta">
-                {{ item.actividad.leccion.titulo }} · {{ item.actividad.get_tipo_display }}
+                {{ item.ejercicio.get_tipo_display }}
               </div>
               <div class="activity-progress-wrapper">
                 <div class="progress-bar">
                   <div class="progress-fill green" style="width: {{ item.porcentaje }}%;"></div>
                 </div>
-                <span class="progress-text">{{ item.completaron }}/{{ item.total_estudiantes }}</span>
+                <span class="progress-text">{{ item.completaron }}/{{ item.total_estudiantes }} aprobaron</span>
               </div>
             </div>
 
-            <!-- % Completaron -->
+            <!-- Badge Aprobó / No aprobó -->
             <div class="score-display">
-              <div class="score-value {% if item.porcentaje >= 70 %}high{% elif item.porcentaje >= 40 %}medium{% else %}low{% endif %}">
-                {{ item.porcentaje }}%
-              </div>
-              <div class="score-label">Completaron</div>
+              {% if item.porcentaje >= 50 %}
+              <span class="status-badge completed">
+                <i class="bi bi-check-circle-fill"></i> Aprobó
+              </span>
+              {% else %}
+              <span class="status-badge reprobado">
+                <i class="bi bi-x-circle-fill"></i> No aprobó
+              </span>
+              {% endif %}
             </div>
 
             <!-- Deadline -->
             <div class="activity-deadline">
-              {% if item.actividad.fecha_limite %}
-              <div class="deadline-date">{{ item.actividad.fecha_limite|date:"d M" }}</div>
-              <div class="deadline-time">{{ item.actividad.fecha_limite|date:"H:i" }}</div>
+              {% if item.ejercicio.fecha_limite %}
+              <div class="deadline-date">{{ item.ejercicio.fecha_limite|date:"d M" }}</div>
+              <div class="deadline-time">{{ item.ejercicio.fecha_limite|date:"H:i" }}</div>
               {% else %}
               <div class="deadline-none">Sin fecha</div>
               {% endif %}
@@ -210,7 +211,7 @@
         {% else %}
         <div class="empty-state">
           <i class="bi bi-list-task empty-icon"></i>
-          <p class="empty-text">No hay actividades creadas aún</p>
+          <p class="empty-text">No hay ejercicios creados aún</p>
         </div>
         {% endif %}
       </div>
@@ -222,9 +223,9 @@
   <script>
     function cambiarTab(tab) {
       document.getElementById('tab-estudiantes').style.display = tab === 'estudiantes' ? '' : 'none';
-      document.getElementById('tab-actividades').style.display = tab === 'actividades' ? '' : 'none';
+      document.getElementById('tab-ejercicios').style.display = tab === 'ejercicios' ? '' : 'none';
       document.getElementById('btnEstudiantes').classList.toggle('active', tab === 'estudiantes');
-      document.getElementById('btnActividades').classList.toggle('active', tab === 'actividades');
+      document.getElementById('btnEjercicios').classList.toggle('active', tab === 'ejercicios');
     }
 
     // Animation on scroll

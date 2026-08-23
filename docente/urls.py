@@ -15,6 +15,7 @@ urlpatterns = [
     path('clase/<int:clase_id>/anuncio/<int:anuncio_id>/eliminar/', views.eliminar_anuncio, name='eliminar_anuncio'),
     path('clase/<int:clase_id>/editar/', views.editar_clase, name='editar_clase'),
     path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),
-    path('estadisticas/<int:clase_id>/',views.estadisticas_clase,name='estadisticas_clase'),
-    path('clase/<int:clase_id>/expulsar/<int:estudiante_id>/', expulsar_estudiante_clase, name='expulsar_estudiante_clase'),
+    path('clase/<int:clase_id>/estadisticas/', views.estadisticas_clase, name='estadisticas_clase'),
+    path('clase/<int:clase_id>/notas/<int:estudiante_id>/', views.notas_estudiante, name='notas_estudiante'),
+    path('clase/<int:clase_id>/expulsar/<int:estudiante_id>/', views.expulsar_estudiante_clase, name='expulsar_estudiante_clase'),
     ]

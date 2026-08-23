@@ -7,6 +7,12 @@ from django.http import HttpResponse
 from django.contrib.auth.models import User
 from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion, RespuestaEstudiante
 from django.core.exceptions import ValidationError
+from clase.models import Clase
+from ejercicios.models import Ejercicio, IntentoEjercicio
+from django.contrib.auth import get_user_model
+
+    
+
 
 # ═══════════════════════════════════════════
 #         PERFIL DOCENTE
@@ -295,24 +301,38 @@ def estadisticas_clase(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
     
+    User = get_user_model()
+    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     estudiantes = clase.estudiantes.all()
-    actividades = Actividad.objects.filter(leccion__clase=clase)
+    ejercicios = Ejercicio.objects.filter(clase=clase)
     
+    # Datos por estudiante
     data_estudiantes = []
     for estudiante in estudiantes:
-        respuestas = RespuestaEstudiante.objects.filter(
+        # Obtener intentos del estudiante en esta clase
+        intentos = IntentoEjercicio.objects.filter(
             estudiante=estudiante,
-            actividad__leccion__clase=clase
-        ).select_related('actividad', 'opcion')
+            ejercicio__clase=clase
+        ).select_related('ejercicio')
         
-        completadas = respuestas.values('actividad').distinct().count()
-        total = actividades.count()
+        # Ejercicios completados (aprobados)
+        completadas = intentos.filter(aprobado=True).values('ejercicio').distinct().count()
+        
+        # Total de ejercicios
+        total = ejercicios.count()
+        
+        # Progreso
         progreso = round((completadas / total) * 100) if total > 0 else 0
         
-        correctas = sum(1 for r in respuestas if r.opcion.es_correcta)
-        total_resp = respuestas.count()
-        puntaje = round((correctas / total_resp) * 100) if total_resp > 0 else 0
+        # Calcular puntaje promedio de las calificaciones
+        calificaciones = intentos.exclude(calificacion__isnull=True).values_list('calificacion', flat=True)
+        if calificaciones:
+            promedio_calificaciones = sum(float(c) for c in calificaciones) / len(calificaciones)
+            # Convertir a porcentaje (asumiendo calificación máxima de 5.0)
+            puntaje = round((promedio_calificaciones / 5.0) * 100)
+        else:
+            puntaje = 0
         
         data_estudiantes.append({
             'estudiante': estudiante,
@@ -322,23 +342,117 @@ def estadisticas_clase(request, clase_id):
             'puntaje': puntaje,
         })
     
-    data_actividades = []
-    for act in actividades:
-        completaron = RespuestaEstudiante.objects.filter(
-            actividad=act
+    # Ordenar estudiantes por progreso (de mayor a menor)
+    data_estudiantes.sort(key=lambda x: x['progreso'], reverse=True)
+    
+    # Datos por ejercicio
+    data_ejercicios = []
+    for ejercicio in ejercicios:
+        # Estudiantes que completaron (aprobaron) el ejercicio
+        completaron = IntentoEjercicio.objects.filter(
+            ejercicio=ejercicio,
+            aprobado=True
         ).values('estudiante').distinct().count()
+        
+        # Calcular porcentaje de completitud
         porcentaje = round((completaron / estudiantes.count()) * 100) if estudiantes.count() > 0 else 0
-        data_actividades.append({
-            'actividad': act,
+        
+        # Calcular promedio de calificaciones del ejercicio
+        calificaciones_ejercicio = IntentoEjercicio.objects.filter(
+            ejercicio=ejercicio
+        ).exclude(calificacion__isnull=True).values_list('calificacion', flat=True)
+        
+        if calificaciones_ejercicio:
+            promedio = sum(float(c) for c in calificaciones_ejercicio) / len(calificaciones_ejercicio)
+        else:
+            promedio = 0
+        
+        data_ejercicios.append({
+            'ejercicio': ejercicio,
             'completaron': completaron,
             'total_estudiantes': estudiantes.count(),
             'porcentaje': porcentaje,
+            'promedio': promedio,
         })
     
-    return render(request, 'docente/estadisticas.html', {
+    # Ordenar ejercicios por porcentaje de completitud
+    data_ejercicios.sort(key=lambda x: x['porcentaje'], reverse=True)
+    
+    context = {
         'clase': clase,
         'data_estudiantes': data_estudiantes,
-        'data_actividades': data_actividades,
+        'data_ejercicios': data_ejercicios,
         'total_estudiantes': estudiantes.count(),
-        'total_actividades': actividades.count(),
-    })
+        'total_ejercicios': ejercicios.count(),
+    }
+    
+    return render(request, 'docente/estadisticas.html', context)
+
+@login_required
+def notas_estudiante(request, clase_id, estudiante_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    
+    User = get_user_model()
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    estudiante = get_object_or_404(User, id=estudiante_id)
+    
+    # Verificar que el estudiante esté inscrito en la clase
+    if not clase.estudiantes.filter(id=estudiante_id).exists():
+        messages.error(request, 'El estudiante no está inscrito en esta clase.')
+        return redirect('estadisticas_clase', clase_id=clase_id)
+    
+    # Obtener ejercicios de la clase
+    ejercicios = Ejercicio.objects.filter(clase=clase).order_by('fecha_creacion')
+    
+    # Construir lista de notas
+    notas = []
+    total_calificaciones = 0
+    cantidad_calificaciones = 0
+    
+    for ejercicio in ejercicios:
+        # Obtener todos los intentos del estudiante en este ejercicio
+        intentos_ejercicio = IntentoEjercicio.objects.filter(
+            estudiante=estudiante,
+            ejercicio=ejercicio
+        ).order_by('-fecha_envio')
+        
+        # El mejor intento (aprobado con mayor calificación)
+        mejor_intento = intentos_ejercicio.filter(aprobado=True).order_by('-calificacion').first()
+        
+        # Si no hay aprobado, usar el último intento
+        if not mejor_intento:
+            mejor_intento = intentos_ejercicio.first()
+        
+        calificacion = mejor_intento.calificacion if mejor_intento else None
+        aprobado = mejor_intento.aprobado if mejor_intento else False
+        fecha_envio = mejor_intento.fecha_envio if mejor_intento else None
+        total_intentos = intentos_ejercicio.count()
+        
+        if calificacion:
+            total_calificaciones += float(calificacion)
+            cantidad_calificaciones += 1
+        
+        notas.append({
+            'ejercicio': ejercicio,
+            'calificacion': calificacion,
+            'aprobado': aprobado,
+            'fecha_envio': fecha_envio,
+            'total_intentos': total_intentos,
+        })
+    
+    # Calcular promedio
+    promedio = round((total_calificaciones / cantidad_calificaciones) * 20) if cantidad_calificaciones > 0 else 0
+    # (multiplicamos por 20 porque la calificación es de 1-5 y queremos porcentaje)
+    
+    context = {
+        'clase': clase,
+        'estudiante': estudiante,
+        'notas': notas,
+        'total_ejercicios': ejercicios.count(),
+        'completados': len([n for n in notas if n['aprobado']]),
+        'promedio': promedio,
+    }
+    
+    return render(request, 'docente/notas_estudiante.html', context)
