@@ -101,7 +101,7 @@
                 <div class="proximos-list">
                     {% if proximos %}
                         {% for act in proximos|slice:":5" %}
-                        <a href="{% url 'detalle_curso' act.clase.id %}" class="proximo-item">
+                        <a href="{% url 'estudiante:detalle_clase_estudiante' act.clase.id %}" class="proximo-item">
                             <div class="proximo-icon orange">
                                 <i class="bi bi-patch-question-fill"></i>
                             </div>

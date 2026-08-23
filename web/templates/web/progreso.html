@@ -45,45 +45,57 @@
     </div>
   </div>
 
-  <!-- STATS GRID -->
+  <!-- STATS GRID - MISMO ESTILO QUE INICIO -->
   <div class="stats-grid">
-    <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-green">
+    <div class="stat-card stat-gradient-green">
+      <div class="stat-icon-wrapper">
         <i class="bi bi-check-circle-fill"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ actividades_completadas }}</div>
         <div class="stat-label">Ejercicios completados</div>
       </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
+      </div>
     </div>
 
-    <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-orange">
+    <div class="stat-card stat-gradient-orange">
+      <div class="stat-icon-wrapper">
         <i class="bi bi-hourglass-split"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ actividades_pendientes }}</div>
         <div class="stat-label">Pendientes</div>
       </div>
+      <div class="stat-trend">
+        <i class="bi bi-clock"></i>
+      </div>
     </div>
 
-    <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-purple">
+    <div class="stat-card stat-gradient-purple">
+      <div class="stat-icon-wrapper">
         <i class="bi bi-graph-up-arrow"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ progreso_general }}%</div>
         <div class="stat-label">Progreso general</div>
       </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
+      </div>
     </div>
 
-    <div class="stat-card animate-in">
-      <div class="stat-icon-wrapper stat-icon-blue">
+    <div class="stat-card stat-gradient-pink">
+      <div class="stat-icon-wrapper">
         <i class="bi bi-collection-play-fill"></i>
       </div>
       <div class="stat-content">
         <div class="stat-value">{{ total_clases }}</div>
         <div class="stat-label">Clases activas</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
   </div>
@@ -142,7 +154,7 @@
     </div>
     <h3 class="empty-title">Aún no hay clases activas</h3>
     <p class="empty-text">Explora y únete a clases para comenzar tu viaje de aprendizaje</p>
-    <a href="{% url 'cursos' %}" class="btn-spotify">
+    <a href="{% url 'estudiante:explorar_clases' %}" class="btn-spotify">
       <i class="bi bi-compass"></i> Descubrir clases
     </a>
   </div>
@@ -180,7 +192,7 @@
         {% if act.puntaje %}
         <span class="score-value score-small">{{ act.puntaje }}/5.0</span>
         {% else %}
-        <a href="{% url 'detalle_curso' act.clase_id %}" class="score-value score-small pending-link">
+        <a href="{% url 'estudiante:detalle_clase_estudiante' act.clase_id %}" class="score-value score-small pending-link">
           Pendiente
         </a>
         {% endif %}

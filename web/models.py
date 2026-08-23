@@ -23,9 +23,16 @@ class Perfil(models.Model):
         null=True
     )
     
+    # ✅ AGREGAR ESTE CAMPO
+    banner = models.ImageField(
+        upload_to='banners/',
+        blank=True,
+        null=True
+    )
+    
     def __str__(self):
         return f"{self.user.username} - {self.rol}"
-
+    
 class Curso(models.Model):
     CATEGORIA_CHOICES = [
         ('teoria', '🎵 Teoría Musical'),

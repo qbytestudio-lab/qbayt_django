@@ -224,9 +224,12 @@ def solicitar_clase(request):
         else:
             SolicitudClase.objects.create(clase=clase_solicitada, estudiante=request.user)
             messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
-            
-    return redirect('estudiante:perfil_estudiante')
-
+    
+    # Redirigir de vuelta a la página anterior o al inicio
+    referer = request.META.get('HTTP_REFERER')
+    if referer:
+        return redirect(referer)
+    return redirect('inicio')
 
 @login_required
 def salir_clase(request, clase_id):
@@ -384,3 +387,30 @@ def subir_foto_perfil(request):
             'success': False,
             'error': str(e)
         })
+
+@login_required
+def subir_banner(request):
+    """
+    Vista para subir el banner de perfil del estudiante
+    """
+    if request.method == 'POST' and request.FILES.get('banner'):
+        try:
+            banner = request.FILES['banner']
+            
+            # Validar que sea imagen
+            if not banner.content_type.startswith('image/'):
+                return JsonResponse({'success': False, 'error': 'El archivo debe ser una imagen.'})
+            
+            # Validar tamaño (máx 10MB)
+            if banner.size > 10 * 1024 * 1024:
+                return JsonResponse({'success': False, 'error': 'La imagen no debe superar los 10MB.'})
+            
+            # Guardar banner
+            request.user.perfil.banner = banner
+            request.user.perfil.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})

@@ -4,6 +4,7 @@ from clase.models import Clase
 from ejercicios.models import Ejercicio, Pregunta  # ← Importa de ejercicios, NO definas aquí
 
 
+
 class RespuestaEstudiante(models.Model):
     estudiante = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -46,5 +47,6 @@ class Intento(models.Model):
 
 
 class Perfil(models.Model):
-    # ... campos existentes ...
-    foto_perfil = models.ImageField(upload_to='perfiles/', null=True, blank=True)
+    rol = models.CharField(max_length=20)
+    foto_perfil = models.ImageField(upload_to='perfiles/', blank=True, null=True)
+    banner = models.ImageField(upload_to='banners/', blank=True, null=True)  # ← ESTE CAMPO

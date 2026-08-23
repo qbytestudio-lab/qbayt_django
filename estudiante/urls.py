@@ -15,4 +15,5 @@ urlpatterns = [
     path('mis-calificaciones/', views.mis_calificaciones_estudiante, name='mis_calificaciones_estudiante'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/resolver/', views.resolver_ejercicio, name='resolver_ejercicio'),
     path('subir-foto-perfil/', views.subir_foto_perfil, name='subir_foto_perfil'),
+    path('subir-banner/', views.subir_banner, name='subir_banner'),  
 ]

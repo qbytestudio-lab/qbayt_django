@@ -24,9 +24,28 @@
 </div>
 {% endif %}
 
-<!-- PROFILE HERO -->
+<!-- PROFILE HERO CON BANNER -->
 <section class="profile-hero">
+
+  <!-- Banner de fondo -->
+  <div class="profile-banner">
+    {% if request.user.perfil.banner %}
+    <img src="{{ request.user.perfil.banner.url }}" alt="Banner" class="banner-image">
+    {% else %}
+    <div class="banner-placeholder"></div>
+    {% endif %}
+    <div class="banner-overlay"></div>
+  </div>
+
+  <!-- Botón para cambiar banner  -->
+  <button class="btn-change-banner" onclick="document.getElementById('bannerInput').click()" title="Cambiar banner">
+    <i class="bi bi-image"></i> Cambiar banner
+  </button>
+  <input type="file" id="bannerInput" accept="image/*" style="display: none;" onchange="subirBanner(this)">
+
+  <!-- Contenido del perfil -->
   <div class="profile-hero-content">
+
     <!-- Avatar con foto de perfil -->
     <div class="avatar-container">
       <div class="avatar-circle">
@@ -36,10 +55,10 @@
         <i class="bi bi-person-fill"></i>
         {% endif %}
       </div>
-      <div class="avatar-edit-badge" onclick="document.getElementById('fotoPerfilInput').click()" title="Cambiar foto de perfil">
-        <i class="bi bi-camera-fill" style="color: #fff; font-size: 1rem;"></i>
+      <div class="avatar-edit-badge" onclick="document.getElementById('fotoPerfilInput').click()"
+        title="Cambiar foto de perfil">
+        <i class="bi bi-camera-fill"></i>
       </div>
-      <!-- Input oculto para la foto -->
       <input type="file" id="fotoPerfilInput" accept="image/*" style="display: none;" onchange="subirFotoPerfil(this)">
     </div>
 
@@ -98,7 +117,8 @@
     <a class="ptab" data-tab="pendientes" href="#">
       <i class="bi bi-hourglass-split"></i> Pendientes
       {% if pendientes_count > 0 %}
-      <span style="background: var(--spotify-green); color: #000; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.7rem; font-weight: 800;">
+      <span
+        style="background: var(--spotify-green); color: #000; padding: 0.1rem 0.4rem; border-radius: 10px; font-size: 0.7rem; font-weight: 800;">
         {{ pendientes_count }}
       </span>
       {% endif %}
@@ -112,9 +132,7 @@
 <!-- MAIN CONTENT -->
 <main class="profile-body">
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TAB: DATOS PERSONALES                    -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB: DATOS PERSONALES -->
   <div class="tab-pane active" id="tab-datos">
     <div class="section-card">
       <div class="section-card-header">
@@ -181,7 +199,8 @@
           <i class="bi bi-exclamation-triangle-fill"></i>
           Zona de Peligro
         </h4>
-        <p class="danger-text">Si eliminas tu cuenta, se borrarán permanentemente todos tus datos, progresos e historial en la plataforma.</p>
+        <p class="danger-text">Si eliminas tu cuenta, se borrarán permanentemente todos tus datos, progresos e historial
+          en la plataforma.</p>
         <button class="btn-danger-spotify" data-bs-toggle="modal" data-bs-target="#modalEliminar">
           <i class="bi bi-trash"></i> Eliminar mi cuenta permanentemente
         </button>
@@ -189,9 +208,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TAB: PENDIENTES                          -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB: PENDIENTES -->
   <div class="tab-pane" id="tab-pendientes">
     <div class="section-card">
       <div class="section-card-header">
@@ -227,9 +244,7 @@
     </div>
   </div>
 
-  <!-- ═══════════════════════════════════════════ -->
-  <!-- TAB: HISTORIAL                           -->
-  <!-- ═══════════════════════════════════════════ -->
+  <!-- TAB: HISTORIAL -->
   <div class="tab-pane" id="tab-historial">
     <div class="section-card">
       <div class="section-card-header">
@@ -239,7 +254,6 @@
         </span>
       </div>
 
-      <!-- Filtros -->
       <div class="historial-filters">
         <button class="filter-btn active" onclick="filtrarHistorial('todas', this)">Todas</button>
         <button class="filter-btn" onclick="filtrarHistorial('activa', this)">Activas</button>
@@ -247,7 +261,6 @@
         <button class="filter-btn" onclick="filtrarHistorial('eliminada', this)">Eliminadas</button>
       </div>
 
-      <!-- Lista de historial -->
       <div class="historial-list">
         {% for item in historial %}
         <div class="historial-item estado-{{ item.estado }}">
@@ -261,7 +274,7 @@
           <div class="historial-info">
             <h3>{{ item.nombre }}</h3>
             <p>
-              {% if item.tipo == 'clase' %}Clase{% else %}Curso{% endif %} · 
+              {% if item.tipo == 'clase' %}Clase{% else %}Curso{% endif %} ·
               <i class="bi bi-person"></i> {{ item.docente_nombre }}
             </p>
           </div>
@@ -298,9 +311,7 @@
 
 </main>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- MODAL: EDITAR PERFIL                      -->
-<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: EDITAR PERFIL -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -341,9 +352,7 @@
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════ -->
-<!-- MODAL: ELIMINAR CUENTA                    -->
-<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: ELIMINAR CUENTA -->
 <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -356,12 +365,14 @@
       </div>
       <div class="modal-body">
         <p style="color: var(--spotify-text); margin-bottom: 0;">
-          Esta acción es <strong>irreversible</strong>. Se eliminarán permanentemente todos tus datos, clases, progresos y certificados de la plataforma.
+          Esta acción es <strong>irreversible</strong>. Se eliminarán permanentemente todos tus datos, clases, progresos
+          y certificados de la plataforma.
         </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">No, cancelar</button>
-        <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger" style="border-radius: 20px; font-weight: 700;">Sí, eliminar cuenta</a>
+        <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger" style="border-radius: 20px; font-weight: 700;">Sí,
+          eliminar cuenta</a>
       </div>
     </div>
   </div>
@@ -383,11 +394,11 @@
     });
   });
 
-  // ✅ Filtro de historial
+  // Filtro de historial
   function filtrarHistorial(estado, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    
+
     document.querySelectorAll('.historial-item').forEach(item => {
       if (estado === 'todas') {
         item.style.display = '';
@@ -397,29 +408,22 @@
     });
   }
 
-  // ✅ Subir foto de perfil
+  // Subir foto de perfil
   function subirFotoPerfil(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
-      
-      // Validar que sea imagen
       if (!file.type.startsWith('image/')) {
         alert('Por favor selecciona una imagen válida.');
         return;
       }
-      
-      // Validar tamaño (máx 5MB)
       if (file.size > 5 * 1024 * 1024) {
         alert('La imagen no debe superar los 5MB.');
         return;
       }
-      
-      // Crear FormData
+
       const formData = new FormData();
       formData.append('foto_perfil', file);
-      formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
-      
-      // Enviar con fetch
+
       fetch('{% url "estudiante:subir_foto_perfil" %}', {
         method: 'POST',
         body: formData,
@@ -427,31 +431,57 @@
           'X-CSRFToken': '{{ csrf_token }}'
         }
       })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Recargar la página para ver la nueva foto
-          location.reload();
-        } else {
-          alert('Error al subir la foto: ' + (data.error || 'Intenta de nuevo.'));
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error de conexión al subir la foto.');
-      });
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Error al subir la foto: ' + (data.error || 'Intenta de nuevo.'));
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error de conexión.');
+        });
     }
   }
 
-  // Avatar edit badge hover
-  const avatarBadge = document.querySelector('.avatar-edit-badge');
-  if (avatarBadge) {
-    avatarBadge.addEventListener('mouseenter', function () {
-      this.style.background = 'var(--spotify-light-gray)';
-    });
-    avatarBadge.addEventListener('mouseleave', function () {
-      this.style.background = 'var(--spotify-gray)';
-    });
+  // Subir banner
+  function subirBanner(input) {
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      if (!file.type.startsWith('image/')) {
+        alert('Por favor selecciona una imagen válida.');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('La imagen no debe superar los 10MB.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('banner', file);
+
+      fetch('{% url "estudiante:subir_banner" %}', {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Error al subir el banner: ' + (data.error || 'Intenta de nuevo.'));
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('Error de conexión.');
+        });
+    }
   }
 
   // Auto-dismiss alerts

@@ -6,7 +6,7 @@
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'web/css/inicio1.css' %}">
+<link rel="stylesheet" href="{% static 'web/css/inicio.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -31,9 +31,6 @@
       <a href="{% url 'perfil_docente' %}" class="btn-hero btn-hero-primary">
         <i class="bi bi-mortarboard-fill"></i> Mi perfil
       </a>
-      <a href="#" class="btn-hero">
-        <i class="bi bi-plus-circle"></i> Nueva clase
-      </a>
       {% elif request.user.perfil.rol == 'administrador' %}
       <a href="{% url 'perfil_administrador' %}" class="btn-hero btn-hero-primary">
         <i class="bi bi-shield-check"></i> Panel admin
@@ -42,42 +39,57 @@
     </div>
   </div>
 
-  <!-- STATISTICS -->
+  <!-- STATS CARDS - DINÁMICAS -->
   <div class="stats-grid">
-    <div class="stat-card">
-      <div class="stat-icon-wrapper stat-icon-green">
-        <i class="bi bi-play-circle-fill"></i>
+    <div class="stat-card stat-gradient-green">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-collection-play-fill"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-value">3</div>
-        <div class="stat-label">Cursos activos</div>
+        <div class="stat-value">{{ clases_activas|default:0 }}</div>
+        <div class="stat-label">Clases activas</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon-wrapper stat-icon-purple">
-        <i class="bi bi-trophy-fill"></i>
+    
+    <div class="stat-card stat-gradient-purple">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-check-circle-fill"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-value">12</div>
+        <div class="stat-value">{{ ejercicios_completados|default:0 }}</div>
         <div class="stat-label">Ejercicios completados</div>
       </div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-icon-wrapper stat-icon-pink">
-        <i class="bi bi-lightning-charge-fill"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">5</div>
-        <div class="stat-label">Días de racha</div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
-    <div class="stat-card">
-      <div class="stat-icon-wrapper stat-icon-orange">
-        <i class="bi bi-clock-fill"></i>
+    
+    <div class="stat-card stat-gradient-pink">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-hourglass-split"></i>
       </div>
       <div class="stat-content">
-        <div class="stat-value">8h</div>
-        <div class="stat-label">Horas de práctica</div>
+        <div class="stat-value">{{ ejercicios_pendientes|default:0 }}</div>
+        <div class="stat-label">Ejercicios pendientes</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-clock"></i>
+      </div>
+    </div>
+    
+    <div class="stat-card stat-gradient-orange">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ progreso_general|default:0 }}%</div>
+        <div class="stat-label">Progreso general</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
   </div>
@@ -90,26 +102,30 @@
       <i class="bi bi-music-note-list icon-purple"></i>
       Teoría Musical
     </h2>
-    <a href="#" class="see-all-link">Ver todo</a>
+    <a href="{% url 'estudiante:explorar_clases' %}" class="see-all-link">Ver todo <i class="bi bi-arrow-right"></i></a>
   </div>
 
   <div class="courses-grid">
     {% for curso in cursos_teoria %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
-      <div style="position: relative;">
-        <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-             alt="{{ curso.nombre }}" class="course-card-img"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        
-        <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #7c6fff, #5a4fcf); align-items:center; justify-content:center;">
-          <i class="bi bi-music-note-list" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
+      <div class="course-card-image-wrapper">
+        {% if curso.imagen %}
+        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% elif curso.imagen_url %}
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% else %}
+        <div class="course-card-fallback">
+          <i class="bi bi-music-note-list"></i>
         </div>
+        {% endif %}
 
-        <div class="course-card-img-overlay"></div>
+        <div class="course-card-overlay"></div>
 
-        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
-          <i class="bi bi-play-fill"></i>
-        </a>
+        <div class="course-card-hover-content">
+          <span class="course-hover-btn">
+            <i class="bi bi-play-fill"></i> Ver curso
+          </span>
+        </div>
       </div>
 
       <div class="course-card-body">
@@ -124,7 +140,7 @@
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Teoría -->
     <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -133,43 +149,36 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-                 alt="{{ curso.nombre }}" class="modal-image">
+            {% if curso.imagen %}
+            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% elif curso.imagen_url %}
+            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% endif %}
 
             <span class="course-category-badge">
               <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
             </span>
 
-            <p class="course-description-full">{{ curso.descripcion }}</p>
-
-            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
-              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            <h5 class="modal-section-title">
+              <i class="bi bi-info-circle"></i> Descripción de la clase
             </h5>
 
-            <div class="accordion" id="accCurso{{ curso.id }}">
-              {% for modulo in curso.modulos.all %}
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#mod-{{ modulo.id }}">
-                    {{ modulo.titulo }}
-                  </button>
-                </h2>
-                <div id="mod-{{ modulo.id }}" class="accordion-collapse collapse"
-                  data-bs-parent="#accCurso{{ curso.id }}">
-                  <div class="accordion-body">{{ modulo.contenido }}</div>
-                </div>
-              </div>
-              {% empty %}
-              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
-              {% endfor %}
+            <div class="clase-descripcion-full">
+              {% if curso.descripcion %}
+              <p>{{ curso.descripcion }}</p>
+              {% else %}
+              <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
+              {% endif %}
             </div>
 
-            <div style="text-align: right; margin-top: 1.5rem;">
-              <!-- ✅ BOTÓN CORREGIDO -->
-              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
-                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
-              </a>
+            <div class="modal-footer-action">
+              <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <button type="submit" class="btn-spotify-success">
+                  <i class="bi bi-send-fill"></i> Solicitar unirse
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -191,26 +200,30 @@
       <i class="bi bi-ear icon-green"></i>
       Entrenamiento Auditivo
     </h2>
-    <a href="#" class="see-all-link">Ver todo</a>
+    <a href="{% url 'estudiante:explorar_clases' %}" class="see-all-link">Ver todo <i class="bi bi-arrow-right"></i></a>
   </div>
 
   <div class="courses-grid">
     {% for curso in cursos_auditivo %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalAud{{ curso.id }}">
-      <div style="position: relative;">
-        <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-             alt="{{ curso.nombre }}" class="course-card-img"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        
-        <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #1db954, #169c46); align-items:center; justify-content:center;">
-          <i class="bi bi-ear" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
+      <div class="course-card-image-wrapper">
+        {% if curso.imagen %}
+        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% elif curso.imagen_url %}
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% else %}
+        <div class="course-card-fallback">
+          <i class="bi bi-ear"></i>
         </div>
+        {% endif %}
 
-        <div class="course-card-img-overlay"></div>
+        <div class="course-card-overlay"></div>
 
-        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalAud{{ curso.id }}">
-          <i class="bi bi-play-fill"></i>
-        </a>
+        <div class="course-card-hover-content">
+          <span class="course-hover-btn">
+            <i class="bi bi-play-fill"></i> Ver curso
+          </span>
+        </div>
       </div>
 
       <div class="course-card-body">
@@ -225,7 +238,7 @@
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Auditivo -->
     <div class="modal fade" id="modalAud{{ curso.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -234,43 +247,36 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-                 alt="{{ curso.nombre }}" class="modal-image">
+            {% if curso.imagen %}
+            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% elif curso.imagen_url %}
+            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% endif %}
 
             <span class="course-category-badge">
               <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
             </span>
 
-            <p class="course-description-full">{{ curso.descripcion }}</p>
-
-            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
-              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            <h5 class="modal-section-title">
+              <i class="bi bi-info-circle"></i> Descripción de la clase
             </h5>
 
-            <div class="accordion" id="accAud{{ curso.id }}">
-              {% for modulo in curso.modulos.all %}
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#modAud-{{ modulo.id }}">
-                    {{ modulo.titulo }}
-                  </button>
-                </h2>
-                <div id="modAud-{{ modulo.id }}" class="accordion-collapse collapse"
-                  data-bs-parent="#accAud{{ curso.id }}">
-                  <div class="accordion-body">{{ modulo.contenido }}</div>
-                </div>
-              </div>
-              {% empty %}
-              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
-              {% endfor %}
+            <div class="clase-descripcion-full">
+              {% if curso.descripcion %}
+              <p>{{ curso.descripcion }}</p>
+              {% else %}
+              <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
+              {% endif %}
             </div>
 
-            <div style="text-align: right; margin-top: 1.5rem;">
-              <!-- ✅ BOTÓN CORREGIDO -->
-              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
-                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
-              </a>
+            <div class="modal-footer-action">
+              <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <button type="submit" class="btn-spotify-success">
+                  <i class="bi bi-send-fill"></i> Solicitar unirse
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -292,26 +298,30 @@
       <i class="bi bi-music-note-beamed icon-pink"></i>
       Instrumento
     </h2>
-    <a href="#" class="see-all-link">Ver todo</a>
+    <a href="{% url 'estudiante:explorar_clases' %}" class="see-all-link">Ver todo <i class="bi bi-arrow-right"></i></a>
   </div>
 
   <div class="courses-grid">
     {% for curso in cursos_instrumento %}
     <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalInst{{ curso.id }}">
-      <div style="position: relative;">
-        <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-             alt="{{ curso.nombre }}" class="course-card-img"
-             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-        
-        <div style="display:none; width:100%; aspect-ratio:16/10; background:linear-gradient(135deg, #ff6b9d, #e91429); align-items:center; justify-content:center;">
-          <i class="bi bi-music-note-beamed" style="font-size:3rem; color:rgba(255,255,255,0.2);"></i>
+      <div class="course-card-image-wrapper">
+        {% if curso.imagen %}
+        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% elif curso.imagen_url %}
+        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% else %}
+        <div class="course-card-fallback">
+          <i class="bi bi-music-note-beamed"></i>
         </div>
+        {% endif %}
 
-        <div class="course-card-img-overlay"></div>
+        <div class="course-card-overlay"></div>
 
-        <a href="#" class="course-play-btn" data-bs-toggle="modal" data-bs-target="#modalInst{{ curso.id }}">
-          <i class="bi bi-play-fill"></i>
-        </a>
+        <div class="course-card-hover-content">
+          <span class="course-hover-btn">
+            <i class="bi bi-play-fill"></i> Ver curso
+          </span>
+        </div>
       </div>
 
       <div class="course-card-body">
@@ -326,7 +336,7 @@
       </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Instrumento -->
     <div class="modal fade" id="modalInst{{ curso.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -335,43 +345,36 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            <img src="{% if curso.portada %}{{ curso.portada.url }}{% elif curso.imagen_url %}{{ curso.imagen_url }}{% else %}{{ curso.url_portada_respaldo }}{% endif %}" 
-                 alt="{{ curso.nombre }}" class="modal-image">
+            {% if curso.imagen %}
+            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% elif curso.imagen_url %}
+            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% endif %}
 
             <span class="course-category-badge">
               <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
             </span>
 
-            <p class="course-description-full">{{ curso.descripcion }}</p>
-
-            <h5 style="color: var(--spotify-text); font-weight: 700; margin-bottom: 1rem;">
-              <i class="bi bi-journal-text me-2" style="color: #1db954;"></i>Contenido del curso
+            <h5 class="modal-section-title">
+              <i class="bi bi-info-circle"></i> Descripción de la clase
             </h5>
 
-            <div class="accordion" id="accInst{{ curso.id }}">
-              {% for modulo in curso.modulos.all %}
-              <div class="accordion-item">
-                <h2 class="accordion-header">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#modInst-{{ modulo.id }}">
-                    {{ modulo.titulo }}
-                  </button>
-                </h2>
-                <div id="modInst-{{ modulo.id }}" class="accordion-collapse collapse"
-                  data-bs-parent="#accInst{{ curso.id }}">
-                  <div class="accordion-body">{{ modulo.contenido }}</div>
-                </div>
-              </div>
-              {% empty %}
-              <p style="color: var(--spotify-subtext);">El contenido estará disponible próximamente.</p>
-              {% endfor %}
+            <div class="clase-descripcion-full">
+              {% if curso.descripcion %}
+              <p>{{ curso.descripcion }}</p>
+              {% else %}
+              <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
+              {% endif %}
             </div>
 
-            <div style="text-align: right; margin-top: 1.5rem;">
-              <!-- ✅ BOTÓN CORREGIDO -->
-              <a href="{% url 'detalle_curso' curso.id %}" class="btn-spotify-success">
-                <i class="bi bi-play-circle-fill"></i> Unirse y empezar
-              </a>
+            <div class="modal-footer-action">
+              <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
+                {% csrf_token %}
+                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <button type="submit" class="btn-spotify-success">
+                  <i class="bi bi-send-fill"></i> Solicitar unirse
+                </button>
+              </form>
             </div>
           </div>
         </div>
@@ -401,16 +404,11 @@
     });
   }, observerOptions);
 
-  document.querySelectorAll('.course-card').forEach((card, index) => {
+  document.querySelectorAll('.course-card, .stat-card').forEach((card, index) => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(20px)';
-    card.style.transition = `all 0.5s ease ${index * 0.1}s`;
+    card.style.transition = `all 0.5s ease ${index * 0.08}s`;
     observer.observe(card);
-  });
-
-  document.querySelectorAll('.course-play-btn').forEach(btn => {
-    btn.addEventListener('mouseenter', function() { this.style.transform = 'scale(1.1)'; });
-    btn.addEventListener('mouseleave', function() { this.style.transform = 'scale(1)'; });
   });
 </script>
 {% endblock %}

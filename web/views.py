@@ -18,18 +18,72 @@ from ejercicios.models import Ejercicio, IntentoEjercicio
 
 def index(request):
     return render(request, 'web/index.html')
-
 @login_required
 def inicio(request):
-    cursos_teoria = Curso.objects.filter(categoria='teoria')
-    cursos_auditivo = Curso.objects.filter(categoria='auditivo')
-    cursos_instrumento = Curso.objects.filter(categoria='instrumento')
+    from clase.models import Clase
+    from ejercicios.models import Ejercicio, IntentoEjercicio
     
-    return render(request, 'web/inicio.html', {
-        'cursos_teoria': cursos_teoria,
-        'cursos_auditivo': cursos_auditivo,
-        'cursos_instrumento': cursos_instrumento,
-    })
+    # Obtener clases según categoría
+    clases_teoria = Clase.objects.filter(categoria_tema='armonia')
+    clases_auditivo = Clase.objects.filter(categoria_tema='ritmo')
+    clases_instrumento = Clase.objects.filter(categoria_tema='melodia')
+    
+    # Stats dinámicos
+    if request.user.perfil.rol == 'estudiante':
+        # Clases activas del estudiante
+        clases_activas = request.user.clases_estudiante.count()
+        
+        # Ejercicios completados (aprobados)
+        ejercicios_completados = IntentoEjercicio.objects.filter(
+            estudiante=request.user,
+            aprobado=True
+        ).values('ejercicio').distinct().count()
+        
+        # Ejercicios pendientes
+        ejercicios_pendientes = Ejercicio.objects.filter(
+            clase__in=request.user.clases_estudiante.all()
+        ).exclude(
+            intentos__estudiante=request.user,
+            intentos__aprobado=True
+        ).count()
+        
+        # Progreso general
+        total_ejercicios = Ejercicio.objects.filter(
+            clase__in=request.user.clases_estudiante.all()
+        ).count()
+        
+        progreso_general = 0
+        if total_ejercicios > 0:
+            progreso_general = round((ejercicios_completados / total_ejercicios) * 100)
+        
+    elif request.user.perfil.rol == 'docente':
+        # Clases del docente
+        clases_activas = Clase.objects.filter(docente=request.user).count()
+        
+        # Total de estudiantes
+        total_estudiantes = sum(c.estudiantes.count() for c in Clase.objects.filter(docente=request.user))
+        
+        ejercicios_completados = 0
+        ejercicios_pendientes = 0
+        progreso_general = 0
+        
+    else:
+        clases_activas = Clase.objects.count()
+        ejercicios_completados = 0
+        ejercicios_pendientes = 0
+        progreso_general = 0
+    
+    context = {
+        'cursos_teoria': clases_teoria,
+        'cursos_auditivo': clases_auditivo,
+        'cursos_instrumento': clases_instrumento,
+        'clases_activas': clases_activas,
+        'ejercicios_completados': ejercicios_completados,
+        'ejercicios_pendientes': ejercicios_pendientes,
+        'progreso_general': progreso_general,
+    }
+    
+    return render(request, 'web/inicio.html', context)
 
 @login_required
 def perfil_estudiante(request):
@@ -337,34 +391,40 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def progreso(request):
+    from ejercicios.models import Ejercicio, IntentoEjercicio
+    
     # Obtener clases del estudiante
     clases = request.user.clases_estudiante.all()
     
-    # IDs de ejercicios con intentos (completados = tienen al menos un intento)
-    ejercicios_completados = IntentoEjercicio.objects.filter(
+    # ============================================
+    # MISMAS VARIABLES QUE INICIO
+    # ============================================
+    
+    # Ejercicios completados (con al menos un intento)
+    ejercicios_completados_ids = IntentoEjercicio.objects.filter(
         estudiante=request.user
     ).values_list('ejercicio_id', flat=True).distinct()
     
-    # Ejercicios hechos (tienen al menos un intento)
-    ejercicios_hechos = ejercicios_completados.count()
+    ejercicios_completados = ejercicios_completados_ids.count()
     
-    # Ejercicios pendientes = TODOS los ejercicios de las clases que NO tienen intentos
+    # Ejercicios pendientes (sin intentos)
     pendientes = Ejercicio.objects.filter(
         clase__in=clases
-    ).exclude(id__in=ejercicios_completados).select_related('clase')
+    ).exclude(id__in=ejercicios_completados_ids).select_related('clase')
     
-    pendientes_count = pendientes.count()
+    ejercicios_pendientes = pendientes.count()
     
     # Total de ejercicios
     total_ejercicios = Ejercicio.objects.filter(clase__in=clases).count()
     
     # Progreso general
+    progreso_general = 0
     if total_ejercicios > 0:
-        progreso_general = round((ejercicios_hechos / total_ejercicios) * 100)
-    else:
-        progreso_general = 0
+        progreso_general = round((ejercicios_completados / total_ejercicios) * 100)
     
-    # Progreso por clase
+    # ============================================
+    # PROGRESO POR CLASE
+    # ============================================
     progreso_clases = []
     for clase in clases:
         total_clase = Ejercicio.objects.filter(clase=clase).count()
@@ -382,8 +442,12 @@ def progreso(request):
             'porcentaje': porcentaje,
         })
     
-    # Últimas actividades (mantener tu lógica original)
+    # ============================================
+    # ÚLTIMAS ACTIVIDADES
+    # ============================================
     actividades_lista = []
+    
+    # Intentos recientes
     intentos = IntentoEjercicio.objects.filter(
         estudiante=request.user
     ).select_related('ejercicio__clase').order_by('-fecha_envio')[:10]
@@ -396,24 +460,31 @@ def progreso(request):
             'clase_id': intento.ejercicio.clase.id,
         })
     
-    # Agregar ejercicios pendientes a actividades_lista (sin intentos)
+    # Ejercicios pendientes para la lista
     ejercicios_pendientes_lista = pendientes.order_by('-fecha_creacion')[:5]
     
     for ejercicio in ejercicios_pendientes_lista:
         actividades_lista.append({
             'titulo': ejercicio.titulo,
             'clase_nombre': ejercicio.clase.nombre,
-            'puntaje': None,  # None = pendiente
+            'puntaje': None,
             'clase_id': ejercicio.clase.id,
         })
     
     context = {
         'clases': clases,
-        'total_clases': clases.count(),
-        'actividades_pendientes': pendientes_count,
-        'actividades_completadas': ejercicios_hechos,
+        # Stats - Mismas variables que inicio
+        'clases_activas': clases.count(),
+        'ejercicios_completados': ejercicios_completados,
+        'ejercicios_pendientes': ejercicios_pendientes,
         'progreso_general': progreso_general,
+        # Para compatibilidad con template actual
+        'total_clases': clases.count(),
+        'actividades_completadas': ejercicios_completados,
+        'actividades_pendientes': ejercicios_pendientes,
+        # Progreso por clase
         'progreso_clases': progreso_clases,
+        # Actividades
         'actividades_lista': actividades_lista,
     }
     
@@ -467,7 +538,7 @@ def calendario(request):
             'title': f'📚 {clase.nombre}',
             'start': fecha.isoformat(),
             'tipo': 'clase',
-            'url': f'/detalle_curso/{clase.id}/',
+            'url': f'/estudiante/clase/{clase.id}/',
             'descripcion': f'Clase: {clase.nombre}'
         })
     
@@ -500,7 +571,7 @@ def calendario(request):
                     'title': f'✏️ {ejercicio.titulo}',
                     'start': ejercicio.fecha_limite.isoformat(),
                     'tipo': 'actividad',
-                    'url': f'/detalle_curso/{ejercicio.clase.id}/',
+                    'url': f'/estudiante/clase/{ejercicio.clase.id}/',
                 })
     
     # Ordenar próximos por fecha límite
@@ -577,3 +648,56 @@ def continuar_curso(request, curso_id):
     }
     
     return render(request, 'clase/continuar_curso.html', context)
+
+@login_required
+def explorar_clases(request):
+    """
+    Vista unificada para explorar clases disponibles
+    """
+    usuario = request.user
+    
+    # Clases donde el usuario NO está inscrito y NO es docente
+    clases = Clase.objects.exclude(
+        estudiantes=usuario
+    ).exclude(
+        docente=usuario
+    )
+    
+    # Filtros
+    categoria = request.GET.get('categoria')
+    if categoria:
+        clases = clases.filter(categoria_tema=categoria)
+    
+    # Búsqueda
+    query = request.GET.get('q')
+    if query:
+        from django.db.models import Q
+        clases = clases.filter(
+            Q(nombre__icontains=query) | 
+            Q(descripcion__icontains=query)
+        )
+    
+    context = {
+        'clases': clases,
+        'categorias': Clase.TEMA_CATEGORIAS,
+        'total_clases': clases.count(),
+    }
+    
+    return render(request, 'estudiante/explorar_clases.html', context)
+
+@login_required
+def redirigir_curso_a_clase(request, curso_id):
+    """
+    Redirige URLs antiguas de cursos a la clase correspondiente
+    """
+    from clase.models import Clase
+    
+    # Intentar encontrar la clase con ese ID
+    clase = Clase.objects.filter(id=curso_id).first()
+    
+    if clase:
+        # Usar la URL correcta del estudiante
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+    
+    # Si no hay clase, redirigir a explorar
+    return redirect('estudiante:explorar_clases')
