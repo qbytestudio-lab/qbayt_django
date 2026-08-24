@@ -1,5 +1,5 @@
 /* ============================================ */
-/*      CALENDARIO - SPOTIFY DARK DESIGN       */
+/*      CALENDARIO - CON TEMA CLARO/OSCURO     */
 /* ============================================ */
 
 :root {
@@ -15,12 +15,49 @@
   --accent-pink: #b06fff;
   --accent-orange: #ff9f43;
   --danger: #e91429;
+  
+  /* Superficies */
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  --spotify-black: #f8f9fe;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f0f2ff;
+  --spotify-light-gray: #c5c9e0;
+  --spotify-green: #10b981;
+  --spotify-text: #1e1e2e;
+  --spotify-subtext: #4a4a6a;
+  --spotify-muted: #8b8ba7;
+  --accent-purple: #8b5cf6;
+  --accent-pink: #d946ef;
+  --accent-orange: #f59e0b;
+  --danger: #ef4444;
+  
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(139, 92, 246, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --border-color: rgba(139, 92, 246, 0.12);
+  --border-subtle: rgba(139, 92, 246, 0.08);
+  --shadow: rgba(139, 92, 246, 0.1);
 }
 
 body {
-  background: var(--spotify-black);
-  color: var(--spotify-text);
+  background: var(--bg-body);
+  color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -50,7 +87,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 2rem;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.6rem;
@@ -64,8 +101,8 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--spotify-dark);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 30px;
   padding: 0.3rem 0.8rem;
 }
@@ -74,7 +111,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
-  color: #fff;
+  color: var(--text-primary);
   min-width: 110px;
   text-align: center;
 }
@@ -84,8 +121,8 @@ body {
   height: 30px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.05);
-  color: #fff;
+  background: var(--bg-hover);
+  color: var(--text-primary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -96,6 +133,7 @@ body {
 
 .btn-month-nav:hover {
   background: var(--accent-purple);
+  color: #fff;
 }
 
 .btn-today {
@@ -132,7 +170,7 @@ body {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.8rem;
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
 }
 
 .legend-dot {
@@ -160,18 +198,17 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .calendar-main {
-  background: var(--spotify-dark);
-  border: 1px solid rgba(255,255,255,0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   overflow: hidden;
 }
 
-/* Días de la semana */
 .weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  background: var(--bg-hover);
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .weekday {
@@ -179,12 +216,11 @@ body {
   padding: 0.8rem 0;
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--spotify-muted);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* Grid de días */
 .days-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -202,12 +238,12 @@ body {
   min-height: 80px;
   display: flex;
   flex-direction: column;
-  background: rgba(255,255,255,0.015);
+  background: var(--bg-hover);
   overflow: hidden;
 }
 
 .day-cell:hover {
-  background: rgba(255,255,255,0.04);
+  background: var(--bg-hover);
 }
 
 .day-cell.empty {
@@ -217,18 +253,18 @@ body {
 }
 
 .day-cell.today {
-  background: rgba(124,111,255,0.08);
-  border: 1px solid rgba(124,111,255,0.2);
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
 }
 
 .day-cell.has-events {
-  background: rgba(255,255,255,0.02);
+  background: var(--bg-hover);
 }
 
 .day-number {
   font-weight: 700;
   font-size: 0.8rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 4px;
   line-height: 1;
 }
@@ -245,7 +281,6 @@ body {
   font-size: 0.75rem;
 }
 
-/* Eventos dentro de los días */
 .day-events {
   display: flex;
   flex-direction: column;
@@ -276,18 +311,18 @@ body {
 }
 
 .day-event.clase {
-  background: rgba(124,111,255,0.2);
-  color: #c4baff;
+  background: rgba(139, 92, 246, 0.15);
+  color: var(--accent-purple);
 }
 
 .day-event.actividad {
-  background: rgba(255,159,67,0.2);
-  color: #ffb366;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent-orange);
 }
 
 .day-event.vencida {
-  background: rgba(233,20,41,0.2);
-  color: #ff6b7a;
+  background: rgba(239, 68, 68, 0.15);
+  color: var(--danger);
   text-decoration: line-through;
 }
 
@@ -321,8 +356,8 @@ body {
 }
 
 .sidebar-card {
-  background: var(--spotify-dark);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 14px;
   padding: 1.25rem;
 }
@@ -331,7 +366,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 0.95rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 1rem;
   display: flex;
   align-items: center;
@@ -342,7 +377,6 @@ body {
   font-size: 1rem;
 }
 
-/* Quick summary */
 .quick-summary {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -352,7 +386,7 @@ body {
 .quick-stat {
   text-align: center;
   padding: 0.75rem;
-  background: rgba(255,255,255,0.02);
+  background: var(--bg-hover);
   border-radius: 10px;
 }
 
@@ -360,18 +394,17 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 1.5rem;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .quick-stat-label {
   font-size: 0.65rem;
-  color: var(--spotify-muted);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-top: 0.2rem;
 }
 
-/* Próximos */
 .proximos-list {
   display: flex;
   flex-direction: column;
@@ -383,7 +416,7 @@ body {
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.75rem;
-  background: rgba(255,255,255,0.02);
+  background: var(--bg-hover);
   border-radius: 10px;
   text-decoration: none;
   transition: all 0.2s;
@@ -391,7 +424,7 @@ body {
 }
 
 .proximo-item:hover {
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-hover);
 }
 
 .proximo-icon {
@@ -406,7 +439,7 @@ body {
 }
 
 .proximo-icon.orange {
-  background: rgba(255,159,67,0.12);
+  background: rgba(245, 158, 11, 0.12);
   color: var(--accent-orange);
 }
 
@@ -418,7 +451,7 @@ body {
 .proximo-title {
   font-weight: 600;
   font-size: 0.8rem;
-  color: #fff;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -426,7 +459,7 @@ body {
 
 .proximo-date {
   font-size: 0.7rem;
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   margin-top: 0.15rem;
   display: flex;
   align-items: center;
@@ -439,12 +472,11 @@ body {
 }
 
 .proximo-arrow {
-  color: var(--spotify-muted);
+  color: var(--text-muted);
   font-size: 0.7rem;
   flex-shrink: 0;
 }
 
-/* Mini calendario */
 #mini-calendar {
   margin-top: 0.25rem;
 }
@@ -459,7 +491,7 @@ body {
 .mini-month-title {
   font-weight: 700;
   font-size: 0.82rem;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .mini-nav-btn {
@@ -467,8 +499,8 @@ body {
   height: 24px;
   border-radius: 50%;
   border: none;
-  background: rgba(255,255,255,0.05);
-  color: #fff;
+  background: var(--bg-hover);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: 0.6rem;
   display: flex;
@@ -477,7 +509,7 @@ body {
 }
 
 .mini-nav-btn:hover {
-  background: rgba(255,255,255,0.1);
+  background: var(--bg-hover);
 }
 
 .mini-weekdays {
@@ -490,7 +522,7 @@ body {
 .mini-weekday {
   text-align: center;
   font-size: 0.55rem;
-  color: var(--spotify-muted);
+  color: var(--text-muted);
   font-weight: 600;
   padding: 3px 0;
 }
@@ -507,7 +539,7 @@ body {
   align-items: center;
   justify-content: center;
   font-size: 0.65rem;
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   border-radius: 50%;
   cursor: pointer;
   transition: all 0.15s;
@@ -515,7 +547,7 @@ body {
 }
 
 .mini-day:hover {
-  background: rgba(255,255,255,0.08);
+  background: var(--bg-hover);
 }
 
 .mini-day.today {
@@ -552,14 +584,14 @@ body {
 
 .empty-icon {
   font-size: 2rem;
-  color: var(--spotify-light-gray);
+  color: var(--text-muted);
   opacity: 0.4;
   display: block;
   margin-bottom: 0.5rem;
 }
 
 .empty-text {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-size: 0.82rem;
 }
 

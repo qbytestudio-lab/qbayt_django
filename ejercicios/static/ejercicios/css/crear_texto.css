@@ -1,5 +1,5 @@
 /* ============================================ */
-/*    CREAR TEXTO / LECTURA - SPOTIFY STYLE    */
+/*    CREAR TEXTO / LECTURA - CON TEMA CLARO   */
 /* ============================================ */
 
 :root {
@@ -13,14 +13,49 @@
   --accent-orange: #ff9f43;
   --accent-orange-hover: #ffb366;
   --danger: #e91429;
+  
+  /* Superficies */
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  --spotify-black: #f8f9fe;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f0f2ff;
+  --spotify-light-gray: #c5c9e0;
+  --spotify-text: #1e1e2e;
+  --spotify-subtext: #4a4a6a;
+  --spotify-muted: #8b8ba7;
+  --accent-orange: #f59e0b;
+  --accent-orange-hover: #fbbf24;
+  --danger: #ef4444;
+  
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(245, 158, 11, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --border-color: rgba(245, 158, 11, 0.12);
+  --border-subtle: rgba(245, 158, 11, 0.08);
+  --shadow: rgba(245, 158, 11, 0.1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--spotify-black);
-  color: var(--spotify-text);
+  background: var(--bg-body);
+  color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -45,7 +80,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 600;
@@ -53,7 +88,7 @@ body {
   transition: color 0.2s;
 }
 
-.back-link:hover { color: var(--spotify-text); }
+.back-link:hover { color: var(--text-primary); }
 .back-link i { transition: transform 0.2s; }
 .back-link:hover i { transform: translateX(-3px); }
 
@@ -61,7 +96,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 2rem;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -71,7 +106,7 @@ body {
 .texto-title i { color: var(--accent-orange); }
 
 .texto-subtitle {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
@@ -80,15 +115,15 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .form-card {
-  background: var(--spotify-dark);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 1.5rem;
 }
 
 .form-label {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
@@ -98,9 +133,9 @@ body {
 .form-label .required { color: var(--danger); }
 
 .form-control {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 0.7rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -111,11 +146,10 @@ body {
 
 .form-control:focus {
   border-color: var(--accent-orange);
-  box-shadow: 0 0 0 3px rgba(255, 159, 67, 0.15);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
 }
 
-.form-control::placeholder { color: var(--spotify-muted); }
+.form-control::placeholder { color: var(--text-muted); }
 
 textarea.form-control {
   resize: vertical;
@@ -128,18 +162,18 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 .image-upload-area {
-  border: 2px dashed rgba(255, 159, 67, 0.3);
+  border: 2px dashed rgba(245, 158, 11, 0.3);
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  background: rgba(255, 159, 67, 0.03);
+  background: rgba(245, 158, 11, 0.03);
 }
 
 .image-upload-area:hover {
   border-color: var(--accent-orange);
-  background: rgba(255, 159, 67, 0.06);
+  background: rgba(245, 158, 11, 0.06);
 }
 
 .image-upload-area i {
@@ -150,7 +184,7 @@ textarea.form-control {
 }
 
 .image-upload-area p {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-size: 0.85rem;
   margin: 0;
 }
@@ -171,14 +205,15 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 .preview-card {
-  background: #fff;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 10px;
   overflow: hidden;
   margin-top: 1rem;
 }
 
 .preview-card-header {
-  background: #e67e22;
+  background: var(--accent-orange);
   padding: 0.75rem 1.25rem;
   color: #fff;
   font-weight: 700;
@@ -187,7 +222,7 @@ textarea.form-control {
 
 .preview-card-body {
   padding: 1.25rem;
-  color: #333;
+  color: var(--text-primary);
   font-size: 0.9rem;
   line-height: 1.6;
 }
@@ -204,7 +239,7 @@ textarea.form-control {
 
 .btn-submit {
   background: var(--accent-orange);
-  color: #000;
+  color: #fff;
   border: none;
   padding: 0.85rem 2.5rem;
   border-radius: 25px;
@@ -233,16 +268,16 @@ textarea.form-control {
 .btn-submit:hover {
   background: var(--accent-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255, 159, 67, 0.3);
-  color: #000;
+  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+  color: #fff;
 }
 
 .btn-submit:hover::before { left: 100%; }
 
 .btn-cancelar {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--spotify-subtext);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   padding: 0.75rem 1.5rem;
   border-radius: 25px;
   font-weight: 600;
@@ -256,9 +291,9 @@ textarea.form-control {
 }
 
 .btn-cancelar:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -266,8 +301,9 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
 ::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */
 /*         RESPONSIVE                         */

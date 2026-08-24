@@ -1,5 +1,5 @@
 /* ============================================ */
-/*  SELECCIONAR TIPO EJERCICIO - SPOTIFY STYLE */
+/*  SELECCIONAR TIPO EJERCICIO - CON TEMA CLARO */
 /* ============================================ */
 
 :root {
@@ -16,11 +16,49 @@
   --accent-yellow: #ffc107;
   --accent-pink: #ff6b9d;
   --danger: #e91429;
+  
+  /* Superficies */
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+  --spotify-black: #f8f9fe;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f0f2ff;
+  --spotify-text: #1e1e2e;
+  --spotify-subtext: #4a4a6a;
+  --spotify-muted: #8b8ba7;
+  --accent-purple: #8b5cf6;
+  --accent-green: #10b981;
+  --accent-orange: #f59e0b;
+  --accent-cyan: #06b6d4;
+  --accent-yellow: #fbbf24;
+  --accent-pink: #ec4899;
+  --danger: #ef4444;
+  
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(139, 92, 246, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --border-color: rgba(139, 92, 246, 0.12);
+  --border-subtle: rgba(139, 92, 246, 0.08);
+  --shadow: rgba(139, 92, 246, 0.15);
 }
 
 body {
-  background: var(--spotify-black);
+  background: var(--bg-body);
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -28,18 +66,18 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .tipo-ejercicio-modal {
-  background: var(--spotify-dark) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
   border-radius: 20px !important;
-  color: var(--spotify-text) !important;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  color: var(--text-primary) !important;
+  box-shadow: 0 20px 60px var(--shadow);
 }
 
 .tipo-ejercicio-modal .modal-title {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 1.5rem;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -65,12 +103,12 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .ejercicio-option-card {
-  background: rgba(255, 255, 255, 0.03);
-  border: 2px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-hover);
+  border: 2px solid var(--border-subtle);
   border-radius: 16px;
   padding: 1.5rem;
   text-decoration: none;
-  color: var(--spotify-text);
+  color: var(--text-primary);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -91,11 +129,11 @@ body {
 }
 
 .ejercicio-option-card:hover {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: var(--bg-hover);
+  border-color: var(--border-color);
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
-  color: var(--spotify-text);
+  box-shadow: 0 12px 30px var(--shadow);
+  color: var(--text-primary);
 }
 
 .ejercicio-option-card:hover::before {
@@ -130,12 +168,12 @@ body {
   transform: scale(1.1);
 }
 
-.quiz-icon { background: rgba(124, 111, 255, 0.15); color: var(--accent-purple); }
-.imagen-icon { background: rgba(0, 212, 255, 0.15); color: var(--accent-cyan); }
-.juego-icon { background: rgba(29, 185, 84, 0.15); color: var(--accent-green); }
-.texto-icon { background: rgba(255, 159, 67, 0.15); color: var(--accent-orange); }
-.vf-icon { background: rgba(255, 107, 157, 0.15); color: var(--accent-pink); }
-.completar-icon { background: rgba(255, 193, 7, 0.15); color: var(--accent-yellow); }
+.quiz-icon { background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); }
+.imagen-icon { background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); }
+.juego-icon { background: rgba(16, 185, 129, 0.12); color: var(--accent-green); }
+.texto-icon { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
+.vf-icon { background: rgba(236, 72, 153, 0.12); color: var(--accent-pink); }
+.completar-icon { background: rgba(251, 191, 36, 0.12); color: var(--accent-yellow); }
 
 /* ═══════════════════════════════════════════ */
 /*         TÍTULOS Y DESCRIPCIÓN              */
@@ -145,12 +183,12 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 1rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.4rem;
 }
 
 .option-desc {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-size: 0.82rem;
   line-height: 1.5;
   margin-bottom: 0.75rem;
@@ -173,12 +211,12 @@ body {
   border: 1px solid transparent;
 }
 
-.badge-purple { background: rgba(124, 111, 255, 0.12); color: var(--accent-purple); border-color: rgba(124, 111, 255, 0.2); }
-.badge-cyan { background: rgba(0, 212, 255, 0.12); color: var(--accent-cyan); border-color: rgba(0, 212, 255, 0.2); }
-.badge-green { background: rgba(29, 185, 84, 0.12); color: var(--accent-green); border-color: rgba(29, 185, 84, 0.2); }
-.badge-orange { background: rgba(255, 159, 67, 0.12); color: var(--accent-orange); border-color: rgba(255, 159, 67, 0.2); }
-.badge-pink { background: rgba(255, 107, 157, 0.12); color: var(--accent-pink); border-color: rgba(255, 107, 157, 0.2); }
-.badge-yellow { background: rgba(255, 193, 7, 0.12); color: var(--accent-yellow); border-color: rgba(255, 193, 7, 0.2); }
+.badge-purple { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); border-color: rgba(139, 92, 246, 0.2); }
+.badge-cyan { background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.2); }
+.badge-green { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
+.badge-orange { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); border-color: rgba(245, 158, 11, 0.2); }
+.badge-pink { background: rgba(236, 72, 153, 0.1); color: var(--accent-pink); border-color: rgba(236, 72, 153, 0.2); }
+.badge-yellow { background: rgba(251, 191, 36, 0.1); color: var(--accent-yellow); border-color: rgba(251, 191, 36, 0.2); }
 
 /* ═══════════════════════════════════════════ */
 /*         BOTÓN CANCELAR                     */
@@ -186,8 +224,8 @@ body {
 
 .btn-cancelar {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--spotify-subtext);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   padding: 0.6rem 2rem;
   border-radius: 25px;
   font-weight: 600;
@@ -200,10 +238,18 @@ body {
 }
 
 .btn-cancelar:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
+
+/* ═══════════════════════════════════════════ */
+/*         SCROLLBAR                          */
+/* ═══════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
+::-webkit-scrollbar-thumb { background: var(--spotify-muted); border-radius: 3px; }
 
 /* ═══════════════════════════════════════════ */
 /*         RESPONSIVE                         */

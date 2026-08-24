@@ -1,6 +1,64 @@
 /* ============================================ */
-/*     RESOLVER EJERCICIO - SPOTIFY ESTILO     */
+/*     RESOLVER EJERCICIO - CON TEMA CLARO     */
 /* ============================================ */
+
+:root {
+  --spotify-black: #121212;
+  --spotify-dark: #181818;
+  --spotify-gray: #282828;
+  --spotify-light-gray: #535353;
+  --spotify-green: #1db954;
+  --spotify-green-hover: #1ed760;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #b3b3b3;
+  --spotify-muted: #6a6a6a;
+  --accent-purple: #7c6fff;
+  --accent-purple-hover: #9b8fff;
+  --accent-pink: #b06fff;
+  
+  /* Superficies */
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  --spotify-black: #f8f9fe;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f0f2ff;
+  --spotify-light-gray: #c5c9e0;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
+  --spotify-text: #1e1e2e;
+  --spotify-subtext: #4a4a6a;
+  --spotify-muted: #8b8ba7;
+  --accent-purple: #8b5cf6;
+  --accent-purple-hover: #7c3aed;
+  --accent-pink: #d946ef;
+  
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(139, 92, 246, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --border-color: rgba(139, 92, 246, 0.12);
+  --border-subtle: rgba(139, 92, 246, 0.08);
+  --shadow: rgba(139, 92, 246, 0.1);
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
 
 .exercise-container {
   max-width: 850px;
@@ -10,9 +68,9 @@
 
 /* Tarjeta principal contenedora */
 .section-card {
-  background: #181818;
+  background: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
   padding: 1.8rem;
   margin-bottom: 1.5rem;
   transition: all 0.2s ease;
@@ -26,8 +84,8 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #a89fff;
-  background: rgba(124, 111, 255, 0.1);
+  color: var(--accent-purple);
+  background: rgba(139, 92, 246, 0.1);
   padding: 0.3rem 0.8rem;
   border-radius: 20px;
   margin-bottom: 0.75rem;
@@ -37,12 +95,12 @@
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 1.8rem;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 0.5rem;
 }
 
 .exercise-main-desc {
-  color: #b3b3b3;
+  color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.5;
   margin: 0;
@@ -51,7 +109,7 @@
 /* Tarjetas de preguntas individuales */
 .question-card {
   position: relative;
-  border-left: 3px solid #7c6fff;
+  border-left: 3px solid var(--accent-purple);
 }
 
 .question-title-wrapper {
@@ -65,8 +123,8 @@
   width: 32px;
   height: 32px;
   min-width: 32px;
-  background: rgba(124, 111, 255, 0.15);
-  color: #a89fff;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-purple);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -80,13 +138,13 @@
   font-family: 'Syne', sans-serif;
   font-weight: 700;
   font-size: 1.05rem;
-  color: #fff;
+  color: var(--text-primary);
   line-height: 1.4;
   margin: 0;
   padding-top: 0.2rem;
 }
 
-/* Opciones de respuesta modernas tipo Spotify */
+/* Opciones de respuesta */
 .options-list {
   display: flex;
   flex-direction: column;
@@ -98,8 +156,8 @@
   display: flex;
   align-items: center;
   gap: 0.85rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
   padding: 0.85rem 1rem;
   border-radius: 8px;
   cursor: pointer;
@@ -107,30 +165,28 @@
 }
 
 .option-item:hover {
-  background: rgba(124, 111, 255, 0.05);
-  border-color: rgba(124, 111, 255, 0.3);
+  background: rgba(139, 92, 246, 0.05);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
-/* Ocultar el radio button nativo pero mantener accesibilidad */
 .custom-radio {
   display: none;
 }
 
-/* Estilo personalizado para el círculo de selección */
 .option-custom-box {
   width: 20px;
   height: 20px;
   min-width: 20px;
-  border: 2px solid #535353;
+  border: 2px solid var(--text-muted);
   border-radius: 50%;
   position: relative;
   transition: all 0.2s ease;
 }
 
 .option-item input[type="radio"]:checked ~ .option-custom-box {
-  border-color: #7c6fff;
-  background: #7c6fff;
-  box-shadow: 0 0 0 4px rgba(124, 111, 255, 0.15);
+  border-color: var(--accent-purple);
+  background: var(--accent-purple);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
 }
 
 .option-item input[type="radio"]:checked ~ .option-custom-box::after {
@@ -146,24 +202,24 @@
 }
 
 .option-item input[type="radio"]:checked ~ .option-text {
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .option-text {
   font-size: 0.9rem;
-  color: #b3b3b3;
+  color: var(--text-secondary);
   transition: color 0.2s ease;
 }
 
-/* Botón de envío principal */
+/* Botón de envío */
 .form-submit-wrapper {
   margin-top: 2rem;
 }
 
 .btn-submit-exercise {
   width: 100%;
-  background: linear-gradient(135deg, #7c6fff 0%, #b06fff 100%);
+  background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 100%);
   color: #fff;
   border: none;
   padding: 1rem;
@@ -176,14 +232,35 @@
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  box-shadow: 0 4px 15px rgba(124, 111, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
   transition: all 0.2s ease;
 }
 
 .btn-submit-exercise:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(124, 111, 255, 0.4);
-  background: linear-gradient(135deg, #8b7fff, #bd7fff);
+  box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(135deg, var(--accent-purple-hover), var(--accent-pink));
+}
+
+/* ═══════════════════════════════════════════ */
+/*         SCROLLBAR                          */
+/* ═══════════════════════════════════════════ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-body);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--spotify-light-gray);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 /* Responsive */

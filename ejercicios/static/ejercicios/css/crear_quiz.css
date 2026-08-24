@@ -1,5 +1,5 @@
 /* ============================================ */
-/*    CREAR QUIZ - SELECCIÓN MÚLTIPLE          */
+/*    CREAR QUIZ - CON TEMA CLARO/OSCURO       */
 /* ============================================ */
 
 :root {
@@ -15,14 +15,51 @@
   --accent-purple: #7c6fff;
   --accent-purple-hover: #9b8fff;
   --danger: #e91429;
+  
+  /* Superficies */
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="light"] {
+  --spotify-black: #f8f9fe;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f0f2ff;
+  --spotify-light-gray: #c5c9e0;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
+  --spotify-text: #1e1e2e;
+  --spotify-subtext: #4a4a6a;
+  --spotify-muted: #8b8ba7;
+  --accent-purple: #8b5cf6;
+  --accent-purple-hover: #7c3aed;
+  --danger: #ef4444;
+  
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(139, 92, 246, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --border-color: rgba(139, 92, 246, 0.12);
+  --border-subtle: rgba(139, 92, 246, 0.08);
+  --shadow: rgba(139, 92, 246, 0.1);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  background: var(--spotify-black);
-  color: var(--spotify-text);
+  background: var(--bg-body);
+  color: var(--text-primary);
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -47,7 +84,7 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 600;
@@ -55,7 +92,7 @@ body {
   transition: color 0.2s;
 }
 
-.back-link:hover { color: var(--spotify-text); }
+.back-link:hover { color: var(--text-primary); }
 .back-link i { transition: transform 0.2s; }
 .back-link:hover i { transform: translateX(-3px); }
 
@@ -63,7 +100,7 @@ body {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
   font-size: 2rem;
-  color: #fff;
+  color: var(--text-primary);
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -73,7 +110,7 @@ body {
 .quiz-title i { color: var(--accent-purple); }
 
 .quiz-subtitle {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-size: 0.95rem;
 }
 
@@ -82,15 +119,15 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .form-card {
-  background: var(--spotify-dark);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: 16px;
   padding: 2rem;
   margin-bottom: 1.5rem;
 }
 
 .form-label {
-  color: var(--spotify-subtext);
+  color: var(--text-secondary);
   font-weight: 600;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
@@ -100,9 +137,9 @@ body {
 .form-label .required { color: var(--danger); }
 
 .form-control {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
   padding: 0.7rem 1rem;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -113,11 +150,10 @@ body {
 
 .form-control:focus {
   border-color: var(--accent-purple);
-  box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.15);
-  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
 
-.form-control::placeholder { color: var(--spotify-muted); }
+.form-control::placeholder { color: var(--text-muted); }
 
 textarea.form-control {
   resize: vertical;
@@ -129,8 +165,8 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 .pregunta-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--bg-hover);
+  border: 1px solid var(--border-subtle);
   border-left: 4px solid var(--accent-purple);
   border-radius: 12px;
   padding: 1.5rem;
@@ -140,8 +176,8 @@ textarea.form-control {
 }
 
 .pregunta-card:hover {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(124, 111, 255, 0.15);
+  background: var(--bg-hover);
+  border-color: rgba(139, 92, 246, 0.15);
 }
 
 .pregunta-number {
@@ -158,7 +194,7 @@ textarea.form-control {
   justify-content: center;
   font-weight: 800;
   font-size: 0.8rem;
-  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.3);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -214,8 +250,8 @@ textarea.form-control {
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: rgba(233, 20, 41, 0.08);
-  border: 1px solid rgba(233, 20, 41, 0.15);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
   color: var(--danger);
   display: flex;
   align-items: center;
@@ -226,7 +262,7 @@ textarea.form-control {
 }
 
 .btn-delete-pregunta:hover {
-  background: rgba(233, 20, 41, 0.2);
+  background: rgba(239, 68, 68, 0.2);
   color: #ff4444;
 }
 
@@ -235,8 +271,8 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 .btn-add-pregunta {
-  background: rgba(124, 111, 255, 0.1);
-  border: 2px dashed rgba(124, 111, 255, 0.3);
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px dashed rgba(139, 92, 246, 0.3);
   color: var(--accent-purple);
   padding: 0.6rem 1.2rem;
   border-radius: 10px;
@@ -294,7 +330,7 @@ textarea.form-control {
 .btn-submit:hover {
   background: var(--accent-purple-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(124, 111, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
 }
 
 .btn-submit:hover::before {
@@ -303,8 +339,8 @@ textarea.form-control {
 
 .btn-cancelar {
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: var(--spotify-subtext);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
   padding: 0.75rem 1.5rem;
   border-radius: 25px;
   font-weight: 600;
@@ -318,9 +354,9 @@ textarea.form-control {
 }
 
 .btn-cancelar:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -341,8 +377,9 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
 ::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */
 /*         RESPONSIVE                         */
