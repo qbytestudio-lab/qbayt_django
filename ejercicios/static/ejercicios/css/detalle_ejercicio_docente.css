@@ -57,6 +57,8 @@
   --shadow: rgba(139, 92, 246, 0.1);
 }
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   background: var(--bg-body) !important;
   color: var(--text-primary);
@@ -177,7 +179,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/* TABLE */
+/* TABLE - CORREGIDA PARA MODO CLARO          */
 /* ═══════════════════════════════════════════ */
 
 .table-responsive {
@@ -190,6 +192,18 @@ body {
   border-collapse: collapse;
   width: 100%;
   color: var(--text-primary) !important;
+  background: var(--bg-card) !important;
+}
+
+/* Sobrescribir Bootstrap table-dark */
+.table-dark {
+  --bs-table-bg: var(--bg-card) !important;
+  --bs-table-color: var(--text-primary) !important;
+  --bs-table-border-color: var(--border-subtle) !important;
+  --bs-table-hover-bg: var(--bg-hover) !important;
+  --bs-table-hover-color: var(--text-primary) !important;
+  background: var(--bg-card) !important;
+  color: var(--text-primary) !important;
 }
 
 .table thead th {
@@ -201,6 +215,7 @@ body {
   padding: 0.85rem 1rem;
   border-bottom: 2px solid rgba(139, 92, 246, 0.15);
   font-weight: 700;
+  border-color: var(--border-subtle) !important;
 }
 
 .table tbody td {
@@ -209,6 +224,8 @@ body {
   border-bottom: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   vertical-align: middle;
+  border-color: var(--border-subtle) !important;
+  background: transparent !important;
 }
 
 .table tbody tr {
@@ -216,11 +233,12 @@ body {
 }
 
 .table tbody tr:hover {
-  background: rgba(139, 92, 246, 0.04) !important;
+  background: var(--bg-hover) !important;
 }
 
 .table tbody tr:hover td {
   color: var(--text-primary);
+  background: transparent !important;
 }
 
 .table tbody td:first-child {
@@ -280,6 +298,7 @@ body {
   background: var(--accent-purple-hover) !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  color: #fff !important;
 }
 
 /* ═══════════════════════════════════════════ */

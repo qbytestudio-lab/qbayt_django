@@ -69,6 +69,26 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
+/*         BACK LINK                          */
+/* ═══════════════════════════════════════════ */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--text-primary); }
+.back-link i { transition: transform 0.2s; }
+.back-link:hover i { transform: translateX(-3px); }
+
+/* ═══════════════════════════════════════════ */
 /*         HEADER                             */
 /* ═══════════════════════════════════════════ */
 
@@ -166,6 +186,33 @@ body {
 }
 
 .image-preview.show { display: block; }
+
+/* ═══════════════════════════════════════════ */
+/*         BOTÓN AGREGAR PREGUNTA             */
+/* ═══════════════════════════════════════════ */
+
+.btn-add {
+  background: rgba(6, 182, 212, 0.1);
+  border: 2px dashed rgba(6, 182, 212, 0.3);
+  color: var(--accent-cyan);
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 2rem;
+}
+
+.btn-add:hover {
+  background: var(--accent-cyan);
+  color: #fff;
+  border-style: solid;
+  border-color: var(--accent-cyan);
+}
 
 /* ═══════════════════════════════════════════ */
 /*         PREGUNTAS ESTILO CISCO             */

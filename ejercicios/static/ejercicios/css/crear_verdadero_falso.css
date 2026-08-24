@@ -6,7 +6,9 @@
   --spotify-black: #121212;
   --spotify-dark: #181818;
   --spotify-gray: #282828;
+  --spotify-light-gray: #535353;
   --spotify-green: #1db954;
+  --spotify-green-hover: #1ed760;
   --spotify-text: #ffffff;
   --spotify-subtext: #b3b3b3;
   --spotify-muted: #6a6a6a;
@@ -30,7 +32,9 @@
   --spotify-black: #f8f9fe;
   --spotify-dark: #ffffff;
   --spotify-gray: #f0f2ff;
+  --spotify-light-gray: #c5c9e0;
   --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
   --spotify-text: #1e1e2e;
   --spotify-subtext: #4a4a6a;
   --spotify-muted: #8b8ba7;
@@ -67,6 +71,26 @@ body {
   margin: 0 auto;
   padding: 2rem 1.5rem;
 }
+
+/* ═══════════════════════════════════════════ */
+/*         BACK LINK                          */
+/* ═══════════════════════════════════════════ */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--text-primary); }
+.back-link i { transition: transform 0.2s; }
+.back-link:hover i { transform: translateX(-3px); }
 
 /* ═══════════════════════════════════════════ */
 /*         HEADER                             */
@@ -352,7 +376,7 @@ body {
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-body); }
-::-webkit-scrollbar-thumb { background: var(--spotify-light-gray, #c5c9e0); border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */

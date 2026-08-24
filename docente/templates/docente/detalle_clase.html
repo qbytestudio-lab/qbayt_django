@@ -58,14 +58,22 @@
         
         <div class="class-hero-actions">
             <div class="d-flex gap-2 flex-wrap">
+                <!-- Botón Estadísticas -->
+                <a href="{% url 'estadisticas_clase' clase.id %}" class="btn-stats" title="Ver estadísticas">
+                    <i class="bi bi-graph-up"></i> Estadísticas
+                </a>
+                
+                <!-- Código de clase -->
                 <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key-fill"></i> {{ clase.codigo }}
                 </div>
                 
+                <!-- Botón PDF -->
                 <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings btn-pdf" title="Descargar PDF">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
                 </a>
                 
+                <!-- Configuración -->
                 <div class="dropdown">
                     <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
                         <i class="bi bi-gear-fill"></i>

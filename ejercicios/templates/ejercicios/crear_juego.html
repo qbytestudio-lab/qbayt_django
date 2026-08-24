@@ -1,17 +1,21 @@
+{% extends 'web/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Crear Juego — QBYT</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'ejercicios/css/crear_juego.css' %}">
-</head>
-<body>
+
+{% block title %}Crear Juego — QBYT{% endblock %}
+{% block page_title %}Crear Juego Interactivo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_juego.css' %}">
+{% endblock %}
+
+{% block content %}
 
 <div class="juego-creator-container">
+    
+    <a href="{% url 'detalle_clase' clase.id %}" class="back-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--spotify-subtext); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem;">
+        <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+    </a>
+    
     <h1 class="juego-creator-title">
         <i class="bi bi-controller"></i> Crear Juego Interactivo
     </h1>
@@ -24,7 +28,7 @@
         <input type="hidden" name="tipo" value="juego">
 
         <div class="form-card">
-            <label class="form-label" style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 1rem;">
+            <label class="form-label" style="font-size: 1rem; font-weight: 700; color: var(--spotify-text); margin-bottom: 1rem;">
                 Tipo de juego
             </label>
             <div class="juego-tipo-selector" id="juegoTipoSelector">
@@ -52,24 +56,25 @@
             <div class="mb-3">
                 <label class="form-label">Título del juego *</label>
                 <input type="text" name="titulo" class="form-control" 
-                       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; width: 100%;" 
                        placeholder="Ej: Empareja los acordes" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Puntaje máximo</label>
-                <input type="number" name="puntaje_maximo" class="form-control" value="100" min="10" max="1000"
-                       style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; padding: 0.7rem 1rem; border-radius: 8px; width: 100%;">
+                <input type="number" name="puntaje_maximo" class="form-control" value="100" min="10" max="1000">
             </div>
         </div>
 
         <div style="text-align: right;">
-            <button type="submit" class="btn-submit" style="background: var(--accent-green); color: #000; border: none; padding: 0.85rem 2.5rem; border-radius: 25px; font-weight: 700; cursor: pointer;">
+            <button type="submit" class="btn-submit">
                 <i class="bi bi-check-lg"></i> Crear Juego
             </button>
         </div>
     </form>
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
 function seleccionarTipo(card) {
     document.querySelectorAll('.juego-tipo-card').forEach(c => c.classList.remove('selected'));
@@ -77,5 +82,4 @@ function seleccionarTipo(card) {
     document.getElementById('juegoTipo').value = card.dataset.tipo;
 }
 </script>
-</body>
-</html>
+{% endblock %}

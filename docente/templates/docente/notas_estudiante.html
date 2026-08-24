@@ -1,135 +1,111 @@
+{% extends 'web/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Notas — {{ estudiante.get_full_name|default:estudiante.username }}</title>
-  
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  
-  <link rel="stylesheet" href="{% static 'docente/css/estadisticas.css' %}">
-</head>
-<body>
 
-  <!-- TOPBAR -->
-  <header class="topbar">
-    <div class="container topbar-content">
-      <a href="{% url 'index' %}" class="logo-area">
-        <div class="logo-box"><i class="bi bi-music-note-beamed"></i></div>
-        <h2 class="logo-text">QBYT</h2>
-      </a>
-      <div class="auth-buttons">
-        <a href="{% url 'estadisticas_clase' clase.id %}" class="btn-topbar">
-          <i class="bi bi-arrow-left"></i> Volver
-        </a>
-        <a href="{% url 'logout' %}" class="btn-topbar">
-          <i class="bi bi-box-arrow-right"></i> Salir
-        </a>
-      </div>
-    </div>
-  </header>
+{% block title %}Notas — {{ estudiante.get_full_name|default:estudiante.username }}{% endblock %}
+{% block page_title %}Notas del Estudiante{% endblock %}
 
-  <!-- HEADER -->
-  <section class="stats-header">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/estadisticas.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- HEADER -->
+<section class="stats-header">
     <div class="container">
-      <a href="{% url 'estadisticas_clase' clase.id %}" class="back-link">
-        <i class="bi bi-arrow-left"></i> {{ clase.nombre }}
-      </a>
-      <h1 class="stats-title">
-        <i class="bi bi-journal-text"></i> Notas
-      </h1>
-      <p class="stats-subtitle">{{ estudiante.get_full_name|default:estudiante.username }} · @{{ estudiante.username }}</p>
+        <a href="{% url 'estadisticas_clase' clase.id %}" class="back-link">
+            <i class="bi bi-arrow-left"></i> {{ clase.nombre }}
+        </a>
+        <h1 class="stats-title">
+            <i class="bi bi-journal-text"></i> Notas
+        </h1>
+        <p class="stats-subtitle">{{ estudiante.get_full_name|default:estudiante.username }} · @{{ estudiante.username }}</p>
     </div>
-  </section>
+</section>
 
-  <!-- MAIN CONTENT -->
-  <main class="content-area">
+<!-- MAIN CONTENT -->
+<main class="content-area">
     <div class="container">
 
-      <!-- RESUMEN -->
-      <div class="summary-grid">
-        <div class="summary-card purple">
-          <div class="summary-icon"><i class="bi bi-list-task"></i></div>
-          <div class="summary-value purple">{{ total_ejercicios }}</div>
-          <div class="summary-label">Ejercicios</div>
+        <!-- RESUMEN -->
+        <div class="summary-grid">
+            <div class="summary-card purple">
+                <div class="summary-icon"><i class="bi bi-list-task"></i></div>
+                <div class="summary-value purple">{{ total_ejercicios }}</div>
+                <div class="summary-label">Ejercicios</div>
+            </div>
+            
+            <div class="summary-card green">
+                <div class="summary-icon"><i class="bi bi-check-circle-fill"></i></div>
+                <div class="summary-value green">{{ completados }}</div>
+                <div class="summary-label">Aprobados</div>
+            </div>
+            
+            <div class="summary-card orange">
+                <div class="summary-icon"><i class="bi bi-star-fill"></i></div>
+                <div class="summary-value orange">{{ promedio }}%</div>
+                <div class="summary-label">Promedio</div>
+            </div>
         </div>
-        
-        <div class="summary-card green">
-          <div class="summary-icon"><i class="bi bi-check-circle-fill"></i></div>
-          <div class="summary-value green">{{ completados }}</div>
-          <div class="summary-label">Aprobados</div>
-        </div>
-        
-        <div class="summary-card orange">
-          <div class="summary-icon"><i class="bi bi-star-fill"></i></div>
-          <div class="summary-value orange">{{ promedio }}%</div>
-          <div class="summary-label">Promedio</div>
-        </div>
-      </div>
 
-      <!-- LISTA DE NOTAS -->
-      <div class="section-header">
-        <h2 class="section-title">
-          <i class="bi bi-journal-text"></i> Calificaciones por ejercicio
-        </h2>
-      </div>
+        <!-- LISTA DE NOTAS -->
+        <div class="section-header">
+            <h2 class="section-title">
+                <i class="bi bi-journal-text"></i> Calificaciones por ejercicio
+            </h2>
+        </div>
 
-      {% if notas %}
+        {% if notas %}
         <div class="notas-list">
-          {% for nota in notas %}
-          <div class="nota-item">
-            <div class="nota-icon {% if nota.aprobado %}aprobado{% elif nota.calificacion %}no-aprobado{% else %}pendiente{% endif %}">
-              <i class="bi bi-{% if nota.aprobado %}check-circle-fill{% elif nota.calificacion %}x-circle-fill{% else %}clock-fill{% endif %}"></i>
-            </div>
-            
-            <div class="nota-info">
-              <div class="nota-titulo">{{ nota.ejercicio.titulo }}</div>
-              <div class="nota-meta">
-                {{ nota.ejercicio.get_tipo_display }}
-                {% if nota.fecha_envio %}
-                  · {{ nota.fecha_envio|date:"d M H:i" }}
+            {% for nota in notas %}
+            <div class="nota-item">
+                <div class="nota-icon {% if nota.aprobado %}aprobado{% elif nota.calificacion %}no-aprobado{% else %}pendiente{% endif %}">
+                    <i class="bi bi-{% if nota.aprobado %}check-circle-fill{% elif nota.calificacion %}x-circle-fill{% else %}clock-fill{% endif %}"></i>
+                </div>
+                
+                <div class="nota-info">
+                    <div class="nota-titulo">{{ nota.ejercicio.titulo }}</div>
+                    <div class="nota-meta">
+                        {{ nota.ejercicio.get_tipo_display }}
+                        {% if nota.fecha_envio %}
+                            · {{ nota.fecha_envio|date:"d M H:i" }}
+                        {% else %}
+                            · No entregado
+                        {% endif %}
+                        {% if nota.total_intentos > 1 %}
+                            · {{ nota.total_intentos }} intentos
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="nota-calificacion">
+                    {% if nota.calificacion %}
+                    <div class="nota-valor {% if nota.calificacion >= 4.0 %}alta{% elif nota.calificacion >= 3.0 %}media{% else %}baja{% endif %}">
+                        {{ nota.calificacion }}/5.0
+                    </div>
+                    {% else %}
+                    <div class="nota-valor sin-nota">—</div>
+                    {% endif %}
+                </div>
+                
+                {% if nota.aprobado %}
+                <span class="status-badge completed">Aprobado</span>
+                {% elif nota.calificacion %}
+                <span class="status-badge in-progress">No aprobado</span>
                 {% else %}
-                  · No entregado
+                <span class="status-badge not-started">Pendiente</span>
                 {% endif %}
-                {% if nota.total_intentos > 1 %}
-                  · {{ nota.total_intentos }} intentos
-                {% endif %}
-              </div>
             </div>
-            
-            <div class="nota-calificacion">
-              {% if nota.calificacion %}
-              <div class="nota-valor {% if nota.calificacion >= 4.0 %}alta{% elif nota.calificacion >= 3.0 %}media{% else %}baja{% endif %}">
-                {{ nota.calificacion }}/5.0
-              </div>
-              {% else %}
-              <div class="nota-valor sin-nota">—</div>
-              {% endif %}
-            </div>
-            
-            {% if nota.aprobado %}
-            <span class="status-badge completed">Aprobado</span>
-            {% elif nota.calificacion %}
-            <span class="status-badge in-progress">No aprobado</span>
-            {% else %}
-            <span class="status-badge not-started">Pendiente</span>
-            {% endif %}
-          </div>
-          {% endfor %}
+            {% endfor %}
         </div>
-      {% else %}
-      <div class="empty-state">
-        <i class="bi bi-journal-x empty-icon"></i>
-        <p class="empty-text">No hay ejercicios en esta clase</p>
-      </div>
-      {% endif %}
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-journal-x empty-icon"></i>
+            <p class="empty-text">No hay ejercicios en esta clase</p>
+        </div>
+        {% endif %}
 
     </div>
-  </main>
+</main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+{% endblock %}

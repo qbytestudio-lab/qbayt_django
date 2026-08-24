@@ -67,6 +67,26 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
+/*         BACK LINK                          */
+/* ═══════════════════════════════════════════ */
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 1.25rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover { color: var(--text-primary); }
+.back-link i { transition: transform 0.2s; }
+.back-link:hover i { transform: translateX(-3px); }
+
+/* ═══════════════════════════════════════════ */
 /*         HEADER                             */
 /* ═══════════════════════════════════════════ */
 
@@ -177,6 +197,53 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
+/*         BOTÓN CREAR JUEGO                  */
+/* ═══════════════════════════════════════════ */
+
+.btn-submit {
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  padding: 0.85rem 2.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.btn-submit:hover {
+  background: var(--spotify-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  color: #fff;
+}
+
+.btn-submit:hover::before {
+  left: 100%;
+}
+
+.btn-submit:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* ═══════════════════════════════════════════ */
 /*         SCROLLBAR                          */
 /* ═══════════════════════════════════════════ */
 
@@ -193,6 +260,7 @@ textarea.form-control {
   .juego-creator-container { padding: 1.5rem 1rem; }
   .juego-creator-title { font-size: 1.5rem; }
   .form-card { padding: 1.2rem; }
+  .btn-submit { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 480px) {
