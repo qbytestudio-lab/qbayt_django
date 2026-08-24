@@ -4,7 +4,6 @@ from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.utils import timezone
-
 from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
 from clase.models import Clase, InscripcionNivel
 from docente.models import SolicitudClase
@@ -12,6 +11,8 @@ from web.models import Perfil, InscripcionCurso
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 import json
+from notificaciones.services import notificar_solicitud_clase
+
 
 def calcular_progreso_clase(estudiante, clase):
     """Devuelve el % de ejercicios completados en una clase."""
@@ -35,7 +36,6 @@ def perfil_estudiante(request):
     clases = request.user.clases_estudiante.all()
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
 
-    # Progreso por cada clase
     progreso_clases = []
     for clase in clases:
         progreso_clases.append({
@@ -43,18 +43,15 @@ def perfil_estudiante(request):
             'porcentaje': calcular_progreso_clase(request.user, clase)
         })
 
-    # Progreso general
     if progreso_clases:
         progreso_general = round(sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases))
     else:
         progreso_general = 0
 
-    # Ejercicios hechos
     ejercicios_hechos = IntentoEjercicio.objects.filter(
         estudiante=request.user
     ).values('ejercicio').distinct().count()
 
-    # Pendientes
     ahora = timezone.now()
     
     ejercicios_completados = IntentoEjercicio.objects.filter(
@@ -69,7 +66,6 @@ def perfil_estudiante(request):
     
     pendientes_count = pendientes.count()
 
-    # Historial
     historial = []
     
     for clase in clases:
@@ -86,7 +82,6 @@ def perfil_estudiante(request):
             'fecha': clase.fecha_creacion,
         })
     
-    # Clases rechazadas/eliminadas
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=request.user,
         estado='rechazada'
@@ -101,7 +96,6 @@ def perfil_estudiante(request):
             'fecha': solicitud.fecha,
         })
     
-    # Cursos inscritos
     cursos = InscripcionCurso.objects.filter(estudiante=request.user).select_related('curso')
     for inscripcion in cursos:
         historial.append({
@@ -186,6 +180,10 @@ def unirse_clase(request):
                     solicitud.intentos += 1
                     solicitud.estado = 'pendiente'
                     solicitud.save()
+                    
+                    # ✅ NOTIFICAR AL DOCENTE
+                    notificar_solicitud_clase(clase_nueva.docente, request.user, clase_nueva)
+                    
                     messages.success(request, f'Nueva solicitud enviada. Intento de curso: {solicitud.intentos}/2')
                 else:
                     solicitud.bloqueado = True
@@ -193,6 +191,10 @@ def unirse_clase(request):
                     messages.error(request, 'Has agotado tus 2 oportunidades de cursar esta clase.')
                     return redirect('estudiante:explorar_clases')
             else:
+                # ✅ NOTIFICAR AL DOCENTE
+                if created:
+                    notificar_solicitud_clase(clase_nueva.docente, request.user, clase_nueva)
+                
                 messages.success(request, f'¡Solicitud enviada para la clase "{clase_nueva.nombre}"!')
 
             return redirect('estudiante:explorar_clases')
@@ -213,7 +215,9 @@ def solicitar_clase(request):
         clase_id = request.POST.get('clase_id')
         clase_solicitada = get_object_or_404(Clase, id=clase_id)
 
-        clases_misma_categoria = request.user.clases_estudiante.filter(categoria_tema=clase_solicitada.categoria_tema)
+        clases_misma_categoria = request.user.clases_estudiante.filter(
+            categoria_tema=clase_solicitada.categoria_tema
+        )
 
         if request.user in clase_solicitada.estudiantes.all():
             messages.warning(request, 'Ya estás en esta clase.')
@@ -223,13 +227,17 @@ def solicitar_clase(request):
             messages.warning(request, 'Ya tienes una solicitud pendiente para esta clase.')
         else:
             SolicitudClase.objects.create(clase=clase_solicitada, estudiante=request.user)
+            
+            # ✅ CREAR NOTIFICACIÓN PARA EL DOCENTE
+            notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
+            
             messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
     
-    # Redirigir de vuelta a la página anterior o al inicio
     referer = request.META.get('HTTP_REFERER')
     if referer:
         return redirect(referer)
     return redirect('inicio')
+
 
 @login_required
 def salir_clase(request, clase_id):
@@ -243,16 +251,55 @@ def salir_clase(request, clase_id):
 
 @login_required
 def explorar_clases(request):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-    clases = Clase.objects.exclude(estudiantes=request.user)
+    """
+    Vista unificada para explorar clases disponibles
+    """
+    from docente.models import SolicitudClase
+    
+    usuario = request.user
+    
+    # Clases donde el usuario NO está inscrito y NO es docente
+    clases = Clase.objects.exclude(
+        estudiantes=usuario
+    ).exclude(
+        docente=usuario
+    )
+    
+    # Filtros
+    categoria = request.GET.get('categoria')
+    if categoria:
+        clases = clases.filter(categoria_tema=categoria)
+    
+    # Búsqueda
+    query = request.GET.get('q')
+    if query:
+        from django.db.models import Q
+        clases = clases.filter(
+            Q(nombre__icontains=query) | 
+            Q(descripcion__icontains=query)
+        )
+    
+    # ✅ SOLO solicitudes PENDIENTES
     solicitudes_enviadas = SolicitudClase.objects.filter(
-        estudiante=request.user
+        estudiante=usuario,
+        estado='pendiente'
     ).values_list('clase_id', flat=True)
-    return render(request, 'estudiante/explorar_clases.html', {
+    
+    # ✅ Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    solicitudes_rechazadas = SolicitudClase.objects.filter(
+        estudiante=usuario,
+        estado='rechazada'
+    ).values_list('clase_id', flat=True)
+    
+    context = {
         'clases': clases,
+        'categorias': Clase.TEMA_CATEGORIAS,
+        'total_clases': clases.count(),
         'solicitudes_enviadas': solicitudes_enviadas,
-    })
+        'solicitudes_rechazadas': solicitudes_rechazadas,
+    }
+    
+    return render(request, 'estudiante/explorar_clases.html', context)
 
 
 @login_required
@@ -262,7 +309,6 @@ def detalle_clase_estudiante(request, clase_id):
         
     clase = get_object_or_404(Clase, id=clase_id)
     
-    # 1. Validación de categoría: Verificar si ya está inscrito en OTRA clase de la misma categoría
     if hasattr(clase, 'categoria') and clase.categoria:
         otra_clase_misma_categoria = Clase.objects.filter(
             categoria=clase.categoria,
@@ -273,7 +319,6 @@ def detalle_clase_estudiante(request, clase_id):
             messages.error(request, "Ya estás participando en otra clase de esta misma categoría y no puedes ingresar a esta.")
             return redirect('estudiante:dashboard')
 
-    # 2. Validación estándar de inscripción a la clase actual
     if request.user not in clase.estudiantes.all():
         messages.error(request, "No tienes acceso a esta clase.")
         return redirect('estudiante:dashboard')
@@ -355,6 +400,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         'clase_id': clase_id
     })
 
+
 @login_required
 @require_POST
 def subir_foto_perfil(request):
@@ -388,24 +434,19 @@ def subir_foto_perfil(request):
             'error': str(e)
         })
 
+
 @login_required
 def subir_banner(request):
-    """
-    Vista para subir el banner de perfil del estudiante
-    """
     if request.method == 'POST' and request.FILES.get('banner'):
         try:
             banner = request.FILES['banner']
             
-            # Validar que sea imagen
             if not banner.content_type.startswith('image/'):
                 return JsonResponse({'success': False, 'error': 'El archivo debe ser una imagen.'})
             
-            # Validar tamaño (máx 10MB)
             if banner.size > 10 * 1024 * 1024:
                 return JsonResponse({'success': False, 'error': 'La imagen no debe superar los 10MB.'})
             
-            # Guardar banner
             request.user.perfil.banner = banner
             request.user.perfil.save()
             

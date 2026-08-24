@@ -10,6 +10,7 @@ from django.core.exceptions import ValidationError
 from clase.models import Clase
 from ejercicios.models import Ejercicio, IntentoEjercicio
 from django.contrib.auth import get_user_model
+from notificaciones.services import notificar_aceptacion, notificar_rechazo
 
     
 
@@ -456,3 +457,30 @@ def notas_estudiante(request, clase_id, estudiante_id):
     }
     
     return render(request, 'docente/notas_estudiante.html', context)
+
+# En la función aceptar_solicitud
+def aceptar_solicitud(request, solicitud_id):
+    solicitud = get_object_or_404(SolicitudClase, id=solicitud_id)
+    solicitud.estado = 'aceptada'
+    solicitud.save()
+    
+    # Agregar estudiante a la clase
+    solicitud.clase.estudiantes.add(solicitud.estudiante)
+    
+    # ✅ CREAR NOTIFICACIÓN
+    notificar_aceptacion(solicitud.estudiante, solicitud.clase)
+    
+    messages.success(request, 'Solicitud aceptada.')
+    return redirect('detalle_clase', clase_id=solicitud.clase.id)
+
+# En la función rechazar_solicitud
+def rechazar_solicitud(request, solicitud_id):
+    solicitud = get_object_or_404(SolicitudClase, id=solicitud_id)
+    solicitud.estado = 'rechazada'
+    solicitud.save()
+    
+    # ✅ CREAR NOTIFICACIÓN
+    notificar_rechazo(solicitud.estudiante, solicitud.clase)
+    
+    messages.success(request, 'Solicitud rechazada.')
+    return redirect('detalle_clase', clase_id=solicitud.clase.id)

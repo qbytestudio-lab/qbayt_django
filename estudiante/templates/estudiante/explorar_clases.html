@@ -11,140 +11,144 @@
 
 {% block content %}
 
-  <!-- Floating Messages -->
-  {% if messages %}
-  <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
-    {% for message in messages %}
-    <div class="alert-floating {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert">
-      {% if message.tags == 'success' %}
-      <i class="bi bi-check-circle-fill me-2"></i>
+{% if messages %}
+<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+  {% for message in messages %}
+  <div
+    class="alert-floating {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show"
+    role="alert">
+    {% if message.tags == 'success' %}
+    <i class="bi bi-check-circle-fill me-2"></i>
+    {% else %}
+    <i class="bi bi-exclamation-circle-fill me-2"></i>
+    {% endif %}
+    {{ message }}
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="explore-hero">
+  <div>
+    <h1 class="explore-title">Descubrir clases</h1>
+    <p class="explore-subtitle">Encuentra tu próxima clase. Solicita acceso o usa un código directo.</p>
+  </div>
+  <div class="explore-actions">
+    <button class="btn-outline-filter">
+      <i class="bi bi-funnel"></i> Filtrar
+    </button>
+    <button class="btn-outline-filter">
+      <i class="bi bi-sort-down"></i> Ordenar
+    </button>
+  </div>
+</div>
+
+<div class="code-card">
+  <h3 class="code-card-title">
+    <i class="bi bi-shield-check"></i> ¿Tienes un código de acceso?
+  </h3>
+  <form action="{% url 'estudiante:unirse_clase' %}" method="POST" class="code-card-form">
+    {% csrf_token %}
+    <input type="text" name="codigo" class="code-input" placeholder="Ingresa tu código" maxlength="8" required>
+    <button type="submit" class="btn-join">
+      <i class="bi bi-box-arrow-in-right me-1"></i> Unirse
+    </button>
+  </form>
+</div>
+
+<div class="search-bar">
+  <i class="bi bi-search"></i>
+  <input type="text" placeholder="¿Qué quieres aprender hoy?" id="searchInput">
+</div>
+
+<div class="category-pills">
+  <button class="category-pill active" onclick="filterCategory('all', this)">Todo</button>
+  <button class="category-pill" onclick="filterCategory('armonia', this)">🎵 Armonía</button>
+  <button class="category-pill" onclick="filterCategory('ritmo', this)">🎵 Ritmo</button>
+  <button class="category-pill" onclick="filterCategory('melodia', this)">🎵 Melodía</button>
+</div>
+
+{% if clases %}
+<div class="classes-grid" id="clasesGrid">
+  {% for clase in clases %}
+  <div class="class-card" data-category="{{ clase.categoria_tema }}">
+
+    <div class="class-card-image {% if not clase.imagen %}no-image{% endif %}">
+      {% if clase.imagen %}
+      <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" loading="lazy">
       {% else %}
-      <i class="bi bi-exclamation-circle-fill me-2"></i>
+      <i class="bi bi-music-note-beamed"></i>
       {% endif %}
-      {{ message }}
-      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+      <div class="class-card-image-overlay"></div>
+      <div class="class-play-btn">
+        <i class="bi bi-play-fill"></i>
+      </div>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <!-- Hero Section -->
-  <div class="explore-hero">
-    <div>
-      <h1 class="explore-title">Descubrir clases</h1>
-      <p class="explore-subtitle">Encuentra tu próxima clase. Solicita acceso o usa un código directo.</p>
-    </div>
-    <div class="explore-actions">
-      <button class="btn-outline-filter">
-        <i class="bi bi-funnel"></i> Filtrar
-      </button>
-      <button class="btn-outline-filter">
-        <i class="bi bi-sort-down"></i> Ordenar
-      </button>
-    </div>
-  </div>
+    <div class="class-card-body">
+      <h3 class="class-card-title">{{ clase.nombre }}</h3>
 
-  <!-- Código de Acceso -->
-  <div class="code-card">
-    <h3 class="code-card-title">
-      <i class="bi bi-shield-check"></i> ¿Tienes un código de acceso?
-    </h3>
-    <form action="{% url 'estudiante:unirse_clase' %}" method="POST" class="code-card-form">
-      {% csrf_token %}
-      <input type="text" name="codigo" class="code-input" placeholder="Ingresa tu código" maxlength="8" required>
-      <button type="submit" class="btn-join">
-        <i class="bi bi-box-arrow-in-right me-1"></i> Unirse
-      </button>
-    </form>
-  </div>
+      {% if clase.descripcion %}
+      <p class="class-card-description">{{ clase.descripcion|truncatechars:100 }}</p>
+      {% endif %}
 
-  <!-- Search Bar -->
-  <div class="search-bar">
-    <i class="bi bi-search"></i>
-    <input type="text" placeholder="¿Qué quieres aprender hoy?" id="searchInput">
-  </div>
+      <div class="class-card-meta">
+        <span class="class-card-meta-item">
+          <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }}
+        </span>
+        <span class="class-card-meta-item">
+          <i class="bi bi-person-badge"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
+        </span>
+      </div>
+      <div class="class-card-footer">
+        {% if clase.id in solicitudes_enviadas %}
+        <!-- Solicitud pendiente -->
+        <div class="btn-pendiente">
+          <i class="bi bi-clock"></i> Solicitud pendiente
+        </div>
 
-  <!-- Category Pills -->
-  <div class="category-pills">
-    <button class="category-pill active" onclick="filterCategory('all', this)">Todo</button>
-    <button class="category-pill" onclick="filterCategory('musica', this)">🎵 Música</button>
-    <button class="category-pill" onclick="filterCategory('produccion', this)">🎛️ Producción</button>
-    <button class="category-pill" onclick="filterCategory('teoria', this)">📚 Teoría</button>
-    <button class="category-pill" onclick="filterCategory('composicion', this)">✍️ Composición</button>
-    <button class="category-pill" onclick="filterCategory('mezcla', this)">🎚️ Mezcla</button>
-  </div>
+        {% elif clase.id in solicitudes_rechazadas %}
+        <!-- Solicitud rechazada - mostrar re-solicitar -->
+        <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="clase_id" value="{{ clase.id }}">
+          <button type="submit" class="btn-solicitar"
+            style="background: rgba(255, 159, 67, 0.15); color: #ff9f43; border: 1px solid rgba(255, 159, 67, 0.3);">
+            <i class="bi bi-arrow-repeat"></i> Re-solicitar
+          </button>
+        </form>
 
-  <!-- Classes Grid -->
-  {% if clases %}
-  <div class="classes-grid" id="clasesGrid">
-    {% for clase in clases %}
-    <div class="class-card" data-category="{{ clase.categoria|default:'musica' }}">
-      
-      <!-- ✅ Card Image - CORREGIDO para mostrar imagen -->
-      <div class="class-card-image {% if not clase.imagen %}no-image{% endif %}">
-        {% if clase.imagen %}
-        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" loading="lazy">
         {% else %}
-        <i class="bi bi-music-note-beamed"></i>
+        <!-- Sin solicitud -->
+        <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="clase_id" value="{{ clase.id }}">
+          <button type="submit" class="btn-solicitar">
+            Solicitar acceso
+          </button>
+        </form>
         {% endif %}
-        <div class="class-card-image-overlay"></div>
-        <div class="class-play-btn">
-          <i class="bi bi-play-fill"></i>
-        </div>
-      </div>
-
-      <!-- Card Body -->
-      <div class="class-card-body">
-        <h3 class="class-card-title">{{ clase.nombre }}</h3>
-        
-        {% if clase.descripcion %}
-        <p class="class-card-description">{{ clase.descripcion|truncatechars:100 }}</p>
-        {% endif %}
-
-        <div class="class-card-meta">
-          <span class="class-card-meta-item">
-            <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }}
-          </span>
-          <span class="class-card-meta-item">
-            <i class="bi bi-person-badge"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
-          </span>
-        </div>
-
-        <div class="class-card-footer">
-          {% if clase.id in solicitudes_enviadas %}
-          <div class="btn-pendiente">
-            <i class="bi bi-clock"></i> Solicitud pendiente
-          </div>
-          {% else %}
-          <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
-            {% csrf_token %}
-            <input type="hidden" name="clase_id" value="{{ clase.id }}">
-            <button type="submit" class="btn-solicitar">
-              Solicitar acceso
-            </button>
-          </form>
-          {% endif %}
-        </div>
       </div>
     </div>
-    {% endfor %}
   </div>
-  {% else %}
-  <div class="empty-state">
-    <div class="empty-state-icon">
-      <i class="bi bi-headphones"></i>
-    </div>
-    <p class="empty-state-title">No hay clases disponibles</p>
-    <p class="empty-state-text">Vuelve más tarde para descubrir nuevas clases</p>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-state-icon">
+    <i class="bi bi-headphones"></i>
   </div>
-  {% endif %}
+  <p class="empty-state-title">No hay clases disponibles</p>
+  <p class="empty-state-text">Vuelve más tarde para descubrir nuevas clases</p>
+</div>
+{% endif %}
 
 {% endblock %}
 
 {% block extra_js %}
 <script>
-  // Search functionality
-  document.getElementById('searchInput').addEventListener('input', function() {
+  document.getElementById('searchInput').addEventListener('input', function () {
     const q = this.value.toLowerCase();
     document.querySelectorAll('.class-card').forEach(item => {
       const text = item.textContent.toLowerCase();
@@ -152,11 +156,10 @@
     });
   });
 
-  // Category filter
   function filterCategory(category, btn) {
     document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
-    
+
     document.querySelectorAll('.class-card').forEach(card => {
       if (category === 'all') {
         card.style.display = '';
@@ -166,23 +169,6 @@
     });
   }
 
-  // Hover effects for category pills
-  document.querySelectorAll('.category-pill').forEach(pill => {
-    pill.addEventListener('mouseenter', function() {
-      if (!this.classList.contains('active')) {
-        this.style.background = '#3e3e3e';
-        this.style.color = '#fff';
-      }
-    });
-    pill.addEventListener('mouseleave', function() {
-      if (!this.classList.contains('active')) {
-        this.style.background = '#333';
-        this.style.color = '#d1d1d1';
-      }
-    });
-  });
-
-  // Auto-dismiss alerts
   setTimeout(() => {
     document.querySelectorAll('.alert-floating').forEach(alert => {
       const bsAlert = new bootstrap.Alert(alert);

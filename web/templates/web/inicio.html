@@ -106,13 +106,11 @@
   </div>
 
   <div class="courses-grid">
-    {% for curso in cursos_teoria %}
-    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalCurso{{ curso.id }}">
+    {% for clase in cursos_teoria %}
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalClase{{ clase.id }}">
       <div class="course-card-image-wrapper">
-        {% if curso.imagen %}
-        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
-        {% elif curso.imagen_url %}
-        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% if clase.imagen %}
+        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="course-card-img">
         {% else %}
         <div class="course-card-fallback">
           <i class="bi bi-music-note-list"></i>
@@ -123,40 +121,38 @@
 
         <div class="course-card-hover-content">
           <span class="course-hover-btn">
-            <i class="bi bi-play-fill"></i> Ver curso
+            <i class="bi bi-play-fill"></i> Ver clase
           </span>
         </div>
       </div>
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
-            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+            <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
         </div>
-        <h3 class="course-title">{{ curso.nombre }}</h3>
-        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+        <h3 class="course-title">{{ clase.nombre }}</h3>
+        <p class="course-description">{{ clase.descripcion|truncatewords:15 }}</p>
       </div>
     </div>
 
     <!-- Modal Teoría -->
-    <div class="modal fade" id="modalCurso{{ curso.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalClase{{ clase.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ curso.nombre }}</h5>
+            <h5 class="modal-title">{{ clase.nombre }}</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            {% if curso.imagen %}
-            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
-            {% elif curso.imagen_url %}
-            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% if clase.imagen %}
+            <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
             <span class="course-category-badge">
-              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+              <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
             <h5 class="modal-section-title">
@@ -164,17 +160,24 @@
             </h5>
 
             <div class="clase-descripcion-full">
-              {% if curso.descripcion %}
-              <p>{{ curso.descripcion }}</p>
+              {% if clase.descripcion %}
+              <p>{{ clase.descripcion }}</p>
               {% else %}
               <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
               {% endif %}
             </div>
 
+            <div class="modal-section-title">
+              <i class="bi bi-person"></i> Docente
+            </div>
+            <div class="clase-descripcion-full">
+              <p>{{ clase.docente.get_full_name|default:clase.docente.username }}</p>
+            </div>
+
             <div class="modal-footer-action">
               <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <input type="hidden" name="clase_id" value="{{ clase.id }}">
                 <button type="submit" class="btn-spotify-success">
                   <i class="bi bi-send-fill"></i> Solicitar unirse
                 </button>
@@ -187,7 +190,7 @@
     {% empty %}
     <div class="empty-state">
       <div class="empty-icon"><i class="bi bi-music-note-list"></i></div>
-      <p class="empty-text">No hay cursos de Teoría Musical disponibles todavía</p>
+      <p class="empty-text">No hay clases de Teoría Musical disponibles todavía</p>
     </div>
     {% endfor %}
   </div>
@@ -204,13 +207,11 @@
   </div>
 
   <div class="courses-grid">
-    {% for curso in cursos_auditivo %}
-    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalAud{{ curso.id }}">
+    {% for clase in cursos_auditivo %}
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalAud{{ clase.id }}">
       <div class="course-card-image-wrapper">
-        {% if curso.imagen %}
-        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
-        {% elif curso.imagen_url %}
-        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% if clase.imagen %}
+        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="course-card-img">
         {% else %}
         <div class="course-card-fallback">
           <i class="bi bi-ear"></i>
@@ -221,40 +222,38 @@
 
         <div class="course-card-hover-content">
           <span class="course-hover-btn">
-            <i class="bi bi-play-fill"></i> Ver curso
+            <i class="bi bi-play-fill"></i> Ver clase
           </span>
         </div>
       </div>
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
-            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+            <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
         </div>
-        <h3 class="course-title">{{ curso.nombre }}</h3>
-        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+        <h3 class="course-title">{{ clase.nombre }}</h3>
+        <p class="course-description">{{ clase.descripcion|truncatewords:15 }}</p>
       </div>
     </div>
 
     <!-- Modal Auditivo -->
-    <div class="modal fade" id="modalAud{{ curso.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalAud{{ clase.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ curso.nombre }}</h5>
+            <h5 class="modal-title">{{ clase.nombre }}</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            {% if curso.imagen %}
-            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
-            {% elif curso.imagen_url %}
-            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% if clase.imagen %}
+            <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
             <span class="course-category-badge">
-              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+              <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
             <h5 class="modal-section-title">
@@ -262,17 +261,24 @@
             </h5>
 
             <div class="clase-descripcion-full">
-              {% if curso.descripcion %}
-              <p>{{ curso.descripcion }}</p>
+              {% if clase.descripcion %}
+              <p>{{ clase.descripcion }}</p>
               {% else %}
               <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
               {% endif %}
             </div>
 
+            <div class="modal-section-title">
+              <i class="bi bi-person"></i> Docente
+            </div>
+            <div class="clase-descripcion-full">
+              <p>{{ clase.docente.get_full_name|default:clase.docente.username }}</p>
+            </div>
+
             <div class="modal-footer-action">
               <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <input type="hidden" name="clase_id" value="{{ clase.id }}">
                 <button type="submit" class="btn-spotify-success">
                   <i class="bi bi-send-fill"></i> Solicitar unirse
                 </button>
@@ -285,7 +291,7 @@
     {% empty %}
     <div class="empty-state">
       <div class="empty-icon"><i class="bi bi-ear"></i></div>
-      <p class="empty-text">No hay cursos de Entrenamiento Auditivo disponibles todavía</p>
+      <p class="empty-text">No hay clases de Entrenamiento Auditivo disponibles todavía</p>
     </div>
     {% endfor %}
   </div>
@@ -302,13 +308,11 @@
   </div>
 
   <div class="courses-grid">
-    {% for curso in cursos_instrumento %}
-    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalInst{{ curso.id }}">
+    {% for clase in cursos_instrumento %}
+    <div class="course-card" data-bs-toggle="modal" data-bs-target="#modalInst{{ clase.id }}">
       <div class="course-card-image-wrapper">
-        {% if curso.imagen %}
-        <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="course-card-img">
-        {% elif curso.imagen_url %}
-        <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="course-card-img">
+        {% if clase.imagen %}
+        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="course-card-img">
         {% else %}
         <div class="course-card-fallback">
           <i class="bi bi-music-note-beamed"></i>
@@ -319,40 +323,38 @@
 
         <div class="course-card-hover-content">
           <span class="course-hover-btn">
-            <i class="bi bi-play-fill"></i> Ver curso
+            <i class="bi bi-play-fill"></i> Ver clase
           </span>
         </div>
       </div>
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level {{ curso.nivel }}">{{ curso.get_nivel_display }}</span>
+          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
-            <i class="bi bi-clock"></i> {{ curso.duracion_horas }}h
+            <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
         </div>
-        <h3 class="course-title">{{ curso.nombre }}</h3>
-        <p class="course-description">{{ curso.descripcion|truncatewords:15 }}</p>
+        <h3 class="course-title">{{ clase.nombre }}</h3>
+        <p class="course-description">{{ clase.descripcion|truncatewords:15 }}</p>
       </div>
     </div>
 
     <!-- Modal Instrumento -->
-    <div class="modal fade" id="modalInst{{ curso.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal fade" id="modalInst{{ clase.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ curso.nombre }}</h5>
+            <h5 class="modal-title">{{ clase.nombre }}</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            {% if curso.imagen %}
-            <img src="{{ curso.imagen.url }}" alt="{{ curso.nombre }}" class="modal-image">
-            {% elif curso.imagen_url %}
-            <img src="{{ curso.imagen_url }}" alt="{{ curso.nombre }}" class="modal-image">
+            {% if clase.imagen %}
+            <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
             <span class="course-category-badge">
-              <i class="bi bi-tag-fill me-1"></i> {{ curso.get_categoria_display }}
+              <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
             <h5 class="modal-section-title">
@@ -360,17 +362,24 @@
             </h5>
 
             <div class="clase-descripcion-full">
-              {% if curso.descripcion %}
-              <p>{{ curso.descripcion }}</p>
+              {% if clase.descripcion %}
+              <p>{{ clase.descripcion }}</p>
               {% else %}
               <p class="modal-empty-text">El docente no ha proporcionado una descripción para esta clase.</p>
               {% endif %}
             </div>
 
+            <div class="modal-section-title">
+              <i class="bi bi-person"></i> Docente
+            </div>
+            <div class="clase-descripcion-full">
+              <p>{{ clase.docente.get_full_name|default:clase.docente.username }}</p>
+            </div>
+
             <div class="modal-footer-action">
               <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
                 {% csrf_token %}
-                <input type="hidden" name="clase_id" value="{{ curso.id }}">
+                <input type="hidden" name="clase_id" value="{{ clase.id }}">
                 <button type="submit" class="btn-spotify-success">
                   <i class="bi bi-send-fill"></i> Solicitar unirse
                 </button>
@@ -383,7 +392,7 @@
     {% empty %}
     <div class="empty-state">
       <div class="empty-icon"><i class="bi bi-music-note-beamed"></i></div>
-      <p class="empty-text">No hay cursos de Instrumento disponibles todavía</p>
+      <p class="empty-text">No hay clases de Instrumento disponibles todavía</p>
     </div>
     {% endfor %}
   </div>

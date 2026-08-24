@@ -572,3 +572,9 @@ body {
     font-size: 0.82rem;
   }
 }
+/* Botón re-solicitar */
+.btn-solicitar.rechazada {
+    background: rgba(255, 159, 67, 0.15);
+    color: #ff9f43;
+    border: 1px solid rgba(255, 159, 67, 0.3);
+}

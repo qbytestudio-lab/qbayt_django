@@ -12,6 +12,8 @@ from .models import (
     RespuestaEstudiante,
 )
 from clase.models import Clase
+from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion
+
 # ============================================================
 # Vista intermedia
 # ============================================================
@@ -65,7 +67,11 @@ def crear_quiz(request, clase_id):
                             es_correcta=es_correcta
                         )
             i += 1
-            
+        
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+        
+        messages.success(request, 'Quiz creado correctamente.')
         return redirect('detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
@@ -94,6 +100,9 @@ def crear_imagen_quiz(request, clase_id):
             imagen_principal=imagen,
             tipo='imagen_quiz'
         )
+
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio de imagen creado exitosamente.')
         return redirect('detalle_clase', clase_id=clase.id)
@@ -125,6 +134,9 @@ def crear_juego(request, clase_id):
             tipo='juego'
         )
 
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+
         messages.success(request, 'Juego creado exitosamente.')
         return redirect('detalle_clase', clase_id=clase.id)
 
@@ -155,6 +167,9 @@ def crear_texto(request, clase_id):
             tipo='texto'
         )
 
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+
         messages.success(request, 'Texto creado exitosamente.')
         return redirect('detalle_clase', clase_id=clase.id)
 
@@ -183,6 +198,9 @@ def crear_verdadero_falso(request, clase_id):
             tipo='verdadero_falso'
         )
 
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+
         messages.success(request, 'Ejercicio V/F creado exitosamente.')
         return redirect('detalle_clase', clase_id=clase.id)
 
@@ -210,6 +228,9 @@ def crear_completar(request, clase_id):
             descripcion=descripcion,
             tipo='completar'
         )
+
+        # ✅ NOTIFICAR A LOS ESTUDIANTES
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio de completar creado exitosamente.')
         return redirect('detalle_clase', clase_id=clase.id)
@@ -257,6 +278,9 @@ def calificar_ejercicio(request, intento_id):
         ejercicio = intento.ejercicio
         clase = ejercicio.clase
         estudiante = intento.estudiante
+
+        # ✅ NOTIFICAR AL ESTUDIANTE SOBRE SU CALIFICACIÓN
+        notificar_calificacion(estudiante, ejercicio, nota)
 
         total_intentos = IntentoEjercicio.objects.filter(
             estudiante=estudiante,
@@ -315,34 +339,35 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
         }
     )
 
+
 @login_required
 def eliminar_ejercicio(request, clase_id, ejercicio_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
         
-    # Como el ejercicio se conecta directamente a la clase, usamos 'clase__docente' y 'clase_id'
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase_id=clase_id, clase__docente=request.user)
+    ejercicio = get_object_or_404(
+        Ejercicio, 
+        id=ejercicio_id, 
+        clase_id=clase_id, 
+        clase__docente=request.user
+    )
     
     ejercicio.delete()
     
     messages.success(request, 'Ejercicio eliminado con éxito.')
     return redirect('detalle_clase', clase_id=clase_id)
 
+
 @login_required
 def reenviar_ejercicio(request, intento_id):
-    # Obtenemos el intento o lanzamos un 404
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)
     
-    # Extraemos las IDs antes de borrar el objeto para poder redirigir bien
     clase_id = intento.ejercicio.clase.id
     ejercicio_id = intento.ejercicio.id
     
-    # Borramos las respuestas asociadas y luego el intento
     intento.respuestas.all().delete()
     intento.delete()
     
-    # Mensaje claro para el docente
     messages.warning(request, "El intento ha sido rechazado. El estudiante ya puede volver a realizar el ejercicio.")
     
-    # Redirigimos al panel de detalles del ejercicio del docente
     return redirect('ejercicios:detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)

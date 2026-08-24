@@ -654,6 +654,8 @@ def explorar_clases(request):
     """
     Vista unificada para explorar clases disponibles
     """
+    from docente.models import SolicitudClase
+    
     usuario = request.user
     
     # Clases donde el usuario NO está inscrito y NO es docente
@@ -677,10 +679,24 @@ def explorar_clases(request):
             Q(descripcion__icontains=query)
         )
     
+    # ✅ SOLO solicitudes PENDIENTES
+    solicitudes_enviadas = SolicitudClase.objects.filter(
+        estudiante=usuario,
+        estado='pendiente'
+    ).values_list('clase_id', flat=True)
+    
+    # ✅ Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    solicitudes_rechazadas = SolicitudClase.objects.filter(
+        estudiante=usuario,
+        estado='rechazada'
+    ).values_list('clase_id', flat=True)
+    
     context = {
         'clases': clases,
         'categorias': Clase.TEMA_CATEGORIAS,
         'total_clases': clases.count(),
+        'solicitudes_enviadas': solicitudes_enviadas,
+        'solicitudes_rechazadas': solicitudes_rechazadas,
     }
     
     return render(request, 'estudiante/explorar_clases.html', context)

@@ -40,6 +40,7 @@
     --border-subtle: rgba(255, 255, 255, 0.05);
     --scrollbar-thumb: rgba(255, 255, 255, 0.15);
     --scrollbar-thumb-hover: rgba(255, 255, 255, 0.25);
+    --shadow: rgba(0, 0, 0, 0.4);
 }
 
 /* TEMA CLARO - DISEÑO INNOVADOR */
@@ -174,7 +175,6 @@ body {
     color: var(--spotify-green);
 }
 
-/* ── Sidebar colapsado ── */
 .sidebar.collapsed .logo-area {
     justify-content: center;
     padding: 0;
@@ -269,7 +269,6 @@ body {
     transition: opacity 0.2s, width 0.2s;
 }
 
-/* Colapsado */
 .sidebar.collapsed .menu-list li a {
     justify-content: center;
     padding: 0.7rem 0;
@@ -297,18 +296,6 @@ body {
 
 .menu-list li.logout a:hover i {
     color: var(--spotify-danger);
-}
-
-/* ── Playlists Section ── */
-.playlist-section {
-    border-top: 1px solid var(--border-subtle);
-    padding-top: 1.5rem;
-    margin-top: 1rem;
-}
-
-.sidebar.collapsed .playlist-section {
-    opacity: 0;
-    pointer-events: none;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -347,7 +334,6 @@ body {
     z-index: 50;
 }
 
-/* Menu Toggle */
 .menu-toggle {
     background: var(--bg-input);
     border: 1px solid var(--border-color);
@@ -368,7 +354,6 @@ body {
     background: var(--bg-hover);
 }
 
-/* Title */
 .topbar-title {
     font-family: 'Syne', sans-serif;
     font-weight: 700;
@@ -377,12 +362,10 @@ body {
     flex-shrink: 0;
 }
 
-/* Espaciador flexible */
 .topbar-spacer {
     flex: 1;
 }
 
-/* Botón de tema */
 .theme-toggle {
     width: 36px;
     height: 36px;
@@ -404,7 +387,151 @@ body {
     transform: rotate(30deg);
 }
 
-/* ── User Section ── */
+/* ═══════════════════════════════════════════ */
+/* NOTIFICACIONES */
+/* ═══════════════════════════════════════════ */
+
+.notifications-dropdown {
+    position: relative;
+}
+
+.notification-bell {
+    position: relative;
+    background: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.notification-bell:hover {
+    background: var(--bg-hover);
+}
+
+.notification-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--spotify-danger, #ef4444);
+    color: #fff;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-body);
+}
+
+.notifications-panel {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    width: 350px;
+    max-height: 400px;
+    overflow-y: auto;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px var(--shadow);
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 1;
+}
+
+.notifications-header a {
+    color: var(--spotify-green);
+    font-size: 0.72rem;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.notifications-header a:hover {
+    text-decoration: underline;
+}
+
+.notifications-body {
+    padding: 0.4rem;
+}
+
+.notification-dropdown-item {
+    display: block;
+    padding: 0.7rem 0.8rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.notification-dropdown-item:hover {
+    background: var(--bg-hover);
+}
+
+.notification-dropdown-item strong {
+    display: block;
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    margin-bottom: 0.15rem;
+}
+
+.notification-dropdown-item span {
+    display: block;
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    margin-bottom: 0.15rem;
+    line-height: 1.3;
+}
+
+.notification-dropdown-item small {
+    color: var(--text-muted);
+    font-size: 0.65rem;
+}
+
+.no-notifications {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 1.5rem;
+    font-size: 0.8rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/* USER SECTION */
+/* ═══════════════════════════════════════════ */
+
 .topbar-user {
     display: flex;
     align-items: center;
@@ -500,8 +627,7 @@ body {
 
     .sidebar .logo-area h2,
     .sidebar .menu-list span,
-    .sidebar .nav-section-title,
-    .sidebar .playlist-section {
+    .sidebar .nav-section-title {
         opacity: 0;
         pointer-events: none;
     }
@@ -526,11 +652,26 @@ body {
     .user-info {
         display: none;
     }
+
+    .notifications-panel {
+        width: 300px;
+        right: -50px;
+    }
 }
 
 @media (max-width: 480px) {
     .content {
         padding: 0.75rem;
+    }
+
+    .notifications-panel {
+        width: 280px;
+        right: -60px;
+        position: fixed;
+        top: 60px;
+        right: 10px;
+        left: 10px;
+        width: auto;
     }
 }
 
