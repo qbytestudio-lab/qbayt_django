@@ -141,53 +141,41 @@ def perfil_administrador(request):
     return render(request, 'perfil_admin.html')
 
 def registro(request):
-  if request.method == 'POST':
-    first_name = request.POST.get('first_name')
-    last_name = request.POST.get('last_name')
-    username = request.POST.get('username')
-    email = request.POST.get('email')
-    password1 = request.POST.get('password1')
-    password2 = request.POST.get('password2')
-    rol = request.POST.get('rol', 'estudiante')  # Por defecto estudiante
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        rol = request.POST.get('rol', 'estudiante')  # Por defecto estudiante
 
-    if password1 != password2:
-      messages.error(request, 'Las contraseñas no coinciden.')
-      return redirect('registro')
+        if password1 != password2:
+            messages.error(request, 'Las contraseñas no coinciden.')
+            return redirect('registro')
 
-    if User.objects.filter(username=username).exists():
-      messages.error(request, 'El usuario ya existe.')
-      return redirect('registro')
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'El usuario ya existe.')
+            return redirect('registro')
 
-    # Guardamos los datos temporalmente en la sesión para TODOS (o solo para estudiante)
-    # Si quieres que SÓLO el estudiante configure nivel, déjalo con el if:
-    if rol == 'estudiante':
-      request.session['registro_temporal'] = {
-          'username': username,
-          'email': email,
-          'password': password1,
-          'first_name': first_name,
-          'last_name': last_name,
-          'rol': rol
-      }
-      return redirect('estudiante:configurar_nivel')
+        # Creamos el usuario de una vez sin pasar por sesiones temporales
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password1,
+            first_name=first_name,
+            last_name=last_name,
+        )
+        
+        # Creamos su perfil con el rol correspondiente
+        Perfil.objects.create(user=user, rol=rol)
+        
+        # Iniciamos sesión automáticamente y mandamos éxito
+        login(request, user)
+        messages.success(request, '¡Cuenta creada con éxito!')
+        return redirect('inicio')
 
-    # Si es docente (u otro rol que NO requiere configurar nivel), 
-    # se crea el usuario y perfil de una vez de forma normal:
-    user = User.objects.create_user(
-        username=username,
-        email=email,
-        password=password1,
-        first_name=first_name,
-        last_name=last_name,
-    )
-    user.save()
-    Perfil.objects.create(user=user, rol=rol)
-    
-    login(request, user)
-    messages.success(request, '¡Cuenta creada con éxito!')
-    return redirect('inicio')
-
-  return render(request, 'web/registro.html')
+    return render(request, 'web/registro.html')
 
 def login_view(request):
     if request.method == 'POST':

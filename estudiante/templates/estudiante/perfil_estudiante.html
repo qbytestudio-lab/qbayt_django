@@ -168,22 +168,6 @@
           </span>
         </div>
         <div class="info-field">
-          <span class="info-label">Nivel de entrenamiento</span>
-          <span class="info-value">
-            {% if request.user.nivel_estudiante %}
-            <span class="badge-nivel nivel-{{ request.user.nivel_estudiante.nivel }}">
-              <i class="bi bi-music-note-beamed me-1"></i>
-              {{ request.user.nivel_estudiante.get_nivel_display }}
-            </span>
-            {% else %}
-            <span class="badge-nivel no-asignado">
-              <i class="bi bi-music-note-beamed me-1"></i>
-              No asignado
-            </span>
-            {% endif %}
-          </span>
-        </div>
-        <div class="info-field">
           <span class="info-label">Miembro desde</span>
           <span class="info-value">{{ request.user.date_joined|date:"d \d\e F \d\e Y" }}</span>
         </div>

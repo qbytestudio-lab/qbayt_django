@@ -21,210 +21,276 @@
 </div>
 {% endif %}
 
-<!-- HEADER -->
-<section class="stats-header">
-    <div class="container">
-        <a href="{% url 'detalle_clase' clase.id %}" class="back-link">
+<div class="grades-matrix-container">
+
+    <!-- HEADER -->
+    <div class="matrix-header">
+        <a href="{% url 'detalle_clase' clase.id %}" class="back-link-modern">
             <i class="bi bi-arrow-left"></i> {{ clase.nombre }}
         </a>
-        <h1 class="stats-title">
-            <i class="bi bi-graph-up-arrow"></i> Estadísticas
-        </h1>
-        <p class="stats-subtitle">Analiza el rendimiento de tus estudiantes</p>
+        <h1>Libro de Calificaciones</h1>
+        <p>Matriz de seguimiento de notas por estudiante y ejercicio</p>
     </div>
-</section>
 
-<!-- MAIN CONTENT -->
-<main class="content-area">
-    <div class="container">
-
-        <!-- SUMMARY CARDS -->
-        <div class="summary-grid">
-            <div class="summary-card purple">
-                <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
-                <div class="summary-value purple">{{ total_estudiantes }}</div>
-                <div class="summary-label">Estudiantes</div>
-            </div>
-            
-            <div class="summary-card green">
-                <div class="summary-icon"><i class="bi bi-list-task"></i></div>
-                <div class="summary-value green">{{ total_ejercicios }}</div>
-                <div class="summary-label">Ejercicios</div>
-            </div>
-            
-            <div class="summary-card orange">
-                <div class="summary-icon"><i class="bi bi-trophy-fill"></i></div>
-                <div class="summary-value orange">
-                    {% if data_estudiantes %}{{ data_estudiantes.0.progreso }}%{% else %}0%{% endif %}
-                </div>
-                <div class="summary-label">Progreso top</div>
-            </div>
+    <!-- RESUMEN / KPIs -->
+    <div class="summary-grid" style="margin-bottom: 2rem;">
+        <div class="summary-card purple">
+            <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="summary-value purple">{{ total_estudiantes }}</div>
+            <div class="summary-label">Estudiantes</div>
         </div>
-
-        <!-- TABS -->
-        <div class="tabs-container">
-            <button class="tab-btn active" id="btnEstudiantes" onclick="cambiarTab('estudiantes')">
-                <i class="bi bi-people-fill"></i> Por estudiante
-            </button>
-            <button class="tab-btn" id="btnEjercicios" onclick="cambiarTab('ejercicios')">
-                <i class="bi bi-list-task"></i> Por ejercicio
-            </button>
+        
+        <div class="summary-card green">
+            <div class="summary-icon"><i class="bi bi-list-task"></i></div>
+            <div class="summary-value green">{{ total_ejercicios }}</div>
+            <div class="summary-label">Ejercicios</div>
         </div>
+        
+        <div class="summary-card orange">
+            <div class="summary-icon"><i class="bi bi-trophy-fill"></i></div>
+            <div class="summary-value orange">
+                {% if data_estudiantes %}{{ data_estudiantes.0.progreso }}%{% else %}0%{% endif %}
+            </div>
+            <div class="summary-label">Progreso top</div>
+        </div>
+    </div>
 
-        <!-- TAB: POR ESTUDIANTE -->
-        <div id="tab-estudiantes">
-            {% if data_estudiantes %}
-                {% for item in data_estudiantes %}
-                <div class="student-row">
+    <!-- TABLA MATRIZ TIPO CLASSROOM -->
+    <div class="table-responsive-wrapper">
+        <table class="grades-matrix-table">
+            <thead>
+                <tr>
+                    <th class="col-student sticky-col">Estudiante</th>
+                    <th class="col-average text-center">Progreso Global</th>
                     
-                    <!-- Avatar -->
-                    <div class="student-avatar">
-                        {{ item.estudiante.username|first|upper }}
-                    </div>
-
-                    <!-- Info -->
-                    <div class="student-info">
-                        <div class="student-name">
-                            {{ item.estudiante.get_full_name|default:item.estudiante.username }}
-                            <span class="student-username">@{{ item.estudiante.username }}</span>
-                        </div>
-                        <div class="student-progress-wrapper">
-                            <div class="progress-bar">
-                                <div class="progress-fill purple" style="width: {{ item.progreso }}%;"></div>
+                    <!-- Bucle con los ejercicios que ya mandas en tu contexto -->
+                    {% for item_ej in data_ejercicios %}
+                    <th class="col-exercise text-center" title="{{ item_ej.ejercicio.titulo }}">
+                        <span class="exercise-date">{{ item_ej.ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
+                        <span class="exercise-name">{{ item_ej.ejercicio.titulo }}</span>
+                    </th>
+                    {% empty %}
+                    <th class="text-center text-muted">Sin ejercicios creados</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Filas de Estudiantes basadas en tu estructura 'data_estudiantes' -->
+                {% for item in data_estudiantes %}
+                <tr>
+                    <!-- Columna 1: Nombre del Estudiante (Fija) -->
+                    <td class="sticky-col student-name-cell">
+                        <div class="student-info-cell">
+                            <div class="student-avatar-sm">
+                                {{ item.estudiante.username|first|upper }}
                             </div>
-                            <span class="progress-text">{{ item.completadas }}/{{ item.total }} ejercicios</span>
+                            <div class="student-text-data">
+                                <span class="s-name">{{ item.estudiante.get_full_name|default:item.estudiante.username }}</span>
+                                <span class="s-username">@{{ item.estudiante.username }}</span>
+                            </div>
                         </div>
-                    </div>
+                    </td>
 
-                    <!-- Progreso -->
-                    <div class="score-display">
-                        <div class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
+                    <!-- Columna 2: Progreso Global del Estudiante -->
+                    <td class="text-center">
+                        <div class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}" style="display:inline-block; font-weight:700;">
                             {{ item.progreso }}%
                         </div>
-                        <div class="score-label">Progreso</div>
-                    </div>
+                        <div style="font-size: 0.75rem; color: #64748b;">{{ item.completadas }}/{{ item.total }}</div>
+                    </td>
 
-                    <!-- Notas (enlace clickeable) -->
-                    <div class="score-display">
-                        <a href="{% url 'notas_estudiante' clase.id item.estudiante.id %}" class="notas-link">
-                            <div class="score-value {% if item.puntaje >= 70 %}high{% elif item.puntaje >= 40 %}medium{% elif item.puntaje > 0 %}low{% else %}neutral{% endif %}">
-                                {% if item.puntaje > 0 %}{{ item.puntaje }}%{% else %}—{% endif %}
-                            </div>
-                            <div class="score-label">
-                                <i class="bi bi-eye-fill"></i> Ver notas
-                            </div>
+                    <!-- Columnas Dinámicas de Ejercicios -->
+                    {% for item_ej in data_ejercicios %}
+                    <td class="text-center grade-cell">
+                        <!-- Enlace o celda para la nota del ejercicio específico del alumno -->
+                        <a href="{% url 'notas_estudiante' clase.id item.estudiante.id %}" class="grade-badge-cell" title="Ver detalles de notas">
+                            <span class="badge-status in-progress">—</span>
                         </a>
-                    </div>
-
-                    <!-- Estado -->
-                    {% if item.progreso == 100 %}
-                    <span class="status-badge completed">Completado</span>
-                    {% elif item.progreso > 0 %}
-                    <span class="status-badge in-progress">En progreso</span>
-                    {% else %}
-                    <span class="status-badge not-started">Sin iniciar</span>
-                    {% endif %}
-
-                </div>
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="100" class="text-center py-5 text-muted">
+                        <i class="bi bi-people" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                        No hay estudiantes inscritos aún
+                    </td>
+                </tr>
                 {% endfor %}
-            {% else %}
-            <div class="empty-state">
-                <i class="bi bi-people empty-icon"></i>
-                <p class="empty-text">No hay estudiantes inscritos aún</p>
-            </div>
-            {% endif %}
-        </div>
-
-        <!-- TAB: POR EJERCICIO -->
-        <div id="tab-ejercicios" style="display:none;">
-            {% if data_ejercicios %}
-                {% for item in data_ejercicios %}
-                <div class="activity-row">
-                    
-                    <!-- Icon -->
-                    <div class="activity-icon {{ item.ejercicio.tipo }}">
-                        <i class="bi bi-{% if 'quiz' in item.ejercicio.tipo %}patch-question-fill{% elif item.ejercicio.tipo == 'juego' %}controller{% elif item.ejercicio.tipo == 'texto' %}file-text-fill{% elif item.ejercicio.tipo == 'verdadero_falso' %}check-circle-fill{% elif item.ejercicio.tipo == 'completar' %}input-cursor-text{% else %}file-text-fill{% endif %}"></i>
-                    </div>
-
-                    <!-- Info -->
-                    <div class="activity-info">
-                        <div class="activity-title">{{ item.ejercicio.titulo }}</div>
-                        <div class="activity-meta">
-                            {{ item.ejercicio.get_tipo_display }}
-                        </div>
-                        <div class="activity-progress-wrapper">
-                            <div class="progress-bar">
-                                <div class="progress-fill green" style="width: {{ item.porcentaje }}%;"></div>
-                            </div>
-                            <span class="progress-text">{{ item.completaron }}/{{ item.total_estudiantes }} aprobaron</span>
-                        </div>
-                    </div>
-
-                    <!-- Badge Aprobó / No aprobó -->
-                    <div class="score-display">
-                        {% if item.porcentaje >= 50 %}
-                        <span class="status-badge completed">
-                            <i class="bi bi-check-circle-fill"></i> Aprobó
-                        </span>
-                        {% else %}
-                        <span class="status-badge reprobado">
-                            <i class="bi bi-x-circle-fill"></i> No aprobó
-                        </span>
-                        {% endif %}
-                    </div>
-
-                    <!-- Deadline -->
-                    <div class="activity-deadline">
-                        {% if item.ejercicio.fecha_limite %}
-                        <div class="deadline-date">{{ item.ejercicio.fecha_limite|date:"d M" }}</div>
-                        <div class="deadline-time">{{ item.ejercicio.fecha_limite|date:"H:i" }}</div>
-                        {% else %}
-                        <div class="deadline-none">Sin fecha</div>
-                        {% endif %}
-                    </div>
-
-                </div>
-                {% endfor %}
-            {% else %}
-            <div class="empty-state">
-                <i class="bi bi-list-task empty-icon"></i>
-                <p class="empty-text">No hay ejercicios creados aún</p>
-            </div>
-            {% endif %}
-        </div>
-
+            </tbody>
+        </table>
     </div>
-</main>
 
+</div>
+
+<style>
+/* Estilos integrados para la matriz estilo Classroom */
+.grades-matrix-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    font-family: 'Inter', sans-serif;
+    color: #1e293b;
+}
+
+.matrix-header {
+    margin-bottom: 2rem;
+}
+
+.back-link-modern {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.5rem;
+}
+
+.matrix-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0 0 0.2rem 0;
+    color: #0f172a;
+}
+
+.matrix-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.table-responsive-wrapper {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    overflow-x: auto;
+    max-height: 65vh;
+}
+
+.grades-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.grades-matrix-table th, 
+.grades-matrix-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 0.9rem;
+}
+
+.grades-matrix-table th {
+    background: #f8fafc;
+    color: #475569;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.sticky-col {
+    position: sticky;
+    left: 0;
+    background: white;
+    z-index: 5;
+    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
+}
+
+.grades-matrix-table th.sticky-col {
+    z-index: 15;
+    background: #f8fafc;
+}
+
+.col-student {
+    min-width: 260px;
+}
+
+.col-average {
+    min-width: 140px;
+}
+
+.col-exercise {
+    min-width: 180px;
+    max-width: 220px;
+}
+
+.exercise-date {
+    display: block;
+    font-size: 0.65rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+}
+
+.exercise-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-transform: none;
+    font-size: 0.85rem;
+    color: #0f172a;
+}
+
+.student-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.student-avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #7c3aed;
+    color: white;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.student-text-data {
+    display: flex;
+    flex-direction: column;
+}
+
+.s-name {
+    font-weight: 600;
+    color: #0f172a;
+}
+
+.s-username {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.grade-badge-cell {
+    text-decoration: none;
+    display: inline-block;
+}
+
+.badge-status {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: #64748b;
+}
+</style>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function cambiarTab(tab) {
-        document.getElementById('tab-estudiantes').style.display = tab === 'estudiantes' ? '' : 'none';
-        document.getElementById('tab-ejercicios').style.display = tab === 'ejercicios' ? '' : 'none';
-        document.getElementById('btnEstudiantes').classList.toggle('active', tab === 'estudiantes');
-        document.getElementById('btnEjercicios').classList.toggle('active', tab === 'ejercicios');
-    }
-
-    // Animation on scroll
-    const observerOptions = { threshold: 0.1 };
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.student-row, .activity-row').forEach((row, i) => {
-        row.style.opacity = '0';
-        row.style.transform = 'translateY(15px)';
-        row.style.transition = `all 0.4s ease ${i * 0.05}s`;
-        observer.observe(row);
-    });
-
     // Auto-dismiss alerts
     setTimeout(() => {
         document.querySelectorAll('.alert-floating').forEach(a => new bootstrap.Alert(a).close());

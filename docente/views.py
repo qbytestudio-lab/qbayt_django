@@ -484,3 +484,5 @@ def rechazar_solicitud(request, solicitud_id):
     
     messages.success(request, 'Solicitud rechazada.')
     return redirect('detalle_clase', clase_id=solicitud.clase.id)
+
+    

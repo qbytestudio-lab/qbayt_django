@@ -120,34 +120,7 @@ def perfil_estudiante(request):
     })
 
 
-def configurar_nivel(request):
-    if 'registro_temporal' not in request.session:
-        return redirect('registro')
 
-    datos = request.session['registro_temporal']
-
-    if request.method == 'POST':
-        nivel_seleccionado = request.POST.get('nivel')
-
-        user = User.objects.create_user(
-            username=datos['username'],
-            email=datos['email'],
-            password=datos['password'],
-            first_name=datos['first_name'],
-            last_name=datos['last_name'],
-        )
-        user.save()
-
-        Perfil.objects.create(user=user, rol=datos['rol'])
-        InscripcionNivel.objects.create(estudiante=user, nivel=nivel_seleccionado)
-
-        del request.session['registro_temporal']
-
-        login(request, user)
-        messages.success(request, '¡Cuenta creada con éxito!')
-        return redirect('inicio')
-
-    return render(request, 'estudiante/configurar_nivel.html')
 
 
 @login_required
