@@ -1,0 +1,55 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Contactos — {{ clase.nombre }}{% endblock %}
+{% block page_title %}Contactos{% endblock %}
+{% block nav_mensajeria %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'mensajeria/css/mensajeria.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="contactos-container">
+    
+    <div class="contactos-header">
+        <a href="{% url 'mensajeria:lista' %}" class="btn-volver">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div>
+            <h1><i class="bi bi-people-fill"></i> {{ clase.nombre }}</h1>
+            <p class="contactos-subtitle">{{ contactos|length }} contactos</p>
+        </div>
+    </div>
+
+    <div class="contactos-list">
+        {% for contacto in contactos %}
+        <a href="{% url 'mensajeria:iniciar' contacto.id %}" class="contacto-item">
+            <div class="contacto-avatar">
+                {{ contacto.username|first|upper }}
+            </div>
+            <div class="contacto-info">
+                <div class="contacto-nombre">
+                    {{ contacto.get_full_name|default:contacto.username }}
+                    {% if contacto == clase.docente %}
+                    <span class="contacto-rol docente">Docente</span>
+                    {% endif %}
+                </div>
+                <div class="contacto-username">@{{ contacto.username }}</div>
+            </div>
+            <span class="btn-enviar-mensaje">
+                <i class="bi bi-chat-dots"></i> Mensaje
+            </span>
+        </a>
+        {% empty %}
+        <div class="empty-state">
+            <i class="bi bi-people"></i>
+            <p>No hay contactos en esta clase</p>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}

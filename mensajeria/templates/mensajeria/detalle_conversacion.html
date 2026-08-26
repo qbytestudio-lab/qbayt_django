@@ -1,0 +1,75 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Conversación — QBYT{% endblock %}
+{% block page_title %}Conversación{% endblock %}
+{% block nav_mensajeria %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'mensajeria/css/mensajeria.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="chat-container">
+    
+    <div class="chat-header">
+        <a href="{% url 'mensajeria:lista' %}" class="btn-volver">
+            <i class="bi bi-arrow-left"></i>
+        </a>
+        <div class="chat-avatar">
+            {{ otro_participante.username|first|upper }}
+        </div>
+        <div class="chat-info">
+            <div class="chat-nombre">
+                {{ otro_participante.get_full_name|default:otro_participante.username }}
+            </div>
+            <div class="chat-rol">{{ otro_participante.perfil.rol }}</div>
+        </div>
+    </div>
+
+    <div class="chat-mensajes" id="chatMensajes">
+        {% for mensaje in mensajes %}
+        <div class="mensaje {% if mensaje.remitente == request.user %}propio{% else %}otro{% endif %}">
+            <div class="mensaje-burbuja">
+                {{ mensaje.contenido }}
+            </div>
+            <div class="mensaje-fecha">
+                {{ mensaje.fecha_envio|date:"d M, H:i" }}
+                {% if mensaje.leido and mensaje.remitente == request.user %}
+                <i class="bi bi-check2-all"></i>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="chat-vacio">
+            <p>No hay mensajes. ¡Envía el primero!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="chat-form">
+        <form method="POST" action="{% url 'mensajeria:detalle' conversacion.id %}">
+            {% csrf_token %}
+            <div class="chat-input-group">
+                <input type="text" name="contenido" class="chat-input" 
+                       placeholder="Escribe un mensaje..." required autofocus>
+                <button type="submit" class="btn-enviar">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const chatMensajes = document.getElementById('chatMensajes');
+    if (chatMensajes) {
+        chatMensajes.scrollTop = chatMensajes.scrollHeight;
+    }
+</script>
+{% endblock %}

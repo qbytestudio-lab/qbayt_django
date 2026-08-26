@@ -1,0 +1,104 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Mensajes — QBYT{% endblock %}
+{% block page_title %}Mensajes{% endblock %}
+{% block nav_mensajeria %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'mensajeria/css/mensajeria.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="messenger-container">
+    
+    <!-- COLUMNA IZQUIERDA: CLASES -->
+    <div class="messenger-sidebar">
+        <div class="sidebar-header">
+            <h3><i class="bi bi-chat-dots-fill"></i> Mensajes</h3>
+        </div>
+        
+        <div class="clases-list">
+            <a href="{% url 'mensajeria:lista' %}" class="clase-item active">
+                <i class="bi bi-chat-dots"></i>
+                <span>Todos los mensajes</span>
+                {% if conversaciones %}
+                <span class="badge-total">{{ conversaciones|length }}</span>
+                {% endif %}
+            </a>
+            
+            {% for clase in clases %}
+            <a href="{% url 'mensajeria:contactos_clase' clase.id %}" class="clase-item">
+                <i class="bi bi-journal-bookmark"></i>
+                <span>{{ clase.nombre }}</span>
+                <span class="badge-clase">
+                    {% if request.user.perfil.rol == 'docente' %}
+                        {{ clase.estudiantes.count }}
+                    {% else %}
+                        {{ clase.estudiantes.count|add:1 }}
+                    {% endif %}
+                </span>
+            </a>
+            {% empty %}
+            <p class="no-clases">No tienes clases</p>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- COLUMNA DERECHA: CONVERSACIONES -->
+    <div class="messenger-main">
+        <div class="main-header">
+            <h3><i class="bi bi-chat-dots"></i> Conversaciones</h3>
+        </div>
+        
+        {% if conversaciones %}
+        <div class="conversaciones-list">
+            {% for item in conversaciones %}
+            <a href="{% url 'mensajeria:detalle' item.conversacion.id %}" 
+               class="conversacion-item {% if item.no_leidos > 0 %}no-leida{% endif %}">
+                
+                <div class="conversacion-avatar">
+                    {{ item.otro_participante.username|first|upper }}
+                </div>
+                
+                <div class="conversacion-info">
+                    <div class="conversacion-nombre">
+                        {{ item.otro_participante.get_full_name|default:item.otro_participante.username }}
+                    </div>
+                    {% if item.ultimo_mensaje %}
+                    <div class="conversacion-ultimo">
+                        {% if item.ultimo_mensaje.remitente == request.user %}
+                        <span class="tu-mensaje">Tú:</span>
+                        {% endif %}
+                        {{ item.ultimo_mensaje.contenido|truncatechars:40 }}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="conversacion-meta">
+                    {% if item.ultimo_mensaje %}
+                    <div class="conversacion-fecha">
+                        {{ item.ultimo_mensaje.fecha_envio|date:"d M" }}
+                    </div>
+                    {% endif %}
+                    {% if item.no_leidos > 0 %}
+                    <span class="conversacion-badge">{{ item.no_leidos }}</span>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="bi bi-chat-dots"></i>
+            <p>No tienes conversaciones</p>
+            <p class="empty-hint">Selecciona una clase para ver los contactos</p>
+        </div>
+        {% endif %}
+        
+    </div>
+    
+</div>
+
+{% endblock %}

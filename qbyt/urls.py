@@ -43,7 +43,9 @@ urlpatterns = [
     path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='registration/password_reset_complete.html'
     ), name='password_reset_complete'),
-    
+
     path('notificaciones/', include('notificaciones.urls')),
+
+    path('mensajeria/', include('mensajeria.urls')),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
