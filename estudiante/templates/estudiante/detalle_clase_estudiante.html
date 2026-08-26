@@ -201,7 +201,15 @@
       {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
       <div class="announcement-item">
         <div class="announcement-header">
-          <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
+          <div class="announcement-avatar">
+            {% if clase.docente.perfil.foto_perfil %}
+              <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+            {% elif clase.docente.foto_perfil %}
+              <img src="{{ clase.docente.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+            {% else %}
+              {{ clase.docente.username|first|upper }}
+            {% endif %}
+          </div>
           <div>
             <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
             <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
@@ -228,7 +236,15 @@
       </div>
       
       <div class="teacher-card">
-        <div class="teacher-avatar">{{ clase.docente.username|first|upper }}</div>
+        <div class="teacher-avatar">
+          {% if clase.docente.perfil.foto_perfil %}
+            <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+          {% elif clase.docente.foto_perfil %}
+            <img src="{{ clase.docente.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+          {% else %}
+            {{ clase.docente.username|first|upper }}
+          {% endif %}
+        </div>
         <div class="teacher-info">
           <div class="teacher-name">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
           <div class="teacher-email"><i class="bi bi-envelope"></i> {{ clase.docente.email }}</div>
@@ -251,7 +267,13 @@
         {% for estudiante in clase.estudiantes.all %}
         <div class="classmate-item">
           <div class="classmate-avatar color-{{ forloop.counter|divisibleby:2|yesno:'1,2' }}">
-            {{ estudiante.username|first|upper }}
+            {% if estudiante.perfil.foto_perfil %}
+              <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}" class="avatar-img">
+            {% elif estudiante.foto_perfil %}
+              <img src="{{ estudiante.foto_perfil.url }}" alt="{{ estudiante.username }}" class="avatar-img">
+            {% else %}
+              {{ estudiante.username|first|upper }}
+            {% endif %}
           </div>
           <div class="classmate-info">
             <div class="classmate-name text-truncate">{{ estudiante.get_full_name|default:estudiante.username }}</div>
