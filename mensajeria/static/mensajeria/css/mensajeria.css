@@ -229,18 +229,62 @@ body {
   background: rgba(139, 92, 246, 0.06);
 }
 
-.conversacion-avatar {
-  width: 46px;
-  height: 46px;
+/* ═══════════════════════════════════════════ */
+/*    AVATARES (TODOS LOS TIPOS)              */
+/* ═══════════════════════════════════════════ */
+
+.conversacion-avatar,
+.contacto-avatar,
+.chat-avatar,
+.mensaje-avatar {
   border-radius: 50%;
   background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-hover));
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 1.1rem;
   color: #fff;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Tamaños específicos */
+.conversacion-avatar {
+  width: 46px;
+  height: 46px;
+  font-size: 1.1rem;
+}
+
+.contacto-avatar {
+  width: 44px;
+  height: 44px;
+  font-size: 1rem;
+}
+
+.chat-avatar {
+  width: 42px;
+  height: 42px;
+  font-size: 1rem;
+}
+
+.mensaje-avatar {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
+
+/* Imágenes de avatar - clase única para todas */
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 .conversacion-info {
@@ -375,20 +419,6 @@ body {
   border-color: var(--border-color);
 }
 
-.contacto-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-hover));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
-  color: #fff;
-  flex-shrink: 0;
-}
-
 .contacto-info {
   flex: 1;
   min-width: 0;
@@ -467,20 +497,6 @@ body {
   border-bottom: 1px solid var(--border-subtle);
 }
 
-.chat-avatar {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-purple), var(--accent-purple-hover));
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
-  color: #fff;
-  flex-shrink: 0;
-}
-
 .chat-info {
   flex: 1;
 }
@@ -515,16 +531,30 @@ body {
 .mensaje {
   max-width: 70%;
   display: flex;
-  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
 }
 
 .mensaje.propio {
   align-self: flex-end;
-  align-items: flex-end;
+  flex-direction: row-reverse;
 }
 
 .mensaje.otro {
   align-self: flex-start;
+}
+
+.mensaje-contenido {
+  display: flex;
+  flex-direction: column;
+  max-width: calc(100% - 42px);
+}
+
+.mensaje.propio .mensaje-contenido {
+  align-items: flex-end;
+}
+
+.mensaje.otro .mensaje-contenido {
   align-items: flex-start;
 }
 
@@ -678,6 +708,10 @@ body {
     height: calc(100vh - 80px);
     border-radius: 0;
   }
+  
+  .mensaje {
+    max-width: 85%;
+  }
 }
 
 @media (max-width: 480px) {
@@ -692,24 +726,18 @@ body {
   .mensaje {
     max-width: 90%;
   }
-}
-/* ═══════════════════════════════════════════ */
-/*    AVATARES CON FOTO DE PERFIL             */
-/* ═══════════════════════════════════════════ */
-
-.conversacion-avatar,
-.contacto-avatar,
-.chat-avatar {
-    overflow: hidden;
-    position: relative;
-}
-
-.conversacion-avatar-img,
-.contacto-avatar-img,
-.chat-avatar-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 50%;
-    display: block;
+  
+  .conversacion-avatar,
+  .contacto-avatar,
+  .chat-avatar {
+    width: 38px;
+    height: 38px;
+    font-size: 0.85rem;
+  }
+  
+  .mensaje-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.65rem;
+  }
 }
