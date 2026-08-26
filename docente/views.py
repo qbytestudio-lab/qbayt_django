@@ -317,6 +317,9 @@ def estadisticas_clase(request, clase_id):
             ejercicio__clase=clase
         ).select_related('ejercicio')
         
+        # Mapear los intentos en un diccionario por ID de ejercicio para acceso directo en la matriz
+        intentos_dict = {intento.ejercicio_id: intento for intento in intentos}
+        
         # Ejercicios completados (aprobados)
         completadas = intentos.filter(aprobado=True).values('ejercicio').distinct().count()
         
@@ -341,6 +344,7 @@ def estadisticas_clase(request, clase_id):
             'total': total,
             'progreso': progreso,
             'puntaje': puntaje,
+            'intentos_dict': intentos_dict,  # <-- Agregado para mostrar las calificaciones en la matriz
         })
     
     # Ordenar estudiantes por progreso (de mayor a menor)
