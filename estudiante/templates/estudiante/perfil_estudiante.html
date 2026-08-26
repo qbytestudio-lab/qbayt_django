@@ -234,7 +234,7 @@
         <div class="section-card-header">
             <h2><i class="bi bi-clock-history"></i> Historial de clases</h2>
             <span style="color: var(--spotify-subtext); font-size: 0.85rem;">
-                {{ historial|length }} registros
+                {{ historial|length }} clases
             </span>
         </div>
 
@@ -249,17 +249,13 @@
             {% for item in historial %}
             <div class="historial-item estado-{{ item.estado }}">
                 <div class="historial-icon">
-                    {% if item.tipo == 'clase' %}
-                    <i class="bi bi-camera-video-fill"></i>
-                    {% else %}
-                    <i class="bi bi-book-fill"></i>
-                    {% endif %}
+                    <i class="bi bi-journal-bookmark-fill"></i>
                 </div>
                 <div class="historial-info">
                     <h3>{{ item.nombre }}</h3>
                     <p>
-                        {% if item.tipo == 'clase' %}Clase{% else %}Curso{% endif %} ·
-                        <i class="bi bi-person"></i> {{ item.docente_nombre }}
+                        <i class="bi bi-person"></i> {{ item.docente_nombre }} ·
+                        <i class="bi bi-people"></i> {{ item.estudiantes_count }} estudiantes
                     </p>
                 </div>
                 <div class="historial-fecha">
@@ -274,7 +270,7 @@
                     <span class="estado-badge completado">
                         <i class="bi bi-check-circle-fill"></i> Completada
                     </span>
-                    {% else %}
+                    {% elif item.estado == 'eliminada' %}
                     <span class="estado-badge eliminado">
                         <i class="bi bi-trash-fill"></i> Eliminada
                     </span>
@@ -286,7 +282,7 @@
                 <div class="empty-icon">
                     <i class="bi bi-clock-history"></i>
                 </div>
-                <p class="empty-text">Aún no tienes historial de clases o cursos</p>
+                <p class="empty-text">No tienes clases en tu historial</p>
             </div>
             {% endfor %}
         </div>

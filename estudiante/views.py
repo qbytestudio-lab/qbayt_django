@@ -66,22 +66,21 @@ def perfil_estudiante(request):
     
     pendientes_count = pendientes.count()
 
+    # Construir historial SOLO con clases activas y eliminadas
     historial = []
     
+    # Agregar clases activas (todas las clases donde está inscrito)
     for clase in clases:
-        if clase.fecha_fin and clase.fecha_fin < ahora.date():
-            estado = 'completada'
-        else:
-            estado = 'activa'
-        
         historial.append({
             'nombre': clase.nombre,
             'tipo': 'clase',
-            'estado': estado,
+            'estado': 'activa',
             'docente_nombre': clase.docente.get_full_name() or clase.docente.username,
             'fecha': clase.fecha_creacion,
+            'estudiantes_count': clase.estudiantes.count(),
         })
     
+    # Agregar solicitudes rechazadas como clases eliminadas
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=request.user,
         estado='rechazada'
@@ -94,17 +93,11 @@ def perfil_estudiante(request):
             'estado': 'eliminada',
             'docente_nombre': solicitud.clase.docente.get_full_name() or solicitud.clase.docente.username,
             'fecha': solicitud.fecha,
+            'estudiantes_count': solicitud.clase.estudiantes.count(),
         })
     
-    cursos = InscripcionCurso.objects.filter(estudiante=request.user).select_related('curso')
-    for inscripcion in cursos:
-        historial.append({
-            'nombre': inscripcion.curso.nombre,
-            'tipo': 'curso',
-            'estado': 'activa',
-            'docente_nombre': 'N/A',
-            'fecha': getattr(inscripcion, 'fecha_inscripcion', timezone.now()),
-        })
+    # Ordenar historial por fecha (más recientes primero)
+    historial.sort(key=lambda x: x['fecha'], reverse=True)
 
     return render(request, 'estudiante/perfil_estudiante.html', {
         'clases': clases,
@@ -116,10 +109,8 @@ def perfil_estudiante(request):
         'pendientes_count': pendientes_count,
         'historial': historial,
         'clases_activas': clases.count(),
-        'clases_completadas': sum(1 for h in historial if h['estado'] == 'completada'),
+        'clases_completadas': 0,  # Por ahora no hay clases completadas
     })
-
-
 
 
 

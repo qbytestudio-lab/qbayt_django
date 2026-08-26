@@ -18,6 +18,7 @@ from ejercicios.models import Ejercicio, IntentoEjercicio
 
 def index(request):
     return render(request, 'web/index.html')
+
 @login_required
 def inicio(request):
     from clase.models import Clase

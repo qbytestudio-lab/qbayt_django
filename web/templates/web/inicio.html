@@ -53,7 +53,7 @@
         <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
-    
+
     <div class="stat-card stat-gradient-purple">
       <div class="stat-icon-wrapper">
         <i class="bi bi-check-circle-fill"></i>
@@ -66,7 +66,7 @@
         <i class="bi bi-arrow-up-right"></i>
       </div>
     </div>
-    
+
     <div class="stat-card stat-gradient-pink">
       <div class="stat-icon-wrapper">
         <i class="bi bi-hourglass-split"></i>
@@ -79,7 +79,7 @@
         <i class="bi bi-clock"></i>
       </div>
     </div>
-    
+
     <div class="stat-card stat-gradient-orange">
       <div class="stat-icon-wrapper">
         <i class="bi bi-graph-up-arrow"></i>
@@ -93,6 +93,40 @@
       </div>
     </div>
   </div>
+  <!-- DESPUÉS DEL HERO BANNER Y STATS -->
+  {% if clases_inscritas %}
+  <div class="section-header">
+    <h2 class="section-title">
+      <i class="bi bi-play-circle icon-green"></i>
+      Continuar aprendiendo
+    </h2>
+    <a href="{% url 'mis_clases' %}" class="see-all-link">Ver todas <i class="bi bi-arrow-right"></i></a>
+  </div>
+
+  <div class="continue-learning-grid">
+    {% for clase in clases_inscritas %}
+    <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="continue-card">
+      <div class="continue-card-image">
+        {% if clase.imagen %}
+        <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}">
+        {% else %}
+        <div class="continue-card-fallback">
+          <i class="bi bi-music-note"></i>
+        </div>
+        {% endif %}
+        <div class="continue-progress-bar">
+          <div class="continue-progress-fill" style="width: {{ clase.progreso }}%"></div>
+        </div>
+      </div>
+      <div class="continue-card-body">
+        <h3>{{ clase.nombre }}</h3>
+        <p>{{ clase.docente.get_full_name }}</p>
+        <span class="continue-progress-text">{{ clase.progreso }}% completado</span>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- ═══════════════════════════════════════════ -->
   <!-- SECCIÓN: TEORÍA MUSICAL -->
