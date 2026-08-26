@@ -18,7 +18,6 @@
   --accent-orange: #ff9f43;
   --danger: #e91429;
   
-  /* Superficies */
   --bg-body: #121212;
   --bg-card: #181818;
   --bg-hover: rgba(255, 255, 255, 0.05);
@@ -67,7 +66,50 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/* CLASS HERO BANNER - TAMAÑO ORIGINAL        */
+/* BACK NAVIGATION                            */
+/* ═══════════════════════════════════════════ */
+
+.back-nav {
+  margin-bottom: 1.5rem;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.6rem 1.3rem;
+  border-radius: 25px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-back:hover {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-purple);
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateX(-3px);
+}
+
+.btn-back i {
+  font-size: 0.9rem;
+  transition: transform 0.2s;
+}
+
+.btn-back:hover i {
+  transform: translateX(-3px);
+}
+
+/* ═══════════════════════════════════════════ */
+/* CLASS HERO BANNER                          */
 /* ═══════════════════════════════════════════ */
 
 .class-hero {

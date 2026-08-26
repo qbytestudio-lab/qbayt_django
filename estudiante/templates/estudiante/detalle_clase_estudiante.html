@@ -11,6 +11,13 @@
 
 {% block content %}
 
+<!-- BOTÓN VOLVER -->
+<div class="back-nav">
+    <a href="{% url 'mis_clases' %}" class="btn-back">
+        <i class="bi bi-arrow-left"></i> Volver a Mis clases
+    </a>
+</div>
+
 <!-- CLASS HERO BANNER -->
 <div class="class-hero">
   <div class="class-hero-bg {% if not clase.imagen %}no-image{% endif %}"
@@ -46,13 +53,13 @@
     </div>
     
     <div class="class-hero-actions">
+      <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
+        <i class="bi bi-star-fill"></i> Calificaciones
+      </a>
       <a href="{% url 'estudiante:salir_clase' clase.id %}"
          onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
          class="btn-leave-class">
         <i class="bi bi-box-arrow-right"></i> Salir de la clase
-      </a>
-      <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
-        <i class="bi bi-star-fill"></i> Calificaciones
       </a>
     </div>
   </div>
@@ -148,7 +155,7 @@
             </div>
             {% endfor %}
             
-            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); text-align: right;">
+            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); text-align: right;">
               {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
                 {% if intento and intento.calificacion is not None %}
                   <!-- Ya calificado -->

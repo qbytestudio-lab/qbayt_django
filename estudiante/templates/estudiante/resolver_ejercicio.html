@@ -6,21 +6,42 @@
 {% block nav_clases %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'ejercicios/css/resolver_ejercicio.css' %}">
+<link rel="stylesheet" href="{% static 'estudiante/css/resolver_ejercicio.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="exercise-container">
     
+    <!-- BOTÓN VOLVER -->
+    <div class="back-nav">
+        <a href="{% url 'estudiante:detalle_clase_estudiante' clase_id %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Volver a la clase
+        </a>
+    </div>
+
     <!-- ENCABEZADO / INFORMACIÓN DEL EJERCICIO -->
     <div class="section-card mb-4">
         <div class="exercise-header-badge">
-            <i class="bi bi-journal-text icon-purple"></i> Evaluación Interactiva
+            <i class="bi bi-journal-text"></i> Evaluación Interactiva
         </div>
         <h2 class="exercise-main-title">{{ ejercicio.titulo }}</h2>
         {% if ejercicio.descripcion %}
         <p class="exercise-main-desc">{{ ejercicio.descripcion }}</p>
         {% endif %}
+        
+        <!-- Info adicional -->
+        <div class="exercise-meta">
+            <span class="meta-item">
+                <i class="bi bi-question-circle"></i>
+                {{ ejercicio.preguntas.count }} preguntas
+            </span>
+            {% if ejercicio.fecha_limite %}
+            <span class="meta-item">
+                <i class="bi bi-clock"></i>
+                Fecha límite: {{ ejercicio.fecha_limite|date:"d M Y, H:i" }}
+            </span>
+            {% endif %}
+        </div>
     </div>
 
     <!-- FORMULARIO DE PREGUNTAS -->
@@ -42,15 +63,14 @@
 
                 <!-- Si la pregunta tiene imagen opcional subida por el docente -->
                 {% if pregunta.imagen %}
-                <div class="mb-3">
-                    <img src="{{ pregunta.imagen.url }}" alt="Imagen de la pregunta" class="img-fluid rounded" style="max-height: 200px;">
+                <div class="question-image-wrapper">
+                    <img src="{{ pregunta.imagen.url }}" alt="Imagen de la pregunta" class="question-image">
                 </div>
                 {% endif %}
                 
                 <div class="options-list">
                     {% for opcion in pregunta.opciones.all %}
                     <label class="option-item" for="opcion_{{ opcion.id }}">
-                        <!-- Importante: el name usa el id de la pregunta para que la vista lo procese -->
                         <input class="custom-radio" type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" id="opcion_{{ opcion.id }}" required>
                         <span class="option-custom-box"></span>
                         <span class="option-text">{{ opcion.texto_opcion }}</span>
@@ -60,20 +80,25 @@
 
             </div>
             {% empty %}
-            <div class="alert alert-warning text-center">
-                Este ejercicio aún no tiene preguntas configuradas por el docente.
+            <div class="section-card empty-questions">
+                <i class="bi bi-exclamation-circle"></i>
+                <p>Este ejercicio aún no tiene preguntas configuradas por el docente.</p>
             </div>
             {% endfor %}
         </div>
 
-        <!-- BOTÓN DE ENVÍO -->
-        {% if ejercicio.preguntas.all %}
-        <div class="form-submit-wrapper">
+        <!-- BOTONES DE ACCIÓN -->
+        <div class="form-actions">
+            <a href="{% url 'estudiante:detalle_clase_estudiante' clase_id %}" class="btn-cancel-exercise">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            
+            {% if ejercicio.preguntas.all %}
             <button type="submit" class="btn-submit-exercise">
-                <i class="bi bi-send-fill"></i> Enviar Respuestas al Docente
+                <i class="bi bi-send-fill"></i> Enviar Respuestas
             </button>
+            {% endif %}
         </div>
-        {% endif %}
 
     </form>
 </div>
