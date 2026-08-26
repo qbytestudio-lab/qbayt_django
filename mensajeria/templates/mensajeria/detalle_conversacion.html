@@ -18,7 +18,13 @@
             <i class="bi bi-arrow-left"></i>
         </a>
         <div class="chat-avatar">
-            {{ otro_participante.username|first|upper }}
+            {% if otro_participante.perfil.foto_perfil %}
+                <img src="{{ otro_participante.perfil.foto_perfil.url }}" alt="{{ otro_participante.username }}" class="avatar-img">
+            {% elif otro_participante.foto_perfil %}
+                <img src="{{ otro_participante.foto_perfil.url }}" alt="{{ otro_participante.username }}" class="avatar-img">
+            {% else %}
+                {{ otro_participante.username|first|upper }}
+            {% endif %}
         </div>
         <div class="chat-info">
             <div class="chat-nombre">
@@ -31,14 +37,27 @@
     <div class="chat-mensajes" id="chatMensajes">
         {% for mensaje in mensajes %}
         <div class="mensaje {% if mensaje.remitente == request.user %}propio{% else %}otro{% endif %}">
-            <div class="mensaje-burbuja">
-                {{ mensaje.contenido }}
-            </div>
-            <div class="mensaje-fecha">
-                {{ mensaje.fecha_envio|date:"d M, H:i" }}
-                {% if mensaje.leido and mensaje.remitente == request.user %}
-                <i class="bi bi-check2-all"></i>
+            {% if mensaje.remitente != request.user %}
+            <div class="mensaje-avatar">
+                {% if mensaje.remitente.perfil.foto_perfil %}
+                    <img src="{{ mensaje.remitente.perfil.foto_perfil.url }}" alt="{{ mensaje.remitente.username }}" class="avatar-img-small">
+                {% elif mensaje.remitente.foto_perfil %}
+                    <img src="{{ mensaje.remitente.foto_perfil.url }}" alt="{{ mensaje.remitente.username }}" class="avatar-img-small">
+                {% else %}
+                    {{ mensaje.remitente.username|first|upper }}
                 {% endif %}
+            </div>
+            {% endif %}
+            <div class="mensaje-contenido">
+                <div class="mensaje-burbuja">
+                    {{ mensaje.contenido }}
+                </div>
+                <div class="mensaje-fecha">
+                    {{ mensaje.fecha_envio|date:"d M, H:i" }}
+                    {% if mensaje.leido and mensaje.remitente == request.user %}
+                    <i class="bi bi-check2-all"></i>
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% empty %}

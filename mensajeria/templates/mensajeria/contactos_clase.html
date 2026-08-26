@@ -27,7 +27,13 @@
         {% for contacto in contactos %}
         <a href="{% url 'mensajeria:iniciar' contacto.id %}" class="contacto-item">
             <div class="contacto-avatar">
-                {{ contacto.username|first|upper }}
+                {% if contacto.perfil.foto_perfil %}
+                    <img src="{{ contacto.perfil.foto_perfil.url }}" alt="{{ contacto.username }}" class="avatar-img">
+                {% elif contacto.foto_perfil %}
+                    <img src="{{ contacto.foto_perfil.url }}" alt="{{ contacto.username }}" class="avatar-img">
+                {% else %}
+                    {{ contacto.username|first|upper }}
+                {% endif %}
             </div>
             <div class="contacto-info">
                 <div class="contacto-nombre">

@@ -693,3 +693,23 @@ body {
     max-width: 90%;
   }
 }
+/* ═══════════════════════════════════════════ */
+/*    AVATARES CON FOTO DE PERFIL             */
+/* ═══════════════════════════════════════════ */
+
+.conversacion-avatar,
+.contacto-avatar,
+.chat-avatar {
+    overflow: hidden;
+    position: relative;
+}
+
+.conversacion-avatar-img,
+.contacto-avatar-img,
+.chat-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}

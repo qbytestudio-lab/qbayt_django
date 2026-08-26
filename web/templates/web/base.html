@@ -125,21 +125,29 @@
                 <div class="topbar-user">
                     {% if request.user.perfil.rol == 'estudiante' %}
                     <a href="{% url 'estudiante:perfil_estudiante' %}" class="topbar-user">
-                        {% elif request.user.perfil.rol == 'docente' %}
-                        <a href="{% url 'perfil_docente' %}" class="topbar-user">
-                            {% elif request.user.perfil.rol == 'administrador' %}
-                            <a href="{% url 'perfil_administrador' %}" class="topbar-user">
-                                {% else %}
-                                <a href="{% url 'inicio' %}" class="topbar-user">
-                                    {% endif %}
-                                    <div class="user-avatar">{{ request.user.username|first|upper }}</div>
-                                    <div class="user-info">
-                                        <div class="user-name">
-                                            {{ request.user.get_full_name|default:request.user.username }}
-                                        </div>
-                                        <div class="user-rol">{{ request.user.perfil.rol }}</div>
-                                    </div>
-                                </a>
+                    {% elif request.user.perfil.rol == 'docente' %}
+                    <a href="{% url 'perfil_docente' %}" class="topbar-user">
+                    {% elif request.user.perfil.rol == 'administrador' %}
+                    <a href="{% url 'perfil_administrador' %}" class="topbar-user">
+                    {% else %}
+                    <a href="{% url 'inicio' %}" class="topbar-user">
+                    {% endif %}
+                        <div class="user-avatar">
+                            {% if request.user.perfil.foto_perfil %}
+                            <img src="{{ request.user.perfil.foto_perfil.url }}" 
+                                 alt="Foto de perfil" 
+                                 class="user-avatar-img">
+                            {% else %}
+                            {{ request.user.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name">
+                                {{ request.user.get_full_name|default:request.user.username }}
+                            </div>
+                            <div class="user-rol">{{ request.user.perfil.rol }}</div>
+                        </div>
+                    </a>
                 </div>
             </div>
 

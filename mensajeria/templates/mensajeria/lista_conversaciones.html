@@ -58,8 +58,15 @@
             <a href="{% url 'mensajeria:detalle' item.conversacion.id %}" 
                class="conversacion-item {% if item.no_leidos > 0 %}no-leida{% endif %}">
                 
+                <!-- ✅ AVATAR CON FOTO DE PERFIL -->
                 <div class="conversacion-avatar">
+                    {% if item.otro_participante.perfil.foto_perfil %}
+                    <img src="{{ item.otro_participante.perfil.foto_perfil.url }}" 
+                         alt="{{ item.otro_participante.username }}" 
+                         class="conversacion-avatar-img">
+                    {% else %}
                     {{ item.otro_participante.username|first|upper }}
+                    {% endif %}
                 </div>
                 
                 <div class="conversacion-info">

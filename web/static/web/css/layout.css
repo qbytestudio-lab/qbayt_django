@@ -64,7 +64,6 @@
     --accent-cyan: #06b6d4;
     --accent-yellow: #ffb84d;
 
-    /* Superficies - TEMA CLARO */
     --bg-body: #fff2e0;
     --bg-sidebar: #3a1f7a13;
     --bg-main: linear-gradient(160deg, #fff2e0 0%, #ffe6cc 100%);
@@ -133,7 +132,6 @@ body {
     width: var(--sidebar-collapsed);
 }
 
-/* ── Logo ── */
 .logo-area {
     display: flex;
     align-items: center;
@@ -186,7 +184,6 @@ body {
     pointer-events: none;
 }
 
-/* ── Navigation Menu ── */
 .nav-section {
     margin-bottom: 1.5rem;
 }
@@ -284,7 +281,6 @@ body {
     pointer-events: none;
 }
 
-/* ── Logout ── */
 .menu-list li.logout {
     margin-top: auto;
 }
@@ -548,6 +544,7 @@ body {
     background: var(--bg-hover);
 }
 
+/* ✅ AVATAR CON FOTO DE PERFIL */
 .user-avatar {
     width: 36px;
     height: 36px;
@@ -561,6 +558,16 @@ body {
     font-family: 'Syne', sans-serif;
     color: #fff;
     flex-shrink: 0;
+    overflow: hidden; /* ← IMPORTANTE para recortar la foto */
+    position: relative;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
 }
 
 .user-info {
@@ -665,8 +672,6 @@ body {
     }
 
     .notifications-panel {
-        width: 280px;
-        right: -60px;
         position: fixed;
         top: 60px;
         right: 10px;
