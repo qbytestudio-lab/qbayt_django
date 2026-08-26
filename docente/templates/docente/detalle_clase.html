@@ -185,6 +185,36 @@
 
             <!-- COLUMNA DERECHA -->
             <div class="col-lg-8">
+                <!-- ANUNCIOS -->
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3 class="section-title">
+                            <i class="bi bi-megaphone-fill" style="color: var(--accent-orange);"></i>
+                            Anuncios
+                        </h3>
+                        <button class="btn-add orange" data-bs-toggle="modal" data-bs-target="#modalAnuncio">
+                            <i class="bi bi-plus-lg"></i> Publicar anuncio
+                        </button>
+                    </div>
+
+                    {% for anuncio in anuncios %}
+                    <div class="announcement-item mt-3">
+                        <div class="announcement-header">
+                            <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
+                            <div>
+                                <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+                            </div>
+                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement" onclick="return confirm('¿Eliminar anuncio?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                        <p class="announcement-text">{{ anuncio.texto }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="empty-msg mt-3">No hay anuncios aún</p>
+                    {% endfor %}
+                </div>
                 <!-- EJERCICIOS -->
                 <div class="section-card mb-4">
                     <div class="section-header">
@@ -247,38 +277,6 @@
                     {% endif %}
                     </div>
                 </div>
-
-                <!-- ANUNCIOS -->
-                <div class="section-card">
-                    <div class="section-header">
-                        <h3 class="section-title">
-                            <i class="bi bi-megaphone-fill" style="color: var(--accent-orange);"></i>
-                            Anuncios
-                        </h3>
-                        <button class="btn-add orange" data-bs-toggle="modal" data-bs-target="#modalAnuncio">
-                            <i class="bi bi-plus-lg"></i> Publicar anuncio
-                        </button>
-                    </div>
-
-                    {% for anuncio in anuncios %}
-                    <div class="announcement-item mt-3">
-                        <div class="announcement-header">
-                            <div class="announcement-avatar">{{ clase.docente.username|first|upper }}</div>
-                            <div>
-                                <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                                <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-                            </div>
-                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement" onclick="return confirm('¿Eliminar anuncio?')">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </div>
-                        <p class="announcement-text">{{ anuncio.texto }}</p>
-                    </div>
-                    {% empty %}
-                    <p class="empty-msg mt-3">No hay anuncios aún</p>
-                    {% endfor %}
-                </div>
-            </div>
         </div>
     </div>
 </main>
