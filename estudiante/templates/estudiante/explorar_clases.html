@@ -54,11 +54,20 @@
   <input type="text" placeholder="¿Qué quieres aprender hoy?" id="searchInput">
 </div>
 
+<!-- Filtros sin emojis -->
 <div class="category-pills">
-  <button class="category-pill active" onclick="filterCategory('all', this)">Todo</button>
-  <button class="category-pill" onclick="filterCategory('armonia', this)">🎵 Armonía</button>
-  <button class="category-pill" onclick="filterCategory('ritmo', this)">🎵 Ritmo</button>
-  <button class="category-pill" onclick="filterCategory('melodia', this)">🎵 Melodía</button>
+  <button class="category-pill active" onclick="filterCategory('all', this)">
+    <i class="bi bi-grid"></i> Todo
+  </button>
+  <button class="category-pill" onclick="filterCategory('armonia', this)">
+    <i class="bi bi-music-note"></i> Armonía
+  </button>
+  <button class="category-pill" onclick="filterCategory('ritmo', this)">
+    <i class="bi bi-music-note-beamed"></i> Ritmo
+  </button>
+  <button class="category-pill" onclick="filterCategory('melodia', this)">
+    <i class="bi bi-music-note-list"></i> Melodía
+  </button>
 </div>
 
 {% if clases %}
@@ -73,6 +82,12 @@
       <i class="bi bi-music-note-beamed"></i>
       {% endif %}
       <div class="class-card-image-overlay"></div>
+      
+      <!-- Badge de categoría -->
+      <span class="class-card-category {{ clase.categoria_tema }}">
+        <i class="bi bi-tag-fill"></i> {{ clase.get_categoria_tema_display }}
+      </span>
+      
       <div class="class-play-btn">
         <i class="bi bi-play-fill"></i>
       </div>
@@ -93,26 +108,23 @@
           <i class="bi bi-person-badge"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
         </span>
       </div>
+      
       <div class="class-card-footer">
         {% if clase.id in solicitudes_enviadas %}
-        <!-- Solicitud pendiente -->
         <div class="btn-pendiente">
           <i class="bi bi-clock"></i> Solicitud pendiente
         </div>
 
         {% elif clase.id in solicitudes_rechazadas %}
-        <!-- Solicitud rechazada - mostrar re-solicitar -->
         <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
           {% csrf_token %}
           <input type="hidden" name="clase_id" value="{{ clase.id }}">
-          <button type="submit" class="btn-solicitar"
-            style="background: rgba(255, 159, 67, 0.15); color: #ff9f43; border: 1px solid rgba(255, 159, 67, 0.3);">
+          <button type="submit" class="btn-solicitar rechazada">
             <i class="bi bi-arrow-repeat"></i> Re-solicitar
           </button>
         </form>
 
         {% else %}
-        <!-- Sin solicitud -->
         <form action="{% url 'estudiante:solicitar_clase' %}" method="POST">
           {% csrf_token %}
           <input type="hidden" name="clase_id" value="{{ clase.id }}">
