@@ -76,8 +76,8 @@
   <div class="class-card" data-name="{{ clase.nombre|lower }}" data-status="active">
 
     <!-- Card Image -->
-    <div class="class-card-image {% if clase.imagen %}has-image{% else %}no-image{% endif %}" {% if clase.imagen %}
-      style="background-image: url('{{ clase.imagen.url }}');" {% endif %}>
+    <div class="class-card-image {% if clase.imagen %}has-image{% else %}no-image{% endif %}" 
+         {% if clase.imagen %}style="background-image: url('{{ clase.imagen.url }}');"{% endif %}>
       
       {% if not clase.imagen %}
       <i class="bi bi-music-note-beamed"></i>
@@ -89,6 +89,11 @@
       <span class="class-status active">
         <i class="bi bi-play-fill"></i> En curso
       </span>
+
+      <!-- Badge de categoría -->
+      <div class="class-category-badge">
+        <i class="bi bi-tag-fill"></i> {{ clase.get_categoria_tema_display|default:"Clase" }}
+      </div>
 
       <!-- Play Button -->
       <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="class-play-btn">
@@ -114,17 +119,12 @@
           <i class="bi bi-people"></i>
           {{ clase.estudiantes.count }} compañeros
         </span>
-      </div>
-
-      <!-- Progress Bar -->
-      <div class="class-progress">
-        <div class="class-progress-info">
-          <span class="class-progress-text">Progreso</span>
-          <span class="class-progress-percent">68%</span>
-        </div>
-        <div class="progress-bar">
-          <div class="progress-bar-fill" style="width: 68%;"></div>
-        </div>
+        {% if clase.fecha_inicio %}
+        <span class="class-card-meta-item">
+          <i class="bi bi-calendar3"></i>
+          {{ clase.fecha_inicio|date:"d M" }}
+        </span>
+        {% endif %}
       </div>
 
       <!-- Footer Buttons -->
