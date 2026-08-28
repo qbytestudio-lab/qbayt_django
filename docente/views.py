@@ -159,16 +159,27 @@ def agregar_estudiante(request, clase_id):
             if estudiante in clase.estudiantes.all():
                 messages.warning(request, f'"{username}" ya está en esta clase.')
             else:
-                clase.estudiantes.add(estudiante)
-                SolicitudClase.objects.filter(
-                    clase=clase, estudiante=estudiante
-                ).update(estado='aceptada')
-                messages.success(request, f'"{username}" agregado a la clase.')
+                # 1. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema'
+                clases_misma_categoria = Clase.objects.filter(
+                    categoria_tema=clase.categoria_tema,
+                    estudiantes=estudiante
+                ).exclude(id=clase.id)
+                
+                if clases_misma_categoria.exists():
+                    otra_clase = clases_misma_categoria.first()
+                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
+                else:
+                    # 2. Si pasa la validación, lo agregamos normalmente
+                    clase.estudiantes.add(estudiante)
+                    SolicitudClase.objects.filter(
+                        clase=clase, estudiante=estudiante
+                    ).update(estado='aceptada')
+                    messages.success(request, f'"{username}" agregado a la clase.')
+                    
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
     
     return redirect('detalle_clase', clase_id=clase_id)
-
 
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):

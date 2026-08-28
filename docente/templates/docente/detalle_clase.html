@@ -12,11 +12,24 @@
 {% block content %}
 
 {% if messages %}
-<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px; max-width:500px;">
     {% for message in messages %}
-    <div class="alert-floating alert-{{ message.tags }} alert-dismissible fade show">
-        <i class="bi bi-check-circle-fill me-2"></i>{{ message }}
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+    <div class="alert alert-dismissible fade show shadow-sm 
+        {% if message.tags == 'error' %}alert-danger bg-danger text-white
+        {% elif message.tags == 'warning' %}alert-warning bg-warning text-dark
+        {% else %}alert-success bg-success text-white{% endif %}" 
+        role="alert" style="border-radius: 8px;">
+        
+        <!-- Icono dinámico según el tipo de mensaje -->
+        <i class="bi 
+            {% if message.tags == 'error' %}bi-exclamation-triangle-fill
+            {% elif message.tags == 'warning' %}bi-exclamation-circle-fill
+            {% else %}bi-check-circle-fill{% endif %} me-2"></i>
+        
+        {{ message }}
+        
+        <!-- Botón de cierre adaptado para que se vea bien en fondos claros u oscuros -->
+        <button type="button" class="btn-close {% if message.tags != 'warning' %}btn-close-white{% endif %}" data-bs-dismiss="alert" aria-label="Close" style="float: right; background: transparent; border: 0; font-size: 1rem; cursor: pointer;"></button>
     </div>
     {% endfor %}
 </div>
