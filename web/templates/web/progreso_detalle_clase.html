@@ -6,149 +6,24 @@
 {% block nav_progreso %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'web/css/progreso.css' %}">
-<style>
-    .animate-in {
-        opacity: 0;
-        transform: translateY(20px);
-        animation: fadeInUp 0.6s ease forwards;
-    }
-    
-    @keyframes fadeInUp {
-        to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .stat-card {
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    }
-    
-    .quick-summary {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .summary-item {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        padding: 1rem;
-    }
-    
-    .summary-item i { font-size: 1.5rem; }
-    
-    .summary-item div {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .summary-item strong {
-        color: var(--text-primary);
-        font-size: 1rem;
-    }
-    
-    .summary-item span {
-        color: var(--text-muted);
-        font-size: 0.75rem;
-    }
-    
-    .recent-exercises {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-    }
-    
-    .exercise-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        background: var(--bg-card);
-        border: 1px solid var(--border-subtle);
-        border-radius: 12px;
-        padding: 1rem 1.2rem;
-        transition: all 0.2s;
-    }
-    
-    .exercise-item:hover {
-        background: var(--bg-hover);
-        transform: translateX(4px);
-    }
-    
-    .exercise-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-    
-    .exercise-icon.approved {
-        background: rgba(16, 185, 129, 0.12);
-        color: #1db954;
-    }
-    
-    .exercise-icon.pending {
-        background: rgba(245, 158, 11, 0.12);
-        color: #ff9f43;
-    }
-    
-    .exercise-info { flex: 1; min-width: 0; }
-    
-    .exercise-info h4 {
-        font-size: 0.9rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        margin-bottom: 0.15rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .exercise-info p {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin: 0;
-    }
-    
-    .score-badge {
-        background: rgba(16, 185, 129, 0.12);
-        color: #1db954;
-        padding: 0.3rem 0.7rem;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 700;
-        white-space: nowrap;
-    }
-    
-    .score-badge.pending {
-        background: rgba(245, 158, 11, 0.12);
-        color: #ff9f43;
-    }
-</style>
+<link rel="stylesheet" href="{% static 'web/css/progreso_detalle.css' %}">
 {% endblock %}
 
 {% block content %}
 <div class="progress-container">
 
+  <!-- BOTÓN DE RETORNO - ARRIBA -->
+  <div class="back-navigation mb-4">
+    <a href="{% url 'progreso' %}" class="btn-back-progress">
+      <i class="bi bi-arrow-left"></i> Volver a mis clases
+    </a>
+  </div>
+
   <!-- HERO SECTION DE LA CLASE -->
   <div class="hero-section animate-in">
     <div class="hero-content">
-      <span class="text-success fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Detalle de Progreso</span>
-      <h1 class="hero-title mt-1">{{ clase.nombre }}</h1>
+      <span class="hero-badge">Detalle de Progreso</span>
+      <h1 class="hero-title">{{ clase.nombre }}</h1>
       <p class="hero-subtitle">Docente: {{ clase.docente.get_full_name|default:clase.docente.username }}</p>
     </div>
     <div class="hero-decoration">
@@ -230,10 +105,8 @@
     <h2 class="section-title"><i class="bi bi-graph-up"></i> Rendimiento por tipo de ejercicio</h2>
   </div>
 
-  <div class="overall-progress-card animate-in p-4 mb-4" style="background: #121212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
-    <div style="position: relative; height: 280px; width: 100%;">
-      <canvas id="graficoRendimientoClase"></canvas>
-    </div>
+  <div class="chart-wrapper animate-in">
+    <canvas id="graficoRendimientoClase"></canvas>
   </div>
 
   <!-- ACTIVIDAD RECIENTE -->
@@ -269,13 +142,6 @@
     {% endfor %}
   </div>
   {% endif %}
-
-  <!-- BOTÓN DE RETORNO -->
-  <div class="mt-4 mb-5">
-    <a href="{% url 'progreso' %}" class="btn btn-outline-light" style="border-radius: 20px; padding: 0.5rem 1.5rem;">
-      <i class="bi bi-arrow-left"></i> Volver a mis clases
-    </a>
-  </div>
 
 </div>
 {% endblock %}

@@ -46,6 +46,7 @@ class Clase(models.Model):
 
     def __str__(self):
         return self.nombre
+    
 class InscripcionClase(models.Model):
         estudiante = models.ForeignKey(User, on_delete=models.CASCADE)
         clase = models.ForeignKey(Clase, on_delete=models.CASCADE)

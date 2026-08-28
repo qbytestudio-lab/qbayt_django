@@ -45,16 +45,24 @@
           <i class="bi bi-people-fill"></i>
           {{ clase.estudiantes.count }} compañeros
         </span>
+        {% if clase.fecha_inicio %}
         <span class="class-hero-meta-item">
-          <i class="bi bi-calendar3"></i>
-          {{ clase.fecha_creacion|date:"d M Y" }}
+          <i class="bi bi-play-circle"></i>
+          Inicio: {{ clase.fecha_inicio|date:"d M Y" }}
         </span>
+        {% endif %}
+        {% if clase.fecha_fin %}
+        <span class="class-hero-meta-item">
+          <i class="bi bi-stop-circle"></i>
+          Fin: {{ clase.fecha_fin|date:"d M Y" }}
+        </span>
+        {% endif %}
       </div>
     </div>
     
     <div class="class-hero-actions">
       <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
-        <i class="bi bi-star-fill"></i> Calificaciones
+        <i class="bi bi-star-fill"></i> Mis Calificaciones
       </a>
       <a href="{% url 'estudiante:salir_clase' clase.id %}"
          onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
@@ -70,8 +78,8 @@
   
   <!-- LEFT COLUMN -->
   <div class="class-main">
-    <!-- ANUNCIOS -->
-    {% if clase.anuncios.all %}
+    
+    <!-- ANUNCIOS - SIEMPRE VISIBLE -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -81,29 +89,36 @@
         <span class="section-badge">{{ clase.anuncios.all|length }}</span>
       </div>
       
-      {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
-      <div class="announcement-item">
-        <div class="announcement-header">
-          <div class="announcement-avatar">
-            {% if clase.docente.perfil.foto_perfil %}
-              <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
-            {% elif clase.docente.foto_perfil %}
-              <img src="{{ clase.docente.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
-            {% else %}
-              {{ clase.docente.username|first|upper }}
-            {% endif %}
+      {% if clase.anuncios.all %}
+        {% for anuncio in clase.anuncios.all|dictsortreversed:"fecha" %}
+        <div class="announcement-item">
+          <div class="announcement-header">
+            <div class="announcement-avatar">
+              {% if clase.docente.perfil.foto_perfil %}
+                <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+              {% elif clase.docente.foto_perfil %}
+                <img src="{{ clase.docente.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+              {% else %}
+                {{ clase.docente.username|first|upper }}
+              {% endif %}
+            </div>
+            <div>
+              <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+              <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+            </div>
           </div>
-          <div>
-            <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-            <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-          </div>
+          <p class="announcement-text">{{ anuncio.texto }}</p>
         </div>
-        <p class="announcement-text">{{ anuncio.texto }}</p>
-      </div>
-      {% endfor %}
+        {% endfor %}
+      {% else %}
+        <div class="empty-state" style="padding: 2rem 1rem;">
+          <div class="empty-icon"><i class="bi bi-megaphone"></i></div>
+          <div class="empty-text">No hay anuncios publicados aún</div>
+        </div>
+      {% endif %}
     </div>
-    
-    <!-- EJERCICIOS -->
+
+    <!-- EJERCICIOS - SIEMPRE VISIBLE -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -212,13 +227,12 @@
         </div>
         {% endfor %}
       {% else %}
-        <div class="empty-state">
+        <div class="empty-state" style="padding: 2rem 1rem;">
           <div class="empty-icon"><i class="bi bi-collection"></i></div>
           <div class="empty-text">El docente aún no ha agregado ejercicios</div>
         </div>
       {% endif %}
     </div>
-    {% endif %}
 
   </div>
 

@@ -162,15 +162,15 @@
       <div class="class-card-meta">
         <span class="class-card-meta-item">
           <i class="bi bi-calendar3"></i>
-          {{ clase.fecha_creacion|date:"d M Y" }}
+          Inicio: {{ clase.fecha_inicio|date:"d M Y"|default:"—" }}
         </span>
         <span class="class-card-meta-item">
-          <i class="bi bi-people"></i>
-          {{ clase.estudiantes.count }} inscritos
+          <i class="bi bi-calendar-check"></i>
+          Fin: {{ clase.fecha_fin|date:"d M Y"|default:"—" }}
         </span>
       </div>
 
-      <!-- ✅ BADGE DE CATEGORÍA - CORREGIDO -->
+      <!-- BADGE DE CATEGORÍA -->
       <div class="class-category-badge">
         <i class="bi bi-tag-fill"></i> 
         {{ clase.get_categoria_tema_display|default:"Sin categoría" }}
@@ -193,11 +193,6 @@
         <a href="#" data-bs-toggle="modal" data-bs-target="#modalAgregar{{ clase.id }}"
           class="btn-class-icon btn-add-student" title="Agregar estudiante">
           <i class="bi bi-person-plus-fill"></i>
-        </a>
-        <a href="{% url 'eliminar_clase' clase.id %}"
-          onclick="return confirm('¿Eliminar la clase {{ clase.nombre }}? Esta acción es irreversible.')"
-          class="btn-class-icon btn-delete" title="Eliminar clase">
-          <i class="bi bi-trash-fill"></i>
         </a>
       </div>
     </div>
@@ -261,7 +256,7 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
-      <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data">
+      <form action="{% url 'crear_clase' %}" method="POST" enctype="multipart/form-data" id="formCrearClase">
         {% csrf_token %}
         <div class="modal-body">
 
@@ -288,19 +283,23 @@
 
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label class="form-label">Fecha de inicio</label>
-              <input type="date" class="form-control" name="fecha_inicio">
+              <label class="form-label">Fecha de inicio <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="fecha_inicio" id="fechaInicio" required>
+              <div class="invalid-feedback">La fecha de inicio es obligatoria.</div>
+              <small class="text-muted">Debe ser hoy o una fecha futura</small>
             </div>
             <div class="col-md-6 mb-3">
-              <label class="form-label">Fecha de finalización</label>
-              <input type="date" class="form-control" name="fecha_fin">
+              <label class="form-label">Fecha de finalización <span class="text-danger">*</span></label>
+              <input type="date" class="form-control" name="fecha_fin" id="fechaFin" required>
+              <div class="invalid-feedback"></div>
+              <small class="text-muted">Mínimo 5 días después del inicio</small>
             </div>
           </div>
 
           <div class="row">
             <div class="col-md-6 mb-3">
               <label class="form-label">Máximo de estudiantes</label>
-              <input type="number" class="form-control" name="max_estudiantes" value="35" min="1" max="35" required>
+              <input type="number" class="form-control" name="max_estudiantes" value="35" min="1" max="35">
             </div>
             <div class="col-md-6 mb-3">
               <label class="form-label">Nivel previo (opcional)</label>
@@ -353,6 +352,112 @@
       console.error('Error al copiar:', err);
     });
   }
+
+  // ✅ ESTABLECER FECHA MÍNIMA EN LOS INPUTS AL CARGAR
+  document.addEventListener('DOMContentLoaded', function() {
+    const hoy = new Date();
+    const hoyStr = hoy.toLocaleDateString('en-CA'); // Formato YYYY-MM-DD
+    
+    console.log('Fecha de hoy:', hoyStr);
+    
+    // Establecer fecha mínima
+    document.getElementById('fechaInicio').min = hoyStr;
+    document.getElementById('fechaFin').min = hoyStr;
+  });
+
+  // ✅ VALIDACIÓN DE FECHAS - CORREGIDA (comparación directa de strings)
+  document.getElementById('formCrearClase').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const fechaInicioInput = document.getElementById('fechaInicio');
+    const fechaFinInput = document.getElementById('fechaFin');
+    const fechaInicio = fechaInicioInput.value;
+    const fechaFin = fechaFinInput.value;
+    
+    let isValid = true;
+    
+    // Obtener fecha de hoy como string YYYY-MM-DD
+    const hoy = new Date();
+    const hoyStr = hoy.toLocaleDateString('en-CA');
+    
+    console.log('Validando...');
+    console.log('Hoy:', hoyStr);
+    console.log('Inicio:', fechaInicio);
+    console.log('Fin:', fechaFin);
+    
+    // Validar fecha de inicio
+    if (!fechaInicio) {
+      fechaInicioInput.classList.add('is-invalid');
+      fechaInicioInput.nextElementSibling.textContent = 'La fecha de inicio es obligatoria.';
+      isValid = false;
+    } else if (fechaInicio < hoyStr) {
+      // ✅ Comparación directa de strings YYYY-MM-DD funciona correctamente
+      fechaInicioInput.classList.add('is-invalid');
+      fechaInicioInput.nextElementSibling.textContent = 'No puedes usar una fecha pasada.';
+      isValid = false;
+    } else {
+      fechaInicioInput.classList.remove('is-invalid');
+    }
+    
+    // Validar fecha de finalización
+    if (!fechaFin) {
+      fechaFinInput.classList.add('is-invalid');
+      fechaFinInput.nextElementSibling.textContent = 'La fecha de finalización es obligatoria.';
+      isValid = false;
+    } else if (fechaFin < hoyStr) {
+      fechaFinInput.classList.add('is-invalid');
+      fechaFinInput.nextElementSibling.textContent = 'No puedes usar una fecha pasada.';
+      isValid = false;
+    } else if (fechaInicio && fechaFin <= fechaInicio) {
+      fechaFinInput.classList.add('is-invalid');
+      fechaFinInput.nextElementSibling.textContent = 'La fecha de fin debe ser posterior al inicio.';
+      isValid = false;
+    } else if (fechaInicio) {
+      // Calcular diferencia en días
+      const fechaInicioDate = new Date(fechaInicio + 'T12:00:00');
+      const fechaFinDate = new Date(fechaFin + 'T12:00:00');
+      const diferenciaDias = Math.round((fechaFinDate - fechaInicioDate) / (1000 * 60 * 60 * 24));
+      
+      console.log('Diferencia en días:', diferenciaDias);
+      
+      if (diferenciaDias < 5) {
+        fechaFinInput.classList.add('is-invalid');
+        fechaFinInput.nextElementSibling.textContent = `La clase debe durar al menos 5 días (actual: ${diferenciaDias} día${diferenciaDias !== 1 ? 's' : ''}).`;
+        isValid = false;
+      } else {
+        fechaFinInput.classList.remove('is-invalid');
+      }
+    }
+    
+    if (isValid) {
+      console.log('✅ Validación correcta, enviando formulario...');
+      this.submit();
+    } else {
+      console.log('❌ Validación falló');
+    }
+  });
+
+  // Limpiar validación al cambiar fecha de inicio
+  document.getElementById('fechaInicio').addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+    
+    // Actualizar mínimo de fecha fin cuando cambia inicio
+    const fechaInicio = this.value;
+    const fechaFinInput = document.getElementById('fechaFin');
+    
+    if (fechaInicio) {
+      const fechaMin = new Date(fechaInicio + 'T12:00:00');
+      fechaMin.setDate(fechaMin.getDate() + 5);
+      const fechaMinStr = fechaMin.toISOString().split('T')[0];
+      fechaFinInput.min = fechaMinStr;
+      console.log('Fecha mínima de fin actualizada a:', fechaMinStr);
+    }
+  });
+  
+  // Limpiar validación al cambiar fecha de fin
+  document.getElementById('fechaFin').addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+  });
 
   const observerOptions = { threshold: 0.1, rootMargin: '0px' };
   const observer = new IntersectionObserver((entries) => {

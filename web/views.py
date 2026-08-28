@@ -659,10 +659,6 @@ def calendario(request):
     
     usuario = request.user
     
-    # Importar modelos
-    from clase.models import Clase
-    from ejercicios.models import Ejercicio, IntentoEjercicio
-    
     # Obtener las clases donde el estudiante está inscrito
     clases_inscritas = Clase.objects.filter(estudiantes=usuario)
     
@@ -820,13 +816,13 @@ def explorar_clases(request):
             Q(descripcion__icontains=query)
         )
     
-    # ✅ SOLO solicitudes PENDIENTES
+    # SOLO solicitudes PENDIENTES
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='pendiente'
     ).values_list('clase_id', flat=True)
     
-    # ✅ Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    # Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='rechazada'

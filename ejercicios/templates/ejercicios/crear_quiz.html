@@ -23,7 +23,7 @@
         <p class="quiz-subtitle">Crea preguntas de selección múltiple para evaluar a tus estudiantes</p>
     </div>
 
-    <form method="POST" action="{% url 'ejercicios:crear_quiz' clase.id %}" enctype="multipart/form-data">
+    <form method="POST" action="{% url 'ejercicios:crear_quiz' clase.id %}" enctype="multipart/form-data" id="formCrearQuiz">
         {% csrf_token %}
 
         <!-- Info General -->
@@ -41,8 +41,12 @@
                           placeholder="Instrucciones para el estudiante..."></textarea>
             </div>
             <div class="mb-0">
-                <label class="form-label">Fecha límite (opcional)</label>
-                <input type="datetime-local" name="fecha_limite" class="form-control">
+                <label class="form-label">
+                    Fecha límite <span class="required">*</span>
+                </label>
+                <input type="datetime-local" name="fecha_limite" class="form-control" 
+                       id="fechaLimite" required>
+                <small class="text-muted">El estudiante no podrá resolver el quiz después de esta fecha</small>
             </div>
         </div>
 
@@ -72,6 +76,69 @@
 {% block extra_js %}
 <script>
 let preguntaCount = 0;
+
+// ✅ Establecer fecha mínima al cargar
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaLimiteInput = document.getElementById('fechaLimite');
+    
+    if (fechaLimiteInput) {
+        // Establecer mínimo como hoy
+        const hoy = new Date();
+        const hoyStr = hoy.toLocaleDateString('en-CA');
+        fechaLimiteInput.min = hoyStr + 'T00:00';
+        
+        // Establecer valor por defecto: 7 días después
+        const fechaDefault = new Date();
+        fechaDefault.setDate(fechaDefault.getDate() + 7);
+        const fechaDefaultStr = fechaDefault.toLocaleDateString('en-CA');
+        fechaLimiteInput.value = fechaDefaultStr + 'T23:59';
+    }
+});
+
+// ✅ Validación de fecha límite
+document.getElementById('formCrearQuiz').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const fechaLimiteInput = document.getElementById('fechaLimite');
+    const fechaLimite = fechaLimiteInput.value;
+    
+    let isValid = true;
+    
+    // Validar que la fecha límite sea obligatoria
+    if (!fechaLimite) {
+        alert('La fecha límite es obligatoria.');
+        fechaLimiteInput.classList.add('is-invalid');
+        isValid = false;
+    } else {
+        // Validar que la fecha no sea pasada
+        const ahora = new Date();
+        const fechaLimiteDate = new Date(fechaLimite);
+        
+        if (fechaLimiteDate < ahora) {
+            alert('No puedes usar una fecha límite pasada.');
+            fechaLimiteInput.classList.add('is-invalid');
+            isValid = false;
+        } else {
+            fechaLimiteInput.classList.remove('is-invalid');
+        }
+    }
+    
+    // Validar que haya al menos 1 pregunta
+    const preguntas = document.querySelectorAll('.pregunta-card');
+    if (preguntas.length === 0) {
+        alert('Debes agregar al menos una pregunta.');
+        isValid = false;
+    }
+    
+    if (isValid) {
+        this.submit();
+    }
+});
+
+// Limpiar validación al cambiar fecha
+document.getElementById('fechaLimite').addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+});
 
 function agregarPregunta() {
     preguntaCount++;
