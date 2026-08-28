@@ -446,6 +446,10 @@ body {
   gap: 0.4rem;
 }
 
+/* ═══════════════════════════════════════════ */
+/*    ETIQUETAS DE CATEGORÍA (ARMONÍA, RITMO, MELODÍA) */
+/* ═══════════════════════════════════════════ */
+
 .course-level {
   font-size: 0.7rem;
   font-weight: 700;
@@ -453,8 +457,33 @@ body {
   letter-spacing: 0.5px;
   padding: 0.25rem 0.7rem;
   border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
 
+/* Armonía - Verde */
+.course-level.armonia {
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--spotify-green);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* Ritmo - Naranja */
+.course-level.ritmo {
+  background: rgba(245, 158, 11, 0.12);
+  color: var(--accent-orange);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+/* Melodía - Púrpura */
+.course-level.melodia {
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-purple);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
+/* Niveles */
 .course-level.basico { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
 .course-level.intermedio { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
 .course-level.avanzado { background: rgba(239, 68, 68, 0.12); color: var(--danger); }

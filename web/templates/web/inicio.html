@@ -93,7 +93,10 @@
       </div>
     </div>
   </div>
-  <!-- DESPUÉS DEL HERO BANNER Y STATS -->
+
+  <!-- ═══════════════════════════════════════════ -->
+  <!-- SECCIÓN: CONTINUAR APRENDIENDO -->
+  <!-- ═══════════════════════════════════════════ -->
   {% if clases_inscritas %}
   <div class="section-header">
     <h2 class="section-title">
@@ -162,7 +165,7 @@
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
+          <span class="course-level {{ clase.categoria_tema }}">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
             <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
@@ -185,7 +188,7 @@
             <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
-            <span class="course-category-badge">
+            <span class="course-category-badge {{ clase.categoria_tema }}">
               <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
@@ -263,7 +266,7 @@
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
+          <span class="course-level {{ clase.categoria_tema }}">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
             <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
@@ -286,7 +289,7 @@
             <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
-            <span class="course-category-badge">
+            <span class="course-category-badge {{ clase.categoria_tema }}">
               <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
@@ -364,7 +367,7 @@
 
       <div class="course-card-body">
         <div class="course-meta">
-          <span class="course-level">{{ clase.get_categoria_tema_display }}</span>
+          <span class="course-level {{ clase.categoria_tema }}">{{ clase.get_categoria_tema_display }}</span>
           <span class="course-duration">
             <i class="bi bi-people"></i> {{ clase.estudiantes.count }} estudiantes
           </span>
@@ -387,7 +390,7 @@
             <img src="{{ clase.imagen.url }}" alt="{{ clase.nombre }}" class="modal-image">
             {% endif %}
 
-            <span class="course-category-badge">
+            <span class="course-category-badge {{ clase.categoria_tema }}">
               <i class="bi bi-tag-fill me-1"></i> {{ clase.get_categoria_tema_display }}
             </span>
 
@@ -447,7 +450,7 @@
     });
   }, observerOptions);
 
-  document.querySelectorAll('.course-card, .stat-card').forEach((card, index) => {
+  document.querySelectorAll('.course-card, .stat-card, .continue-card').forEach((card, index) => {
     card.style.opacity = '0';
     card.style.transform = 'translateY(20px)';
     card.style.transition = `all 0.5s ease ${index * 0.08}s`;
