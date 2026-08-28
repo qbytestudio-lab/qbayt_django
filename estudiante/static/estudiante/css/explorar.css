@@ -57,6 +57,8 @@
   --shadow: rgba(139, 92, 246, 0.1);
 }
 
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
 body {
   background-color: var(--bg-body);
   color: var(--text-primary);
@@ -344,11 +346,16 @@ body {
   border-color: rgba(16, 185, 129, 0.25);
 }
 
+/* ═══════════════════════════════════════════ */
+/*         CLASS CARD IMAGE                   */
+/* ═══════════════════════════════════════════ */
+
 .class-card-image {
   position: relative;
   width: 100%;
   aspect-ratio: 16/10;
   overflow: hidden;
+  background: var(--bg-hover);
 }
 
 .class-card-image img {
@@ -363,41 +370,48 @@ body {
   transform: scale(1.06);
 }
 
-/* ✅ IMAGEN SIN IMAGEN - MÁS SUTIL */
+/* ✅ SIN IMAGEN - MUY SUTIL */
 .class-card-image.no-image {
-  background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
 }
 
+[data-theme="light"] .class-card-image.no-image {
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+}
+
 .class-card-image.no-image i {
-  font-size: 2.5rem;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.2);
   transition: transform 0.4s;
 }
 
-.class-card:hover .class-card-image.no-image i {
-  transform: scale(1.1);
+[data-theme="light"] .class-card-image.no-image i {
+  color: rgba(100, 116, 139, 0.35);
 }
 
-/* Patrón decorativo sutil para no-image */
+.class-card:hover .class-card-image.no-image i {
+  transform: scale(1.05);
+}
+
 .class-card-image.no-image::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.08) 0%, transparent 60%);
+  background: radial-gradient(circle at 30% 70%, rgba(255,255,255,0.03) 0%, transparent 60%);
 }
 
 .class-card-image.no-image::after {
   content: '';
   position: absolute;
-  top: 20%;
-  right: 15%;
-  width: 60px;
-  height: 60px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
+  top: 15%;
+  right: 10%;
+  width: 30px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 50%;
 }
 
@@ -407,60 +421,71 @@ body {
   background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.6) 100%);
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .class-card:hover .class-card-image-overlay {
   opacity: 1;
 }
 
-/* Badge de categoría */
+/* ✅ BADGE DE CATEGORÍA - PEQUEÑO Y SUTIL */
 .class-card-category {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 0.25rem 0.7rem;
-  border-radius: 8px;
-  font-size: 0.65rem;
-  font-weight: 700;
+  top: 8px;
+  left: 8px;
+  padding: 0.18rem 0.45rem;
+  border-radius: 5px;
+  font-size: 0.55rem;
+  font-weight: 600;
   z-index: 2;
-  backdrop-filter: blur(10px);
-  display: flex;
+  backdrop-filter: blur(6px);
+  display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.2rem;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.class-card-category i {
+  font-size: 0.5rem;
 }
 
 .class-card-category.armonia {
-  background: rgba(124, 111, 255, 0.85);
+  background: rgba(124, 111, 255, 0.65);
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .class-card-category.ritmo {
-  background: rgba(255, 159, 67, 0.85);
+  background: rgba(255, 159, 67, 0.65);
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .class-card-category.melodia {
-  background: rgba(255, 107, 157, 0.85);
+  background: rgba(255, 107, 157, 0.65);
   color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
+/* Botón play */
 .class-play-btn {
   position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 42px;
-  height: 42px;
+  bottom: 10px;
+  right: 10px;
+  width: 38px;
+  height: 38px;
   background: var(--spotify-green);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #fff;
   opacity: 0;
   transform: translateY(15px) scale(0.8);
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   z-index: 2;
 }
 
@@ -472,11 +497,14 @@ body {
 .class-play-btn:hover {
   background: var(--spotify-green-hover);
   transform: scale(1.15) !important;
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.5);
 }
 
+/* ═══════════════════════════════════════════ */
+/*         CLASS CARD BODY                    */
+/* ═══════════════════════════════════════════ */
+
 .class-card-body {
-  padding: 1.1rem;
+  padding: 1rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -539,7 +567,7 @@ body {
   color: #fff;
   font-weight: 700;
   font-size: 0.8rem;
-  padding: 0.6rem;
+  padding: 0.55rem;
   border-radius: 25px;
   cursor: pointer;
   transition: all 0.2s;
@@ -558,7 +586,7 @@ body {
   border: 1px solid var(--accent-orange);
   color: var(--accent-orange);
   font-size: 0.8rem;
-  padding: 0.6rem;
+  padding: 0.55rem;
   border-radius: 25px;
   text-align: center;
   font-weight: 600;
@@ -698,6 +726,13 @@ body {
   }
   
   .class-card-image.no-image i {
-    font-size: 2rem;
+    font-size: 1.2rem;
+  }
+  
+  .class-card-category {
+    font-size: 0.5rem;
+    padding: 0.15rem 0.4rem;
+    top: 6px;
+    left: 6px;
   }
 }
