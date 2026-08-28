@@ -15,11 +15,66 @@
   <!-- HERO SECTION -->
   <div class="hero-section animate-in">
     <div class="hero-content">
-      <h1 class="hero-title">Mis Clases y Progreso</h1>
+      <h1 class="hero-title">Mi Progreso</h1>
       <p class="hero-subtitle">Selecciona una clase para ver sus estadísticas detalladas y gráficas de rendimiento</p>
     </div>
     <div class="hero-decoration">
       <div class="hero-icon-circle"><i class="bi bi-graph-up-arrow"></i></div>
+    </div>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="stats-grid">
+    <div class="stat-card stat-gradient-green">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-check-circle-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ actividades_completadas }}</div>
+        <div class="stat-label">Ejercicios completados</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
+      </div>
+    </div>
+
+    <div class="stat-card stat-gradient-orange">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-hourglass-split"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ actividades_pendientes }}</div>
+        <div class="stat-label">Pendientes</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-clock"></i>
+      </div>
+    </div>
+
+    <div class="stat-card stat-gradient-purple">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-graph-up-arrow"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ progreso_general }}%</div>
+        <div class="stat-label">Progreso general</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
+      </div>
+    </div>
+
+    <div class="stat-card stat-gradient-pink">
+      <div class="stat-icon-wrapper">
+        <i class="bi bi-collection-play-fill"></i>
+      </div>
+      <div class="stat-content">
+        <div class="stat-value">{{ total_clases }}</div>
+        <div class="stat-label">Clases activas</div>
+      </div>
+      <div class="stat-trend">
+        <i class="bi bi-arrow-up-right"></i>
+      </div>
     </div>
   </div>
 
@@ -68,7 +123,7 @@
     <div class="empty-icon fs-1 text-muted"><i class="bi bi-music-note"></i></div>
     <h3 class="empty-title text-white">Aún no estás inscrito en clases</h3>
     <p class="empty-text text-muted">Explora y únete a clases para comenzar.</p>
-    <a href="{% url 'estudiante:explorar_clases' %}" class="btn btn-success mt-2">Explorar clases</a>
+    <a href="{% url 'cursos' %}" class="btn btn-success mt-2">Explorar clases</a>
   </div>
   {% endif %}
 
