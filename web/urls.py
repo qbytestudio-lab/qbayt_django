@@ -31,9 +31,9 @@ urlpatterns = [
     # ============================================
     path('mis-clases/', views.mis_clases, name='mis_clases'),
     path('progreso/', views.progreso, name='progreso'),
-    path('certificados/', views.certificados, name='certificados'),
     path('calendario/', views.calendario, name='calendario'),
     path('admin-login/', views.admin_login_view, name='admin_login'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/logout/', views.admin_logout_view, name='admin_logout'),
+    path('clase/<int:clase_id>/progreso/', views.progreso_clase_detalle, name='progreso_detalle_clase'),
 ]

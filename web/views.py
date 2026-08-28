@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 import json
 from datetime import datetime, timedelta
 from django.utils import timezone
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Avg
 from ejercicios.models import Ejercicio, IntentoEjercicio 
 
 
@@ -380,7 +380,6 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def progreso(request):
-    from ejercicios.models import Ejercicio, IntentoEjercicio
     
     # Obtener clases del estudiante
     clases = request.user.clases_estudiante.all()
@@ -432,6 +431,30 @@ def progreso(request):
         })
     
     # ============================================
+    # RENDIMIENTO PARA LA GRÁFICA (NUEVO)
+    # ============================================
+    intentos_estudiante = IntentoEjercicio.objects.filter(
+        estudiante=request.user, 
+        calificacion__isnull=False
+    )
+
+    rendimiento_por_tipo = intentos_estudiante.values('ejercicio__tipo').annotate(
+        promedio_nota=Avg('calificacion')
+    )
+
+    tipo_nombres = {
+        'quiz': 'Quiz',
+        'imagen_quiz': 'Quiz con imagen',
+        'juego': 'Juego',
+        'texto': 'Texto',
+        'verdadero_falso': 'Verdadero / Falso',
+        'completar': 'Completar'
+    }
+
+    categorias = [tipo_nombres.get(item['ejercicio__tipo'], item['ejercicio__tipo']) for item in rendimiento_por_tipo]
+    promedios = [float(item['promedio_nota']) for item in rendimiento_por_tipo]
+
+    # ============================================
     # ÚLTIMAS ACTIVIDADES
     # ============================================
     actividades_lista = []
@@ -473,11 +496,73 @@ def progreso(request):
         'actividades_pendientes': ejercicios_pendientes,
         # Progreso por clase
         'progreso_clases': progreso_clases,
+        # Datos para la Gráfica de Rendimiento
+        'categorias': categorias,
+        'promedios': promedios,
         # Actividades
         'actividades_lista': actividades_lista,
     }
     
     return render(request, 'web/progreso.html', context)
+@login_required
+def progreso_clase_detalle(request, clase_id):
+    # Obtener la clase específica y verificar que el estudiante esté inscrito (o sea suya)
+    clase = get_object_or_404(Clase, id=clase_id)
+    
+    # Todos los ejercicios de esta clase en específico
+    ejercicios_clase = Ejercicio.objects.filter(clase=clase)
+    total_ejercicios = ejercicios_clase.count()
+    
+    # IDs de ejercicios de esta clase que el estudiante ha intentado/completado
+    completados_ids = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio__clase=clase
+    ).values_list('ejercicio_id', flat=True).distinct()
+    
+    ejercicios_completados = completados_ids.count()
+    ejercicios_pendientes = total_ejercicios - ejercicios_completados
+    
+    # Porcentaje de avance en esta clase
+    porcentaje_clase = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
+    
+    # Gráfica de rendimiento: Promedio de notas por tipo de ejercicio *solo para esta clase*
+    intentos_clase = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio__clase=clase,
+        calificacion__isnull=False
+    )
+    
+    rendimiento_por_tipo = intentos_clase.values('ejercicio__tipo').annotate(
+        promedio_nota=Avg('calificacion')
+    )
+    
+    tipo_nombres = {
+        'quiz': 'Quiz',
+        'imagen_quiz': 'Quiz con imagen',
+        'juego': 'Juego',
+        'texto': 'Texto',
+        'verdadero_falso': 'Verdadero / Falso',
+        'completar': 'Completar'
+    }
+    
+    categorias = [tipo_nombres.get(item['ejercicio__tipo'], item['ejercicio__tipo']) for item in rendimiento_por_tipo]
+    promedios = [float(item['promedio_nota']) for item in rendimiento_por_tipo]
+    
+    # Historial de intentos recientes en esta clase
+    intentos_recientes = intentos_clase.select_related('ejercicio').order_by('-fecha_envio')[:10]
+
+    context = {
+        'clase': clase,
+        'total_ejercicios': total_ejercicios,
+        'ejercicios_completados': ejercicios_completados,
+        'ejercicios_pendientes': ejercicios_pendientes,
+        'porcentaje_clase': porcentaje_clase,
+        'categorias': categorias,
+        'promedios': promedios,
+        'intentos_recientes': intentos_recientes,
+    }
+    
+    return render(request, 'web/progreso_detalle_clase.html', context)
 
 def certificados(request):
     return render(request, 'web/certificados.html')

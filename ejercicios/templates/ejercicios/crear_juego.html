@@ -12,6 +12,7 @@
 
 <div class="juego-creator-container">
     
+    <!-- Enlace de volver corregido (sin el prefijo 'clases:') -->
     <a href="{% url 'detalle_clase' clase.id %}" class="back-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--spotify-subtext); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem;">
         <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
     </a>
@@ -23,7 +24,8 @@
         Elige el tipo de juego que quieres crear
     </p>
 
-    <form method="POST" action="{% url 'ejercicios:crear_ejercicio' clase.id %}">
+    <!-- Acción del formulario corregida apuntando directamente a 'crear_juego' -->
+    <form method="POST" action="{% url 'ejercicios:crear_juego' clase.id %}">
         {% csrf_token %}
         <input type="hidden" name="tipo" value="juego">
 

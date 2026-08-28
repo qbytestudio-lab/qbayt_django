@@ -335,26 +335,36 @@ def mis_calificaciones_estudiante(request):
 def resolver_ejercicio(request, clase_id, ejercicio_id):
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
     
+    # ─── SI ES UN JUEGO, RENDERIZA LA PLANTILLA DE JUEGOS ───
+    if ejercicio.tipo == 'juego':
+        if request.method == 'POST':
+            # Lógica para guardar el intento del juego aquí si lo requieres
+            intento = Intento.objects.create(estudiante=request.user, ejercicio=ejercicio)
+            messages.success(request, 'Juego enviado correctamente.')
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
+            
+        return render(request, 'estudiante/resolver_juego.html', {
+            'ejercicio': ejercicio,
+            'clase_id': clase_id
+        })
+
+    # ─── RESTO DE LA LÓGICA PARA QUIZZES Y OTROS ───
     if request.method == 'POST':
-        preguntas = ejercicio.preguntas.all()
-        
-        intento = IntentoEjercicio.objects.create(
+        intento = Intento.objects.create(
             estudiante=request.user,
-            ejercicio=ejercicio,
-            calificacion=None,
-            aprobado=False
+            ejercicio=ejercicio
         )
         
+        preguntas = ejercicio.preguntas.all()
         for pregunta in preguntas:
-            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
-            if opcion_id:
-                opcion_seleccionada = Opcion.objects.filter(id=opcion_id, pregunta=pregunta).first()
-                if opcion_seleccionada:
-                    RespuestaEstudiante.objects.create(
-                        intento=intento,
-                        pregunta=pregunta,
-                        opcion_seleccionada=opcion_seleccionada
-                    )
+            respuesta_valor = request.POST.get(f'pregunta_{pregunta.id}')
+            if respuesta_valor:
+                RespuestaEstudiante.objects.create(
+                    estudiante=request.user,
+                    pregunta=pregunta,
+                    respuesta_seleccionada=str(respuesta_valor),
+                    es_correcta=False
+                )
             
         messages.success(request, 'Ejercicio enviado. Espera la calificación del docente.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
@@ -363,7 +373,6 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         'ejercicio': ejercicio,
         'clase_id': clase_id
     })
-
 
 @login_required
 @require_POST

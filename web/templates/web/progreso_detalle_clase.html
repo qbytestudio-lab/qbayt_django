@@ -1,0 +1,128 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Progreso de {{ clase.nombre }} - QBYT{% endblock %}
+{% block page_title %}Estadísticas de la Clase{% endblock %}
+{% block nav_progreso %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'web/css/progreso.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="progress-container">
+
+  <!-- HERO SECTION DE LA CLASE -->
+  <div class="hero-section animate-in">
+    <div class="hero-content">
+      <span class="text-success fw-bold text-uppercase" style="font-size: 0.8rem; letter-spacing: 1px;">Detalle de Progreso</span>
+      <h1 class="hero-title mt-1">{{ clase.nombre }}</h1>
+      <p class="hero-subtitle">Docente: {{ clase.docente.get_full_name|default:clase.docente.username }}</p>
+    </div>
+    <div class="hero-decoration">
+      <div class="hero-icon-circle"><i class="bi bi-bar-chart-line-fill"></i></div>
+    </div>
+  </div>
+
+  <!-- BARRA DE PROGRESO DE LA CLASE -->
+  <div class="overall-progress-card animate-in">
+    <div class="overall-progress-header">
+      <h3 class="overall-progress-title">
+        <i class="bi bi-trophy-fill" style="color: #1db954;"></i> Avance en la materia
+      </h3>
+      <div class="overall-progress-percentage">{{ porcentaje_clase }}%</div>
+    </div>
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" style="width: {{ porcentaje_clase }}%;"></div>
+    </div>
+    <div class="progress-details mt-2">
+      <span class="text-muted">{{ ejercicios_completados }} de {{ total_ejercicios }} ejercicios superados</span>
+      <span>Meta: 100%</span>
+    </div>
+  </div>
+
+  <!-- TARJETAS DE ESTADÍSTICAS ESPECÍFICAS -->
+  <div class="stats-grid">
+    <div class="stat-card stat-gradient-green">
+      <div class="stat-icon-wrapper"><i class="bi bi-check-circle-fill"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ ejercicios_completados }}</div>
+        <div class="stat-label">Completados en esta clase</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-gradient-orange">
+      <div class="stat-icon-wrapper"><i class="bi bi-hourglass-split"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ ejercicios_pendientes }}</div>
+        <div class="stat-label">Pendientes en esta clase</div>
+      </div>
+    </div>
+
+    <div class="stat-card stat-gradient-purple">
+      <div class="stat-icon-wrapper"><i class="bi bi-percent"></i></div>
+      <div class="stat-content">
+        <div class="stat-value">{{ porcentaje_clase }}%</div>
+        <div class="stat-label">Efectividad</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICA DE RENDIMIENTO DE LA CLASE -->
+  <div class="section-header mt-4">
+    <h2 class="section-title"><i class="bi bi-graph-up"></i> Rendimiento por tipo de ejercicio en esta clase</h2>
+  </div>
+
+  <div class="overall-progress-card animate-in p-4 mb-4" style="background: #121212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
+    <div style="position: relative; height: 280px; width: 100%;">
+      <canvas id="graficoRendimientoClase"></canvas>
+    </div>
+  </div>
+
+  <!-- BOTÓN DE RETORNO -->
+  <div class="mt-4 mb-5">
+    <a href="{% url 'progreso' %}" class="btn btn-outline-light" style="border-radius: 20px; padding: 0.5rem 1.5rem;">
+      <i class="bi bi-arrow-left"></i> Volver a mis clases
+    </a>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('graficoRendimientoClase').getContext('2d');
+  new Chart(ctx, {
+      type: 'bar',
+      data: {
+          labels: {{ categorias|safe }}, 
+          datasets: [{
+              label: 'Calificación Promedio',
+              data: {{ promedios|safe }},    
+              backgroundColor: 'rgba(29, 185, 84, 0.2)',
+              borderColor: '#1db954',
+              borderWidth: 2,
+              borderRadius: 6
+          }]
+      },
+      options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+              y: { 
+                  beginAtZero: true, 
+                  max: 5.0, 
+                  grid: { color: 'rgba(255,255,255,0.05)' }, 
+                  ticks: { color: '#94a3b8' } 
+              },
+              x: { 
+                  grid: { display: false }, 
+                  ticks: { color: '#94a3b8' } 
+              }
+          }
+      }
+  });
+</script>
+{% endblock %}

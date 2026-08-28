@@ -11,6 +11,8 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
         rel="stylesheet">
+        <!-- Importar Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="{% static 'web/css/layout.css' %}">
     <link rel="icon" type="image/png" href="{% static 'web/img/logo5.png' %}">
     {% block extra_css %}{% endblock %}
@@ -55,7 +57,7 @@
                     </a>
                 </li>
                 <li class="{% block nav_config %}{% endblock %}">
-                    <a href="{% url 'certificados' %}">
+                    <a href="#">
                         <i class="bi bi-gear"></i><span>Certificados</span>
                     </a>
                 </li>
@@ -160,7 +162,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // ============================================
+       // ============================================
         // MODO CLARO/OSCURO
         // ============================================
         function getTheme() {
@@ -253,11 +255,32 @@
         });
 
         // ============================================
+        // AUTO-OCULTAR ALERTAS / MENSAJES FLASH
+        // ============================================
+        function initAutoDismissAlerts() {
+            // Selecciona las alertas flotantes (puedes cambiar o agregar clases según tu maquetación)
+            const alertas = document.querySelectorAll('.alert, .custom-alert-box, div[style*="position: fixed"]');
+            
+            alertas.forEach(alerta => {
+                setTimeout(() => {
+                    alerta.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+                    alerta.style.opacity = "0";
+                    alerta.style.transform = "translateY(-10px)";
+                    
+                    setTimeout(() => {
+                        alerta.remove();
+                    }, 600); // Tiempo de la animación de salida
+                }, 4000); // 4000ms = 4 segundos antes de desvanecerse
+            });
+        }
+
+        // ============================================
         // INICIALIZACIÓN
         // ============================================
         document.addEventListener('DOMContentLoaded', function () {
             applyTheme(getTheme());
             cargarNotificaciones();
+            initAutoDismissAlerts();
         });
 
         // Actualizar notificaciones cada 30 segundos

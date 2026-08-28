@@ -14,15 +14,32 @@ from .models import (
 from clase.models import Clase
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion
 
+
 # ============================================================
-# Vista intermedia
+# VISTA GENERAL / ENRUTADOR PARA CREAR EJERCICIO
 # ============================================================
 @login_required
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
-    return render(request, 'ejercicios/crear_ejercicio.html', {'clase': clase})
-
-
+    
+    # Si mandan el tipo por parámetro GET (ej: ?tipo=juego), redirigimos a su vista correspondiente
+    tipo = request.GET.get('tipo', 'quiz')
+    
+    if tipo == 'quiz':
+        return redirect('ejercicios:crear_quiz', clase_id=clase.id)
+    elif tipo == 'imagen_quiz':
+        return redirect('ejercicios:crear_imagen_quiz', clase_id=clase.id)
+    elif tipo == 'juego':
+        return redirect('ejercicios:crear_juego', clase_id=clase.id)
+    elif tipo == 'texto':
+        return redirect('ejercicios:crear_texto', clase_id=clase.id)
+    elif tipo == 'verdadero_falso':
+        return redirect('ejercicios:crear_verdadero_falso', clase_id=clase.id)
+    elif tipo == 'completar':
+        return redirect('ejercicios:crear_completar', clase_id=clase.id)
+        
+    # Si entra por primera vez sin tipo o elijas la opción por defecto:
+    return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
 # ============================================================
 # CREAR QUIZ
 # ============================================================

@@ -10,240 +10,67 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="progress-container">
 
   <!-- HERO SECTION -->
   <div class="hero-section animate-in">
     <div class="hero-content">
-      <h1 class="hero-title">Mi Progreso</h1>
-      <p class="hero-subtitle">Sigue tu ritmo de aprendizaje y visualiza tu avance en tiempo real</p>
+      <h1 class="hero-title">Mis Clases y Progreso</h1>
+      <p class="hero-subtitle">Selecciona una clase para ver sus estadísticas detalladas y gráficas de rendimiento</p>
     </div>
     <div class="hero-decoration">
-      <div class="hero-icon-circle">
-        <i class="bi bi-graph-up-arrow"></i>
-      </div>
-    </div>
-    <div class="hero-bg-pattern"></div>
-  </div>
-
-  <!-- OVERALL PROGRESS -->
-  <div class="overall-progress-card animate-in">
-    <div class="overall-progress-header">
-      <h3 class="overall-progress-title">
-        <i class="bi bi-trophy-fill" style="color: #1db954;"></i>
-        Progreso General
-      </h3>
-      <div class="overall-progress-percentage">{{ progreso_general }}%</div>
-    </div>
-    <div class="progress-bar-container">
-      <div class="progress-bar-fill" style="width: {{ progreso_general }}%;"></div>
-    </div>
-    <div class="progress-details">
-      <span>0%</span>
-      <span>Meta: 100%</span>
+      <div class="hero-icon-circle"><i class="bi bi-graph-up-arrow"></i></div>
     </div>
   </div>
 
-  <!-- STATS GRID - MISMO ESTILO QUE INICIO -->
-  <div class="stats-grid">
-    <div class="stat-card stat-gradient-green">
-      <div class="stat-icon-wrapper">
-        <i class="bi bi-check-circle-fill"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ actividades_completadas }}</div>
-        <div class="stat-label">Ejercicios completados</div>
-      </div>
-      <div class="stat-trend">
-        <i class="bi bi-arrow-up-right"></i>
-      </div>
-    </div>
-
-    <div class="stat-card stat-gradient-orange">
-      <div class="stat-icon-wrapper">
-        <i class="bi bi-hourglass-split"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ actividades_pendientes }}</div>
-        <div class="stat-label">Pendientes</div>
-      </div>
-      <div class="stat-trend">
-        <i class="bi bi-clock"></i>
-      </div>
-    </div>
-
-    <div class="stat-card stat-gradient-purple">
-      <div class="stat-icon-wrapper">
-        <i class="bi bi-graph-up-arrow"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ progreso_general }}%</div>
-        <div class="stat-label">Progreso general</div>
-      </div>
-      <div class="stat-trend">
-        <i class="bi bi-arrow-up-right"></i>
-      </div>
-    </div>
-
-    <div class="stat-card stat-gradient-pink">
-      <div class="stat-icon-wrapper">
-        <i class="bi bi-collection-play-fill"></i>
-      </div>
-      <div class="stat-content">
-        <div class="stat-value">{{ total_clases }}</div>
-        <div class="stat-label">Clases activas</div>
-      </div>
-      <div class="stat-trend">
-        <i class="bi bi-arrow-up-right"></i>
-      </div>
-    </div>
+  <!-- LISTA DE CLASES (TARJETAS PRINCIPALES) -->
+  <div class="section-header mt-4">
+    <h2 class="section-title"><i class="bi bi-journal-richtext"></i> Clases Inscritas</h2>
   </div>
 
-  <!-- CLASS PROGRESS SECTION -->
-  <div class="section-header">
-    <h2 class="section-title">
-      <i class="bi bi-music-note-list"></i>
-      Progreso por clase
-    </h2>
-  </div>
-
-  {% if progreso_clases %}
-  <div class="class-progress-list animate-in">
-    {% for item in progreso_clases %}
-    <div class="class-progress-item">
-      <div class="class-rank {% if item.porcentaje >= 80 %}top{% endif %}">
-        {{ forloop.counter }}
-      </div>
-      
-      <div class="class-info">
-        <div class="class-name">{{ item.clase.nombre }}</div>
-        <div class="class-category">
-          <i class="bi bi-person"></i>
-          {{ item.clase.docente.get_full_name|default:item.clase.docente.username }}
+  {% if clases %}
+  <div class="classes-grid animate-in" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+    {% for clase in clases %}
+    
+    <!-- CADA TARJETA ES UN ACCESO DIRECTO AL DETALLE DE LA CLASE -->
+    <a href="{% url 'progreso_detalle_clase' clase.id %}" class="class-card-link text-decoration-none">
+      <div class="class-card-container" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.75rem; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
+        
+        <div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div style="background: rgba(29, 185, 84, 0.1); color: #1db954; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: 700; font-size: 1.2rem;">
+              <i class="bi bi-music-note-beamed"></i>
+            </div>
+            <div>
+              <h3 class="text-white m-0" style="font-size: 1.2rem; font-weight: 700;">{{ clase.nombre }}</h3>
+              <span class="text-muted" style="font-size: 0.85rem;">
+                <i class="bi bi-person"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
+              </span>
+            </div>
+          </div>
+          <p class="text-muted" style="font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ clase.descripcion|default:"Explora el contenido y actividades de esta clase." }}
+          </p>
         </div>
-      </div>
-      
-      <div class="class-progress-bar-wrapper">
-        <div class="progress-info">
-          <span class="progress-text">
-            <i class="bi bi-journal-check"></i>
-            {{ item.completados }}/{{ item.total }} ejercicios
-          </span>
-          <span class="progress-percentage">{{ item.porcentaje }}%</span>
+
+        <div class="mt-4 pt-3 d-flex justify-content-between align-items-center" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
+          <span class="text-success fw-bold" style="font-size: 0.9rem;">Ver estadísticas y avance</span>
+          <i class="bi bi-arrow-right text-success fs-5"></i>
         </div>
-        <div class="mini-progress-bar">
-          <div class="mini-progress-fill" style="width: {{ item.porcentaje }}%;"></div>
-        </div>
+
       </div>
-      
-      <div class="class-badge {% if item.porcentaje >= 100 %}completed{% else %}in-progress{% endif %}">
-        {% if item.porcentaje >= 100 %}
-        <i class="bi bi-check-circle-fill"></i> Completado
-        {% else %}
-        <i class="bi bi-arrow-repeat"></i> En curso
-        {% endif %}
-      </div>
-    </div>
+    </a>
+
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty-state animate-in">
-    <div class="empty-icon">
-      <i class="bi bi-music-note"></i>
-    </div>
-    <h3 class="empty-title">Aún no hay clases activas</h3>
-    <p class="empty-text">Explora y únete a clases para comenzar tu viaje de aprendizaje</p>
-    <a href="{% url 'estudiante:explorar_clases' %}" class="btn-spotify">
-      <i class="bi bi-compass"></i> Descubrir clases
-    </a>
-  </div>
-  {% endif %}
-
-  <!-- RECENT ACTIVITIES -->
-  {% if actividades_lista %}
-  <div class="section-header">
-    <h2 class="section-title">
-      <i class="bi bi-clock-history"></i>
-      Últimos ejercicios
-    </h2>
-  </div>
-
-  <div class="activities-list animate-in">
-    {% for act in actividades_lista %}
-    <div class="activity-item">
-      <div class="activity-icon {% if act.puntaje >= 3 %}high-score{% else %}low-score{% endif %}">
-        {% if act.puntaje >= 3 %}
-        <i class="bi bi-emoji-smile-fill"></i>
-        {% else %}
-        <i class="bi bi-emoji-neutral-fill"></i>
-        {% endif %}
-      </div>
-      
-      <div class="activity-details">
-        <div class="activity-title">{{ act.titulo }}</div>
-        <div class="activity-class">
-          <i class="bi bi-folder-fill"></i>
-          {{ act.clase_nombre }}
-        </div>
-      </div>
-      
-      <div class="activity-score">
-        {% if act.puntaje %}
-        <span class="score-value score-small">{{ act.puntaje }}/5.0</span>
-        {% else %}
-        <a href="{% url 'estudiante:detalle_clase_estudiante' act.clase_id %}" class="score-value score-small pending-link">
-          Pendiente
-        </a>
-        {% endif %}
-      </div>
-    </div>
-    {% endfor %}
+  <div class="empty-state animate-in text-center p-5">
+    <div class="empty-icon fs-1 text-muted"><i class="bi bi-music-note"></i></div>
+    <h3 class="empty-title text-white">Aún no estás inscrito en clases</h3>
+    <p class="empty-text text-muted">Explora y únete a clases para comenzar.</p>
+    <a href="{% url 'estudiante:explorar_clases' %}" class="btn btn-success mt-2">Explorar clases</a>
   </div>
   {% endif %}
 
 </div>
-
-{% endblock %}
-
-{% block extra_js %}
-<script>
-  // Animate progress bars on scroll
-  const observerOptions = {
-    threshold: 0.2,
-    rootMargin: '0px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate-in');
-        
-        const progressBars = entry.target.querySelectorAll('.mini-progress-fill, .progress-bar-fill');
-        progressBars.forEach(bar => {
-          const targetWidth = bar.style.width;
-          bar.style.width = '0%';
-          setTimeout(() => {
-            bar.style.width = targetWidth;
-          }, 200);
-        });
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll('.class-progress-list, .activities-list, .empty-state').forEach(el => {
-    observer.observe(el);
-  });
-
-  // Efecto hover en las tarjetas de estadísticas
-  document.querySelectorAll('.stat-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-      this.style.transform = 'translateY(-4px)';
-    });
-    
-    card.addEventListener('mouseleave', function() {
-      this.style.transform = 'translateY(0)';
-    });
-  });
-</script>
 {% endblock %}

@@ -1,0 +1,68 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
+{% block page_title %}Juego Interactivo{% endblock %}
+{% block nav_clases %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'estudiante/css/resolver_juego.css' %}">
+<!-- Aquí puedes agregar un CSS específico para tus juegos si lo necesitas -->
+{% endblock %}
+
+{% block content %}
+<div class="exercise-container">
+    
+    <!-- BOTÓN VOLVER -->
+    <div class="back-nav">
+        <a href="{% url 'estudiante:detalle_clase_estudiante' clase_id %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Volver a la clase
+        </a>
+    </div>
+
+    <!-- ENCABEZADO -->
+    <div class="section-card mb-4">
+        <div class="exercise-header-badge" style="background: var(--spotify-green); color: black;">
+            <i class="bi bi-controller"></i> Juego: {{ ejercicio.juego_tipo|title }}
+        </div>
+        <h2 class="exercise-main-title">{{ ejercicio.titulo }}</h2>
+        {% if ejercicio.descripcion %}
+        <p class="exercise-main-desc">{{ ejercicio.descripcion }}</p>
+        {% endif %}
+    </div>
+
+    <!-- CONTENEDOR INTERACTIVO DEL JUEGO -->
+    <div class="section-card">
+        <div id="area-juego-interactivo">
+            <!-- Dependiendo del subtipo de juego (ejercicio.juego_tipo), 
+                 aquí renderizarás las tarjetas o elementos con JS -->
+            <p class="text-muted text-center py-4">Cargando tablero interactivo de {{ ejercicio.juego_tipo }}...</p>
+        </div>
+    </div>
+
+    <!-- FORMULARIO OCULTO PARA ENVIAR EL RESULTADO FINAL -->
+    <form id="formJuego" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="puntaje_obtenido" id="puntajeObtenido" value="100">
+        
+        <div class="form-actions" style="margin-top: 2rem;">
+            <a href="{% url 'estudiante:detalle_clase_estudiante' clase_id %}" class="btn-cancel-exercise">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-submit-exercise">
+                <i class="bi bi-send-fill"></i> Terminar y Enviar Juego
+            </button>
+        </div>
+    </form>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Aquí puedes programar la lógica en JavaScript para el juego 
+    // (ej: mover elementos, validar respuestas y actualizar el input oculto 'puntajeObtenido')
+    const tipoJuego = "{{ ejercicio.juego_tipo }}";
+    console.log("Tipo de juego activo:", tipoJuego);
+</script>
+{% endblock %}

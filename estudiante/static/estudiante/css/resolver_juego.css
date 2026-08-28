@@ -1,0 +1,198 @@
+/* ============================================ */
+/*    RESOLVER JUEGO INTERACTIVO - ESTUDIANTE   */
+/* ============================================ */
+
+:root {
+  --bg-body: #121212;
+  --bg-card: #181818;
+  --bg-hover: rgba(255, 255, 255, 0.05);
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-muted: #6a6a6a;
+  --accent-green: #1db954;
+  --spotify-green-hover: #1ed760;
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] {
+  --bg-body: #f8f9fe;
+  --bg-card: #ffffff;
+  --bg-hover: rgba(16, 185, 129, 0.06);
+  --text-primary: #1e1e2e;
+  --text-secondary: #4a4a6a;
+  --text-muted: #8b8ba7;
+  --accent-green: #10b981;
+  --spotify-green-hover: #059669;
+  --border-subtle: rgba(16, 185, 129, 0.08);
+  --border-color: rgba(16, 185, 129, 0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.exercise-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*                BOTÓN VOLVER                 */
+/* ═══════════════════════════════════════════ */
+
+.back-nav { margin-bottom: 1.25rem; }
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.btn-back:hover { color: var(--text-primary); }
+.btn-back i { transition: transform 0.2s; }
+.btn-back:hover i { transform: translateX(-3px); }
+
+/* ═══════════════════════════════════════════ */
+/*            TARJETAS Y ENCABEZADO            */
+/* ═══════════════════════════════════════════ */
+
+.section-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.exercise-header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(29, 185, 84, 0.1);
+  color: var(--accent-green);
+  padding: 0.4rem 0.9rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 1rem;
+}
+
+.exercise-main-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.exercise-main-desc {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        CONTENEDOR DEL JUEGO INTERACTIVO     */
+/* ═══════════════════════════════════════════ */
+
+.juego-tablero {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.juego-ficha {
+  background: var(--bg-hover);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.juego-ficha:hover {
+  border-color: var(--accent-green);
+  background: rgba(29, 185, 84, 0.05);
+  transform: translateY(-2px);
+}
+
+.juego-ficha.selected {
+  border-color: var(--accent-green);
+  background: rgba(29, 185, 84, 0.15);
+}
+
+/* ═══════════════════════════════════════════ */
+/*             ACCIONES / BOTONES              */
+/* ═══════════════════════════════════════════ */
+
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+.btn-cancel-exercise {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: color 0.2s;
+}
+
+.btn-cancel-exercise:hover { color: var(--danger); }
+
+.btn-submit-exercise {
+  background: var(--accent-green);
+  color: #fff;
+  border: none;
+  padding: 0.85rem 2.5rem;
+  border-radius: 25px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-submit-exercise:hover {
+  background: var(--spotify-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(29, 185, 84, 0.3);
+}
+
+/* ═══════════════════════════════════════════ */
+/*                 RESPONSIVE                  */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .exercise-container { padding: 1.5rem 1rem; }
+  .exercise-main-title { font-size: 1.4rem; }
+  .section-card { padding: 1.2rem; }
+  .form-actions { flex-direction: column-reverse; gap: 1rem; }
+  .btn-submit-exercise, .btn-cancel-exercise { width: 100%; justify-content: center; }
+}
