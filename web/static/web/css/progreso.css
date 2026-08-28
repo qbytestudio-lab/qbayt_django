@@ -166,17 +166,6 @@ body {
   50% { transform: translateY(-8px); }
 }
 
-.hero-bg-pattern {
-  position: absolute;
-  top: -50%;
-  right: -10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-}
-
 /* ═══════════════════════════════════════════ */
 /*         OVERALL PROGRESS BAR               */
 /* ═══════════════════════════════════════════ */
@@ -550,6 +539,54 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
+/*         CLASS CARD GRID                    */
+/* ═══════════════════════════════════════════ */
+
+.classes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.class-card-link {
+  text-decoration: none;
+  display: block;
+  height: 100%;
+}
+
+.class-card-container {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 16px;
+  padding: 1.75rem;
+  transition: all 0.3s ease;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.class-card-container:hover {
+  background: var(--bg-hover) !important;
+  border-color: var(--border-color) !important;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px var(--shadow);
+}
+
+.class-card-container h3 {
+  color: var(--text-primary) !important;
+}
+
+.class-card-container .text-muted {
+  color: var(--text-muted) !important;
+}
+
+.class-card-container .text-success {
+  color: var(--spotify-green) !important;
+}
+
+/* ═══════════════════════════════════════════ */
 /*         ACTIVITY LIST                      */
 /* ═══════════════════════════════════════════ */
 
@@ -674,6 +711,17 @@ body {
   text-decoration: none;
 }
 
+[data-theme="light"] .pending-link {
+  color: #d97706;
+  background: rgba(245, 158, 11, 0.1);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+[data-theme="light"] .pending-link:hover {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.2);
+}
+
 /* ═══════════════════════════════════════════ */
 /*         EMPTY STATE                        */
 /* ═══════════════════════════════════════════ */
@@ -729,6 +777,17 @@ body {
   background: var(--spotify-green-hover);
   transform: scale(1.05);
   color: #fff;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         GRÁFICA                            */
+/* ═══════════════════════════════════════════ */
+
+.chart-container {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 12px;
+  padding: 1rem;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -827,6 +886,10 @@ body {
 
   .class-badge {
     align-self: flex-end;
+  }
+
+  .classes-grid {
+    grid-template-columns: 1fr;
   }
 }
 

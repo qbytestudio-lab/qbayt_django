@@ -7,6 +7,138 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'web/css/progreso.css' %}">
+<style>
+    .animate-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+    
+    @keyframes fadeInUp {
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .stat-card {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    
+    .quick-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .summary-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+    
+    .summary-item i { font-size: 1.5rem; }
+    
+    .summary-item div {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .summary-item strong {
+        color: var(--text-primary);
+        font-size: 1rem;
+    }
+    
+    .summary-item span {
+        color: var(--text-muted);
+        font-size: 0.75rem;
+    }
+    
+    .recent-exercises {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+    }
+    
+    .exercise-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 1rem 1.2rem;
+        transition: all 0.2s;
+    }
+    
+    .exercise-item:hover {
+        background: var(--bg-hover);
+        transform: translateX(4px);
+    }
+    
+    .exercise-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        flex-shrink: 0;
+    }
+    
+    .exercise-icon.approved {
+        background: rgba(16, 185, 129, 0.12);
+        color: #1db954;
+    }
+    
+    .exercise-icon.pending {
+        background: rgba(245, 158, 11, 0.12);
+        color: #ff9f43;
+    }
+    
+    .exercise-info { flex: 1; min-width: 0; }
+    
+    .exercise-info h4 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.15rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .exercise-info p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin: 0;
+    }
+    
+    .score-badge {
+        background: rgba(16, 185, 129, 0.12);
+        color: #1db954;
+        padding: 0.3rem 0.7rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        white-space: nowrap;
+    }
+    
+    .score-badge.pending {
+        background: rgba(245, 158, 11, 0.12);
+        color: #ff9f43;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -21,6 +153,31 @@
     </div>
     <div class="hero-decoration">
       <div class="hero-icon-circle"><i class="bi bi-bar-chart-line-fill"></i></div>
+    </div>
+  </div>
+
+  <!-- RESUMEN RÁPIDO -->
+  <div class="quick-summary animate-in">
+    <div class="summary-item">
+      <i class="bi bi-calendar-check" style="color: #1db954;"></i>
+      <div>
+        <strong>{{ clase.fecha_creacion|date:"d M Y" }}</strong>
+        <span>Fecha de inicio</span>
+      </div>
+    </div>
+    <div class="summary-item">
+      <i class="bi bi-people" style="color: #7c6fff;"></i>
+      <div>
+        <strong>{{ clase.estudiantes.count }}</strong>
+        <span>Estudiantes</span>
+      </div>
+    </div>
+    <div class="summary-item">
+      <i class="bi bi-collection" style="color: #ff9f43;"></i>
+      <div>
+        <strong>{{ total_ejercicios }}</strong>
+        <span>Ejercicios totales</span>
+      </div>
     </div>
   </div>
 
@@ -43,7 +200,7 @@
 
   <!-- TARJETAS DE ESTADÍSTICAS ESPECÍFICAS -->
   <div class="stats-grid">
-    <div class="stat-card stat-gradient-green">
+    <div class="stat-card stat-gradient-green animate-in">
       <div class="stat-icon-wrapper"><i class="bi bi-check-circle-fill"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ ejercicios_completados }}</div>
@@ -51,7 +208,7 @@
       </div>
     </div>
 
-    <div class="stat-card stat-gradient-orange">
+    <div class="stat-card stat-gradient-orange animate-in">
       <div class="stat-icon-wrapper"><i class="bi bi-hourglass-split"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ ejercicios_pendientes }}</div>
@@ -59,7 +216,7 @@
       </div>
     </div>
 
-    <div class="stat-card stat-gradient-purple">
+    <div class="stat-card stat-gradient-purple animate-in">
       <div class="stat-icon-wrapper"><i class="bi bi-percent"></i></div>
       <div class="stat-content">
         <div class="stat-value">{{ porcentaje_clase }}%</div>
@@ -68,9 +225,9 @@
     </div>
   </div>
 
-  <!-- GRÁFICA DE RENDIMIENTO DE LA CLASE -->
+  <!-- GRÁFICA DE RENDIMIENTO -->
   <div class="section-header mt-4">
-    <h2 class="section-title"><i class="bi bi-graph-up"></i> Rendimiento por tipo de ejercicio en esta clase</h2>
+    <h2 class="section-title"><i class="bi bi-graph-up"></i> Rendimiento por tipo de ejercicio</h2>
   </div>
 
   <div class="overall-progress-card animate-in p-4 mb-4" style="background: #121212; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px;">
@@ -78,6 +235,40 @@
       <canvas id="graficoRendimientoClase"></canvas>
     </div>
   </div>
+
+  <!-- ACTIVIDAD RECIENTE -->
+  {% if intentos_recientes %}
+  <div class="section-header mt-4">
+    <h2 class="section-title">
+      <i class="bi bi-clock-history"></i> Actividad reciente en esta clase
+    </h2>
+  </div>
+
+  <div class="recent-exercises">
+    {% for intento in intentos_recientes %}
+    <div class="exercise-item">
+      <div class="exercise-icon {% if intento.aprobado %}approved{% else %}pending{% endif %}">
+        {% if intento.aprobado %}
+        <i class="bi bi-check-circle-fill"></i>
+        {% else %}
+        <i class="bi bi-clock-fill"></i>
+        {% endif %}
+      </div>
+      <div class="exercise-info">
+        <h4>{{ intento.ejercicio.titulo }}</h4>
+        <p>{{ intento.fecha_envio|date:"d M, H:i" }}</p>
+      </div>
+      <div class="exercise-score">
+        {% if intento.calificacion %}
+        <span class="score-badge">{{ intento.calificacion }}/5.0</span>
+        {% else %}
+        <span class="score-badge pending">Pendiente</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
 
   <!-- BOTÓN DE RETORNO -->
   <div class="mt-4 mb-5">
@@ -100,27 +291,64 @@
           datasets: [{
               label: 'Calificación Promedio',
               data: {{ promedios|safe }},    
-              backgroundColor: 'rgba(29, 185, 84, 0.2)',
-              borderColor: '#1db954',
+              backgroundColor: [
+                  'rgba(29, 185, 84, 0.3)',
+                  'rgba(124, 111, 255, 0.3)',
+                  'rgba(255, 159, 67, 0.3)',
+                  'rgba(255, 107, 157, 0.3)',
+                  'rgba(64, 169, 255, 0.3)',
+              ],
+              borderColor: [
+                  '#1db954',
+                  '#7c6fff',
+                  '#ff9f43',
+                  '#ff6b9d',
+                  '#40a9ff',
+              ],
               borderWidth: 2,
-              borderRadius: 6
+              borderRadius: 8,
+              maxBarThickness: 50,
           }]
       },
       options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
+          plugins: {
+              legend: { display: false },
+              tooltip: {
+                  backgroundColor: 'rgba(0,0,0,0.8)',
+                  padding: 12,
+                  cornerRadius: 8,
+                  callbacks: {
+                      label: function(context) {
+                          return 'Promedio: ' + context.parsed.y.toFixed(2) + '/5.0';
+                      }
+                  }
+              }
+          },
           scales: {
               y: { 
                   beginAtZero: true, 
                   max: 5.0, 
                   grid: { color: 'rgba(255,255,255,0.05)' }, 
-                  ticks: { color: '#94a3b8' } 
+                  ticks: { 
+                      color: '#94a3b8',
+                      callback: function(value) {
+                          return value + ' ★';
+                      }
+                  } 
               },
               x: { 
                   grid: { display: false }, 
-                  ticks: { color: '#94a3b8' } 
+                  ticks: { 
+                      color: '#94a3b8',
+                      font: { weight: 'bold' }
+                  } 
               }
+          },
+          animation: {
+              duration: 1000,
+              easing: 'easeInOutQuart'
           }
       }
   });

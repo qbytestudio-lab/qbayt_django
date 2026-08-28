@@ -33,25 +33,31 @@
     </div>
 
     <!-- RESUMEN / KPIs -->
-    <div class="summary-grid" style="margin-bottom: 2rem;">
+    <div class="summary-grid">
         <div class="summary-card purple">
             <div class="summary-icon"><i class="bi bi-people-fill"></i></div>
-            <div class="summary-value purple">{{ total_estudiantes }}</div>
-            <div class="summary-label">Estudiantes</div>
+            <div>
+                <div class="summary-value purple">{{ total_estudiantes }}</div>
+                <div class="summary-label">Estudiantes</div>
+            </div>
         </div>
         
         <div class="summary-card green">
             <div class="summary-icon"><i class="bi bi-list-task"></i></div>
-            <div class="summary-value green">{{ total_ejercicios }}</div>
-            <div class="summary-label">Ejercicios</div>
+            <div>
+                <div class="summary-value green">{{ total_ejercicios }}</div>
+                <div class="summary-label">Ejercicios</div>
+            </div>
         </div>
         
         <div class="summary-card orange">
             <div class="summary-icon"><i class="bi bi-trophy-fill"></i></div>
-            <div class="summary-value orange">
-                {% if data_estudiantes %}{{ data_estudiantes.0.progreso }}%{% else %}0%{% endif %}
+            <div>
+                <div class="summary-value orange">
+                    {% if data_estudiantes %}{{ data_estudiantes.0.progreso }}%{% else %}0%{% endif %}
+                </div>
+                <div class="summary-label">Progreso top</div>
             </div>
-            <div class="summary-label">Progreso top</div>
         </div>
     </div>
 
@@ -63,7 +69,6 @@
                     <th class="col-student sticky-col">Estudiante</th>
                     <th class="col-average text-center">Progreso Global</th>
                     
-                    <!-- Bucle con los ejercicios que ya mandas en tu contexto -->
                     {% for item_ej in data_ejercicios %}
                     <th class="col-exercise text-center" title="{{ item_ej.ejercicio.titulo }}">
                         <span class="exercise-date">{{ item_ej.ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
@@ -75,14 +80,17 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Filas de Estudiantes basadas en tu estructura 'data_estudiantes' -->
                 {% for item in data_estudiantes %}
                 <tr>
                     <!-- Columna 1: Nombre del Estudiante (Fija) -->
                     <td class="sticky-col student-name-cell">
                         <div class="student-info-cell">
                             <div class="student-avatar-sm">
+                                {% if item.estudiante.perfil.foto_perfil %}
+                                <img src="{{ item.estudiante.perfil.foto_perfil.url }}" alt="{{ item.estudiante.username }}">
+                                {% else %}
                                 {{ item.estudiante.username|first|upper }}
+                                {% endif %}
                             </div>
                             <div class="student-text-data">
                                 <span class="s-name">{{ item.estudiante.get_full_name|default:item.estudiante.username }}</span>
@@ -91,50 +99,42 @@
                         </div>
                     </td>
 
-                    <!-- Columna 2: Progreso Global del Estudiante -->
+                    <!-- Columna 2: Progreso Global -->
                     <td class="text-center">
-                        <div class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}" style="display:inline-block; font-weight:700;">
+                        <span class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
                             {{ item.progreso }}%
-                        </div>
-                        <div style="font-size: 0.75rem; color: #64748b;">{{ item.completadas }}/{{ item.total }}</div>
+                        </span>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completadas }}/{{ item.total }}</div>
                     </td>
 
                     <!-- Columnas Dinámicas de Ejercicios -->
                     {% for item_ej in data_ejercicios %}
                     <td class="text-center grade-cell">
-                        
-                        <!-- Buscamos el intento del estudiante para este ejercicio de forma segura dentro del diccionario -->
-                        {% with intento=None %}
+                        {% with intento_encontrado=False %}
                             {% for id_ej, i in item.intentos_dict.items %}
                                 {% if id_ej == item_ej.ejercicio.id %}
                                     {% if i.calificacion is not None and i.aprobado %}
-                                        <span class="badge-status" style="background: #dcfce7; color: #166534; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px;">
-                                            {{ i.calificacion }}/5.0
+                                        <span class="badge-status aprobado">
+                                            <i class="bi bi-check-circle-fill"></i> {{ i.calificacion }}/5.0
                                         </span>
                                     {% elif i.calificacion is not None %}
-                                        <span class="badge-status" style="background: #fee2e2; color: #991b1b; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 6px;">
-                                            {{ i.calificacion }}/5.0
+                                        <span class="badge-status reprobado">
+                                            <i class="bi bi-x-circle-fill"></i> {{ i.calificacion }}/5.0
                                         </span>
                                     {% elif i.fecha_envio %}
-                                        <span class="badge-status" style="background: #fef9c3; color: #854d0e; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.75rem;">
-                                            Sin calificar
+                                        <span class="badge-status sin-calificar">
+                                            <i class="bi bi-clock-fill"></i> Sin calificar
                                         </span>
                                     {% else %}
-                                        <span class="badge-status not-started" style="background: #f1f5f9; color: #64748b; padding: 0.3rem 0.6rem; border-radius: 6px;">
-                                            —
-                                        </span>
+                                        <span class="badge-status no-iniciado">—</span>
                                     {% endif %}
                                 {% endif %}
                             {% endfor %}
                             
-                            <!-- Si no existe ningún intento registrado para este ejercicio -->
                             {% if not item.intentos_dict %}
-                                <span class="badge-status not-started" style="background: #f1f5f9; color: #64748b; padding: 0.3rem 0.6rem; border-radius: 6px;">
-                                    —
-                                </span>
+                                <span class="badge-status no-iniciado">—</span>
                             {% endif %}
                         {% endwith %}
-
                     </td>
                     {% endfor %}
                 </tr>
@@ -152,170 +152,6 @@
 
 </div>
 
-<style>
-/* Estilos integrados para la matriz estilo Classroom */
-.grades-matrix-container {
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
-    font-family: 'Inter', sans-serif;
-    color: #1e293b;
-}
-
-.matrix-header {
-    margin-bottom: 2rem;
-}
-
-.back-link-modern {
-    color: #64748b;
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    margin-bottom: 0.5rem;
-}
-
-.matrix-header h1 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    margin: 0 0 0.2rem 0;
-    color: #0f172a;
-}
-
-.matrix-header p {
-    margin: 0;
-    color: #64748b;
-    font-size: 0.95rem;
-}
-
-.table-responsive-wrapper {
-    background: white;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
-    overflow-x: auto;
-    max-height: 65vh;
-}
-
-.grades-matrix-table {
-    width: 100%;
-    border-collapse: collapse;
-    white-space: nowrap;
-    text-align: left;
-}
-
-.grades-matrix-table th, 
-.grades-matrix-table td {
-    padding: 1rem 1.25rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-size: 0.9rem;
-}
-
-.grades-matrix-table th {
-    background: #f8fafc;
-    color: #475569;
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
-    position: sticky;
-    top: 0;
-    z-index: 10;
-}
-
-.sticky-col {
-    position: sticky;
-    left: 0;
-    background: white;
-    z-index: 5;
-    box-shadow: 2px 0 5px -2px rgba(0,0,0,0.05);
-}
-
-.grades-matrix-table th.sticky-col {
-    z-index: 15;
-    background: #f8fafc;
-}
-
-.col-student {
-    min-width: 260px;
-}
-
-.col-average {
-    min-width: 140px;
-}
-
-.col-exercise {
-    min-width: 180px;
-    max-width: 220px;
-}
-
-.exercise-date {
-    display: block;
-    font-size: 0.65rem;
-    color: #94a3b8;
-    text-transform: uppercase;
-}
-
-.exercise-name {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    text-transform: none;
-    font-size: 0.85rem;
-    color: #0f172a;
-}
-
-.student-info-cell {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.student-avatar-sm {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    background: #7c3aed;
-    color: white;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    flex-shrink: 0;
-}
-
-.student-text-data {
-    display: flex;
-    flex-direction: column;
-}
-
-.s-name {
-    font-weight: 600;
-    color: #0f172a;
-}
-
-.s-username {
-    font-size: 0.75rem;
-    color: #94a3b8;
-}
-
-.grade-badge-cell {
-    text-decoration: none;
-    display: inline-block;
-}
-
-.badge-status {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.6rem;
-    border-radius: 6px;
-    font-weight: 600;
-    background: #f1f5f9;
-    color: #64748b;
-}
-</style>
 {% endblock %}
 
 {% block extra_js %}

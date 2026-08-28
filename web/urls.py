@@ -36,4 +36,6 @@ urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/logout/', views.admin_logout_view, name='admin_logout'),
     path('clase/<int:clase_id>/progreso/', views.progreso_clase_detalle, name='progreso_detalle_clase'),
+    path('certificados/', views.certificados, name='certificados'),
+    path('certificados/descargar/<int:clase_id>/', views.descargar_certificado, name='descargar_certificado'),
 ]

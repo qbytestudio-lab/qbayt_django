@@ -12,8 +12,14 @@ import json
 from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db.models import Count, Q, Avg
-from ejercicios.models import Ejercicio, IntentoEjercicio 
-
+from ejercicios.models import Ejercicio, IntentoEjercicio
+from clase.models import Clase
+from django.http import HttpResponse
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.units import inch
+from reportlab.lib.colors import HexColor
+import io
 
 
 def index(request):
@@ -564,9 +570,70 @@ def progreso_clase_detalle(request, clase_id):
     
     return render(request, 'web/progreso_detalle_clase.html', context)
 
+@login_required
 def certificados(request):
-    return render(request, 'web/certificados.html')
-
+    """
+    Vista de certificados del estudiante
+    """
+    
+    # Obtener clases donde el estudiante está inscrito
+    clases_inscritas = request.user.clases_estudiante.all()
+    
+    certificados_lista = []
+    
+    for clase in clases_inscritas:
+        # Calcular progreso
+        total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
+        ejercicios_completados = IntentoEjercicio.objects.filter(
+            estudiante=request.user,
+            ejercicio__clase=clase,
+            aprobado=True
+        ).values('ejercicio').distinct().count()
+        
+        progreso = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
+        
+        # Solo mostrar certificado si el progreso es 100%
+        if progreso >= 100:
+            # Obtener promedio
+            promedio = IntentoEjercicio.objects.filter(
+                estudiante=request.user,
+                ejercicio__clase=clase,
+                calificacion__isnull=False
+            ).aggregate(avg=Avg('calificacion'))['avg'] or 0
+            
+            # Obtener fecha de completación
+            ultimo_intento = IntentoEjercicio.objects.filter(
+                estudiante=request.user,
+                ejercicio__clase=clase,
+                aprobado=True
+            ).order_by('-fecha_envio').first()
+            
+            # Generar código de verificación único
+            codigo_verificacion = f"CERT-{timezone.now().year}-{clase.id:04d}-{request.user.id:04d}"
+            
+            # Calcular horas (estimación: 2 horas por ejercicio)
+            horas_completadas = total_ejercicios * 2
+            
+            certificados_lista.append({
+                'id': clase.id,
+                'nombre_curso': clase.nombre,
+                'instructor': clase.docente.get_full_name() or clase.docente.username,
+                'fecha_emision': ultimo_intento.fecha_envio.strftime("%d de %B, %Y") if ultimo_intento else timezone.now().strftime("%d de %B, %Y"),
+                'codigo_verificacion': codigo_verificacion,
+                'horas': horas_completadas,
+                'promedio': round(promedio, 1),
+                'progreso': progreso,
+            })
+    
+    # Ordenar por fecha (más recientes primero)
+    certificados_lista.sort(key=lambda x: x['fecha_emision'], reverse=True)
+    
+    context = {
+        'certificados': certificados_lista,
+        'total_certificados': len(certificados_lista),
+    }
+    
+    return render(request, 'web/certificados.html', context)
 @login_required
 def mis_clases(request):
     if request.user.perfil.rol == 'docente':
@@ -791,3 +858,225 @@ def redirigir_curso_a_clase(request, curso_id):
     
     # Si no hay clase, redirigir a explorar
     return redirect('estudiante:explorar_clases')
+
+@login_required
+def descargar_certificado(request, clase_id):
+    """
+    Vista para descargar certificado en PDF
+    """
+    
+    # Obtener la clase
+    clase = get_object_or_404(Clase, id=clase_id)
+    
+    # Verificar que el estudiante esté inscrito
+    if request.user not in clase.estudiantes.all():
+        messages.error(request, 'No tienes acceso a este certificado.')
+        return redirect('certificados')
+    
+    # Calcular datos del certificado
+    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
+    ejercicios_completados = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio__clase=clase,
+        aprobado=True
+    ).values('ejercicio').distinct().count()
+    
+    progreso = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
+    
+    # Verificar que el progreso sea 100%
+    if progreso < 100:
+        messages.error(request, 'Aún no has completado esta clase al 100%.')
+        return redirect('certificados')
+    
+    # Obtener promedio
+    promedio = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio__clase=clase,
+        calificacion__isnull=False
+    ).aggregate(avg=Avg('calificacion'))['avg'] or 0
+    
+    # Obtener fecha de completación
+    ultimo_intento = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio__clase=clase,
+        aprobado=True
+    ).order_by('-fecha_envio').first()
+    
+    fecha_emision = ultimo_intento.fecha_envio if ultimo_intento else timezone.now()
+    
+    # Intentar importar reportlab
+    try:
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.pagesizes import A4, landscape
+        from reportlab.lib.colors import HexColor
+        
+        # Crear PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="certificado_{clase.nombre}.pdf"'
+        
+        # Crear canvas en orientación horizontal
+        p = canvas.Canvas(response, pagesize=landscape(A4))
+        width, height = landscape(A4)
+        
+        # Colores
+        color_principal = HexColor('#1db954')
+        color_secundario = HexColor('#7c6fff')
+        color_texto = HexColor('#333333')
+        color_dorado = HexColor('#FFD700')
+        
+        # Fondo
+        p.setFillColor(HexColor('#f8f9fe'))
+        p.rect(0, 0, width, height, fill=1, stroke=0)
+        
+        # Borde decorativo
+        p.setStrokeColor(color_dorado)
+        p.setLineWidth(3)
+        p.rect(30, 30, width-60, height-60, fill=0, stroke=1)
+        
+        # Borde interior
+        p.setStrokeColor(color_principal)
+        p.setLineWidth(1)
+        p.rect(40, 40, width-80, height-80, fill=0, stroke=1)
+        
+        # Título principal
+        p.setFillColor(color_principal)
+        p.setFont("Helvetica-Bold", 28)
+        p.drawCentredString(width/2, height-120, "CERTIFICADO")
+        
+        # Subtítulo
+        p.setFillColor(color_secundario)
+        p.setFont("Helvetica-Bold", 16)
+        p.drawCentredString(width/2, height-150, "DE FINALIZACIÓN")
+        
+        # Línea decorativa
+        p.setStrokeColor(color_dorado)
+        p.setLineWidth(1.5)
+        p.line(width/2 - 100, height-165, width/2 + 100, height-165)
+        
+        # Texto de presentación
+        p.setFillColor(color_texto)
+        p.setFont("Helvetica", 14)
+        p.drawCentredString(width/2, height-200, "Este certificado se otorga a:")
+        
+        # Nombre del estudiante
+        p.setFillColor(color_secundario)
+        p.setFont("Helvetica-Bold", 24)
+        p.drawCentredString(width/2, height-240, request.user.get_full_name() or request.user.username)
+        
+        # Texto de clase
+        p.setFillColor(color_texto)
+        p.setFont("Helvetica", 14)
+        p.drawCentredString(width/2, height-280, "Por completar exitosamente la clase:")
+        
+        # Nombre de la clase
+        p.setFillColor(color_principal)
+        p.setFont("Helvetica-Bold", 20)
+        p.drawCentredString(width/2, height-315, clase.nombre)
+        
+        # Detalles
+        p.setFillColor(color_texto)
+        p.setFont("Helvetica", 12)
+        p.drawCentredString(width/2, height-360, f"Docente: {clase.docente.get_full_name() or clase.docente.username}")
+        p.drawCentredString(width/2, height-380, f"Fecha: {fecha_emision.strftime('%d de %B de %Y')}")
+        p.drawCentredString(width/2, height-400, f"Promedio: {promedio:.1f}")
+        
+        # Firma decorativa
+        p.setStrokeColor(color_texto)
+        p.setLineWidth(0.5)
+        p.line(width/2 - 150, 120, width/2 + 150, 120)
+        p.setFillColor(color_texto)
+        p.setFont("Helvetica", 10)
+        p.drawCentredString(width/2, 105, "Director de QBYT")
+        
+        # Sello decorativo
+        p.setFillColor(color_dorado)
+        p.setFont("Helvetica-Bold", 10)
+        p.drawCentredString(width/2, 200, "★ QBYT ★")
+        
+        p.showPage()
+        p.save()
+        
+        return response
+        
+    except ImportError:
+        # Si reportlab no está instalado, generar HTML simple
+        html_content = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>Certificado - {clase.nombre}</title>
+            <style>
+                body {{
+                    font-family: Arial, sans-serif;
+                    text-align: center;
+                    padding: 50px;
+                    background: #f8f9fe;
+                }}
+                .certificado {{
+                    border: 3px solid #FFD700;
+                    padding: 50px;
+                    max-width: 800px;
+                    margin: 0 auto;
+                    background: white;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+                }}
+                h1 {{
+                    color: #1db954;
+                    font-size: 36px;
+                    margin-bottom: 10px;
+                }}
+                h2 {{
+                    color: #7c6fff;
+                    font-size: 24px;
+                    margin-bottom: 30px;
+                }}
+                .nombre {{
+                    font-size: 28px;
+                    font-weight: bold;
+                    color: #333;
+                    margin: 20px 0;
+                }}
+                .clase {{
+                    font-size: 22px;
+                    color: #1db954;
+                    margin: 20px 0;
+                }}
+                .fecha {{
+                    color: #666;
+                    margin-top: 30px;
+                }}
+                .sello {{
+                    display: inline-block;
+                    width: 100px;
+                    height: 100px;
+                    border: 3px solid #FFD700;
+                    border-radius: 50%;
+                    line-height: 100px;
+                    font-size: 12px;
+                    color: #FFD700;
+                    margin-top: 30px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="certificado">
+                <h1>CERTIFICADO</h1>
+                <h2>DE FINALIZACIÓN</h2>
+                <p>Se otorga a:</p>
+                <div class="nombre">{request.user.get_full_name() or request.user.username}</div>
+                <p>Por completar exitosamente la clase:</p>
+                <div class="clase">{clase.nombre}</div>
+                <p>Docente: {clase.docente.get_full_name() or clase.docente.username}</p>
+                <p>Promedio: {promedio:.1f}</p>
+                <p class="fecha">Fecha: {fecha_emision.strftime('%d de %B de %Y')}</p>
+                <div class="sello">★ QBYT ★</div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        response = HttpResponse(html_content, content_type='text/html')
+        response['Content-Disposition'] = f'attachment; filename="certificado_{clase.nombre}.html"'
+        
+        return response
