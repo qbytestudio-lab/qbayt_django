@@ -233,7 +233,7 @@
                     <div class="section-header">
                         <h3 class="section-title">
                             <i class="bi bi-collection-play-fill" style="color: var(--accent-purple);"></i>
-                            Contenido de la clase
+                           Ejercicios de la clase
                         </h3>
                         <button class="btn-add purple" data-bs-toggle="modal" data-bs-target="#modalTipoEjercicio">
                             <i class="bi bi-plus-lg"></i> Crear Ejercicio
@@ -253,7 +253,7 @@
                                 
                                 <div class="ejercicio-actions">
                                     <a href="{% url 'ejercicios:detalle_ejercicio_docente' ejercicio.clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
-                                        ❓ {{ ejercicio.preguntas.count }} pgs
+                                         {{ ejercicio.preguntas.count }} Ejercicio <i class="bi bi-chevron-right"></i>
                                     </a>
 
                                     <button type="button" class="btn-ejercicio btn-ejercicio-eliminar"

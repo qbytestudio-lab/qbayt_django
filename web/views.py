@@ -380,7 +380,6 @@ def detalle_curso(request, curso_id):
 
 @login_required
 def progreso(request):
-    from ejercicios.models import Ejercicio, IntentoEjercicio
     
     # Obtener clases del estudiante
     clases = request.user.clases_estudiante.all()
