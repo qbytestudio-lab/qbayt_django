@@ -179,6 +179,13 @@ def solicitar_clase(request):
         clase_id = request.POST.get('clase_id')
         clase_solicitada = get_object_or_404(Clase, id=clase_id)
 
+        # === 🚫 RESTRICCIÓN GLOBAL POR TÍTULO ===
+        # Si el título es "Acordes mayores" (sin importar el docente), se bloquea la solicitud
+        if clase_solicitada.nombre.strip().lower() == "acordes mayores":
+            messages.error(request, "El acceso y registro a la clase 'Acordes mayores' está restringido.")
+            referer = request.META.get('HTTP_REFERER')
+            return redirect(referer if referer else 'inicio')
+
         clases_misma_categoria = request.user.clases_estudiante.filter(
             categoria_tema=clase_solicitada.categoria_tema
         )
@@ -187,15 +194,30 @@ def solicitar_clase(request):
             messages.warning(request, 'Ya estás en esta clase.')
         elif clases_misma_categoria.exists():
             messages.error(request, f'Ya tienes una clase en la categoría "{clase_solicitada.get_categoria_tema_display()}".')
-        elif SolicitudClase.objects.filter(clase=clase_solicitada, estudiante=request.user, estado='pendiente').exists():
-            messages.warning(request, 'Ya tienes una solicitud pendiente para esta clase.')
         else:
-            SolicitudClase.objects.create(clase=clase_solicitada, estudiante=request.user)
+            # === USO DE get_or_create PARA EVITAR EL CRASH DE INTEGRITYERROR ===
+            solicitud, creada = SolicitudClase.objects.get_or_create(
+                clase=clase_solicitada,
+                estudiante=request.user,
+                defaults={'estado': 'pendiente'}
+            )
             
-            # ✅ CREAR NOTIFICACIÓN PARA EL DOCENTE
-            notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
-            
-            messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
+            if not creada:
+                # Si la solicitud ya existía previamente en la base de datos:
+                if solicitud.estado == 'pendiente':
+                    messages.warning(request, 'Ya tienes una solicitud pendiente para esta clase.')
+                elif solicitud.estado == 'rechazada':
+                    # Si fue rechazada antes, puedes actualizarla a pendiente de nuevo o avisarle
+                    solicitud.estado = 'pendiente'
+                    solicitud.save()
+                    notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
+                    messages.success(request, f'Nueva solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
+                else:
+                    messages.info(request, 'Ya tienes una gestión previa registrada con esta clase.')
+            else:
+                # Si se creó por primera vez con éxito
+                notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
+                messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
     
     referer = request.META.get('HTTP_REFERER')
     if referer:

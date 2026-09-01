@@ -515,6 +515,10 @@ def progreso_clase_detalle(request, clase_id):
     # Obtener la clase específica y verificar que el estudiante esté inscrito (o sea suya)
     clase = get_object_or_404(Clase, id=clase_id)
     
+    if clase.nombre.strip().lower() == "acordes mayores":
+        messages.error(request, "El acceso a la clase 'Acordes mayores' está restringido temporalmente.")
+        return redirect('progreso') # O a la vista principal de estudiantes
+        
     # Todos los ejercicios de esta clase en específico
     ejercicios_clase = Ejercicio.objects.filter(clase=clase)
     total_ejercicios = ejercicios_clase.count()
