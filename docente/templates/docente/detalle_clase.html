@@ -437,42 +437,55 @@
             <div class="modal-body px-4 pb-4">
                 <p class="text-center text-muted mb-4">Elige el formato que mejor se adapte a tu contenido</p>
                 <div class="ejercicio-options-grid">
+                    
+                    <!-- 1. Quiz -->
                     <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
                         <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.</p>
                         <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
                     </a>
-                    <a href="{% url 'ejercicios:crear_imagen_quiz' clase.id %}" class="ejercicio-option-card">
-                        <div class="option-icon imagen-icon"><i class="bi bi-image-fill"></i></div>
-                        <h4 class="option-title">Imagen + Quiz</h4>
-                        <p class="option-desc">Una imagen grande con preguntas de opción múltiple debajo.</p>
-                        <span class="option-badge badge-cyan"><i class="bi bi-camera-fill"></i> Estilo Cisco NetAcad</span>
+                    
+                    <!-- 2. Video + Quiz -->
+                    <a href="{% url 'ejercicios:crear_video_quiz' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon video-icon"><i class="bi bi-play-btn-fill"></i></div>
+                        <h4 class="option-title">Video + Quiz</h4>
+                        <p class="option-desc">Un video con preguntas de opción múltiple para evaluar comprensión.</p>
+                        <span class="option-badge badge-blue"><i class="bi bi-camera-video-fill"></i> Estilo video-lección</span>
                     </a>
+                    
+                    <!-- 3. Juego Interactivo -->
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
                         <h4 class="option-title">Juego Interactivo</h4>
                         <p class="option-desc">Gamificación: emparejar, ordenar, o completar con puntaje.</p>
                         <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y premios</span>
                     </a>
+                    
+                    <!-- 4. Texto / Lectura -->
                     <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
                         <h4 class="option-title">Texto / Lectura</h4>
                         <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
                         <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
                     </a>
+                    
+                    <!-- 5. Verdadero o Falso -->
                     <a href="{% url 'ejercicios:crear_verdadero_falso' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon vf-icon"><i class="bi bi-check-circle-fill"></i></div>
                         <h4 class="option-title">Verdadero o Falso</h4>
                         <p class="option-desc">Afirmaciones rápidas donde el estudiante elige V o F.</p>
                         <span class="option-badge badge-pink"><i class="bi bi-lightning-fill"></i> Rápido y efectivo</span>
                     </a>
+                    
+                    <!-- 6. Completar Espacios -->
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon completar-icon"><i class="bi bi-input-cursor-text"></i></div>
                         <h4 class="option-title">Completar Espacios</h4>
                         <p class="option-desc">Frases con espacios en blanco que el estudiante debe rellenar.</p>
                         <span class="option-badge badge-yellow"><i class="bi bi-pencil-fill"></i> Rellenar huecos</span>
                     </a>
+                    
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0 justify-content-center">

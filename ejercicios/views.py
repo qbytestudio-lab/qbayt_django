@@ -1,19 +1,12 @@
 from decimal import Decimal, InvalidOperation
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
-
-from .models import (
-    Ejercicio,
-    Pregunta,
-    Opcion,
-    IntentoEjercicio,
-    RespuestaEstudiante,
-)
+from datetime import datetime
+from django.utils import timezone  #  NUEVO
+from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante,)
 from clase.models import Clase
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion
-
 
 # ============================================================
 # VISTA GENERAL / ENRUTADOR PARA CREAR EJERCICIO
@@ -95,37 +88,123 @@ def crear_quiz(request, clase_id):
 
 
 # ============================================================
-# CREAR QUIZ CON IMAGEN
+# CREAR QUIZ CON VIDEO
 # ============================================================
 @login_required
-def crear_imagen_quiz(request, clase_id):
-    clase = get_object_or_404(Clase, id=clase_id)
-
+def crear_video_quiz(request, clase_id):
+    """
+    Vista para crear un ejercicio de tipo Video + Quiz
+    """
+    from django.utils import timezone
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
-        imagen = request.FILES.get('imagen_principal')
-
+        fecha_limite = request.POST.get('fecha_limite')
+        video_principal = request.FILES.get('video_principal')
+        video_url = request.POST.get('video_url', '').strip()
+        imagen_principal = request.FILES.get('imagen_principal')
+        
+        # Validar título
         if not titulo:
             messages.error(request, 'El título es obligatorio.')
-            return redirect(request.path)
-
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Validar fecha límite obligatoria
+        if not fecha_limite:
+            messages.error(request, 'La fecha límite es obligatoria.')
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Convertir fecha límite
+        try:
+            fecha_limite_dt = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            messages.error(request, 'Formato de fecha inválido.')
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Validar que la fecha no sea pasada
+        ahora = timezone.now()
+        if fecha_limite_dt < ahora.replace(tzinfo=None):
+            messages.error(request, 'No puedes usar una fecha límite pasada.')
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Validar video o URL
+        if not video_principal and not video_url:
+            messages.error(request, 'Debes subir un video o proporcionar una URL.')
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Validar tamaño del video (máx 100MB)
+        if video_principal and video_principal.size > 100 * 1024 * 1024:
+            messages.error(request, 'El video no debe superar los 100MB.')
+            return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
+        
+        # Crear el ejercicio
         ejercicio = Ejercicio.objects.create(
             clase=clase,
             titulo=titulo,
             descripcion=descripcion,
-            imagen_principal=imagen,
-            tipo='imagen_quiz'
+            tipo='video_quiz',
+            fecha_limite=fecha_limite_dt,
+            video_principal=video_principal if video_principal else None,
+            video_url=video_url if video_url else None,
+            imagen_principal=imagen_principal if imagen_principal else None,
         )
-
+        
+        # Procesar preguntas
+        pregunta_ids = []
+        for key in request.POST.keys():
+            if key.startswith('pregunta_'):
+                parts = key.split('_')
+                if len(parts) == 2 and parts[1].isdigit():
+                    num = int(parts[1])
+                    if num not in pregunta_ids:
+                        pregunta_ids.append(num)
+        
+        pregunta_ids.sort()
+        
+        for i in pregunta_ids:
+            texto_pregunta = request.POST.get(f'pregunta_{i}', '').strip()
+            
+            if not texto_pregunta:
+                continue
+            
+            # Crear pregunta
+            pregunta = Pregunta.objects.create(
+                ejercicio=ejercicio,
+                enunciado=texto_pregunta,
+            )
+            
+            # Procesar opciones
+            correcta = request.POST.get(f'correcta_{i}')
+            
+            for j in range(1, 5):
+                texto_opcion = request.POST.get(f'opcion_{i}_{j}', '').strip()
+                
+                if not texto_opcion:
+                    continue
+                
+                es_correcta = (str(j) == str(correcta))
+                
+                # ✅ CORREGIDO: usar texto_opcion en lugar de texto
+                Opcion.objects.create(
+                    pregunta=pregunta,
+                    texto_opcion=texto_opcion,  # ✅ CAMBIADO
+                    es_correcta=es_correcta,
+                )
+        
         # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
-
-        messages.success(request, 'Ejercicio de imagen creado exitosamente.')
+        
+        messages.success(request, f'Ejercicio "{titulo}" creado correctamente.')
         return redirect('detalle_clase', clase_id=clase.id)
-
-    return render(request, 'ejercicios/crear_imagen_quiz.html', {'clase': clase})
-
+    
+    context = {
+        'clase': clase,
+    }
+    
+    return render(request, 'ejercicios/crear_video_quiz.html', context)
 
 # ============================================================
 # CREAR JUEGO

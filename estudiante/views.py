@@ -3,12 +3,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login
+from django.template import context
 from django.utils import timezone
 from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
 from clase.models import Clase, InscripcionNivel
 from docente.models import SolicitudClase
 from web.models import Perfil, InscripcionCurso
-from django.http import JsonResponse
+from django.http import JsonResponse, request
 from django.views.decorators.http import require_POST
 import json
 from notificaciones.services import notificar_solicitud_clase
@@ -450,3 +451,98 @@ def subir_banner(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})
+
+@login_required
+def resolver_video_quiz(request, clase_id, ejercicio_id):
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
+    from django.utils import timezone
+    
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase, tipo='video_quiz')
+    
+    # Verificar inscripción
+    if request.user not in clase.estudiantes.all():
+        messages.error(request, 'No estás inscrito en esta clase.')
+        return redirect('inicio')
+    
+    # Verificar intentos
+    intentos_count = IntentoEjercicio.objects.filter(
+        estudiante=request.user,
+        ejercicio=ejercicio
+    ).count()
+    
+    if intentos_count >= 2:
+        messages.error(request, 'Has agotado tus 2 intentos.')
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+    
+    # OBTENER PREGUNTAS - Asegúrate de que esto esté bien
+    preguntas = Pregunta.objects.filter(
+        ejercicio=ejercicio
+    ).prefetch_related('opciones')
+    
+    # DEBUG: Imprimir cuántas preguntas hay
+    print(f"Ejercicio: {ejercicio.titulo}")
+    print(f"Preguntas encontradas: {preguntas.count()}")
+    for p in preguntas:
+        print(f"  - {p.enunciado[:30]}... ({p.opciones.count()} opciones)")
+    
+    context = {
+        'clase': clase,
+        'ejercicio': ejercicio,
+        'preguntas': preguntas,
+    }
+    
+    return render(request, 'estudiante/resolver_video_quiz.html', context)
+
+@login_required
+def enviar_respuesta_video_quiz(request, clase_id, ejercicio_id):
+    """
+    Vista para enviar las respuestas del Video Quiz
+    """
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio, RespuestaEstudiante, Opcion
+    from django.utils import timezone
+    
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    if request.method == 'POST':
+        # Verificar intentos
+        intentos_count = IntentoEjercicio.objects.filter(
+            estudiante=request.user,
+            ejercicio=ejercicio
+        ).count()
+        
+        if intentos_count >= 2:
+            messages.error(request, 'Has agotado tus 2 intentos.')
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+        
+        # Crear intento
+        intento = IntentoEjercicio.objects.create(
+            estudiante=request.user,
+            ejercicio=ejercicio,
+            fecha_envio=timezone.now(),
+        )
+        
+        # Procesar respuestas
+        preguntas = Pregunta.objects.filter(ejercicio=ejercicio)
+        
+        for pregunta in preguntas:
+            opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+            
+            if opcion_id:
+                try:
+                    opcion = Opcion.objects.get(id=opcion_id, pregunta=pregunta)
+                    RespuestaEstudiante.objects.create(
+                        intento=intento,
+                        pregunta=pregunta,
+                        opcion_seleccionada=opcion,
+                    )
+                except Opcion.DoesNotExist:
+                    pass
+        
+        messages.success(request, 'Tus respuestas han sido enviadas. Espera la calificación del docente.')
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+    
+    return redirect('estudiante:resolver_video_quiz', clase_id=clase_id, ejercicio_id=ejercicio_id)

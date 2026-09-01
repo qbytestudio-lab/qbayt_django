@@ -1,0 +1,142 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Resolver Video Quiz — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'estudiante/css/resolver_video_quiz.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="resolver-container">
+
+  <div class="back-nav">
+    <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+    </a>
+  </div>
+
+  <div class="ejercicio-header">
+    <h1 class="ejercicio-title">
+      <i class="bi bi-play-btn-fill"></i> {{ ejercicio.titulo }}
+    </h1>
+    {% if ejercicio.descripcion %}
+    <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
+    {% endif %}
+    
+    {% if ejercicio.fecha_limite %}
+    <div class="fecha-limite">
+      <i class="bi bi-clock"></i> Fecha límite: {{ ejercicio.fecha_limite|date:"d M Y, H:i" }}
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="video-section">
+    {% if ejercicio.video_principal %}
+    <video controls class="video-player">
+      <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
+      Tu navegador no soporta el elemento de video.
+    </video>
+    {% elif ejercicio.video_url %}
+      {% if 'youtube.com' in ejercicio.video_url or 'youtu.be' in ejercicio.video_url %}
+        <div class="video-embed">
+          <iframe width="100%" height="400" 
+                  src="{{ ejercicio.video_url }}" 
+                  frameborder="0" allowfullscreen></iframe>
+        </div>
+      {% else %}
+        <video controls class="video-player">
+          <source src="{{ ejercicio.video_url }}" type="video/mp4">
+        </video>
+      {% endif %}
+    {% else %}
+      <div class="video-no-disponible">
+        <i class="bi bi-camera-video-off"></i>
+        <p>No hay video disponible para este ejercicio.</p>
+      </div>
+    {% endif %}
+  </div>
+
+  <form method="POST" action="{% url 'estudiante:enviar_respuesta_video_quiz' clase.id ejercicio.id %}" id="formVideoQuiz">
+    {% csrf_token %}
+    
+    <h3 class="preguntas-title">
+      <i class="bi bi-patch-question-fill"></i> Preguntas
+    </h3>
+    
+    <div class="preguntas-list">
+      {% for pregunta in preguntas %}
+      <div class="pregunta-card">
+        <div class="pregunta-header">
+          <span class="pregunta-numero">{{ forloop.counter }}</span>
+          <h4 class="pregunta-texto">{{ pregunta.enunciado }}</h4>
+        </div>
+        
+        <div class="opciones-list">
+          {% for opcion in pregunta.opciones.all %}
+          <label class="opcion-item">
+            <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required>
+            <span class="radio-custom"></span>
+            <span class="opcion-texto">{{ opcion.texto_opcion }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="sin-preguntas">No hay preguntas para este ejercicio.</p>
+      {% endfor %}
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="btn-cancelar">
+        <i class="bi bi-x-lg"></i> Cancelar
+      </a>
+      <button type="submit" class="btn-enviar">
+        <i class="bi bi-send-fill"></i> Enviar respuestas
+      </button>
+    </div>
+  </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('formVideoQuiz').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const preguntas = document.querySelectorAll('.pregunta-card');
+    let respondidas = 0;
+    
+    preguntas.forEach(pregunta => {
+      const seleccionada = pregunta.querySelector('input[type="radio"]:checked');
+      if (seleccionada) {
+        respondidas++;
+      }
+    });
+    
+    if (respondidas < preguntas.length) {
+      const confirmar = confirm(`Solo has respondido ${respondidas} de ${preguntas.length} preguntas. ¿Deseas enviar de todas formas?`);
+      if (!confirmar) {
+        return;
+      }
+    }
+    
+    if (confirm('¿Estás seguro de que deseas enviar tus respuestas?')) {
+      this.submit();
+    }
+  });
+
+  document.querySelectorAll('.opcion-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const parent = this.closest('.opciones-list');
+      parent.querySelectorAll('.opcion-item').forEach(opt => {
+        opt.classList.remove('seleccionada');
+      });
+      this.classList.add('seleccionada');
+    });
+  });
+</script>
+{% endblock %}

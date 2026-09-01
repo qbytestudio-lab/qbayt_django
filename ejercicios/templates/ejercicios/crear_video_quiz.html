@@ -1,0 +1,308 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear Video + Quiz — QBYT{% endblock %}
+{% block page_title %}Crear Video + Quiz{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_video_quiz.css' %}">
+<style>
+    /* Estilos para validación */
+    .is-invalid {
+        border-color: var(--danger) !important;
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+    }
+    
+    .invalid-feedback {
+        display: none;
+        color: var(--danger);
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-top: 0.3rem;
+    }
+    
+    .invalid-feedback.show {
+        display: block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="video-quiz-container">
+    
+    <!-- BOTÓN VOLVER -->
+    <a href="{% url 'detalle_clase' clase.id %}" class="back-link">
+        <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+    </a>
+    
+    <!-- TÍTULO -->
+    <h1 class="video-quiz-title">
+        <i class="bi bi-play-btn-fill"></i> Crear Video + Quiz
+    </h1>
+    <p class="video-quiz-subtitle">
+        Sube un video y agrega preguntas de selección múltiple para evaluar la comprensión
+    </p>
+
+    <form method="POST" action="{% url 'ejercicios:crear_video_quiz' clase.id %}" enctype="multipart/form-data" id="formVideoQuiz" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="tipo" value="video_quiz">
+
+        <!-- Info General -->
+        <div class="form-card">
+            <div class="mb-3">
+                <label class="form-label">
+                    Título del ejercicio <span class="required">*</span>
+                </label>
+                <input type="text" name="titulo" class="form-control" 
+                       placeholder="Ej: Análisis de la forma sonata" required>
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="form-control" rows="2" 
+                          placeholder="Instrucciones o contexto para el estudiante..."></textarea>
+            </div>
+            
+            <div class="mb-0">
+                <label class="form-label">
+                    Fecha límite <span class="required">*</span>
+                </label>
+                <input type="datetime-local" name="fecha_limite" class="form-control" 
+                       id="fechaLimite" required>
+                <!-- ✅ Mensaje de validación -->
+                <div class="invalid-feedback" id="fechaLimiteError">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i>
+                    La fecha límite es obligatoria. No puede estar vacía.
+                </div>
+            </div>
+        </div>
+
+        <!-- Video Principal -->
+        <div class="form-card">
+            <label class="form-label video-label">
+                <i class="bi bi-camera-video-fill"></i> Video principal <span class="required">*</span>
+            </label>
+            
+            <div class="video-upload-area" id="videoUploadArea" onclick="document.getElementById('videoInput').click()">
+                <div class="video-upload-icon">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                </div>
+                <p class="video-upload-text">Haz clic para subir el video</p>
+                <p class="video-upload-hint">MP4, WebM (máx 100MB)</p>
+                <video id="videoPreview" class="video-preview" controls style="display: none;"></video>
+            </div>
+            <input type="file" id="videoInput" name="video_principal" accept="video/mp4,video/webm" 
+                   style="display: none;" onchange="previewVideo(this)">
+            
+            <div class="mt-3">
+                <label class="form-label">O pega una URL de video (YouTube, Vimeo)</label>
+                <input type="url" name="video_url" class="form-control" 
+                       placeholder="https://www.youtube.com/watch?v=..." 
+                       id="videoUrl">
+                <small class="text-muted">Si proporcionas una URL, se usará en lugar del archivo subido</small>
+            </div>
+        </div>
+
+        <!-- Preguntas -->
+        <div id="preguntasContainer"></div>
+
+        <!-- Botón Agregar Pregunta -->
+        <button type="button" class="btn-add-pregunta" onclick="agregarPregunta()">
+            <i class="bi bi-plus-lg"></i> Agregar pregunta
+        </button>
+
+        <!-- Footer -->
+        <div class="form-footer">
+            <a href="{% url 'detalle_clase' clase.id %}" class="btn-cancelar">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-lg"></i> Crear Ejercicio
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let preguntaCount = 0;
+
+// Establecer fecha mínima
+document.addEventListener('DOMContentLoaded', function() {
+    const fechaLimiteInput = document.getElementById('fechaLimite');
+    if (fechaLimiteInput) {
+        const hoy = new Date();
+        const hoyStr = hoy.toLocaleDateString('en-CA');
+        fechaLimiteInput.min = hoyStr + 'T00:00';
+        
+        const fechaDefault = new Date();
+        fechaDefault.setDate(fechaDefault.getDate() + 7);
+        const fechaDefaultStr = fechaDefault.toLocaleDateString('en-CA');
+        fechaLimiteInput.value = fechaDefaultStr + 'T23:59';
+    }
+});
+
+// ✅ Validación del formulario con mensajes visuales
+document.getElementById('formVideoQuiz').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const fechaLimiteInput = document.getElementById('fechaLimite');
+    const fechaLimiteError = document.getElementById('fechaLimiteError');
+    const fechaLimite = fechaLimiteInput.value;
+    const videoInput = document.getElementById('videoInput');
+    const videoUrl = document.getElementById('videoUrl').value;
+    
+    let isValid = true;
+    
+    // ✅ Validar fecha límite
+    if (!fechaLimite) {
+        fechaLimiteInput.classList.add('is-invalid');
+        fechaLimiteError.classList.add('show');
+        fechaLimiteError.textContent = 'La fecha límite es obligatoria. No puede estar vacía.';
+        isValid = false;
+        
+        // Hacer scroll hasta el campo
+        fechaLimiteInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        fechaLimiteInput.focus();
+    } else {
+        fechaLimiteInput.classList.remove('is-invalid');
+        fechaLimiteError.classList.remove('show');
+    }
+    
+    // Validar video o URL
+    if (!videoInput.files[0] && !videoUrl) {
+        alert('Debes subir un video o proporcionar una URL.');
+        isValid = false;
+    }
+    
+    // Validar al menos 1 pregunta
+    const preguntas = document.querySelectorAll('.pregunta-card');
+    if (preguntas.length === 0) {
+        alert('Debes agregar al menos una pregunta.');
+        isValid = false;
+    }
+    
+    if (isValid) {
+        this.submit();
+    }
+});
+
+// ✅ Limpiar error al cambiar fecha
+document.getElementById('fechaLimite').addEventListener('change', function() {
+    this.classList.remove('is-invalid');
+    document.getElementById('fechaLimiteError').classList.remove('show');
+});
+
+// Previsualizar video
+function previewVideo(input) {
+    const preview = document.getElementById('videoPreview');
+    const uploadArea = document.getElementById('videoUploadArea');
+    
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        
+        if (file.size > 100 * 1024 * 1024) {
+            alert('El video no debe superar los 100MB.');
+            input.value = '';
+            return;
+        }
+        
+        const url = URL.createObjectURL(file);
+        preview.src = url;
+        preview.style.display = 'block';
+        
+        uploadArea.querySelector('.video-upload-icon').style.display = 'none';
+        uploadArea.querySelector('.video-upload-text').style.display = 'none';
+        uploadArea.querySelector('.video-upload-hint').style.display = 'none';
+    }
+}
+
+// Agregar pregunta
+function agregarPregunta() {
+    preguntaCount++;
+    const container = document.getElementById('preguntasContainer');
+    const div = document.createElement('div');
+    div.className = 'pregunta-card';
+    div.id = `pregunta-${preguntaCount}`;
+    div.innerHTML = `
+        <div class="pregunta-header">
+            <span class="pregunta-number">${preguntaCount}</span>
+            <button type="button" class="btn-delete-pregunta" onclick="eliminarPregunta(${preguntaCount})" title="Eliminar pregunta">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Pregunta ${preguntaCount} <span class="required">*</span></label>
+            <input type="text" name="pregunta_${preguntaCount}" class="form-control" 
+                   placeholder="Escribe la pregunta..." required>
+        </div>
+        
+        <label class="form-label" style="margin-top: 0.5rem;">
+            Opciones <span style="color: var(--spotify-muted); font-weight: 400; font-size: 0.75rem;">(marca el círculo para la correcta)</span>
+        </label>
+        
+        <div class="opciones-container">
+            ${[1, 2, 3, 4].map(j => `
+                <div class="opcion-row">
+                    <input type="radio" name="correcta_${preguntaCount}" value="${j}" 
+                           class="radio-correcta" ${j === 1 ? 'checked' : ''}
+                           title="Marcar como correcta">
+                    <input type="text" name="opcion_${preguntaCount}_${j}" class="form-control opcion-input" 
+                           placeholder="Opción ${j}" ${j <= 2 ? 'required' : ''}>
+                    <span class="correcta-label">✓</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    container.appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    setTimeout(() => {
+        div.querySelector('input[type="text"]').focus();
+    }, 300);
+}
+
+// Eliminar pregunta
+function eliminarPregunta(id) {
+    const card = document.getElementById(`pregunta-${id}`);
+    if (card) {
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(20px)';
+        card.style.transition = 'all 0.3s ease';
+        setTimeout(() => {
+            card.remove();
+            renumerarPreguntas();
+        }, 300);
+    }
+}
+
+// Renumerar preguntas
+function renumerarPreguntas() {
+    const cards = document.querySelectorAll('.pregunta-card');
+    preguntaCount = cards.length;
+    cards.forEach((card, index) => {
+        const num = index + 1;
+        card.querySelector('.pregunta-number').textContent = num;
+        
+        card.querySelectorAll('input[name^="pregunta_"]').forEach(input => {
+            input.name = `pregunta_${num}`;
+        });
+        card.querySelectorAll('input[name^="correcta_"]').forEach(input => {
+            input.name = `correcta_${num}`;
+        });
+        card.querySelectorAll('input[name^="opcion_"]').forEach(input => {
+            const optionNum = input.name.split('_').pop();
+            input.name = `opcion_${num}_${optionNum}`;
+        });
+    });
+}
+
+// Iniciar con 1 pregunta
+agregarPregunta();
+</script>
+{% endblock %}

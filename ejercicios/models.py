@@ -7,23 +7,39 @@ class Ejercicio(models.Model):
 
     TIPO_CHOICES = [
         ('quiz', 'Quiz'),
-        ('imagen_quiz', 'Quiz con imagen'),
+        ('video_quiz', 'Video + Quiz'),  # ✅ Reemplaza a imagen_quiz
         ('juego', 'Juego'),
         ('texto', 'Texto'),
         ('verdadero_falso', 'Verdadero o Falso'),
         ('completar', 'Completar'),
     ]
-    tipo = models.CharField(max_length=30,choices=TIPO_CHOICES,default='quiz')
-    clase = models.ForeignKey('clase.Clase',on_delete=models.CASCADE,related_name='ejercicios')
+    tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='quiz')
+    clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
     titulo = models.CharField(max_length=200)
     
-    descripcion = models.TextField(blank=True,null=True)
-    contenido = models.TextField(blank=True,null=True)
+    descripcion = models.TextField(blank=True, null=True)
+    contenido = models.TextField(blank=True, null=True)
 
+    #  CAMPOS PARA VIDEO
+    video_principal = models.FileField(
+        upload_to='ejercicios/videos/',
+        blank=True,
+        null=True,
+        verbose_name="Video principal"
+    )
+    
+    video_url = models.URLField(
+        blank=True,
+        null=True,
+        verbose_name="URL del video (YouTube, Vimeo)"
+    )
+
+    #  Campo de imagen opcional (para thumbnail o imagen adicional)
     imagen_principal = models.ImageField(
         upload_to='ejercicios/',
         blank=True,
-        null=True
+        null=True,
+        verbose_name="Imagen (opcional)"
     )
 
     juego_tipo = models.CharField(
@@ -44,7 +60,22 @@ class Ejercicio(models.Model):
 
     def __str__(self):
         return self.titulo
+    
+    #  Propiedad para verificar si es video quiz
+    @property
+    def es_video_quiz(self):
+        return self.tipo == 'video_quiz'
+    
+    #  Propiedad para obtener la URL del video (archivo o externa)
+    @property
+    def url_video(self):
+        if self.video_principal:
+            return self.video_principal.url
+        return self.video_url
 
+    class Meta:
+        verbose_name = "Ejercicio"
+        verbose_name_plural = "Ejercicios"
 
 class Pregunta(models.Model):
     ejercicio = models.ForeignKey(
@@ -63,6 +94,12 @@ class Pregunta(models.Model):
 
     def __str__(self):
         return f"{self.enunciado[:50]}..."
+    
+    #  AGREGAR ESTA PROPIEDAD
+    @property
+    def opcion_correcta(self):
+        """Devuelve la opción correcta de esta pregunta"""
+        return self.opciones.filter(es_correcta=True).first()
 
 
 class Opcion(models.Model):
