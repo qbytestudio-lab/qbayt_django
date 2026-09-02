@@ -582,7 +582,7 @@ def aceptar_solicitud(request, solicitud_id):
     # Agregar estudiante a la clase
     solicitud.clase.estudiantes.add(solicitud.estudiante)
     
-    # ✅ CREAR NOTIFICACIÓN
+    # CREAR NOTIFICACIÓN
     notificar_aceptacion(solicitud.estudiante, solicitud.clase)
     
     messages.success(request, 'Solicitud aceptada.')
@@ -594,10 +594,76 @@ def rechazar_solicitud(request, solicitud_id):
     solicitud.estado = 'rechazada'
     solicitud.save()
     
-    # ✅ CREAR NOTIFICACIÓN
+    # CREAR NOTIFICACIÓN
     notificar_rechazo(solicitud.estudiante, solicitud.clase)
     
     messages.success(request, 'Solicitud rechazada.')
     return redirect('detalle_clase', clase_id=solicitud.clase.id)
+
+@login_required
+def editar_ejercicio(request, clase_id, ejercicio_id):
+    from datetime import datetime
+    from ejercicios.models import Ejercicio
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_limite = request.POST.get('fecha_limite')
+        video_url = request.POST.get('video_url', '').strip()
+        video_principal = request.FILES.get('video_principal')
+        imagen_principal = request.FILES.get('imagen_principal')
+        
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect('detalle_clase', clase_id=clase.id)
+        
+        ejercicio.titulo = titulo
+        ejercicio.descripcion = descripcion
+        
+        if fecha_limite:
+            try:
+                ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
+            except ValueError:
+                messages.error(request, 'Formato de fecha inválido.')
+                return redirect('detalle_clase', clase_id=clase.id)
+        else:
+            ejercicio.fecha_limite = None
+        
+        if video_url:
+            ejercicio.video_url = video_url
+        
+        if video_principal:
+            ejercicio.video_principal = video_principal
+        
+        if imagen_principal:
+            ejercicio.imagen_principal = imagen_principal
+        
+        ejercicio.save()
+        
+        messages.success(request, f'Ejercicio "{titulo}" actualizado correctamente.')
+        return redirect('detalle_clase', clase_id=clase.id)
+    
+    context = {
+        'clase': clase,
+        'ejercicio': ejercicio,
+    }
+    
+    return render(request, 'docente/editar_ejercicio.html', context)
+
+@login_required
+def eliminar_ejercicio(request, clase_id, ejercicio_id):
+    from ejercicios.models import Ejercicio
+    
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    if request.method == 'POST':
+        ejercicio.delete()
+        messages.success(request, 'Ejercicio eliminado correctamente.')
+    
+    return redirect('detalle_clase', clase_id=clase.id)
 
     

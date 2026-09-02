@@ -1406,3 +1406,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
     max-height: 250px; /* Aún menos en pantallas pequeñas */
   }
 }
+.btn-ejercicio-editar {
+  background: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+  border-color: rgba(255, 193, 7, 0.25);
+}
+
+.btn-ejercicio-editar:hover {
+  background: rgba(255, 193, 7, 0.2);
+}

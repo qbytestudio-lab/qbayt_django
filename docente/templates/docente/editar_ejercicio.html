@@ -1,0 +1,177 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Editar Ejercicio — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/editar_ejercicio.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="editar-ejercicio-container">
+
+  <!-- BACK NAVIGATION -->
+  <div class="back-nav">
+    <a href="{% url 'detalle_clase' clase.id %}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+    </a>
+  </div>
+
+  <!-- HEADER -->
+  <div class="editar-header">
+    <h1 class="editar-title">
+      <i class="bi bi-pencil-square"></i> Editar Ejercicio
+    </h1>
+    <p class="editar-subtitle">
+      Actualiza la información del ejercicio "{{ ejercicio.titulo }}"
+    </p>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div class="form-card">
+    <form method="POST" action="{% url 'editar_ejercicio' clase.id ejercicio.id %}" enctype="multipart/form-data" id="formEditarEjercicio">
+      {% csrf_token %}
+
+      <!-- Título -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-fonts"></i> Título del ejercicio
+          <span class="required">*</span>
+        </label>
+        <input type="text" name="titulo" class="form-control" 
+               value="{{ ejercicio.titulo }}" required>
+      </div>
+
+      <!-- Descripción -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-file-text"></i> Descripción
+          <span class="optional">(opcional)</span>
+        </label>
+        <textarea name="descripcion" class="form-control textarea-custom" rows="4" 
+                  placeholder="Describe de qué trata este ejercicio...">{{ ejercicio.descripcion }}</textarea>
+      </div>
+
+      <!-- Fecha límite -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-clock"></i> Fecha límite
+          <span class="optional">(opcional)</span>
+        </label>
+        <input type="datetime-local" name="fecha_limite" class="form-control" 
+               value="{{ ejercicio.fecha_limite|date:'Y-m-d\TH:i' }}">
+      </div>
+
+      <!-- Campos específicos para video quiz -->
+      {% if ejercicio.tipo == 'video_quiz' %}
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-link-45deg"></i> URL del video (YouTube, Vimeo)
+        </label>
+        <input type="url" name="video_url" class="form-control" 
+               value="{{ ejercicio.video_url|default:'' }}" 
+               placeholder="https://www.youtube.com/watch?v=...">
+        <small class="text-muted">Deja vacío si no deseas cambiar el video</small>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-camera-video"></i> O sube un nuevo video
+        </label>
+        <input type="file" name="video_principal" class="form-control" accept="video/mp4,video/webm">
+        {% if ejercicio.video_principal %}
+        <small class="text-muted">Video actual: {{ ejercicio.video_principal.name }}</small>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      <!-- Imagen -->
+      <div class="form-group">
+        <label class="form-label">
+          <i class="bi bi-image"></i> Imagen del ejercicio
+          <span class="optional">(opcional)</span>
+        </label>
+        <input type="file" name="imagen_principal" class="form-control" accept="image/*">
+        {% if ejercicio.imagen_principal %}
+        <small class="text-muted">Imagen actual: {{ ejercicio.imagen_principal.name }}</small>
+        {% endif %}
+      </div>
+
+      <!-- Información del tipo -->
+      <div class="tipo-info">
+        <i class="bi bi-info-circle-fill"></i>
+        Tipo de ejercicio: <strong>{{ ejercicio.get_tipo_display }}</strong>
+      </div>
+
+      <!-- Botones -->
+      <div class="form-actions">
+        <a href="{% url 'detalle_clase' clase.id %}" class="btn-cancelar">
+          <i class="bi bi-x-lg"></i> Cancelar
+        </a>
+        <button type="submit" class="btn-guardar">
+          <i class="bi bi-check-lg"></i> Guardar cambios
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ZONA DE PELIGRO -->
+  <div class="danger-zone">
+    <h3 class="danger-title">
+      <i class="bi bi-exclamation-triangle-fill"></i> Zona de peligro
+    </h3>
+    <p class="danger-text">
+      Si eliminas este ejercicio, se borrarán permanentemente todas las preguntas, opciones e intentos relacionados.
+    </p>
+    <button type="button" class="btn-eliminar" data-bs-toggle="modal" data-bs-target="#modalEliminarEjercicio">
+      <i class="bi bi-trash-fill"></i> Eliminar ejercicio
+    </button>
+  </div>
+
+</div>
+
+<!-- MODAL ELIMINAR -->
+<div class="modal fade" id="modalEliminarEjercicio" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center">
+      <div class="modal-body">
+        <div class="delete-icon">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h5 class="delete-title">¿Eliminar ejercicio?</h5>
+        <p class="delete-text">
+          Esta acción borrará <strong>"{{ ejercicio.titulo }}"</strong> de forma definitiva.
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+          <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+          <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-eliminar-confirmar">Sí, eliminar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('formEditarEjercicio').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const titulo = this.querySelector('input[name="titulo"]').value.trim();
+    
+    if (!titulo) {
+      alert('El título es obligatorio.');
+      return;
+    }
+    
+    if (confirm('¿Estás seguro de guardar los cambios?')) {
+      this.submit();
+    }
+  });
+</script>
+{% endblock %}

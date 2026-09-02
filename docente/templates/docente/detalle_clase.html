@@ -263,35 +263,15 @@
                                 </div>
                                 
                                 <div class="ejercicio-actions">
+                                    <!-- Botón Ver -->
                                     <a href="{% url 'ejercicios:detalle_ejercicio_docente' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
                                         <i class="bi bi-eye"></i> Ver
                                     </a>
-                                    <button type="button" class="btn-ejercicio btn-ejercicio-eliminar"
-                                            data-bs-toggle="modal" data-bs-target="#deleteModal{{ ejercicio.id }}" title="Eliminar ejercicio">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <!-- Modal eliminar ejercicio -->
-                            <div class="modal fade" id="deleteModal{{ ejercicio.id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title">Confirmar eliminación</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            ¿Estás seguro de que deseas eliminar "{{ ejercicio.titulo }}"?
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                                            <form action="{% url 'ejercicios:eliminar_ejercicio' clase.id ejercicio.id %}" method="POST">
-                                                {% csrf_token %}
-                                                <button type="submit" class="btn btn-danger">Sí, eliminar</button>
-                                            </form>
-                                        </div>
-                                    </div>
+                                    
+                                    <!-- Botón Editar - AHORA ES UN ENLACE DIRECTO -->
+                                    <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-editar" title="Editar ejercicio">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
                                 </div>
                             </div>
                             {% endfor %}
@@ -438,7 +418,6 @@
                 <p class="text-center text-muted mb-4">Elige el formato que mejor se adapte a tu contenido</p>
                 <div class="ejercicio-options-grid">
                     
-                    <!-- 1. Quiz -->
                     <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
@@ -446,7 +425,6 @@
                         <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
                     </a>
                     
-                    <!-- 2. Video + Quiz -->
                     <a href="{% url 'ejercicios:crear_video_quiz' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon video-icon"><i class="bi bi-play-btn-fill"></i></div>
                         <h4 class="option-title">Video + Quiz</h4>
@@ -454,7 +432,6 @@
                         <span class="option-badge badge-blue"><i class="bi bi-camera-video-fill"></i> Estilo video-lección</span>
                     </a>
                     
-                    <!-- 3. Juego Interactivo -->
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
                         <h4 class="option-title">Juego Interactivo</h4>
@@ -462,7 +439,6 @@
                         <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y premios</span>
                     </a>
                     
-                    <!-- 4. Texto / Lectura -->
                     <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
                         <h4 class="option-title">Texto / Lectura</h4>
@@ -470,7 +446,6 @@
                         <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
                     </a>
                     
-                    <!-- 5. Verdadero o Falso -->
                     <a href="{% url 'ejercicios:crear_verdadero_falso' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon vf-icon"><i class="bi bi-check-circle-fill"></i></div>
                         <h4 class="option-title">Verdadero o Falso</h4>
@@ -478,7 +453,6 @@
                         <span class="option-badge badge-pink"><i class="bi bi-lightning-fill"></i> Rápido y efectivo</span>
                     </a>
                     
-                    <!-- 6. Completar Espacios -->
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon completar-icon"><i class="bi bi-input-cursor-text"></i></div>
                         <h4 class="option-title">Completar Espacios</h4>

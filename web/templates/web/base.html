@@ -46,21 +46,25 @@
                     </a>
                 </li>
                 {% endif %}
+                {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_progreso %}{% endblock %}">
                     <a href="{% url 'progreso' %}">
                         <i class="bi bi-bar-chart"></i><span>Progreso</span>
                     </a>
                 </li>
+                {% endif %}
                 <li class="{% block nav_calendario %}{% endblock %}">
                     <a href="{% url 'calendario' %}">
                         <i class="bi bi-calendar-week"></i><span>Calendario</span>
                     </a>
                 </li>
+                {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_config %}{% endblock %}">
                     <a href="{% url 'certificados' %}">
                         <i class="bi bi-gear"></i><span>Certificados</span>
                     </a>
                 </li>
+                {% endif %}
                 <li class="{% block nav_mensajeria %}{% endblock %}">
                     <a href="{% url 'mensajeria:lista' %}">
                         <i class="bi bi-chat-dots"></i><span>Mensajes</span>

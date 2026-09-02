@@ -17,4 +17,8 @@ urlpatterns = [
     path('clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),
     path('clase/<int:clase_id>/estadisticas/', views.estadisticas_clase, name='estadisticas_clase'),
     path('clase/<int:clase_id>/expulsar/<int:estudiante_id>/', views.expulsar_estudiante_clase, name='expulsar_estudiante_clase'),
-    ]
+    
+    #  AGREGAR ESTAS DOS LÍNEAS
+    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/editar/', views.editar_ejercicio, name='editar_ejercicio'),
+    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
+]
