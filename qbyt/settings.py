@@ -82,8 +82,12 @@ WSGI_APPLICATION = 'qbyt.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR/ 'db.sqlte3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'qbytestudio',
+        'USER': 'root',
+        'PASSWORD': '',
+        'HOST': 'localhost',
+        'PORT': '3306',
     }
 }
 
