@@ -322,7 +322,7 @@
                 <h5 class="modal-title"><i class="bi bi-pencil-square icon-purple"></i> Editar clase</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{% url 'editar_clase' clase.id %}" method="POST" enctype="multipart/form-data" id="formEditarClase">
+            <form action="{% url 'clase:editar_clase' clase.id %}" method="POST" enctype="multipart/form-data" id="formEditarClase">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -393,7 +393,7 @@
                 </p>
                 <div class="d-flex gap-3 justify-content-center">
                     <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form action="{% url 'eliminar_clase' clase.id %}" method="POST" style="margin:0;">
+                    <form action="{% url 'clase:eliminar_clase' clase.id %}" method="POST" style="margin:0;">
                         {% csrf_token %}
                         <button type="submit" class="btn-modal-danger">Sí, eliminar</button>
                     </form>

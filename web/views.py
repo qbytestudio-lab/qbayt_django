@@ -486,22 +486,6 @@ def certificados(request):
     }
     
     return render(request, 'web/certificados.html', context)
-@login_required
-def mis_clases(request):
-    if request.user.perfil.rol == 'docente':
-        clases = Clase.objects.filter(docente=request.user)
-        solicitudes_pendientes = SolicitudClase.objects.filter(
-            clase__docente=request.user, estado='pendiente'
-        )
-        total_estudiantes = sum(c.estudiantes.count() for c in clases)
-        return render(request, 'web/mis_clases_docente.html', {
-            'clases': clases,
-            'solicitudes_pendientes': solicitudes_pendientes,
-            'total_estudiantes': total_estudiantes,
-        })
-    else:
-        clases = request.user.clases_estudiante.all()
-        return render(request, 'web/mis_clases.html', {'clases': clases})
 
 @login_required
 def calendario(request):

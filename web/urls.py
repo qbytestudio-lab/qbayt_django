@@ -17,7 +17,6 @@ urlpatterns = [
     # ============================================
     # OTRAS RUTAS
     # ============================================
-    path('mis-clases/', views.mis_clases, name='mis_clases'),
     path('progreso/', views.progreso, name='progreso'),
     path('calendario/', views.calendario, name='calendario'),
     path('admin-login/', views.admin_login_view, name='admin_login'),

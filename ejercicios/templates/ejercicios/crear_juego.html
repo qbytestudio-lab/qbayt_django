@@ -13,7 +13,7 @@
 <div class="juego-creator-container">
     
     <!-- Enlace de volver corregido (sin el prefijo 'clases:') -->
-    <a href="{% url 'detalle_clase' clase.id %}" class="back-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--spotify-subtext); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem;">
+    <a href="{% url 'clase:detalle_clase' clase.id %}" class="back-link" style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--spotify-subtext); text-decoration: none; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.25rem;">
         <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
     </a>
     
