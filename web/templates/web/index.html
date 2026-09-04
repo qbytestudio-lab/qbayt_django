@@ -19,6 +19,137 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
   <link rel="icon" type="image/png" href="{% static 'web/img/logo5.png' %}">
+  
+  <style>
+    /* ═══════════════════════════════════════════ */
+    /* SECCIÓN CREADORES                        */
+    /* ═══════════════════════════════════════════ */
+    
+    .creadores-section {
+      padding: 4rem 0;
+      background: var(--bg-body);
+    }
+    
+    .creadores-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .creador-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      text-align: center;
+    }
+    
+    .creador-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 32px var(--shadow);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+    
+    .creador-imagen-wrapper {
+      width: 100%;
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .creador-imagen {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+    
+    .creador-card:hover .creador-imagen {
+      transform: scale(1.05);
+    }
+    
+    .creador-imagen-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      color: rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
+    }
+    
+    .creador-imagen-placeholder i {
+      font-size: 5rem;
+    }
+    
+    .creador-body {
+      padding: 1.5rem;
+    }
+    
+    .creador-nombre {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+    
+    .creador-rol {
+      display: inline-block;
+      background: rgba(139, 92, 246, 0.12);
+      color: var(--accent-purple);
+      padding: 0.25rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    
+    .creador-descripcion {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    
+    .creador-redes {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+    
+    .creador-red {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bg-hover);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      font-size: 1rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+    
+    .creador-red:hover {
+      background: var(--accent-purple);
+      color: #fff;
+      border-color: var(--accent-purple);
+      transform: translateY(-3px);
+    }
+    
+    [data-theme="light"] .creador-imagen-placeholder {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+  </style>
 </head>
 
 <body>
@@ -57,6 +188,7 @@
           <li class="nav-item"><a class="nav-link" href="#ultimos">Lo último</a></li>
           <li class="nav-item"><a class="nav-link" href="#beneficios">Beneficios</a></li>
           <li class="nav-item"><a class="nav-link" href="#nosotros">Nosotros</a></li>
+          <li class="nav-item"><a class="nav-link" href="#creadores">Creadores</a></li>
           <li class="nav-item"><a class="nav-link" href="#testimonios">Testimonios</a></li>
           <li class="nav-item"><a class="nav-link" href="#faq">FAQ</a></li>
           <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
@@ -67,7 +199,6 @@
 
   <!-- HERO -->
   <header class="hero">
-    <!-- Partículas flotantes -->
     <div class="hero-particles">
       <div class="hero-particle"></div>
       <div class="hero-particle"></div>
@@ -353,6 +484,83 @@
       </div>
     </section>
 
+    <!-- SECCIÓN CREADORES  -->
+    <section id="creadores" class="creadores-section">
+      <div class="container">
+        <div class="section-divider">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <p class="sec-title">Creadores</p>
+        <p class="sec-sub">El equipo detrás de QBYT</p>
+        
+        <div class="creadores-grid mt-4">
+          
+          <!-- Creador 1 -->
+          <div class="creador-card">
+            <div class="creador-imagen-wrapper">
+              <!-- Reemplaza la ruta con la foto real del creador -->
+              <img src="{% static 'web/img/creador1.png' %}" alt="Creador 1" class="creador-imagen" 
+                   onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="creador-imagen-placeholder" style="display:none;">
+                <i class="bi bi-person-fill"></i>
+              </div>
+            </div>
+            <div class="creador-body">
+              <h3 class="creador-nombre">Dylan Muñoz</h3>
+              <span class="creador-rol">Fundador & Desarrollador</span>
+              <p class="creador-descripcion">
+                Estudiante de ingeniería de sistemas apasionado por la música y la tecnología. 
+                Creador de QBYT con la visión de hacer el entrenamiento musical accesible para todos.
+              </p>
+              <div class="creador-redes">
+                <a href="https://github.com/dylan18-2006" target="_blank" class="creador-red" title="GitHub">
+                  <i class="bi bi-github"></i>
+                </a>
+                <a href="https://linkedin.com/" target="_blank" class="creador-red" title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+                <a href="mailto:dilanmunoz671@gmail.com" class="creador-red" title="Email">
+                  <i class="bi bi-envelope-fill"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Creador 2 -->
+          <div class="creador-card">
+            <div class="creador-imagen-wrapper">
+              <!-- Reemplaza la ruta con la foto real del creador -->
+              <img src="{% static 'web/img/creador2.jpg' %}" alt="Creador 2" class="creador-imagen"
+                   onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="creador-imagen-placeholder" style="display:none;">
+                <i class="bi bi-person-fill"></i>
+              </div>
+            </div>
+            <div class="creador-body">
+              <h3 class="creador-nombre">Adrian Delgado</h3>
+              <span class="creador-rol">Fundador & Diseñador</span>
+              <p class="creador-descripcion">
+                Músico profesional y diseñador UX/UI con más de 10 años de experiencia en pedagogía musical.
+                Encargado de crear experiencias de aprendizaje intuitivas y atractivas.
+              </p>
+              <div class="creador-redes">
+                <a href="https://github.com/" target="_blank" class="creador-red" title="GitHub">
+                  <i class="bi bi-github"></i>
+                </a>
+                <a href="https://linkedin.com/" target="_blank" class="creador-red" title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+                <a href="mailto:creador2@qbyt.com" class="creador-red" title="Email">
+                  <i class="bi bi-envelope-fill"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </section>
+
     <!-- TESTIMONIOS -->
     <section id="testimonios" class="feature-section">
       <div class="container">
@@ -516,7 +724,6 @@
       });
     });
 
-    // Animación de contadores al hacer scroll
     const animateOnScroll = () => {
       const elements = document.querySelectorAll('.qstat-val, .stat-value');
       elements.forEach(el => {

@@ -92,7 +92,7 @@ body::before {
   overflow: hidden;
   transition: transform 0.2s ease;
   flex-shrink: 0;
-  border: 2px solid var(--spotify-text);  /* ← Borde delgado de 2px */
+  border: 2px solid var(--spotify-text);
 }
 
 .logo-box:hover {
@@ -200,7 +200,6 @@ body::before {
   width: 60%;
 }
 
-/* Navbar Toggler */
 .navbar-toggler {
   border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 8px !important;
@@ -244,7 +243,6 @@ body::before {
   pointer-events: none;
 }
 
-/* Hero Particles */
 .hero-particles {
   position: absolute;
   inset: 0;
@@ -414,7 +412,6 @@ body::before {
   color: #000;
 }
 
-/* Carousel Indicators */
 .carousel-indicators {
   position: static;
   margin: 1.5rem 0 0;
@@ -458,7 +455,6 @@ body::before {
   margin-bottom: 3rem;
 }
 
-/* Section Divider */
 .section-divider {
   display: flex;
   align-items: center;
@@ -480,7 +476,6 @@ body::before {
   font-size: 0.8rem;
 }
 
-/* Section Number */
 .section-number {
   display: inline-flex;
   align-items: center;
@@ -661,7 +656,6 @@ body::before {
   border-color: var(--accent-purple);
 }
 
-/* Badge Nuevo */
 .badge-nuevo {
   display: inline-flex;
   align-items: center;
@@ -795,6 +789,131 @@ body::before {
   font-size: 0.82rem;
   line-height: 1.5;
   margin: 0;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         SECCIÓN CREADORES                  */
+/* ═══════════════════════════════════════════ */
+
+.creadores-section {
+  padding: 5rem 0;
+  background: var(--spotify-black);
+}
+
+.creadores-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.creador-card {
+  background: var(--spotify-dark);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+}
+
+.creador-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.creador-imagen-wrapper {
+  width: 100%;
+  aspect-ratio: 1/1;
+  overflow: hidden;
+  position: relative;
+}
+
+.creador-imagen {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.creador-card:hover .creador-imagen {
+  transform: scale(1.05);
+}
+
+.creador-imagen-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.3);
+  background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
+}
+
+.creador-imagen-placeholder i {
+  font-size: 5rem;
+}
+
+.creador-body {
+  padding: 1.5rem;
+}
+
+.creador-nombre {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--spotify-text);
+  margin-bottom: 0.3rem;
+}
+
+.creador-rol {
+  display: inline-block;
+  background: rgba(139, 92, 246, 0.12);
+  color: var(--accent-purple);
+  padding: 0.25rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.creador-descripcion {
+  color: var(--spotify-subtext);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.creador-redes {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.creador-red {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--spotify-gray);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--spotify-subtext);
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.creador-red:hover {
+  background: var(--accent-purple);
+  color: #fff;
+  border-color: var(--accent-purple);
+  transform: translateY(-3px);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -1138,6 +1257,7 @@ body::before {
   .banner-image { width: 100%; }
   .banner-image img { height: 200px; }
   .quienes-grid { grid-template-columns: 1fr; }
+  .creadores-grid { grid-template-columns: 1fr; max-width: 400px; }
 }
 
 @media (max-width: 768px) {
@@ -1151,6 +1271,7 @@ body::before {
   .quienes-stats { gap: 1.5rem; }
   .qstat-val { font-size: 1.6rem; }
   .cta-box { padding: 2.5rem 1.5rem; }
+  .creador-imagen-placeholder i { font-size: 4rem; }
 }
 
 @media (max-width: 480px) {
