@@ -460,7 +460,7 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
         ejercicio.delete()
         messages.success(request, 'Ejercicio eliminado correctamente.')
     
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect('clase:detalle_clase', clase_id=clase.id)
 
 @login_required
 def mis_clases(request):

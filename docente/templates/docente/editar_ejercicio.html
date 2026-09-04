@@ -13,7 +13,7 @@
 
   <!-- BACK NAVIGATION -->
   <div class="back-nav">
-    <a href="{% url 'detalle_clase' clase.id %}" class="btn-back">
+    <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn-back">
       <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
     </a>
   </div>
@@ -106,7 +106,7 @@
 
       <!-- Botones -->
       <div class="form-actions">
-        <a href="{% url 'detalle_clase' clase.id %}" class="btn-cancelar">
+        <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn-cancelar">
           <i class="bi bi-x-lg"></i> Cancelar
         </a>
         <button type="submit" class="btn-guardar">

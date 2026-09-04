@@ -82,7 +82,7 @@ def crear_quiz(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
         
         messages.success(request, 'Quiz creado correctamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
 
@@ -198,7 +198,7 @@ def crear_video_quiz(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
         
         messages.success(request, f'Ejercicio "{titulo}" creado correctamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
     
     context = {
         'clase': clase,
@@ -234,7 +234,7 @@ def crear_juego(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Juego creado exitosamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_juego.html', {'clase': clase})
 
@@ -267,7 +267,7 @@ def crear_texto(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Texto creado exitosamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_texto.html', {'clase': clase})
 
@@ -298,7 +298,7 @@ def crear_verdadero_falso(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio V/F creado exitosamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_verdadero_falso.html', {'clase': clase})
 
@@ -329,7 +329,7 @@ def crear_completar(request, clase_id):
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio de completar creado exitosamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_completar.html', {'clase': clase})
 
@@ -451,7 +451,7 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
     ejercicio.delete()
     
     messages.success(request, 'Ejercicio eliminado con éxito.')
-    return redirect('detalle_clase', clase_id=clase_id)
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 
 @login_required
