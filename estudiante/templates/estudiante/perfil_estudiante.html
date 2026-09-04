@@ -173,7 +173,7 @@
         </div>
         <div class="info-field">
           <span class="info-label">Último acceso</span>
-          <span class="info-value">{{ request.user.last_login|date:"d \d\e F, H:i" }}</span>
+          <span class="info-value">{{ request.user.last_login|localtime|date:"d \d\e F, H:i" }}</span>
         </div>
       </div>
 
