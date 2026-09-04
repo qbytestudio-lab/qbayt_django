@@ -5,7 +5,7 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from .models import Clase, SolicitudClase, Anuncio, Leccion, Actividad, Pregunta, Opcion, RespuestaEstudiante
+from .models import Clase, SolicitudClase, Anuncio
 from django.core.exceptions import ValidationError
 from clase.models import Clase
 from ejercicios.models import Ejercicio, IntentoEjercicio

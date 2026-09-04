@@ -81,15 +81,16 @@ class SolicitudClase(models.Model):
 
 
 class Anuncio(models.Model):
-    clase = models.ForeignKey(Clase, on_delete=models.CASCADE, related_name='anuncios')
+    clase = models.ForeignKey(
+        Clase,
+        on_delete=models.CASCADE,
+        related_name='anuncios'
+    )
     texto = models.TextField()
     fecha = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"Anuncio en {self.clase.nombre}"
-
-    class Meta:
-        unique_together = ('estudiante', 'pregunta')
 
 class HistorialInscripcion(models.Model):
     estudiante = models.ForeignKey(User, on_delete=models.CASCADE)

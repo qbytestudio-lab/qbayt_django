@@ -4,9 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from web.models import Perfil
 from django.contrib.auth.decorators import login_required, user_passes_test
-from docente.models import Clase, SolicitudClase, Actividad, Pregunta, Opcion, RespuestaEstudiante
-from .models import Curso, InscripcionCurso, Modulo
-from docente.utils import calcular_progreso_clase
+from docente.models import Clase, SolicitudClase
 from django.shortcuts import get_object_or_404
 import json
 from datetime import datetime, timedelta

@@ -5,10 +5,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login
 from django.template import context
 from django.utils import timezone
-from ejercicios.models import Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante
-from clase.models import Clase, InscripcionNivel
+from ejercicios.models import Ejercicio, IntentoEjercicio, RespuestaEstudiante
+from clase.models import Clase
 from docente.models import SolicitudClase
-from web.models import Perfil, InscripcionCurso
+from web.models import Perfil
 from django.http import JsonResponse, request
 from django.views.decorators.http import require_POST
 import json
