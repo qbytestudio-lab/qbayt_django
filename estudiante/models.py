@@ -3,8 +3,6 @@ from django.conf import settings
 from clase.models import Clase
 from ejercicios.models import Ejercicio, Pregunta  # ← Importa de ejercicios, NO definas aquí
 
-
-
 class RespuestaEstudiante(models.Model):
     estudiante = models.ForeignKey(
         settings.AUTH_USER_MODEL,

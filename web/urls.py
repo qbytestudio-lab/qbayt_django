@@ -15,18 +15,6 @@ urlpatterns = [
     path('perfil/eliminar/', views.eliminar_perfil, name='eliminar_perfil'),
     
     # ============================================
-    # REDIRECCIONES DE CURSOS ANTIGUOS → CLASES
-    # ============================================
-    path('cursos/', views.explorar_clases, name='cursos'),
-    path('detalle_curso/<int:curso_id>/', views.redirigir_curso_a_clase, name='detalle_curso'),
-    path('curso/<int:curso_id>/continuar/', views.redirigir_curso_a_clase, name='continuar_curso'),
-    path('curso/<int:curso_id>/agregar/', views.redirigir_curso_a_clase, name='agregar_curso'),
-    path('curso/<int:curso_id>/eliminar/', views.redirigir_curso_a_clase, name='eliminar_curso'),
-    path('crear-curso/', views.explorar_clases, name='crear_curso'),
-    path('cursos/eliminar-propio/<int:curso_id>/', views.redirigir_curso_a_clase, name='eliminar_curso_propio'),
-    path('agregar_curso/<int:curso_id>/', views.redirigir_curso_a_clase, name='agregar_curso'),
-    
-    # ============================================
     # OTRAS RUTAS
     # ============================================
     path('mis-clases/', views.mis_clases, name='mis_clases'),
