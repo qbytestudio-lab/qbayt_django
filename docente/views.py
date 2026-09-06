@@ -477,4 +477,4 @@ def mis_clases(request):
         })
     else:
         clases = request.user.clases_estudiante.all()
-        return render(request, 'docente/mis_clases.html', {'clases': clases}) 
+        return render(request, 'estudiante/mis_clases.html', {'clases': clases})

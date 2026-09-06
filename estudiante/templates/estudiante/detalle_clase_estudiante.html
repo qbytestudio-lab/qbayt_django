@@ -79,7 +79,7 @@
   <!-- LEFT COLUMN -->
   <div class="class-main">
     
-    <!-- ANUNCIOS - SIEMPRE VISIBLE -->
+    <!-- ANUNCIOS -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -111,14 +111,14 @@
         </div>
         {% endfor %}
       {% else %}
-        <div class="empty-state" style="padding: 2rem 1rem;">
+        <div class="empty-state">
           <div class="empty-icon"><i class="bi bi-megaphone"></i></div>
           <div class="empty-text">No hay anuncios publicados aún</div>
         </div>
       {% endif %}
     </div>
 
-    <!-- EJERCICIOS - SIEMPRE VISIBLE -->
+    <!-- EJERCICIOS - MISMO DISEÑO QUE DOCENTE -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -128,20 +128,19 @@
         <span class="section-badge">{{ ejercicios|length }} ejercicios</span>
       </div>
 
-      {% if ejercicios %}
-        {% for ejercicio in ejercicios %}
-        <div class="lesson-item">
-          
-          <div class="lesson-header" onclick="toggleLesson(this)">
-            <div class="lesson-number available">{{ forloop.counter }}</div>
-            <div class="lesson-info">
-              <div class="lesson-title">{{ ejercicio.titulo }}</div>
+      <div class="ejercicios-container mt-3">
+        {% if ejercicios %}
+          {% for ejercicio in ejercicios %}
+          <div class="ejercicio-item">
+            <div class="ejercicio-info-wrapper">
+              <h4 class="ejercicio-titulo">{{ ejercicio.titulo }}</h4>
               {% if ejercicio.descripcion %}
-              <div class="lesson-description">{{ ejercicio.descripcion|truncatechars:60 }}</div>
+              <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
               {% endif %}
+              <span class="ejercicio-tipo-badge">{{ ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
             </div>
             
-            <div class="lesson-status d-flex align-items-center gap-2" onclick="event.stopPropagation();">
+            <div class="ejercicio-actions">
               {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
                 {% if intento and intento.calificacion is not None %}
                   <span class="status-badge calificado">
@@ -157,23 +156,21 @@
                       <i class="bi bi-x-circle-fill"></i> Sin intentos
                     </span>
                   {% else %}
-                    <!-- ✅ CORREGIDO: Redirigir según tipo de ejercicio -->
                     {% if ejercicio.tipo == 'video_quiz' %}
-                      <a href="{% url 'estudiante:resolver_video_quiz' clase.id ejercicio.id %}" class="status-badge available-badge">
+                      <a href="{% url 'estudiante:resolver_video_quiz' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
                         <i class="bi bi-play-fill"></i> Resolver
                       </a>
                     {% else %}
-                      <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="status-badge available-badge">
+                      <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
                         <i class="bi bi-play-fill"></i> Resolver
                       </a>
                     {% endif %}
                   {% endif %}
                 {% endif %}
               {% endwith %}
-              <i class="bi bi-chevron-down text-muted" style="font-size: 0.8rem; transition: transform 0.2s;"></i>
             </div>
           </div>
-
+          
           <!-- FEEDBACK DEL DOCENTE -->
           {% with intento=ejercicio.mi_intento %}
             {% if intento and intento.retroalimentacion %}
@@ -193,59 +190,14 @@
             </div>
             {% endif %}
           {% endwith %}
-
-          <!-- PREGUNTAS DESPLEGABLES -->
-          {% if ejercicio.preguntas.all %}
-          <div class="lesson-activities" style="display: none;">
-            {% for pregunta in ejercicio.preguntas.all %}
-            <div class="activity-item">
-              <div class="activity-icon document">
-                <i class="bi bi-patch-question-fill"></i>
-              </div>
-              <div class="activity-info">
-                <div class="activity-title">{{ pregunta.enunciado|default:"Pregunta sin enunciado"|truncatechars:50 }}</div>
-                <div class="activity-type">Pregunta {{ forloop.counter }} · {{ pregunta.opciones.count }} opciones</div>
-              </div>
-            </div>
-            {% endfor %}
-            
-            <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-subtle); text-align: right;">
-              {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
-                {% if intento and intento.calificacion is not None %}
-                  <!-- Ya calificado -->
-                {% elif intento and intento.calificacion is None %}
-                  <span class="text-warning" style="font-size: 0.85rem; font-weight: 500;">
-                    <i class="bi bi-clock-fill"></i> Esperando revisión del docente.
-                  </span>
-                {% elif total >= 2 %}
-                  <span class="text-danger" style="font-size: 0.85rem; font-weight: 500;">
-                    <i class="bi bi-exclamation-triangle-fill"></i> Has agotado tus 2 oportunidades.
-                  </span>
-                {% else %}
-                  <!-- ✅ CORREGIDO: Redirigir según tipo -->
-                  {% if ejercicio.tipo == 'video_quiz' %}
-                    <a href="{% url 'estudiante:resolver_video_quiz' clase.id ejercicio.id %}" class="resolve-link">
-                      Ir a resolver <i class="bi bi-arrow-right"></i>
-                    </a>
-                  {% else %}
-                    <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="resolve-link">
-                      Ir a resolver <i class="bi bi-arrow-right"></i>
-                    </a>
-                  {% endif %}
-                {% endif %}
-              {% endwith %}
-            </div>
-          </div>
-          {% endif %}
-
-        </div>
-        {% endfor %}
-      {% else %}
-        <div class="empty-state" style="padding: 2rem 1rem;">
-          <div class="empty-icon"><i class="bi bi-collection"></i></div>
-          <div class="empty-text">El docente aún no ha agregado ejercicios</div>
-        </div>
-      {% endif %}
+          {% endfor %}
+        {% else %}
+          <p class="empty-msg text-center py-3">
+            <i class="bi bi-collection me-2"></i>
+            No hay ejercicios creados aún. ¡Crea el primero!
+          </p>
+        {% endif %}
+      </div>
     </div>
 
   </div>
@@ -322,32 +274,6 @@
 
 {% block extra_js %}
 <script>
-  function toggleLesson(header) {
-    const lessonItem = header.closest('.lesson-item');
-    const activities = lessonItem.querySelector('.lesson-activities');
-    const chevron = header.querySelector('.bi-chevron-down');
-    
-    if (!activities) return;
-    
-    const isCurrentlyOpen = activities.style.display === 'block';
-    
-    document.querySelectorAll('.lesson-activities').forEach(el => {
-      el.style.display = 'none';
-    });
-    document.querySelectorAll('.bi-chevron-down').forEach(el => {
-      el.style.transform = 'rotate(0deg)';
-    });
-    
-    if (!isCurrentlyOpen) {
-      activities.style.display = 'block';
-      if (chevron) chevron.style.transform = 'rotate(180deg)';
-      
-      setTimeout(() => {
-        lessonItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }, 150);
-    }
-  }
-
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -357,7 +283,7 @@
     });
   }, { threshold: 0.1 });
 
-  document.querySelectorAll('.lesson-item, .announcement-item').forEach((item, i) => {
+  document.querySelectorAll('.ejercicio-item, .announcement-item').forEach((item, i) => {
     item.style.opacity = '0';
     item.style.transform = 'translateY(15px)';
     item.style.transition = `all 0.4s ease ${i * 0.05}s`;
