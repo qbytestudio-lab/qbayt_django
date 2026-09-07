@@ -16,4 +16,8 @@ urlpatterns = [
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/editar/', views.editar_ejercicio, name='editar_ejercicio'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
     path('mis-clases/', views.mis_clases, name='mis_clases'),
+
+    path('biblioteca-recursos/', views.biblioteca_recursos, name='biblioteca_recursos'),
+    path('biblioteca-recursos/crear/', views.crear_recurso, name='crear_recurso'),
+    path('biblioteca-recursos/eliminar/<int:recurso_id>/', views.eliminar_recurso, name='eliminar_recurso'),
 ]

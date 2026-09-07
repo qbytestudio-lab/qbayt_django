@@ -414,7 +414,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
         
         if not titulo:
             messages.error(request, 'El título es obligatorio.')
-            return redirect('detalle_clase', clase_id=clase.id)
+            return redirect(f'/clase/detalle/{clase.id}/')
         
         ejercicio.titulo = titulo
         ejercicio.descripcion = descripcion
@@ -424,7 +424,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
                 ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
             except ValueError:
                 messages.error(request, 'Formato de fecha inválido.')
-                return redirect('detalle_clase', clase_id=clase.id)
+                return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
         else:
             ejercicio.fecha_limite = None
         
@@ -440,7 +440,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
         ejercicio.save()
         
         messages.success(request, f'Ejercicio "{titulo}" actualizado correctamente.')
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect(f'/clase/detalle/{clase.id}/') 
     
     context = {
         'clase': clase,
@@ -460,7 +460,7 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
         ejercicio.delete()
         messages.success(request, 'Ejercicio eliminado correctamente.')
     
-    return redirect('clase:detalle_clase', clase_id=clase.id)
+    return redirect(f'/clase/detalle/{clase.id}/')
 
 @login_required
 def mis_clases(request):
@@ -478,3 +478,94 @@ def mis_clases(request):
     else:
         clases = request.user.clases_estudiante.all()
         return render(request, 'estudiante/mis_clases.html', {'clases': clases})
+
+@login_required
+def biblioteca_recursos(request):
+    """
+    Vista para la biblioteca de recursos musicales
+    """
+    from docente.models import RecursoMusical
+    from django.db.models import Q
+    
+    # Filtros
+    categoria = request.GET.get('categoria', '')
+    tipo = request.GET.get('tipo', '')
+    busqueda = request.GET.get('q', '')
+    
+    recursos = RecursoMusical.objects.filter(docente=request.user)
+    
+    if categoria:
+        recursos = recursos.filter(categoria=categoria)
+    
+    if tipo:
+        recursos = recursos.filter(tipo=tipo)
+    
+    if busqueda:
+        recursos = recursos.filter(
+            Q(titulo__icontains=busqueda) |
+            Q(descripcion__icontains=busqueda)
+        )
+    
+    context = {
+        'recursos': recursos,
+        'categoria_actual': categoria,
+        'tipo_actual': tipo,
+        'busqueda': busqueda,
+        'total_recursos': recursos.count(),
+        'categorias': RecursoMusical.CATEGORIA_CHOICES,
+        'tipos': RecursoMusical.TIPO_CHOICES,
+    }
+    
+    return render(request, 'docente/biblioteca_recursos.html', context)
+
+
+@login_required
+def crear_recurso(request):
+    """
+    Vista para crear un nuevo recurso musical
+    """
+    from docente.models import RecursoMusical
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        tipo = request.POST.get('tipo', 'documento')
+        categoria = request.POST.get('categoria', 'otro')
+        archivo = request.FILES.get('archivo')
+        url_externa = request.POST.get('url_externa', '').strip()
+        
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect('biblioteca_recursos')
+        
+        recurso = RecursoMusical.objects.create(
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo=tipo,
+            categoria=categoria,
+            archivo=archivo if archivo else None,
+            url_externa=url_externa if url_externa else None,
+            docente=request.user,
+        )
+        
+        messages.success(request, f'Recurso "{titulo}" creado correctamente.')
+        return redirect('biblioteca_recursos')
+    
+    return redirect('biblioteca_recursos')
+
+
+@login_required
+def eliminar_recurso(request, recurso_id):
+    """
+    Vista para eliminar un recurso musical
+    """
+    from docente.models import RecursoMusical
+    
+    recurso = get_object_or_404(RecursoMusical, id=recurso_id, docente=request.user)
+    
+    if request.method == 'POST':
+        titulo = recurso.titulo
+        recurso.delete()
+        messages.success(request, f'Recurso "{titulo}" eliminado correctamente.')
+    
+    return redirect('biblioteca_recursos')

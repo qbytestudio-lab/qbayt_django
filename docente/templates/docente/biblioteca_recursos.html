@@ -1,0 +1,237 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Biblioteca de Recursos — QBYT{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/biblioteca_recursos.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="biblioteca-container">
+
+  <!-- BACK NAVIGATION -->
+  <div class="back-nav">
+    <a href="{% url 'mis_clases' %}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Volver a Mis clases
+    </a>
+  </div>
+
+  <!-- HEADER -->
+  <div class="biblioteca-header">
+    <h1 class="biblioteca-title">
+      <i class="bi bi-music-note-list"></i> Biblioteca de Recursos
+    </h1>
+    <p class="biblioteca-subtitle">
+      Gestiona audios, partituras, videos y documentos para tus clases
+    </p>
+    <button class="btn-crear-recurso" data-bs-toggle="modal" data-bs-target="#modalCrearRecurso">
+      <i class="bi bi-plus-lg"></i> Nuevo recurso
+    </button>
+  </div>
+
+  {% if messages %}
+  <div class="messages-container">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- FILTROS -->
+  <div class="filtros-biblioteca">
+    <form method="GET" class="filtros-form">
+      <input type="text" name="q" placeholder="Buscar recurso..." value="{{ busqueda }}" class="input-busqueda">
+      
+      <select name="categoria" class="select-filtro" onchange="this.form.submit()">
+        <option value="">Todas las categorías</option>
+        {% for valor, nombre in categorias %}
+        <option value="{{ valor }}" {% if categoria_actual == valor %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+      
+      <select name="tipo" class="select-filtro" onchange="this.form.submit()">
+        <option value="">Todos los tipos</option>
+        {% for valor, nombre in tipos %}
+        <option value="{{ valor }}" {% if tipo_actual == valor %}selected{% endif %}>{{ nombre }}</option>
+        {% endfor %}
+      </select>
+      
+      <button type="submit" class="btn-filtrar">
+        <i class="bi bi-search"></i> Filtrar
+      </button>
+    </form>
+  </div>
+
+  <!-- CONTADOR -->
+  <div class="contador-recursos">
+    <span>{{ total_recursos }} recurso{{ total_recursos|pluralize }}</span>
+  </div>
+
+  <!-- GRID DE RECURSOS -->
+  {% if recursos %}
+  <div class="recursos-grid">
+    {% for recurso in recursos %}
+    <div class="recurso-card">
+      <div class="recurso-icon tipo-{{ recurso.tipo }}">
+        {% if recurso.tipo == 'audio' %}
+        <i class="bi bi-music-note-beamed"></i>
+        {% elif recurso.tipo == 'partitura' %}
+        <i class="bi bi-file-earmark-music"></i>
+        {% elif recurso.tipo == 'video' %}
+        <i class="bi bi-camera-video"></i>
+        {% elif recurso.tipo == 'imagen' %}
+        <i class="bi bi-image"></i>
+        {% else %}
+        <i class="bi bi-file-text"></i>
+        {% endif %}
+      </div>
+      
+      <div class="recurso-body">
+        <h3 class="recurso-titulo">{{ recurso.titulo }}</h3>
+        
+        {% if recurso.descripcion %}
+        <p class="recurso-descripcion">{{ recurso.descripcion|truncatechars:100 }}</p>
+        {% endif %}
+        
+        <div class="recurso-meta">
+          <span class="recurso-categoria">
+            <i class="bi bi-tag"></i> {{ recurso.get_categoria_display }}
+          </span>
+          <span class="recurso-tipo">
+            {{ recurso.get_tipo_display }}
+          </span>
+          <span class="recurso-fecha">
+            {{ recurso.fecha_creacion|date:"d M Y" }}
+          </span>
+        </div>
+        
+        <div class="recurso-actions">
+          {% if recurso.tiene_archivo %}
+          <a href="{{ recurso.archivo.url }}" target="_blank" class="btn-ver-recurso">
+            <i class="bi bi-download"></i> Descargar
+          </a>
+          {% elif recurso.tiene_url %}
+          <a href="{{ recurso.url_externa }}" target="_blank" class="btn-ver-recurso">
+            <i class="bi bi-box-arrow-up-right"></i> Abrir
+          </a>
+          {% endif %}
+          
+          <button type="button" class="btn-eliminar-recurso" 
+                  data-bs-toggle="modal" data-bs-target="#modalEliminar{{ recurso.id }}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modal Eliminar -->
+    <div class="modal fade" id="modalEliminar{{ recurso.id }}" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Eliminar recurso</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            ¿Estás seguro de eliminar "{{ recurso.titulo }}"?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <form action="{% url 'eliminar_recurso' recurso.id %}" method="POST">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger">Eliminar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <i class="bi bi-folder2-open"></i>
+    <h3>No hay recursos</h3>
+    <p>Crea tu primer recurso musical para compartir con tus estudiantes.</p>
+    <button class="btn-crear-recurso" data-bs-toggle="modal" data-bs-target="#modalCrearRecurso">
+      <i class="bi bi-plus-lg"></i> Crear recurso
+    </button>
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- MODAL CREAR RECURSO -->
+<div class="modal fade" id="modalCrearRecurso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo recurso</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form action="{% url 'crear_recurso' %}" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-body">
+          
+          <div class="mb-3">
+            <label class="form-label">Título <span class="text-danger">*</span></label>
+            <input type="text" name="titulo" class="form-control" required>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea name="descripcion" class="form-control" rows="3"></textarea>
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Tipo</label>
+              <select name="tipo" class="form-select" required>
+                <option value="audio">Audio</option>
+                <option value="partitura">Partitura</option>
+                <option value="video">Video</option>
+                <option value="documento">Documento</option>
+                <option value="imagen">Imagen</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Categoría</label>
+              <select name="categoria" class="form-select" required>
+                <option value="intervalos">Intervalos</option>
+                <option value="acordes">Acordes</option>
+                <option value="escalas">Escalas</option>
+                <option value="ritmo">Ritmo</option>
+                <option value="melodia">Melodía</option>
+                <option value="armonia">Armonía</option>
+                <option value="teoria">Teoría Musical</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="mb-3">
+            <label class="form-label">Subir archivo</label>
+            <input type="file" name="archivo" class="form-control">
+            <small class="text-muted">O coloca una URL externa</small>
+          </div>
+          
+          <div class="mb-0">
+            <label class="form-label">URL externa (YouTube, Drive, etc.)</label>
+            <input type="url" name="url_externa" class="form-control" placeholder="https://...">
+          </div>
+          
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Crear recurso</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

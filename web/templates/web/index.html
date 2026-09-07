@@ -9,27 +9,29 @@
 
   <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
-  
+
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-  
+
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&display=swap"
+    rel="stylesheet">
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="{% static 'web/css/pages.css' %}">
   <link rel="icon" type="image/png" href="{% static 'web/img/logo5.png' %}">
-  
+
   <style>
     /* ═══════════════════════════════════════════ */
     /* SECCIÓN CREADORES                        */
     /* ═══════════════════════════════════════════ */
-    
+
     .creadores-section {
       padding: 4rem 0;
       background: var(--bg-body);
     }
-    
+
     .creadores-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -37,7 +39,7 @@
       max-width: 900px;
       margin: 0 auto;
     }
-    
+
     .creador-card {
       background: var(--bg-card);
       border: 1px solid var(--border-subtle);
@@ -46,31 +48,31 @@
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
     }
-    
+
     .creador-card:hover {
       transform: translateY(-8px);
       box-shadow: 0 16px 32px var(--shadow);
       border-color: rgba(139, 92, 246, 0.3);
     }
-    
+
     .creador-imagen-wrapper {
       width: 100%;
       aspect-ratio: 1/1;
       overflow: hidden;
       position: relative;
     }
-    
+
     .creador-imagen {
       width: 100%;
       height: 100%;
       object-fit: cover;
       transition: transform 0.5s ease;
     }
-    
+
     .creador-card:hover .creador-imagen {
       transform: scale(1.05);
     }
-    
+
     .creador-imagen-placeholder {
       width: 100%;
       height: 100%;
@@ -81,15 +83,15 @@
       color: rgba(255, 255, 255, 0.3);
       background: linear-gradient(135deg, #1db954 0%, #169c46 100%);
     }
-    
+
     .creador-imagen-placeholder i {
       font-size: 5rem;
     }
-    
+
     .creador-body {
       padding: 1.5rem;
     }
-    
+
     .creador-nombre {
       font-family: 'Syne', sans-serif;
       font-weight: 800;
@@ -97,7 +99,7 @@
       color: var(--text-primary);
       margin-bottom: 0.3rem;
     }
-    
+
     .creador-rol {
       display: inline-block;
       background: rgba(139, 92, 246, 0.12);
@@ -110,20 +112,20 @@
       letter-spacing: 0.5px;
       text-transform: uppercase;
     }
-    
+
     .creador-descripcion {
       color: var(--text-secondary);
       font-size: 0.88rem;
       line-height: 1.6;
       margin-bottom: 1rem;
     }
-    
+
     .creador-redes {
       display: flex;
       justify-content: center;
       gap: 0.75rem;
     }
-    
+
     .creador-red {
       width: 36px;
       height: 36px;
@@ -138,14 +140,14 @@
       text-decoration: none;
       transition: all 0.2s;
     }
-    
+
     .creador-red:hover {
       background: var(--accent-purple);
       color: #fff;
       border-color: var(--accent-purple);
       transform: translateY(-3px);
     }
-    
+
     [data-theme="light"] .creador-imagen-placeholder {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     }
@@ -265,7 +267,8 @@
               <div class="banner-text">
                 <h3>Aprende a tu ritmo</h3>
                 <p>Accede a cursos, retos y ejercicios desde cualquier dispositivo, cuando quieras.</p>
-                <a href="{% url 'registro' %}" class="btn-banner btn-pulse">Registrarme <i class="bi bi-arrow-right"></i></a>
+                <a href="{% url 'registro' %}" class="btn-banner btn-pulse">Registrarme <i
+                    class="bi bi-arrow-right"></i></a>
               </div>
               <div class="banner-image">
                 <img src="https://images.unsplash.com/photo-1507838153414-b4b713384a76?w=800" alt="Música">
@@ -351,7 +354,8 @@
           <div class="col-md-3">
             <div class="feature-card h-100">
               <div style="position: relative; overflow: hidden;">
-                <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?rs=1&pid=ImgDetMain" alt="Nota La">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.ps64LUJDKJ6jBT7zyfisfwHaHa?rs=1&pid=ImgDetMain"
+                  alt="Nota La">
                 <span class="badge-nuevo" style="position: absolute; top: 10px; right: 10px;">
                   <i class="bi bi-star-fill"></i> Nuevo
                 </span>
@@ -367,7 +371,9 @@
           <div class="col-md-3">
             <div class="feature-card h-100">
               <div style="position: relative; overflow: hidden;">
-                <img src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350" alt="Simón Musical">
+                <img
+                  src="https://blog.laminasyaceros.com/hs-fs/hubfs/Musica%20y%20cerebro%20laminas%20y%20aceros.jpg?width=1350"
+                  alt="Simón Musical">
               </div>
               <div class="feature-card-body">
                 <h3>Simón Musical</h3>
@@ -484,83 +490,6 @@
       </div>
     </section>
 
-    <!-- SECCIÓN CREADORES  -->
-    <section id="creadores" class="creadores-section">
-      <div class="container">
-        <div class="section-divider">
-          <i class="bi bi-people-fill"></i>
-        </div>
-        <p class="sec-title">Creadores</p>
-        <p class="sec-sub">El equipo detrás de QBYT</p>
-        
-        <div class="creadores-grid mt-4">
-          
-          <!-- Creador 1 -->
-          <div class="creador-card">
-            <div class="creador-imagen-wrapper">
-              <!-- Reemplaza la ruta con la foto real del creador -->
-              <img src="{% static 'web/img/creador1.png' %}" alt="Creador 1" class="creador-imagen" 
-                   onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="creador-imagen-placeholder" style="display:none;">
-                <i class="bi bi-person-fill"></i>
-              </div>
-            </div>
-            <div class="creador-body">
-              <h3 class="creador-nombre">Dylan Muñoz</h3>
-              <span class="creador-rol">Fundador & Desarrollador</span>
-              <p class="creador-descripcion">
-                Estudiante de ingeniería de sistemas apasionado por la música y la tecnología. 
-                Creador de QBYT con la visión de hacer el entrenamiento musical accesible para todos.
-              </p>
-              <div class="creador-redes">
-                <a href="https://github.com/dylan18-2006" target="_blank" class="creador-red" title="GitHub">
-                  <i class="bi bi-github"></i>
-                </a>
-                <a href="https://linkedin.com/" target="_blank" class="creador-red" title="LinkedIn">
-                  <i class="bi bi-linkedin"></i>
-                </a>
-                <a href="mailto:dilanmunoz671@gmail.com" class="creador-red" title="Email">
-                  <i class="bi bi-envelope-fill"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Creador 2 -->
-          <div class="creador-card">
-            <div class="creador-imagen-wrapper">
-              <!-- Reemplaza la ruta con la foto real del creador -->
-              <img src="{% static 'web/img/creador2.jpg' %}" alt="Creador 2" class="creador-imagen"
-                   onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-              <div class="creador-imagen-placeholder" style="display:none;">
-                <i class="bi bi-person-fill"></i>
-              </div>
-            </div>
-            <div class="creador-body">
-              <h3 class="creador-nombre">Adrian Delgado</h3>
-              <span class="creador-rol">Fundador & Diseñador</span>
-              <p class="creador-descripcion">
-                Desarrollador de software y músico con 3 años de trayectoria. Creador y fundador de QBYT, un proyecto enfocado 
-                en democratizar y potenciar el aprendizaje auditivo a través de soluciones web eficientes, intuitivas y de código abierto.
-              </p>
-              <div class="creador-redes">
-                <a href="https://github.com/" target="_blank" class="creador-red" title="GitHub">
-                  <i class="bi bi-github"></i>
-                </a>
-                <a href="https://linkedin.com/" target="_blank" class="creador-red" title="LinkedIn">
-                  <i class="bi bi-linkedin"></i>
-                </a>
-                <a href="mailto:creador2@qbyt.com" class="creador-red" title="Email">
-                  <i class="bi bi-envelope-fill"></i>
-                </a>
-              </div>
-            </div>
-          </div>
-          
-        </div>
-      </div>
-    </section>
-
     <!-- TESTIMONIOS -->
     <section id="testimonios" class="feature-section">
       <div class="container">
@@ -570,7 +499,8 @@
           <div class="col-md-4">
             <div class="testimonial-card">
               <div class="testimonial-avatar">A</div>
-              <p class="testimonial-text">"QBYT cambió mi forma de practicar. Los ejercicios son adictivos y veo resultados cada semana."</p>
+              <p class="testimonial-text">"QBYT cambió mi forma de practicar. Los ejercicios son adictivos y veo
+                resultados cada semana."</p>
               <div class="testimonial-name">Ana García</div>
               <div class="testimonial-role">Estudiante de piano</div>
             </div>
@@ -578,7 +508,8 @@
           <div class="col-md-4">
             <div class="testimonial-card">
               <div class="testimonial-avatar">C</div>
-              <p class="testimonial-text">"Como docente, encuentro herramientas increíbles para mis clases. Mis alumnos están más motivados."</p>
+              <p class="testimonial-text">"Como docente, encuentro herramientas increíbles para mis clases. Mis alumnos
+                están más motivados."</p>
               <div class="testimonial-name">Carlos López</div>
               <div class="testimonial-role">Profesor de guitarra</div>
             </div>
@@ -586,7 +517,8 @@
           <div class="col-md-4">
             <div class="testimonial-card">
               <div class="testimonial-avatar">M</div>
-              <p class="testimonial-text">"El entrenamiento auditivo mejoró mi oído en solo 2 meses. Recomiendo QBYT a todos mis colegas."</p>
+              <p class="testimonial-text">"El entrenamiento auditivo mejoró mi oído en solo 2 meses. Recomiendo QBYT a
+                todos mis colegas."</p>
               <div class="testimonial-name">María Torres</div>
               <div class="testimonial-role">Cantante profesional</div>
             </div>
@@ -608,7 +540,8 @@
               <i class="bi bi-chevron-down faq-icon"></i>
             </button>
             <div id="faq1" class="collapse faq-body">
-              <p>No, para nada. QBYT está diseñado para todos los niveles. Tenemos programas desde cero para quienes nunca han tocado un instrumento, hasta retos avanzados para músicos con experiencia.</p>
+              <p>No, para nada. QBYT está diseñado para todos los niveles. Tenemos programas desde cero para quienes
+                nunca han tocado un instrumento, hasta retos avanzados para músicos con experiencia.</p>
             </div>
           </div>
 
@@ -618,7 +551,8 @@
               <i class="bi bi-chevron-down faq-icon"></i>
             </button>
             <div id="faq2" class="collapse faq-body">
-              <p>No es obligatorio. Muchos de nuestros ejercicios son de entrenamiento auditivo y teoría musical que puedes hacer sin instrumento. Sin embargo, tener uno potencia mucho tu aprendizaje.</p>
+              <p>No es obligatorio. Muchos de nuestros ejercicios son de entrenamiento auditivo y teoría musical que
+                puedes hacer sin instrumento. Sin embargo, tener uno potencia mucho tu aprendizaje.</p>
             </div>
           </div>
 
@@ -628,7 +562,8 @@
               <i class="bi bi-chevron-down faq-icon"></i>
             </button>
             <div id="faq3" class="collapse faq-body">
-              <p>Con 15 a 30 minutos diarios es suficiente para ver progreso. La constancia es más importante que la duración. Nuestros ejercicios están diseñados para sesiones cortas pero efectivas.</p>
+              <p>Con 15 a 30 minutos diarios es suficiente para ver progreso. La constancia es más importante que la
+                duración. Nuestros ejercicios están diseñados para sesiones cortas pero efectivas.</p>
             </div>
           </div>
 
@@ -638,7 +573,8 @@
               <i class="bi bi-chevron-down faq-icon"></i>
             </button>
             <div id="faq4" class="collapse faq-body">
-              <p>Puedes crear una cuenta gratis y acceder a contenido introductorio sin costo. Los programas completos y funciones avanzadas están disponibles con una suscripción.</p>
+              <p>Puedes crear una cuenta gratis y acceder a contenido introductorio sin costo. Los programas completos y
+                funciones avanzadas están disponibles con una suscripción.</p>
             </div>
           </div>
 
@@ -648,7 +584,8 @@
               <i class="bi bi-chevron-down faq-icon"></i>
             </button>
             <div id="faq5" class="collapse faq-body">
-              <p>Sí, QBYT está completamente optimizado para móviles, tablets y computadoras. Tu progreso se sincroniza automáticamente en todos tus dispositivos.</p>
+              <p>Sí, QBYT está completamente optimizado para móviles, tablets y computadoras. Tu progreso se sincroniza
+                automáticamente en todos tus dispositivos.</p>
             </div>
           </div>
 
@@ -665,13 +602,94 @@
           <h2>¿Listo para transformar tu música?</h2>
           <p>Únete a más de 500 estudiantes que ya están entrenando con QBYT.<br>Empieza hoy, es gratis.</p>
           <div class="cta-buttons">
-            <a href="{% url 'registro' %}" class="btn-register btn-pulse" style="font-size:0.95rem; padding: 0.75rem 2rem;">
+            <a href="{% url 'registro' %}" class="btn-register btn-pulse"
+              style="font-size:0.95rem; padding: 0.75rem 2rem;">
               <i class="bi bi-person-plus me-2"></i>Crear cuenta gratis
             </a>
             <a href="#programas" class="btn-login btn-pulse" style="font-size:0.95rem; padding: 0.75rem 2rem;">
               Ver programas
             </a>
           </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- SECCIÓN CREADORES  -->
+    <section id="creadores" class="creadores-section">
+      <div class="container">
+        <div class="section-divider">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <p class="sec-title">Creadores</p>
+        <p class="sec-sub">El equipo detrás de QBYT</p>
+
+        <div class="creadores-grid mt-4">
+
+          <!-- Creador 1 -->
+          <div class="creador-card">
+            <div class="creador-imagen-wrapper">
+              <!-- Reemplaza la ruta con la foto real del creador -->
+              <img src="{% static 'web/img/creador1.png' %}" alt="Creador 1" class="creador-imagen"
+                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="creador-imagen-placeholder" style="display:none;">
+                <i class="bi bi-person-fill"></i>
+              </div>
+            </div>
+            <div class="creador-body">
+              <h3 class="creador-nombre">Dylan Muñoz</h3>
+              <span class="creador-rol">Fundador & Desarrollador</span>
+              <p class="creador-descripcion">
+                Estudiante de ingeniería de sistemas apasionado por la música y la tecnología.
+                Creador de QBYT con la visión de hacer el entrenamiento musical accesible para todos.
+              </p>
+              <div class="creador-redes">
+                <a href="https://github.com/dylan18-2006" target="_blank" class="creador-red" title="GitHub">
+                  <i class="bi bi-github"></i>
+                </a>
+                <a href="https://linkedin.com/" target="_blank" class="creador-red" title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+                <a href="mailto:dilanmunoz671@gmail.com" class="creador-red" title="Email">
+                  <i class="bi bi-envelope-fill"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Creador 2 -->
+          <div class="creador-card">
+            <div class="creador-imagen-wrapper">
+              <!-- Reemplaza la ruta con la foto real del creador -->
+              <img src="{% static 'web/img/creador2.jpg' %}" alt="Creador 2" class="creador-imagen"
+                onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="creador-imagen-placeholder" style="display:none;">
+                <i class="bi bi-person-fill"></i>
+              </div>
+            </div>
+            <div class="creador-body">
+              <h3 class="creador-nombre">Adrian Delgado</h3>
+              <span class="creador-rol">Fundador & Diseñador</span>
+              <p class="creador-descripcion">
+                Desarrollador de software y músico con 3 años de trayectoria. Creador y fundador de QBYT, un proyecto
+                enfocado
+                en democratizar y potenciar el aprendizaje auditivo a través de soluciones web eficientes, intuitivas y
+                de código abierto.
+              </p>
+              <div class="creador-redes">
+                <a href="https://github.com/Ferchungas17" target="_blank" class="creador-red" title="GitHub">
+                  <i class="bi bi-github"></i>
+                </a>
+                <a href="https://www.linkedin.com/in/adrian-delgado-03215a380/" target="_blank" class="creador-red"
+                  title="LinkedIn">
+                  <i class="bi bi-linkedin"></i>
+                </a>
+                <a href="mailto:creador2@qbyt.com" class="creador-red" title="Email">
+                  <i class="bi bi-envelope-fill"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>

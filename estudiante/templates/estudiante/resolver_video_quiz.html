@@ -34,18 +34,39 @@
 
   <div class="video-section">
     {% if ejercicio.video_principal %}
+    <!-- Video subido directamente, SIEMPRE funciona -->
     <video controls class="video-player">
       <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
-      Tu navegador no soporta el elemento de video.
     </video>
     {% elif ejercicio.video_url %}
       {% if 'youtube.com' in ejercicio.video_url or 'youtu.be' in ejercicio.video_url %}
-        <div class="video-embed">
-          <iframe width="100%" height="400" 
-                  src="{{ ejercicio.video_url }}" 
-                  frameborder="0" allowfullscreen></iframe>
+        <!-- YouTube: intentar cargar en iframe -->
+        <div class="video-embed-container" id="videoContainer">
+          <iframe 
+            src="https://www.youtube.com/embed/{{ ejercicio.video_url|slice:'32:' }}" 
+            width="100%" height="400" 
+            frameborder="0" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allowfullscreen
+            onerror="mostrarErrorVideo()">
+          </iframe>
+        </div>
+        
+        <!-- Mensaje de error oculto por defecto -->
+        <div id="videoError" style="display: none; text-align: center; padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; margin-top: 1rem;">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem; color: #ff6b6b;"></i>
+          <h3 style="color: #ff6b6b; margin: 0.75rem 0;">Video no disponible</h3>
+          <p style="color: #b3b3b3; margin-bottom: 1rem;">
+            Este video no permite reproducción integrada en otras páginas.<br>
+            Haz clic en el botón para verlo directamente en YouTube.
+          </p>
+          <a href="{{ ejercicio.video_url }}" target="_blank" 
+             style="display: inline-flex; align-items: center; gap: 0.5rem; background: #ff0000; color: #fff; padding: 0.6rem 1.5rem; border-radius: 25px; font-weight: 700; text-decoration: none;">
+            <i class="bi bi-youtube"></i> Ver en YouTube
+          </a>
         </div>
       {% else %}
+        <!-- URL de video directo -->
         <video controls class="video-player">
           <source src="{{ ejercicio.video_url }}" type="video/mp4">
         </video>
@@ -104,6 +125,33 @@
 
 {% block extra_js %}
 <script>
+  // ✅ Detectar si el iframe de YouTube no carga
+  function mostrarErrorVideo() {
+    const iframeContainer = document.getElementById('videoContainer');
+    const errorContainer = document.getElementById('videoError');
+    
+    if (iframeContainer) iframeContainer.style.display = 'none';
+    if (errorContainer) errorContainer.style.display = 'block';
+  }
+
+  // ✅ Verificar después de 3 segundos si el video cargó
+  document.addEventListener('DOMContentLoaded', function() {
+    const iframe = document.querySelector('.video-embed-container iframe');
+    
+    if (iframe) {
+      // Si el iframe no tiene src válido o hay error
+      setTimeout(function() {
+        // Verificar si el iframe está en blanco o con error
+        try {
+          const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+          // Si no podemos acceder (cross-origin), asumir que está bien
+        } catch (e) {
+          // Cross-origin, no podemos verificar
+        }
+      }, 3000);
+    }
+  });
+
   document.getElementById('formVideoQuiz').addEventListener('submit', function(e) {
     e.preventDefault();
     

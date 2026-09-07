@@ -3,10 +3,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from datetime import datetime
-from django.utils import timezone  #  NUEVO
+from django.utils import timezone
 from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante,)
 from clase.models import Clase
+from docente.models import RecursoMusical
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion
+
 
 # ============================================================
 # VISTA GENERAL / ENRUTADOR PARA CREAR EJERCICIO
@@ -15,13 +17,10 @@ from notificaciones.services import notificar_nuevo_ejercicio, notificar_calific
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
     
-    # Si mandan el tipo por parámetro GET (ej: ?tipo=juego), redirigimos a su vista correspondiente
     tipo = request.GET.get('tipo', 'quiz')
     
     if tipo == 'quiz':
         return redirect('ejercicios:crear_quiz', clase_id=clase.id)
-    elif tipo == 'imagen_quiz':
-        return redirect('ejercicios:crear_imagen_quiz', clase_id=clase.id)
     elif tipo == 'juego':
         return redirect('ejercicios:crear_juego', clase_id=clase.id)
     elif tipo == 'texto':
@@ -31,8 +30,9 @@ def crear_ejercicio(request, clase_id):
     elif tipo == 'completar':
         return redirect('ejercicios:crear_completar', clase_id=clase.id)
         
-    # Si entra por primera vez sin tipo o elijas la opción por defecto:
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
+
+
 # ============================================================
 # CREAR QUIZ
 # ============================================================
@@ -52,6 +52,12 @@ def crear_quiz(request, clase_id):
             descripcion=descripcion,
             fecha_limite=fecha_limite
         )
+        
+        # ✅ GUARDAR RECURSOS SELECCIONADOS
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
         
         i = 1
         while f'pregunta_{i}' in request.POST:
@@ -78,13 +84,16 @@ def crear_quiz(request, clase_id):
                         )
             i += 1
         
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
         
         messages.success(request, 'Quiz creado correctamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
 
-    return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_quiz.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
 
 
 # ============================================================
@@ -95,8 +104,6 @@ def crear_video_quiz(request, clase_id):
     """
     Vista para crear un ejercicio de tipo Video + Quiz
     """
-    from django.utils import timezone
-    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
     if request.method == 'POST':
@@ -107,40 +114,33 @@ def crear_video_quiz(request, clase_id):
         video_url = request.POST.get('video_url', '').strip()
         imagen_principal = request.FILES.get('imagen_principal')
         
-        # Validar título
         if not titulo:
             messages.error(request, 'El título es obligatorio.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Validar fecha límite obligatoria
         if not fecha_limite:
             messages.error(request, 'La fecha límite es obligatoria.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Convertir fecha límite
         try:
             fecha_limite_dt = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
         except ValueError:
             messages.error(request, 'Formato de fecha inválido.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Validar que la fecha no sea pasada
         ahora = timezone.now()
         if fecha_limite_dt < ahora.replace(tzinfo=None):
             messages.error(request, 'No puedes usar una fecha límite pasada.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Validar video o URL
         if not video_principal and not video_url:
             messages.error(request, 'Debes subir un video o proporcionar una URL.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Validar tamaño del video (máx 100MB)
         if video_principal and video_principal.size > 100 * 1024 * 1024:
             messages.error(request, 'El video no debe superar los 100MB.')
             return redirect('ejercicios:crear_video_quiz', clase_id=clase.id)
         
-        # Crear el ejercicio
         ejercicio = Ejercicio.objects.create(
             clase=clase,
             titulo=titulo,
@@ -152,7 +152,12 @@ def crear_video_quiz(request, clase_id):
             imagen_principal=imagen_principal if imagen_principal else None,
         )
         
-        # Procesar preguntas
+        # ✅ GUARDAR RECURSOS SELECCIONADOS
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
+        
         pregunta_ids = []
         for key in request.POST.keys():
             if key.startswith('pregunta_'):
@@ -170,13 +175,11 @@ def crear_video_quiz(request, clase_id):
             if not texto_pregunta:
                 continue
             
-            # Crear pregunta
             pregunta = Pregunta.objects.create(
                 ejercicio=ejercicio,
                 enunciado=texto_pregunta,
             )
             
-            # Procesar opciones
             correcta = request.POST.get(f'correcta_{i}')
             
             for j in range(1, 5):
@@ -187,24 +190,26 @@ def crear_video_quiz(request, clase_id):
                 
                 es_correcta = (str(j) == str(correcta))
                 
-                # ✅ CORREGIDO: usar texto_opcion en lugar de texto
                 Opcion.objects.create(
                     pregunta=pregunta,
-                    texto_opcion=texto_opcion,  # ✅ CAMBIADO
+                    texto_opcion=texto_opcion,
                     es_correcta=es_correcta,
                 )
         
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
         
         messages.success(request, f'Ejercicio "{titulo}" creado correctamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
     
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    
     context = {
         'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
     }
     
     return render(request, 'ejercicios/crear_video_quiz.html', context)
+
 
 # ============================================================
 # CREAR JUEGO
@@ -229,14 +234,22 @@ def crear_juego(request, clase_id):
             juego_tipo=juego_tipo,
             tipo='juego'
         )
+        
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
 
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Juego creado exitosamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
 
-    return render(request, 'ejercicios/crear_juego.html', {'clase': clase})
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_juego.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
 
 
 # ============================================================
@@ -262,14 +275,22 @@ def crear_texto(request, clase_id):
             imagen_principal=imagen,
             tipo='texto'
         )
+        
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
 
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Texto creado exitosamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
 
-    return render(request, 'ejercicios/crear_texto.html', {'clase': clase})
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_texto.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
 
 
 # ============================================================
@@ -293,14 +314,22 @@ def crear_verdadero_falso(request, clase_id):
             descripcion=descripcion,
             tipo='verdadero_falso'
         )
+        
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
 
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio V/F creado exitosamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
 
-    return render(request, 'ejercicios/crear_verdadero_falso.html', {'clase': clase})
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_verdadero_falso.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
 
 
 # ============================================================
@@ -324,14 +353,89 @@ def crear_completar(request, clase_id):
             descripcion=descripcion,
             tipo='completar'
         )
+        
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
 
-        # ✅ NOTIFICAR A LOS ESTUDIANTES
         notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
 
         messages.success(request, 'Ejercicio de completar creado exitosamente.')
         return redirect('clase:detalle_clase', clase_id=clase.id)
 
-    return render(request, 'ejercicios/crear_completar.html', {'clase': clase})
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_completar.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
+
+
+# ============================================================
+# EDITAR EJERCICIO
+# ============================================================
+@login_required
+def editar_ejercicio(request, clase_id, ejercicio_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_limite = request.POST.get('fecha_limite')
+        video_url = request.POST.get('video_url', '').strip()
+        video_principal = request.FILES.get('video_principal')
+        imagen_principal = request.FILES.get('imagen_principal')
+        
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect(f'/clase/detalle/{clase.id}/')
+        
+        ejercicio.titulo = titulo
+        ejercicio.descripcion = descripcion
+        
+        if fecha_limite:
+            try:
+                ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
+            except ValueError:
+                messages.error(request, 'Formato de fecha inválido.')
+                return redirect(f'/clase/detalle/{clase.id}/')
+        else:
+            ejercicio.fecha_limite = None
+        
+        if video_url:
+            ejercicio.video_url = video_url
+        
+        if video_principal:
+            ejercicio.video_principal = video_principal
+        
+        if imagen_principal:
+            ejercicio.imagen_principal = imagen_principal
+        
+        # ✅ GUARDAR RECURSOS
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
+        else:
+            ejercicio.recursos.clear()
+        
+        ejercicio.save()
+        
+        messages.success(request, f'Ejercicio "{titulo}" actualizado correctamente.')
+        return redirect(f'/clase/detalle/{clase.id}/')
+    
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    recursos_seleccionados = ejercicio.recursos.all().values_list('id', flat=True)
+    
+    context = {
+        'clase': clase,
+        'ejercicio': ejercicio,
+        'recursos_disponibles': recursos_disponibles,
+        'recursos_seleccionados': recursos_seleccionados,
+    }
+    
+    return render(request, 'docente/editar_ejercicio.html', context)
 
 
 # ============================================================
@@ -375,7 +479,6 @@ def calificar_ejercicio(request, intento_id):
         clase = ejercicio.clase
         estudiante = intento.estudiante
 
-        # ✅ NOTIFICAR AL ESTUDIANTE SOBRE SU CALIFICACIÓN
         notificar_calificacion(estudiante, ejercicio, nota)
 
         total_intentos = IntentoEjercicio.objects.filter(
@@ -424,6 +527,8 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
     intentos = IntentoEjercicio.objects.filter(
         ejercicio=ejercicio
     ).select_related('estudiante').order_by('-fecha_envio')
+    
+    recursos = ejercicio.recursos.all()
 
     return render(
         request,
@@ -432,10 +537,14 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
             'clase': clase,
             'ejercicio': ejercicio,
             'intentos': intentos,
+            'recursos': recursos,
         }
     )
 
 
+# ============================================================
+# ELIMINAR EJERCICIO
+# ============================================================
 @login_required
 def eliminar_ejercicio(request, clase_id, ejercicio_id):
     if request.user.perfil.rol != 'docente':
@@ -451,9 +560,12 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
     ejercicio.delete()
     
     messages.success(request, 'Ejercicio eliminado con éxito.')
-    return redirect('clase:detalle_clase', clase_id=clase_id)
+    return redirect(f'/clase/detalle/{clase_id}/')
 
 
+# ============================================================
+# REENVIAR EJERCICIO
+# ============================================================
 @login_required
 def reenviar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)

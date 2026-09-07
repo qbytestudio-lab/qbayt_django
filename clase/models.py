@@ -97,3 +97,4 @@ class HistorialInscripcion(models.Model):
     categoria_tema = models.CharField(max_length=100) # O puedes relacionarlo directamente con la clase
     intentos = models.PositiveIntegerField(default=1)
     bloqueado = models.BooleanField(default=False)
+

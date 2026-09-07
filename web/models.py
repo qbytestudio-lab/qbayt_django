@@ -22,7 +22,7 @@ class Perfil(models.Model):
         null=True
     )
     
-    # ✅ AGREGAR ESTE CAMPO
+    # AGREGAR ESTE CAMPO
     banner = models.ImageField(
         upload_to='banners/',
         blank=True,

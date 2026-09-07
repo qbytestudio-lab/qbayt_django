@@ -14,6 +14,7 @@
   --spotify-muted: #6a6a6a;
   --accent-purple: #7c6fff;
   --accent-purple-hover: #9b8fff;
+  --accent-blue: #40a9ff;
   --danger: #e91429;
   
   /* Superficies */
@@ -40,6 +41,7 @@
   --spotify-muted: #8b8ba7;
   --accent-purple: #8b5cf6;
   --accent-purple-hover: #7c3aed;
+  --accent-blue: #06b6d4;
   --danger: #ef4444;
   
   --bg-body: #f8f9fe;
@@ -267,6 +269,128 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
+/*         RECURSOS DE APOYO                  */
+/* ═══════════════════════════════════════════ */
+
+.btn-seleccionar-recursos {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: var(--accent-purple);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-seleccionar-recursos:hover {
+  background: var(--accent-purple);
+  color: #fff;
+}
+
+.btn-ir-biblioteca {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.6rem 1.2rem;
+  border-radius: 25px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+}
+
+.btn-ir-biblioteca:hover {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  background: var(--bg-hover);
+}
+
+/* Modal de recursos */
+.modal-recursos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.modal-recurso-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-recurso-item:hover {
+  background: var(--bg-hover);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.checkbox-recurso {
+  accent-color: var(--accent-purple);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.modal-recurso-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.modal-recurso-icon.tipo-audio { background: rgba(29,185,84,0.1); color: #1db954; }
+.modal-recurso-icon.tipo-partitura { background: rgba(124,111,255,0.1); color: #7c6fff; }
+.modal-recurso-icon.tipo-video { background: rgba(64,169,255,0.1); color: #40a9ff; }
+.modal-recurso-icon.tipo-documento { background: rgba(255,159,67,0.1); color: #ff9f43; }
+.modal-recurso-icon.tipo-imagen { background: rgba(255,107,157,0.1); color: #ff6b9d; }
+
+.modal-recurso-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.modal-recurso-info strong {
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.modal-recurso-info small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.modal-recursos-count {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: auto;
+}
+
+/* ═══════════════════════════════════════════ */
 /*         BOTONES                            */
 /* ═══════════════════════════════════════════ */
 
@@ -393,6 +517,7 @@ textarea.form-control {
   .opcion-row { flex-wrap: wrap; }
   .form-footer { flex-direction: column; }
   .btn-submit, .btn-cancelar { width: 100%; justify-content: center; }
+  .btn-seleccionar-recursos, .btn-ir-biblioteca { width: 100%; justify-content: center; }
 }
 
 @media (max-width: 480px) {

@@ -46,7 +46,30 @@
                 </label>
                 <input type="datetime-local" name="fecha_limite" class="form-control" 
                        id="fechaLimite" required>
-                <small class="text-muted">El estudiante no podrá resolver el quiz después de esta fecha</small>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- RECURSOS DE APOYO                    -->
+        <!-- ═══════════════════════════════════════ -->
+        <div class="form-card">
+            <label class="form-label">
+                <i class="bi bi-folder2-open"></i> Recursos de apoyo
+                <span style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem;">(opcional)</span>
+            </label>
+            
+            <!-- Recursos seleccionados -->
+            <div id="recursosSeleccionados" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Ningún recurso seleccionado</p>
+            </div>
+            
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button type="button" class="btn-seleccionar-recursos" data-bs-toggle="modal" data-bs-target="#modalRecursos">
+                    <i class="bi bi-folder2-open"></i> Seleccionar recursos
+                </button>
+                <a href="{% url 'biblioteca_recursos' %}" target="_blank" class="btn-ir-biblioteca">
+                    <i class="bi bi-arrow-up-right"></i> Ir a biblioteca
+                </a>
             </div>
         </div>
 
@@ -69,6 +92,70 @@
         </div>
     </form>
 
+    <!-- ═══════════════════════════════════════ -->
+    <!-- MODAL DE RECURSOS                     -->
+    <!-- ═══════════════════════════════════════ -->
+    <div class="modal fade" id="modalRecursos" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; color: var(--text-primary);">
+                <div class="modal-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1.5rem;">
+                    <h5 class="modal-title" style="font-family: 'Syne', sans-serif; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="bi bi-folder2-open" style="color: var(--accent-purple);"></i> Seleccionar recursos
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 1.5rem;">
+                    {% if recursos_disponibles %}
+                    <div class="modal-recursos-list">
+                        {% for recurso in recursos_disponibles %}
+                        <label class="modal-recurso-item">
+                            <input type="checkbox" name="recursos" value="{{ recurso.id }}" class="checkbox-recurso">
+                            <span class="modal-recurso-icon tipo-{{ recurso.tipo }}">
+                                {% if recurso.tipo == 'audio' %}
+                                <i class="bi bi-music-note-beamed"></i>
+                                {% elif recurso.tipo == 'partitura' %}
+                                <i class="bi bi-file-earmark-music"></i>
+                                {% elif recurso.tipo == 'video' %}
+                                <i class="bi bi-camera-video"></i>
+                                {% elif recurso.tipo == 'imagen' %}
+                                <i class="bi bi-image"></i>
+                                {% else %}
+                                <i class="bi bi-file-text"></i>
+                                {% endif %}
+                            </span>
+                            <span class="modal-recurso-info">
+                                <strong>{{ recurso.titulo }}</strong>
+                                <small>{{ recurso.get_tipo_display }} · {{ recurso.get_categoria_display }}</small>
+                            </span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="background: rgba(64, 169, 255, 0.08); border: 1px solid rgba(64, 169, 255, 0.2); border-radius: 8px; padding: 1rem; text-align: center;">
+                        <i class="bi bi-info-circle" style="color: #40a9ff;"></i>
+                        <p style="color: var(--text-secondary); margin: 0.5rem 0;">
+                            No tienes recursos en tu biblioteca.
+                        </p>
+                        <a href="{% url 'biblioteca_recursos' %}" target="_blank" 
+                           style="color: var(--accent-purple); font-weight: 600; text-decoration: none;">
+                            Crear recurso ahora
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid var(--border-subtle); padding: 1rem 1.5rem;">
+                    <span id="recursosCount" style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; margin-right: auto;">
+                        0 seleccionados
+                    </span>
+                    <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn-submit" data-bs-dismiss="modal" onclick="actualizarRecursosSeleccionados()">
+                        Aceptar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}
@@ -77,23 +164,50 @@
 <script>
 let preguntaCount = 0;
 
-// ✅ Establecer fecha mínima al cargar
+// ✅ Establecer fecha mínima
 document.addEventListener('DOMContentLoaded', function() {
     const fechaLimiteInput = document.getElementById('fechaLimite');
-    
     if (fechaLimiteInput) {
-        // Establecer mínimo como hoy
         const hoy = new Date();
         const hoyStr = hoy.toLocaleDateString('en-CA');
         fechaLimiteInput.min = hoyStr + 'T00:00';
         
-        // Establecer valor por defecto: 7 días después
         const fechaDefault = new Date();
         fechaDefault.setDate(fechaDefault.getDate() + 7);
         const fechaDefaultStr = fechaDefault.toLocaleDateString('en-CA');
         fechaLimiteInput.value = fechaDefaultStr + 'T23:59';
     }
 });
+
+// ✅ Actualizar contador de recursos
+document.querySelectorAll('.checkbox-recurso').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const seleccionados = document.querySelectorAll('.checkbox-recurso:checked').length;
+        document.getElementById('recursosCount').textContent = `${seleccionados} seleccionados`;
+    });
+});
+
+// ✅ Actualizar tags de recursos al aceptar
+function actualizarRecursosSeleccionados() {
+    const container = document.getElementById('recursosSeleccionados');
+    const checkboxes = document.querySelectorAll('.checkbox-recurso:checked');
+    
+    if (checkboxes.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Ningún recurso seleccionado</p>';
+        return;
+    }
+    
+    let html = '';
+    checkboxes.forEach(checkbox => {
+        const label = checkbox.closest('.modal-recurso-item');
+        const titulo = label.querySelector('strong').textContent;
+        html += `<span style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); color: var(--accent-purple); padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
+            <i class="bi bi-check-circle"></i> ${titulo}
+        </span>`;
+    });
+    
+    container.innerHTML = html;
+}
 
 // ✅ Validación de fecha límite
 document.getElementById('formCrearQuiz').addEventListener('submit', function(e) {
@@ -104,26 +218,12 @@ document.getElementById('formCrearQuiz').addEventListener('submit', function(e) 
     
     let isValid = true;
     
-    // Validar que la fecha límite sea obligatoria
     if (!fechaLimite) {
         alert('La fecha límite es obligatoria.');
         fechaLimiteInput.classList.add('is-invalid');
         isValid = false;
-    } else {
-        // Validar que la fecha no sea pasada
-        const ahora = new Date();
-        const fechaLimiteDate = new Date(fechaLimite);
-        
-        if (fechaLimiteDate < ahora) {
-            alert('No puedes usar una fecha límite pasada.');
-            fechaLimiteInput.classList.add('is-invalid');
-            isValid = false;
-        } else {
-            fechaLimiteInput.classList.remove('is-invalid');
-        }
     }
     
-    // Validar que haya al menos 1 pregunta
     const preguntas = document.querySelectorAll('.pregunta-card');
     if (preguntas.length === 0) {
         alert('Debes agregar al menos una pregunta.');
@@ -135,11 +235,7 @@ document.getElementById('formCrearQuiz').addEventListener('submit', function(e) 
     }
 });
 
-// Limpiar validación al cambiar fecha
-document.getElementById('fechaLimite').addEventListener('change', function() {
-    this.classList.remove('is-invalid');
-});
-
+// ✅ Agregar pregunta
 function agregarPregunta() {
     preguntaCount++;
     const container = document.getElementById('preguntasContainer');
@@ -191,6 +287,7 @@ function agregarPregunta() {
     }, 300);
 }
 
+// ✅ Eliminar pregunta
 function eliminarPregunta(id) {
     const card = document.getElementById(`pregunta-${id}`);
     if (card) {
@@ -204,15 +301,14 @@ function eliminarPregunta(id) {
     }
 }
 
+// ✅ Renumerar preguntas
 function renumerarPreguntas() {
     const cards = document.querySelectorAll('.pregunta-card');
     preguntaCount = cards.length;
     cards.forEach((card, index) => {
         const num = index + 1;
         card.querySelector('.pregunta-number').textContent = num;
-        card.querySelector('.form-label').textContent = `Pregunta ${num} *`;
         
-        // Renombrar inputs
         card.querySelectorAll('input[name^="pregunta_"]').forEach(input => {
             input.name = `pregunta_${num}`;
         });

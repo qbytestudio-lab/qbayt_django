@@ -7,7 +7,7 @@ class Ejercicio(models.Model):
 
     TIPO_CHOICES = [
         ('quiz', 'Quiz'),
-        ('video_quiz', 'Video + Quiz'),  # ✅ Reemplaza a imagen_quiz
+        ('video_quiz', 'Video + Quiz'),
         ('juego', 'Juego'),
         ('texto', 'Texto'),
         ('verdadero_falso', 'Verdadero o Falso'),
@@ -20,7 +20,7 @@ class Ejercicio(models.Model):
     descripcion = models.TextField(blank=True, null=True)
     contenido = models.TextField(blank=True, null=True)
 
-    #  CAMPOS PARA VIDEO
+    # CAMPOS PARA VIDEO
     video_principal = models.FileField(
         upload_to='ejercicios/videos/',
         blank=True,
@@ -34,12 +34,20 @@ class Ejercicio(models.Model):
         verbose_name="URL del video (YouTube, Vimeo)"
     )
 
-    #  Campo de imagen opcional (para thumbnail o imagen adicional)
+    # Campo de imagen opcional (para thumbnail o imagen adicional)
     imagen_principal = models.ImageField(
         upload_to='ejercicios/',
         blank=True,
         null=True,
         verbose_name="Imagen (opcional)"
+    )
+
+    # Relación con recursos musicales
+    recursos = models.ManyToManyField(
+        'docente.RecursoMusical',
+        blank=True,
+        related_name='ejercicios',
+        verbose_name="Recursos adjuntos"
     )
 
     juego_tipo = models.CharField(
@@ -61,12 +69,10 @@ class Ejercicio(models.Model):
     def __str__(self):
         return self.titulo
     
-    #  Propiedad para verificar si es video quiz
     @property
     def es_video_quiz(self):
         return self.tipo == 'video_quiz'
     
-    #  Propiedad para obtener la URL del video (archivo o externa)
     @property
     def url_video(self):
         if self.video_principal:
@@ -76,6 +82,7 @@ class Ejercicio(models.Model):
     class Meta:
         verbose_name = "Ejercicio"
         verbose_name_plural = "Ejercicios"
+
 
 class Pregunta(models.Model):
     ejercicio = models.ForeignKey(
@@ -95,7 +102,6 @@ class Pregunta(models.Model):
     def __str__(self):
         return f"{self.enunciado[:50]}..."
     
-    #  AGREGAR ESTA PROPIEDAD
     @property
     def opcion_correcta(self):
         """Devuelve la opción correcta de esta pregunta"""
