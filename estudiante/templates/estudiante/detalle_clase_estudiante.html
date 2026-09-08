@@ -156,15 +156,10 @@
                       <i class="bi bi-x-circle-fill"></i> Sin intentos
                     </span>
                   {% else %}
-                    {% if ejercicio.tipo == 'video_quiz' %}
-                      <a href="{% url 'estudiante:resolver_video_quiz' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
-                        <i class="bi bi-play-fill"></i> Resolver
-                      </a>
-                    {% else %}
-                      <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
-                        <i class="bi bi-play-fill"></i> Resolver
-                      </a>
-                    {% endif %}
+                    <!-- ✅ SOLO UNA URL PARA TODOS LOS TIPOS -->
+                    <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
+                      <i class="bi bi-play-fill"></i> Resolver
+                    </a>
                   {% endif %}
                 {% endif %}
               {% endwith %}

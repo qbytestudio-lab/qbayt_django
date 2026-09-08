@@ -452,19 +452,29 @@ def subir_banner(request):
     
     return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})
 
+
 @login_required
-def resolver_video_quiz(request, clase_id, ejercicio_id):
+def resolver_ejercicio(request, clase_id, ejercicio_id):
+    """
+    Vista unificada para resolver cualquier tipo de ejercicio
+    (Quiz, Video-Quiz, Verdadero/Falso, etc.)
+    """
     from docente.models import Clase
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
     from django.utils import timezone
     
     clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase, tipo='video_quiz')
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
     
     # Verificar inscripción
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
         return redirect('inicio')
+    
+    # Verificar fecha límite
+    if ejercicio.fecha_limite and ejercicio.fecha_limite < timezone.now():
+        messages.error(request, 'La fecha límite de este ejercicio ya pasó.')
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
     
     # Verificar intentos
     intentos_count = IntentoEjercicio.objects.filter(
@@ -473,19 +483,13 @@ def resolver_video_quiz(request, clase_id, ejercicio_id):
     ).count()
     
     if intentos_count >= 2:
-        messages.error(request, 'Has agotado tus 2 intentos.')
+        messages.error(request, 'Has agotado tus 2 intentos para este ejercicio.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
     
-    # OBTENER PREGUNTAS - Asegúrate de que esto esté bien
+    # Obtener preguntas con opciones
     preguntas = Pregunta.objects.filter(
         ejercicio=ejercicio
     ).prefetch_related('opciones')
-    
-    # DEBUG: Imprimir cuántas preguntas hay
-    print(f"Ejercicio: {ejercicio.titulo}")
-    print(f"Preguntas encontradas: {preguntas.count()}")
-    for p in preguntas:
-        print(f"  - {p.enunciado[:30]}... ({p.opciones.count()} opciones)")
     
     context = {
         'clase': clase,
@@ -493,12 +497,13 @@ def resolver_video_quiz(request, clase_id, ejercicio_id):
         'preguntas': preguntas,
     }
     
-    return render(request, 'estudiante/resolver_video_quiz.html', context)
+    return render(request, 'estudiante/resolver_ejercicio.html', context)
+
 
 @login_required
-def enviar_respuesta_video_quiz(request, clase_id, ejercicio_id):
+def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     """
-    Vista para enviar las respuestas del Video Quiz
+    Vista unificada para enviar respuestas de cualquier tipo de ejercicio
     """
     from docente.models import Clase
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio, RespuestaEstudiante, Opcion
@@ -545,4 +550,4 @@ def enviar_respuesta_video_quiz(request, clase_id, ejercicio_id):
         messages.success(request, 'Tus respuestas han sido enviadas. Espera la calificación del docente.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
     
-    return redirect('estudiante:resolver_video_quiz', clase_id=clase_id, ejercicio_id=ejercicio_id)
+    return redirect('estudiante:resolver_ejercicio', clase_id=clase_id, ejercicio_id=ejercicio_id)

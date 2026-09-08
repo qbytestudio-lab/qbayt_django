@@ -135,25 +135,43 @@ def crear_clase(request):
 
 @login_required
 def editar_clase(request, clase_id):
+    from datetime import datetime
+    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
     if request.method == 'POST':
-        nombre = request.POST.get('nombre')
-        descripcion = request.POST.get('descripcion')
+        nombre = request.POST.get('nombre', '').strip()
+        categoria_tema = request.POST.get('categoria_tema')
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_inicio = request.POST.get('fecha_inicio')
+        fecha_fin = request.POST.get('fecha_fin')
+        max_estudiantes = request.POST.get('max_estudiantes', 35)
         imagen = request.FILES.get('imagen')
         
-        if nombre:
-            clase.nombre = nombre
-            clase.descripcion = descripcion
-            if imagen:
-                clase.imagen = imagen
-            clase.save()
-            messages.success(request, "¡Clase actualizada correctamente!")
-            return redirect('detalle_clase', clase_id=clase.id)
-        else:
-            messages.error(request, "El nombre de la clase no puede estar vacío.")
+        if not nombre:
+            messages.error(request, 'El nombre es obligatorio.')
+            return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
+        
+        clase.nombre = nombre
+        clase.categoria_tema = categoria_tema
+        clase.descripcion = descripcion
+        clase.max_estudiantes = max_estudiantes
+        
+        if fecha_inicio:
+            clase.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
+        
+        if fecha_fin:
+            clase.fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
+        
+        if imagen:
+            clase.imagen = imagen
+        
+        clase.save()
+        
+        messages.success(request, f'Clase "{clase.nombre}" actualizada correctamente.')
+        return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
     
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
 
 
 @login_required

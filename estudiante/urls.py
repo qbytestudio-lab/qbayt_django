@@ -15,7 +15,7 @@ urlpatterns = [
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/resolver/', views.resolver_ejercicio, name='resolver_ejercicio'),
     path('subir-foto-perfil/', views.subir_foto_perfil, name='subir_foto_perfil'),
     path('subir-banner/', views.subir_banner, name='subir_banner'),
-    # resolver_video_quiz y enviar_respuesta_video_quiz son las nuevas rutas para el video quiz
-    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/resolver-video/',views.resolver_video_quiz,name='resolver_video_quiz'),
-    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/enviar-video/', views.enviar_respuesta_video_quiz,name='enviar_respuesta_video_quiz'),
+
+    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/resolver/',views.resolver_ejercicio,name='resolver_ejercicio'),
+    path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/enviar/',views.enviar_respuesta_ejercicio,name='enviar_respuesta_ejercicio'),
 ]
