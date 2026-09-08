@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from urllib.parse import urlparse, parse_qs
 
 class Ejercicio(models.Model):
 
@@ -75,9 +75,35 @@ class Ejercicio(models.Model):
     
     @property
     def url_video(self):
+        # 1. Si subieron un archivo MP4/WebM, usamos ese archivo
         if self.video_principal:
             return self.video_principal.url
-        return self.video_url
+
+        # 2. Si no hay URL, no hay video
+        if not self.video_url:
+            return None
+
+        url = self.video_url.strip()
+
+        # 3. YouTube: https://www.youtube.com/watch?v=ABC123
+        if "youtube.com" in url:
+            parsed = urlparse(url)
+            video_id = parse_qs(parsed.query).get("v", [None])[0]
+
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        # 4. YouTube: https://youtu.be/ABC123
+        if "youtu.be" in url:
+            parsed = urlparse(url)
+            video_id = parsed.path.strip("/").split("?")[0]
+
+            if video_id:
+                return f"https://www.youtube.com/embed/{video_id}"
+
+        # 5. Si no es YouTube, devolvemos la URL original
+        # (por ejemplo Vimeo)
+        return url
 
     class Meta:
         verbose_name = "Ejercicio"

@@ -148,6 +148,7 @@ def editar_clase(request, clase_id):
         max_estudiantes = request.POST.get('max_estudiantes', 35)
         imagen = request.FILES.get('imagen')
         
+
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
             return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
@@ -170,6 +171,7 @@ def editar_clase(request, clase_id):
         
         messages.success(request, f'Clase "{clase.nombre}" actualizada correctamente.')
         return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
+
     
     return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
 
