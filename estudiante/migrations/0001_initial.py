@@ -10,9 +10,9 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('clase', '0002_actividad_calificacion_maxima_and_more'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-    ]
+    ('ejercicios', '0002_ejercicio_opcion_pregunta_and_more'),
+    migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+]
 
     operations = [
         migrations.CreateModel(
@@ -23,10 +23,12 @@ class Migration(migrations.Migration):
                 ('es_correcta', models.BooleanField(default=False)),
                 ('fecha_respuesta', models.DateTimeField(auto_now_add=True)),
                 ('estudiante', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='respuestas_estudiante_directas', to=settings.AUTH_USER_MODEL)),
-                ('pregunta', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='respuestas_estudiantes_preguntas', to='clase.pregunta')),
+                ('pregunta', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='respuestas_estudiantes_preguntas', to='ejercicios.pregunta')),
             ],
             options={
                 'unique_together': {('estudiante', 'pregunta')},
             },
         ),
     ]
+
+
