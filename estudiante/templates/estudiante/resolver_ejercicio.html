@@ -72,21 +72,17 @@
   </div>
 
   <!-- VIDEO PRINCIPAL (SOLO SI ES VIDEO QUIZ) -->
-  {% if ejercicio.tipo == 'video_quiz' %}
-  <div class="video-section">
-    {% if ejercicio.video_principal %}
-    <video controls style="width: 100%; max-height: 400px; display: block;">
-      <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
-    </video>
-    {% elif ejercicio.video_url %}
-    <div id="videoContainer" style="width: 100%;">
-      <p style="text-align: center; padding: 2rem; color: #6a6a6a;">Cargando video...</p>
-    </div>
-    {% endif %}
-  </div>
-  {% endif %}
+<div class="ratio ratio-16x9">
+  <iframe
+    src="https://www.youtube.com/embed/{{ video.youtube_id }}?origin=http://127.0.0.1:8000"
+    title="{{ ejercicio.titulo }}"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    referrerpolicy="strict-origin-when-cross-origin"
+    allowfullscreen></iframe>
+</div>
 
-  <!-- ✅ VIDEOS DE RECURSOS (SI EXISTEN) -->
+  <!-- VIDEOS DE RECURSOS (SI EXISTEN) -->
   {% if ejercicio.recursos.all %}
     {% for recurso in ejercicio.recursos.all %}
       {% if recurso.tipo == 'video' and recurso.tiene_url %}
@@ -109,7 +105,7 @@
     {% endfor %}
   {% endif %}
 
-  <!-- ✅ RECURSOS DE APOYO (AUDIO, PARTITURAS, DOCUMENTOS, IMÁGENES) -->
+  <!-- RECURSOS DE APOYO (AUDIO, PARTITURAS, DOCUMENTOS, IMÁGENES) -->
   {% if ejercicio.recursos.all %}
   <div class="recursos-ejercicio">
     <h3 class="recursos-title">
