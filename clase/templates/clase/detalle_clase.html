@@ -425,12 +425,6 @@
                         <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
                     </a>
                     
-                    <a href="{% url 'ejercicios:crear_video_quiz' clase.id %}" class="ejercicio-option-card">
-                        <div class="option-icon video-icon"><i class="bi bi-play-btn-fill"></i></div>
-                        <h4 class="option-title">Video + Quiz</h4>
-                        <p class="option-desc">Un video con preguntas de opción múltiple para evaluar comprensión.</p>
-                        <span class="option-badge badge-blue"><i class="bi bi-camera-video-fill"></i> Estilo video-lección</span>
-                    </a>
                     
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
@@ -444,13 +438,6 @@
                         <h4 class="option-title">Texto / Lectura</h4>
                         <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
                         <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
-                    </a>
-                    
-                    <a href="{% url 'ejercicios:crear_verdadero_falso' clase.id %}" class="ejercicio-option-card">
-                        <div class="option-icon vf-icon"><i class="bi bi-check-circle-fill"></i></div>
-                        <h4 class="option-title">Verdadero o Falso</h4>
-                        <p class="option-desc">Afirmaciones rápidas donde el estudiante elige V o F.</p>
-                        <span class="option-badge badge-pink"><i class="bi bi-lightning-fill"></i> Rápido y efectivo</span>
                     </a>
                     
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">

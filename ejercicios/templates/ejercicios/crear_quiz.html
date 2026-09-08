@@ -1,8 +1,8 @@
 {% extends 'web/base.html' %}
 {% load static %}
 
-{% block title %}Crear Quiz — QBYT{% endblock %}
-{% block page_title %}Crear Quiz{% endblock %}
+{% block title %}Crear Ejercicio / Quiz — QBYT{% endblock %}
+{% block page_title %}Crear Ejercicio{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'ejercicios/css/crear_quiz.css' %}">
@@ -18,22 +18,22 @@
             <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
         </a>
         <h1 class="quiz-title">
-            <i class="bi bi-patch-question-fill"></i> Crear Quiz
+            <i class="bi bi-patch-question-fill"></i> Crear Quiz o Video-Quiz
         </h1>
-        <p class="quiz-subtitle">Crea preguntas de selección múltiple para evaluar a tus estudiantes</p>
+        <p class="quiz-subtitle">Crea evaluaciones con selección múltiple, verdadero/falso o añade un video opcional</p>
     </div>
 
-    <form method="POST" action="{% url 'ejercicios:crear_quiz' clase.id %}" enctype="multipart/form-data" id="formCrearQuiz">
+    <form method="POST" action="{% url 'ejercicios:crear_quiz' clase.id %}" enctype="multipart/form-data" id="formCrearQuiz" novalidate>
         {% csrf_token %}
 
         <!-- Info General -->
         <div class="form-card">
             <div class="mb-3">
                 <label class="form-label">
-                    Título del Quiz <span class="required">*</span>
+                    Título del Ejercicio / Quiz <span class="required">*</span>
                 </label>
                 <input type="text" name="titulo" class="form-control" 
-                       placeholder="Ej: Quiz de acordes mayores" required>
+                       placeholder="Ej: Quiz de intervalos o Análisis auditivo" required>
             </div>
             <div class="mb-3">
                 <label class="form-label">Descripción (opcional)</label>
@@ -46,24 +46,50 @@
                 </label>
                 <input type="datetime-local" name="fecha_limite" class="form-control" 
                        id="fechaLimite" required>
+                <div class="invalid-feedback" id="fechaLimiteError">
+                    <i class="bi bi-exclamation-circle-fill me-1"></i> La fecha límite es obligatoria.
+                </div>
             </div>
         </div>
 
-        <!-- ═══════════════════════════════════════ -->
-        <!-- RECURSOS DE APOYO                    -->
-        <!-- ═══════════════════════════════════════ -->
+        <!-- Video Principal (Opcional) -->
+        <div class="form-card">
+            <label class="form-label video-label">
+                <i class="bi bi-camera-video-fill"></i> Video principal 
+                <span class="video-hint-label">(Opcional - Si lo llenas, será un Video + Quiz)</span>
+            </label>
+            
+            <div class="video-upload-area" id="videoUploadArea" onclick="document.getElementById('videoInput').click()">
+                <div class="video-upload-icon">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                </div>
+                <p class="video-upload-text">Haz clic para subir un video</p>
+                <p class="video-upload-subhint">MP4, WebM (máx 100MB)</p>
+                <video id="videoPreview" class="video-preview" controls></video>
+            </div>
+            <input type="file" id="videoInput" name="video_principal" accept="video/mp4,video/webm" 
+                   style="display: none;" onchange="previewVideo(this)">
+            
+            <div class="mt-3">
+                <label class="form-label">O pega una URL de video (YouTube, Vimeo)</label>
+                <input type="url" name="video_url" class="form-control" 
+                       placeholder="https://www.youtube.com/watch?v=..." 
+                       id="videoUrl">
+            </div>
+        </div>
+
+        <!-- Recursos de apoyo -->
         <div class="form-card">
             <label class="form-label">
                 <i class="bi bi-folder2-open"></i> Recursos de apoyo
-                <span style="color: var(--text-muted); font-weight: 400; font-size: 0.75rem;">(opcional)</span>
+                <span class="opcional-text">(opcional)</span>
             </label>
             
-            <!-- Recursos seleccionados -->
-            <div id="recursosSeleccionados" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Ningún recurso seleccionado</p>
+            <div id="recursosSeleccionados" class="recursos-seleccionados-container">
+                <p class="ningun-recurso-text">Ningún recurso seleccionado</p>
             </div>
             
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <div class="recursos-actions">
                 <button type="button" class="btn-seleccionar-recursos" data-bs-toggle="modal" data-bs-target="#modalRecursos">
                     <i class="bi bi-folder2-open"></i> Seleccionar recursos
                 </button>
@@ -73,10 +99,10 @@
             </div>
         </div>
 
-        <!-- Preguntas -->
+        <!-- Preguntas Dinámicas -->
         <div id="preguntasContainer"></div>
 
-        <!-- Botón Agregar -->
+        <!-- Botón Agregar Pregunta -->
         <button type="button" class="btn-add-pregunta" onclick="agregarPregunta()">
             <i class="bi bi-plus-lg"></i> Agregar pregunta
         </button>
@@ -87,24 +113,22 @@
                 <i class="bi bi-x-lg"></i> Cancelar
             </a>
             <button type="submit" class="btn-submit">
-                <i class="bi bi-check-lg"></i> Crear Quiz
+                <i class="bi bi-check-lg"></i> Guardar Ejercicio
             </button>
         </div>
     </form>
 
-    <!-- ═══════════════════════════════════════ -->
-    <!-- MODAL DE RECURSOS                     -->
-    <!-- ═══════════════════════════════════════ -->
+    <!-- MODAL DE RECURSOS -->
     <div class="modal fade" id="modalRecursos" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; color: var(--text-primary);">
-                <div class="modal-header" style="border-bottom: 1px solid var(--border-subtle); padding: 1.5rem;">
-                    <h5 class="modal-title" style="font-family: 'Syne', sans-serif; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
-                        <i class="bi bi-folder2-open" style="color: var(--accent-purple);"></i> Seleccionar recursos
+            <div class="modal-content custom-modal-content">
+                <div class="modal-header custom-modal-header">
+                    <h5 class="modal-title custom-modal-title">
+                        <i class="bi bi-folder2-open"></i> Seleccionar recursos
                     </h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body" style="padding: 1.5rem;">
+                <div class="modal-body custom-modal-body">
                     {% if recursos_disponibles %}
                     <div class="modal-recursos-list">
                         {% for recurso in recursos_disponibles %}
@@ -131,26 +155,13 @@
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div style="background: rgba(64, 169, 255, 0.08); border: 1px solid rgba(64, 169, 255, 0.2); border-radius: 8px; padding: 1rem; text-align: center;">
-                        <i class="bi bi-info-circle" style="color: #40a9ff;"></i>
-                        <p style="color: var(--text-secondary); margin: 0.5rem 0;">
-                            No tienes recursos en tu biblioteca.
-                        </p>
-                        <a href="{% url 'biblioteca_recursos' %}" target="_blank" 
-                           style="color: var(--accent-purple); font-weight: 600; text-decoration: none;">
-                            Crear recurso ahora
-                        </a>
-                    </div>
+                    <p class="sin-recursos-text">No tienes recursos disponibles.</p>
                     {% endif %}
                 </div>
-                <div class="modal-footer" style="border-top: 1px solid var(--border-subtle); padding: 1rem 1.5rem;">
-                    <span id="recursosCount" style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; margin-right: auto;">
-                        0 seleccionados
-                    </span>
+                <div class="modal-footer custom-modal-footer">
+                    <span id="recursosCount" class="modal-recursos-count">0 seleccionados</span>
                     <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn-submit" data-bs-dismiss="modal" onclick="actualizarRecursosSeleccionados()">
-                        Aceptar
-                    </button>
+                    <button type="button" class="btn-submit" data-bs-dismiss="modal" onclick="actualizarRecursosSeleccionados()">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -164,7 +175,6 @@
 <script>
 let preguntaCount = 0;
 
-// ✅ Establecer fecha mínima
 document.addEventListener('DOMContentLoaded', function() {
     const fechaLimiteInput = document.getElementById('fechaLimite');
     if (fechaLimiteInput) {
@@ -177,9 +187,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const fechaDefaultStr = fechaDefault.toLocaleDateString('en-CA');
         fechaLimiteInput.value = fechaDefaultStr + 'T23:59';
     }
+    agregarPregunta();
 });
 
-// ✅ Actualizar contador de recursos
+// Contador de recursos
 document.querySelectorAll('.checkbox-recurso').forEach(checkbox => {
     checkbox.addEventListener('change', function() {
         const seleccionados = document.querySelectorAll('.checkbox-recurso:checked').length;
@@ -187,107 +198,190 @@ document.querySelectorAll('.checkbox-recurso').forEach(checkbox => {
     });
 });
 
-// ✅ Actualizar tags de recursos al aceptar
 function actualizarRecursosSeleccionados() {
     const container = document.getElementById('recursosSeleccionados');
     const checkboxes = document.querySelectorAll('.checkbox-recurso:checked');
-    
     if (checkboxes.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">Ningún recurso seleccionado</p>';
+        container.innerHTML = '<p class="ningun-recurso-text">Ningún recurso seleccionado</p>';
         return;
     }
-    
     let html = '';
     checkboxes.forEach(checkbox => {
         const label = checkbox.closest('.modal-recurso-item');
         const titulo = label.querySelector('strong').textContent;
-        html += `<span style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25); color: var(--accent-purple); padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;">
-            <i class="bi bi-check-circle"></i> ${titulo}
-        </span>`;
+        html += `<span class="recurso-tag"><i class="bi bi-check-circle"></i> ${titulo}</span>`;
     });
-    
     container.innerHTML = html;
 }
 
-// ✅ Validación de fecha límite
-document.getElementById('formCrearQuiz').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const fechaLimiteInput = document.getElementById('fechaLimite');
-    const fechaLimite = fechaLimiteInput.value;
-    
-    let isValid = true;
-    
-    if (!fechaLimite) {
-        alert('La fecha límite es obligatoria.');
-        fechaLimiteInput.classList.add('is-invalid');
-        isValid = false;
+// Previsualizar video
+function previewVideo(input) {
+    const preview = document.getElementById('videoPreview');
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        if (file.size > 100 * 1024 * 1024) {
+            alert('El video no debe superar los 100MB.');
+            input.value = '';
+            return;
+        }
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
     }
-    
-    const preguntas = document.querySelectorAll('.pregunta-card');
-    if (preguntas.length === 0) {
-        alert('Debes agregar al menos una pregunta.');
-        isValid = false;
-    }
-    
-    if (isValid) {
-        this.submit();
-    }
-});
+}
 
-// ✅ Agregar pregunta
+// Cambiar tipo de pregunta (Selección Múltiple o Verdadero/Falso)
+function cambiarTipoPregunta(id, tipo) {
+    const card = document.getElementById(`pregunta-${id}`);
+    const btnMulti = card.querySelector('.btn-multi');
+    const btnVF = card.querySelector('.btn-vf');
+    const containerOpciones = card.querySelector('.opciones-container');
+    const btnAddOpcion = card.querySelector('.btn-add-opcion');
+
+    if (tipo === 'multiple') {
+        btnMulti.classList.add('active');
+        btnVF.classList.remove('active');
+        if (btnAddOpcion) btnAddOpcion.style.display = 'inline-flex';
+        
+        containerOpciones.innerHTML = `
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${id}" value="1" class="radio-correcta" checked title="Marcar como correcta">
+                <input type="text" name="opcion_${id}_1" class="form-control opcion-input" placeholder="Opción 1" required>
+                <span class="correcta-label">Correcta</span>
+                <button type="button" class="btn-delete-opcion" onclick="eliminarOpcion(this, ${id})" title="Eliminar opción"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${id}" value="2" class="radio-correcta" title="Marcar como correcta">
+                <input type="text" name="opcion_${id}_2" class="form-control opcion-input" placeholder="Opción 2" required>
+                <span class="correcta-label">Correcta</span>
+                <button type="button" class="btn-delete-opcion" onclick="eliminarOpcion(this, ${id})" title="Eliminar opción"><i class="bi bi-x-lg"></i></button>
+            </div>
+        `;
+    } else {
+        btnVF.classList.add('active');
+        btnMulti.classList.remove('active');
+        if (btnAddOpcion) btnAddOpcion.style.display = 'none';
+        
+        // Se removió el 'readonly' para que puedas escribir libremente si lo requieres
+        containerOpciones.innerHTML = `
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${id}" value="1" class="radio-correcta" checked title="Marcar como correcta">
+                <input type="text" name="opcion_${id}_1" class="form-control opcion-input" value="" required>
+                <span class="correcta-label">Correcta</span>
+            </div>
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${id}" value="2" class="radio-correcta" title="Marcar como correcta">
+                <input type="text" name="opcion_${id}_2" class="form-control opcion-input" value="" required>
+                <span class="correcta-label">Correcta</span>
+            </div>
+        `;
+    }
+}
+
+// Agregar opción dinámicamente
+function agregarOpcion(id) {
+    const card = document.getElementById(`pregunta-${id}`);
+    const containerOpciones = card.querySelector('.opciones-container');
+    const totalOpciones = containerOpciones.querySelectorAll('.opcion-row').length + 1;
+    
+    const div = document.createElement('div');
+    div.className = 'opcion-row';
+    div.innerHTML = `
+        <input type="radio" name="correcta_${id}" value="${totalOpciones}" class="radio-correcta" title="Marcar como correcta">
+        <input type="text" name="opcion_${id}_${totalOpciones}" class="form-control opcion-input" placeholder="Opción ${totalOpciones}" required>
+        <span class="correcta-label">Correcta</span>
+        <button type="button" class="btn-delete-opcion" onclick="eliminarOpcion(this, ${id})" title="Eliminar opción"><i class="bi bi-x-lg"></i></button>
+    `;
+    containerOpciones.appendChild(div);
+    reindexarOpciones(card, id);
+}
+
+// Eliminar opción específica
+function eliminarOpcion(btn, id) {
+    const card = document.getElementById(`pregunta-${id}`);
+    const containerOpciones = card.querySelector('.opciones-container');
+    
+    if (containerOpciones.querySelectorAll('.opcion-row').length <= 2) {
+        alert('Una pregunta de selección múltiple debe tener al menos 2 opciones.');
+        return;
+    }
+    
+    btn.closest('.opcion-row').remove();
+    reindexarOpciones(card, id);
+}
+
+// Reindexar opciones
+function reindexarOpciones(card, id) {
+    const filas = card.querySelectorAll('.opcion-row');
+    filas.forEach((fila, index) => {
+        const num = index + 1;
+        const radio = fila.querySelector('input[type="radio"]');
+        const textInput = fila.querySelector('input[type="text"]');
+        
+        radio.value = num;
+        if(textInput && !textInput.readOnly) {
+            textInput.name = `opcion_${id}_${num}`;
+            textInput.placeholder = `Opción ${num}`;
+        }
+    });
+}
+
+// Agregar pregunta dinámicamente
 function agregarPregunta() {
     preguntaCount++;
     const container = document.getElementById('preguntasContainer');
     const div = document.createElement('div');
     div.className = 'pregunta-card';
     div.id = `pregunta-${preguntaCount}`;
+    
     div.innerHTML = `
         <div class="pregunta-number">${preguntaCount}</div>
         
         <button type="button" class="btn-delete-pregunta" onclick="eliminarPregunta(${preguntaCount})" title="Eliminar pregunta">
             <i class="bi bi-trash"></i>
         </button>
+
+        <div class="pregunta-tipo-selector">
+            <button type="button" class="btn-tipo-pregunta btn-multi active" onclick="cambiarTipoPregunta(${preguntaCount}, 'multiple')">Selección Múltiple</button>
+            <button type="button" class="btn-tipo-pregunta btn-vf" onclick="cambiarTipoPregunta(${preguntaCount}, 'vf')">Verdadero / Falso</button>
+        </div>
         
         <div class="mb-3 mt-2">
             <label class="form-label">Pregunta ${preguntaCount} <span class="required">*</span></label>
-            <input type="text" name="pregunta_${preguntaCount}" class="form-control" required
-                   placeholder="Escribe la pregunta...">
+            <input type="text" name="pregunta_${preguntaCount}" class="form-control" placeholder="Escribe el enunciado de la pregunta..." required>
         </div>
-        
+
         <div class="mb-3">
             <label class="form-label">Imagen de la pregunta (opcional)</label>
-            <input type="file" name="imagen_pregunta_${preguntaCount}" class="form-control" 
-                   accept="image/*" style="padding: 0.5rem !important;">
+            <input type="file" name="imagen_pregunta_${preguntaCount}" class="form-control" accept="image/*" style="padding: 0.5rem !important;">
         </div>
         
-        <label class="form-label" style="margin-top: 0.5rem;">
-            Opciones <span style="color: var(--spotify-muted); font-weight: 400; font-size: 0.75rem;">(marca el círculo verde para la correcta)</span>
-        </label>
+        <div class="opciones-header">
+            <label class="form-label" style="margin: 0;">Opciones (marca la correcta)</label>
+            <button type="button" class="btn-add-opcion" onclick="agregarOpcion(${preguntaCount})">
+                <i class="bi bi-plus"></i> Añadir opción
+            </button>
+        </div>
         
         <div class="opciones-container">
-            ${[1, 2, 3, 4].map(j => `
-                <div class="opcion-row">
-                    <input type="radio" name="correcta_${preguntaCount}" value="${j}" 
-                           class="radio-correcta" ${j === 1 ? 'checked' : ''}
-                           title="Marcar como correcta">
-                    <input type="text" name="opcion_${preguntaCount}_${j}" class="form-control opcion-input" 
-                           placeholder="Opción ${j}" ${j <= 2 ? 'required' : ''}>
-                    <span class="correcta-label">✓ Correcta</span>
-                </div>
-            `).join('')}
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${preguntaCount}" value="1" class="radio-correcta" checked title="Marcar como correcta">
+                <input type="text" name="opcion_${preguntaCount}_1" class="form-control opcion-input" placeholder="Opción 1" required>
+                <span class="correcta-label">Correcta</span>
+                <button type="button" class="btn-delete-opcion" onclick="eliminarOpcion(this, ${preguntaCount})" title="Eliminar opción"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="opcion-row">
+                <input type="radio" name="correcta_${preguntaCount}" value="2" class="radio-correcta" title="Marcar como correcta">
+                <input type="text" name="opcion_${preguntaCount}_2" class="form-control opcion-input" placeholder="Opción 2" required>
+                <span class="correcta-label">Correcta</span>
+                <button type="button" class="btn-delete-opcion" onclick="eliminarOpcion(this, ${preguntaCount})" title="Eliminar opción"><i class="bi bi-x-lg"></i></button>
+            </div>
         </div>
     `;
     
     container.appendChild(div);
     div.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    
-    setTimeout(() => {
-        div.querySelector('input[type="text"]').focus();
-    }, 300);
 }
 
-// ✅ Eliminar pregunta
 function eliminarPregunta(id) {
     const card = document.getElementById(`pregunta-${id}`);
     if (card) {
@@ -301,31 +395,55 @@ function eliminarPregunta(id) {
     }
 }
 
-// ✅ Renumerar preguntas
 function renumerarPreguntas() {
     const cards = document.querySelectorAll('.pregunta-card');
     preguntaCount = cards.length;
     cards.forEach((card, index) => {
         const num = index + 1;
+        card.id = `pregunta-${num}`;
         card.querySelector('.pregunta-number').textContent = num;
         
-        card.querySelectorAll('input[name^="pregunta_"]').forEach(input => {
-            input.name = `pregunta_${num}`;
+        card.querySelector('label.form-label').innerHTML = `Pregunta ${num} <span class="required">*</span>`;
+        card.querySelector('input[name^="pregunta_"]').name = `pregunta_${num}`;
+        card.querySelectorAll('input[name^="imagen_pregunta_"]').forEach(inp => inp.name = `imagen_pregunta_${num}`);
+        
+        card.querySelectorAll('input[name^="correcta_"]').forEach(inp => inp.name = `correcta_${num}`);
+        card.querySelectorAll('.opcion-input').forEach((inp, idx) => {
+            if(!inp.readOnly) {
+                inp.name = `opcion_${num}_${idx + 1}`;
+            }
         });
-        card.querySelectorAll('input[name^="imagen_pregunta_"]').forEach(input => {
-            input.name = `imagen_pregunta_${num}`;
+        
+        const btnAddOp = card.querySelector('.btn-add-opcion');
+        if(btnAddOp) btnAddOp.setAttribute('onclick', `agregarOpcion(${num})`);
+
+        card.querySelectorAll('.btn-delete-opcion').forEach(btn => {
+            btn.setAttribute('onclick', `eliminarOpcion(this, ${num})`);
         });
-        card.querySelectorAll('input[name^="correcta_"]').forEach(input => {
-            input.name = `correcta_${num}`;
-        });
-        card.querySelectorAll('input[name^="opcion_"]').forEach(input => {
-            const optionNum = input.name.split('_').pop();
-            input.name = `opcion_${num}_${optionNum}`;
-        });
+
+        const btns = card.querySelectorAll('.btn-tipo-pregunta');
+        btns[0].setAttribute('onclick', `cambiarTipoPregunta(${num}, 'multiple')`);
+        btns[1].setAttribute('onclick', `cambiarTipoPregunta(${num}, 'vf')`);
+        
+        card.querySelector('.btn-delete-pregunta').setAttribute('onclick', `eliminarPregunta(${num})`);
     });
 }
 
-// Iniciar con 1 pregunta
-agregarPregunta();
+// Validación general
+document.getElementById('formCrearQuiz').addEventListener('submit', function(e) {
+    const fechaLimite = document.getElementById('fechaLimite').value;
+    const preguntas = document.querySelectorAll('.pregunta-card');
+    
+    if (!fechaLimite) {
+        e.preventDefault();
+        alert('La fecha límite es obligatoria.');
+        return;
+    }
+    if (preguntas.length === 0) {
+        e.preventDefault();
+        alert('Debes agregar al menos una pregunta.');
+        return;
+    }
+});
 </script>
 {% endblock %}

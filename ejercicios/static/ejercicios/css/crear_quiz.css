@@ -1,5 +1,5 @@
 /* ============================================ */
-/*    CREAR QUIZ - CON TEMA CLARO/OSCURO       */
+/*    CREAR QUIZ - CON TEMA CLARO/OSCURO        */
 /* ============================================ */
 
 :root {
@@ -65,7 +65,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         CONTAINER                          */
+/*        CONTAINER                            */
 /* ═══════════════════════════════════════════ */
 
 .quiz-creator-container {
@@ -75,7 +75,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         HEADER                             */
+/*        HEADER                               */
 /* ═══════════════════════════════════════════ */
 
 .quiz-header {
@@ -117,7 +117,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         FORM CARD                          */
+/*        FORM CARD                            */
 /* ═══════════════════════════════════════════ */
 
 .form-card {
@@ -163,7 +163,85 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         PREGUNTA CARD                      */
+/*        VIDEO UPLOAD AREA                    */
+/* ═══════════════════════════════════════════ */
+
+.video-hint-label {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.video-upload-area {
+  cursor: pointer;
+  border: 2px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  text-align: center;
+  margin-bottom: 1rem;
+  background: var(--bg-hover);
+  transition: border-color 0.2s;
+}
+
+.video-upload-area:hover {
+  border-color: var(--accent-purple);
+}
+
+.video-upload-icon {
+  font-size: 2rem;
+  color: var(--accent-purple);
+}
+
+.video-upload-text {
+  margin: 0.5rem 0 0.2rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.video-upload-subhint {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.video-preview {
+  display: none;
+  width: 100%;
+  max-height: 200px;
+  margin-top: 1rem;
+  border-radius: 8px;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        SELECTOR DE TIPO DE PREGUNTA         */
+/* ═══════════════════════════════════════════ */
+
+.pregunta-tipo-selector {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.btn-tipo-pregunta {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-tipo-pregunta.active {
+  background: rgba(139, 92, 246, 0.15);
+  border-color: var(--accent-purple);
+  color: var(--accent-purple);
+}
+
+/* ═══════════════════════════════════════════ */
+/*        PREGUNTA CARD                        */
 /* ═══════════════════════════════════════════ */
 
 .pregunta-card {
@@ -178,7 +256,6 @@ textarea.form-control {
 }
 
 .pregunta-card:hover {
-  background: var(--bg-hover);
   border-color: rgba(139, 92, 246, 0.15);
 }
 
@@ -200,8 +277,50 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         OPCIONES                           */
+/*        OPCIONES Y BOTONES DINÁMICOS         */
 /* ═══════════════════════════════════════════ */
+
+.opciones-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-add-opcion {
+  background: transparent;
+  border: 1px dashed var(--accent-purple);
+  color: var(--accent-purple);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.btn-add-opcion:hover {
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.btn-delete-opcion {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.4rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.btn-delete-opcion:hover {
+  opacity: 1;
+}
 
 .opciones-container {
   display: flex;
@@ -242,7 +361,7 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         DELETE BUTTON                      */
+/*        DELETE BUTTON (PREGUNTA)             */
 /* ═══════════════════════════════════════════ */
 
 .btn-delete-pregunta {
@@ -269,8 +388,46 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         RECURSOS DE APOYO                  */
+/*        RECURSOS DE APOYO                    */
 /* ═══════════════════════════════════════════ */
+
+.opcional-text {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+
+.recursos-seleccionados-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ningun-recurso-text {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.recursos-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.recurso-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: var(--accent-purple);
+  padding: 0.3rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
 
 .btn-seleccionar-recursos {
   background: rgba(139, 92, 246, 0.1);
@@ -314,6 +471,31 @@ textarea.form-control {
 }
 
 /* Modal de recursos */
+.custom-modal-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  color: var(--text-primary);
+}
+
+.custom-modal-header {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 1.5rem;
+}
+
+.custom-modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+}
+
+.custom-modal-title i { color: var(--accent-purple); }
+
+.custom-modal-body { padding: 1.5rem; }
+
 .modal-recursos-list {
   display: flex;
   flex-direction: column;
@@ -383,6 +565,17 @@ textarea.form-control {
   color: var(--text-muted);
 }
 
+.sin-recursos-text {
+  text-align: center;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.custom-modal-footer {
+  border-top: 1px solid var(--border-subtle);
+  padding: 1rem 1.5rem;
+}
+
 .modal-recursos-count {
   color: var(--text-secondary);
   font-size: 0.85rem;
@@ -391,7 +584,7 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         BOTONES                            */
+/*        BOTONES PRINCIPALES                  */
 /* ═══════════════════════════════════════════ */
 
 .btn-add-pregunta {
@@ -484,7 +677,7 @@ textarea.form-control {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         ANIMATIONS                         */
+/*        ANIMATIONS & SCROLLBAR               */
 /* ═══════════════════════════════════════════ */
 
 @keyframes slideIn {
@@ -496,17 +689,13 @@ textarea.form-control {
   animation: slideIn 0.3s ease forwards;
 }
 
-/* ═══════════════════════════════════════════ */
-/*         SCROLLBAR                          */
-/* ═══════════════════════════════════════════ */
-
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg-body); }
 ::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */
-/*         RESPONSIVE                         */
+/*        RESPONSIVE                           */
 /* ═══════════════════════════════════════════ */
 
 @media (max-width: 768px) {
