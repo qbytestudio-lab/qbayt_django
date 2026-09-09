@@ -47,5 +47,6 @@ urlpatterns = [
     path('notificaciones/', include('notificaciones.urls')),
 
     path('mensajeria/', include('mensajeria.urls')),
+
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

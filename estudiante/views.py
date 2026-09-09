@@ -291,76 +291,6 @@ def mis_calificaciones_estudiante(request):
         'reporte_clases': reporte_clases,
     })
 
-
-@login_required
-def resolver_ejercicio(request, clase_id, ejercicio_id):
-    """
-    Vista unificada para resolver cualquier tipo de ejercicio
-    """
-    from docente.models import Clase
-    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
-    from django.utils import timezone
-    import re
-    
-    clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
-    # Verificar inscripción
-    if request.user not in clase.estudiantes.all():
-        messages.error(request, 'No estás inscrito en esta clase.')
-        return redirect('inicio')
-    
-    # Obtener preguntas
-    preguntas = Pregunta.objects.filter(
-        ejercicio=ejercicio
-    ).prefetch_related('opciones')
-    
-    # Convertir URL de YouTube a embed
-    embed_url = None
-    if ejercicio.video_url:
-        video_url = ejercicio.video_url.strip()
-        
-        # Función para extraer ID de YouTube
-        def extract_video_id(url):
-            if not url:
-                return None
-            
-            # Formato: youtube.com/watch?v=VIDEO_ID&otros
-            match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', url)
-            if match:
-                return match.group(1)
-            
-            # Formato: youtu.be/VIDEO_ID
-            match = re.search(r'youtu\.be/([a-zA-Z0-9_-]{11})', url)
-            if match:
-                return match.group(1)
-            
-            # Formato: youtube.com/embed/VIDEO_ID
-            match = re.search(r'embed/([a-zA-Z0-9_-]{11})', url)
-            if match:
-                return match.group(1)
-            
-            # Formato: youtube.com/shorts/VIDEO_ID
-            match = re.search(r'shorts/([a-zA-Z0-9_-]{11})', url)
-            if match:
-                return match.group(1)
-            
-            return None
-        
-        video_id = extract_video_id(video_url)
-        
-        if video_id:
-            embed_url = f"https://www.youtube.com/embed/{video_id}"
-    
-    context = {
-        'clase': clase,
-        'ejercicio': ejercicio,
-        'preguntas': preguntas,
-        'embed_url': embed_url,
-    }
-    
-    return render(request, 'estudiante/resolver_ejercicio.html', context)
-
 @login_required
 @require_POST
 def subir_foto_perfil(request):
@@ -421,11 +351,11 @@ def subir_banner(request):
 def resolver_ejercicio(request, clase_id, ejercicio_id):
     """
     Vista unificada para resolver cualquier tipo de ejercicio
-    (Quiz, Video-Quiz, Verdadero/Falso, etc.)
     """
     from docente.models import Clase
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
     from django.utils import timezone
+    import re
     
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
@@ -435,34 +365,31 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         messages.error(request, 'No estás inscrito en esta clase.')
         return redirect('inicio')
     
-    # Verificar fecha límite
-    if ejercicio.fecha_limite and ejercicio.fecha_limite < timezone.now():
-        messages.error(request, 'La fecha límite de este ejercicio ya pasó.')
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
-    # Verificar intentos
-    intentos_count = IntentoEjercicio.objects.filter(
-        estudiante=request.user,
-        ejercicio=ejercicio
-    ).count()
-    
-    if intentos_count >= 2:
-        messages.error(request, 'Has agotado tus 2 intentos para este ejercicio.')
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
     # Obtener preguntas con opciones
     preguntas = Pregunta.objects.filter(
         ejercicio=ejercicio
     ).prefetch_related('opciones')
     
+    # Convertir URL de YouTube a embed
+    embed_url = None
+    if ejercicio.video_url:
+        match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', ejercicio.video_url)
+        if match:
+            video_id = match.group(1)
+            embed_url = f"https://www.youtube.com/embed/{video_id}"
+            print(f"DEBUG - Video ID: {video_id}")
+            print(f"DEBUG - Embed URL: {embed_url}")
+        else:
+            print(f"DEBUG - No se pudo extraer ID de: {ejercicio.video_url}")
+    
     context = {
         'clase': clase,
         'ejercicio': ejercicio,
         'preguntas': preguntas,
+        'embed_url': embed_url,
     }
     
     return render(request, 'estudiante/resolver_ejercicio.html', context)
-
 
 @login_required
 def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):

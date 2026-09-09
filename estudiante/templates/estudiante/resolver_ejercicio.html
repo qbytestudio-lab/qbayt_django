@@ -21,61 +21,288 @@
 
   <!-- HEADER -->
   <div class="ejercicio-header">
-    <h1>{{ ejercicio.titulo }}</h1>
+    <h1 class="ejercicio-title">
+      {% if ejercicio.tipo == 'video_quiz' %}
+      <i class="bi bi-play-btn-fill"></i>
+      {% elif ejercicio.tipo == 'verdadero_falso' %}
+      <i class="bi bi-check-circle-fill"></i>
+      {% else %}
+      <i class="bi bi-patch-question-fill"></i>
+      {% endif %}
+      {{ ejercicio.titulo }}
+    </h1>
+    
+    <div class="ejercicio-tipo-badge-container">
+      {% if ejercicio.tipo == 'video_quiz' %}
+      <span class="ejercicio-tipo-badge video">
+        <i class="bi bi-play-btn-fill"></i> Video Quiz
+      </span>
+      {% elif ejercicio.tipo == 'verdadero_falso' %}
+      <span class="ejercicio-tipo-badge vf">
+        <i class="bi bi-check-circle-fill"></i> Verdadero o Falso
+      </span>
+      {% elif ejercicio.tipo == 'quiz' %}
+      <span class="ejercicio-tipo-badge quiz">
+        <i class="bi bi-patch-question-fill"></i> Quiz de Selección Múltiple
+      </span>
+      {% elif ejercicio.tipo == 'juego' %}
+      <span class="ejercicio-tipo-badge juego">
+        <i class="bi bi-controller"></i> Juego Interactivo
+      </span>
+      {% elif ejercicio.tipo == 'texto' %}
+      <span class="ejercicio-tipo-badge texto">
+        <i class="bi bi-file-text"></i> Texto / Lectura
+      </span>
+      {% elif ejercicio.tipo == 'completar' %}
+      <span class="ejercicio-tipo-badge completar">
+        <i class="bi bi-input-cursor-text"></i> Completar Espacios
+      </span>
+      {% endif %}
+    </div>
+    
     {% if ejercicio.descripcion %}
-    <p>{{ ejercicio.descripcion }}</p>
+    <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
+    {% endif %}
+    
+    {% if ejercicio.fecha_limite %}
+    <div class="fecha-limite">
+      <i class="bi bi-clock"></i> Fecha límite: {{ ejercicio.fecha_limite|date:"d M Y, H:i" }}
+    </div>
     {% endif %}
   </div>
 
-  <!-- VIDEO (SI EXISTE) -->
+  <!-- VIDEO PRINCIPAL -->
   {% if embed_url %}
-  <div style="margin-bottom: 2rem; width: 100%; max-width: 800px; margin-left: auto; margin-right: auto;">
-    <iframe
-      src="{{ embed_url }}"
-      title="{{ ejercicio.titulo }}"
-      style="width: 100%; height: 450px; border: none; border-radius: 8px;"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen>
-    </iframe>
+  <div class="video-container" style="margin-bottom: 2rem; width: 100%;">
+    <div class="ratio ratio-16x9">
+      <iframe
+        src="{{ embed_url }}"
+        title="{{ ejercicio.titulo }}"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen>
+      </iframe>
+    </div>
   </div>
   {% elif ejercicio.video_principal %}
-  <video controls style="width: 100%; max-height: 400px; margin-bottom: 2rem;">
-    <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
-    Tu navegador no soporta el elemento de video.
-  </video>
+  <div class="video-container" style="margin-bottom: 2rem; width: 100%;">
+    <video controls style="width: 100%; max-height: 400px; display: block;">
+      <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
+      Tu navegador no soporta el elemento de video.
+    </video>
+  </div>
+  {% endif %}
+
+  <!-- VIDEOS DE RECURSOS (SI EXISTEN) -->
+  {% if ejercicio.recursos.all %}
+    {% for recurso in ejercicio.recursos.all %}
+      {% if recurso.tipo == 'video' and recurso.tiene_url %}
+      <div class="video-section">
+        <h4 style="padding: 1rem 1rem 0.5rem; font-size: 0.9rem; color: var(--text-primary);">
+          <i class="bi bi-camera-video"></i> {{ recurso.titulo }}
+        </h4>
+        <div id="videoRecurso{{ recurso.id }}" style="padding: 0 1rem 1rem;"></div>
+      </div>
+      {% elif recurso.tipo == 'video' and recurso.tiene_archivo %}
+      <div class="video-section">
+        <h4 style="padding: 1rem 1rem 0.5rem; font-size: 0.9rem; color: var(--text-primary);">
+          <i class="bi bi-camera-video"></i> {{ recurso.titulo }}
+        </h4>
+        <video controls style="width: 100%; max-height: 400px; display: block;">
+          <source src="{{ recurso.archivo.url }}" type="video/mp4">
+        </video>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+
+  <!-- RECURSOS DE APOYO (AUDIO, PARTITURAS, DOCUMENTOS, IMÁGENES) -->
+  {% if ejercicio.recursos.all %}
+  <div class="recursos-ejercicio">
+    <h3 class="recursos-title">
+      <i class="bi bi-folder2-open"></i> Recursos de apoyo
+    </h3>
+    <div class="recursos-list">
+      {% for recurso in ejercicio.recursos.all %}
+        {% if recurso.tipo != 'video' %}
+        <div class="recurso-item">
+          <div class="recurso-icon tipo-{{ recurso.tipo }}">
+            {% if recurso.tipo == 'audio' %}
+            <i class="bi bi-music-note-beamed"></i>
+            {% elif recurso.tipo == 'partitura' %}
+            <i class="bi bi-file-earmark-music"></i>
+            {% elif recurso.tipo == 'imagen' %}
+            <i class="bi bi-image"></i>
+            {% else %}
+            <i class="bi bi-file-text"></i>
+            {% endif %}
+          </div>
+          <div class="recurso-info">
+            <strong>{{ recurso.titulo }}</strong>
+            <small>{{ recurso.get_tipo_display }}</small>
+          </div>
+          {% if recurso.tiene_archivo %}
+          <a href="{{ recurso.archivo.url }}" target="_blank" class="btn-recurso">
+            <i class="bi bi-download"></i>
+          </a>
+          {% elif recurso.tiene_url %}
+          <a href="{{ recurso.url_externa }}" target="_blank" class="btn-recurso">
+            <i class="bi bi-box-arrow-up-right"></i>
+          </a>
+          {% endif %}
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
   {% endif %}
 
   <!-- FORMULARIO DE PREGUNTAS -->
-  <form method="POST" action="{% url 'estudiante:enviar_respuesta_ejercicio' clase.id ejercicio.id %}">
+  <form method="POST" action="{% url 'estudiante:enviar_respuesta_ejercicio' clase.id ejercicio.id %}" id="formResolverEjercicio">
     {% csrf_token %}
     
-    <h3>Preguntas</h3>
+    <h3 class="preguntas-title">
+      <i class="bi bi-patch-question-fill"></i> Preguntas
+    </h3>
     
-    {% for pregunta in preguntas %}
-    <div style="margin-bottom: 1.5rem; padding: 1rem; border: 1px solid #ddd; border-radius: 8px;">
-      <h4>{{ forloop.counter }}. {{ pregunta.enunciado }}</h4>
-      
-      {% for opcion in pregunta.opciones.all %}
-      <label style="display: block; margin: 0.5rem 0;">
-        <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required>
-        {{ opcion.texto_opcion }}
-      </label>
+    <div class="preguntas-list">
+      {% for pregunta in preguntas %}
+      <div class="pregunta-card">
+        <div class="pregunta-header">
+          <span class="pregunta-numero">{{ forloop.counter }}</span>
+          <h4 class="pregunta-texto">{{ pregunta.enunciado }}</h4>
+        </div>
+        
+        <div class="pregunta-tipo-indicador">
+          {% if pregunta.opciones.count == 2 %}
+          <span class="tipo-pregunta-badge vf">
+            <i class="bi bi-check-circle"></i> Verdadero / Falso
+          </span>
+          {% else %}
+          <span class="tipo-pregunta-badge multiple">
+            <i class="bi bi-list-check"></i> Selección Múltiple ({{ pregunta.opciones.count }} opciones)
+          </span>
+          {% endif %}
+        </div>
+        
+        {% if pregunta.imagen %}
+        <div class="pregunta-imagen">
+          <img src="{{ pregunta.imagen.url }}" alt="Imagen de la pregunta">
+        </div>
+        {% endif %}
+        
+        <div class="opciones-list">
+          {% for opcion in pregunta.opciones.all %}
+          <label class="opcion-item">
+            <input type="radio" name="pregunta_{{ pregunta.id }}" value="{{ opcion.id }}" required>
+            <span class="radio-custom"></span>
+            <span class="opcion-texto">{{ opcion.texto_opcion }}</span>
+          </label>
+          {% endfor %}
+        </div>
+      </div>
+      {% empty %}
+      <p class="sin-preguntas">No hay preguntas para este ejercicio.</p>
       {% endfor %}
     </div>
-    {% empty %}
-    <p>No hay preguntas para este ejercicio.</p>
-    {% endfor %}
 
-    <div style="margin-top: 2rem;">
+    <div class="form-actions">
       <a href="{% url 'estudiante:detalle_clase_estudiante' clase.id %}" class="btn-cancelar">
-        Cancelar
+        <i class="bi bi-x-lg"></i> Cancelar
       </a>
       <button type="submit" class="btn-enviar">
-        Enviar respuestas
+        <i class="bi bi-send-fill"></i> Enviar respuestas
       </button>
     </div>
   </form>
 
 </div>
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Convertir URL de YouTube a embed
+  function getYouTubeEmbedUrl(url) {
+    if (!url) return '';
+    
+    if (url.includes('youtube.com/watch')) {
+      const match = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+      if (match && match[1]) return `https://www.youtube.com/embed/${match[1]}`;
+    }
+    
+    if (url.includes('youtu.be/')) {
+      const parts = url.split('youtu.be/');
+      if (parts[1]) return `https://www.youtube.com/embed/${parts[1].split('?')[0]}`;
+    }
+    
+    if (url.includes('youtube.com/shorts/')) {
+      const parts = url.split('shorts/');
+      if (parts[1]) return `https://www.youtube.com/embed/${parts[1].split('?')[0]}`;
+    }
+    
+    if (url.includes('youtube.com/embed/')) return url;
+    return url;
+  }
+
+  // Configurar videos
+  document.addEventListener('DOMContentLoaded', function() {
+    // Videos de recursos
+    {% for recurso in ejercicio.recursos.all %}
+      {% if recurso.tipo == 'video' and recurso.tiene_url %}
+      (function() {
+        const container = document.getElementById('videoRecurso{{ recurso.id }}');
+        const url = "{{ recurso.url_externa|escapejs }}";
+        const embedUrl = getYouTubeEmbedUrl(url);
+        
+        if (container && embedUrl.includes('youtube.com/embed/')) {
+          container.innerHTML = `
+            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+              <iframe src="${embedUrl}" 
+                      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                      frameborder="0" 
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      allowfullscreen></iframe>
+            </div>
+          `;
+        }
+      })();
+      {% endif %}
+    {% endfor %}
+  });
+
+  // Validación del formulario
+  document.getElementById('formResolverEjercicio').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const preguntas = document.querySelectorAll('.pregunta-card');
+    let respondidas = 0;
+    
+    preguntas.forEach(pregunta => {
+      const seleccionada = pregunta.querySelector('input[type="radio"]:checked');
+      if (seleccionada) respondidas++;
+    });
+    
+    if (respondidas < preguntas.length) {
+      const confirmar = confirm(`Solo has respondido ${respondidas} de ${preguntas.length} preguntas. ¿Deseas enviar de todas formas?`);
+      if (!confirmar) return;
+    }
+    
+    if (confirm('¿Estás seguro de que deseas enviar tus respuestas?')) {
+      this.submit();
+    }
+  });
+
+  // Resaltar opción seleccionada
+  document.querySelectorAll('.opcion-item').forEach(item => {
+    item.addEventListener('click', function() {
+      const parent = this.closest('.opciones-list');
+      parent.querySelectorAll('.opcion-item').forEach(opt => {
+        opt.classList.remove('seleccionada');
+      });
+      this.classList.add('seleccionada');
+    });
+  });
+</script>
 {% endblock %}
