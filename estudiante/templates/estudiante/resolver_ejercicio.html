@@ -71,16 +71,26 @@
     {% endif %}
   </div>
 
-  <!-- VIDEO PRINCIPAL (SOLO SI ES VIDEO QUIZ) -->
-<div class="ratio ratio-16x9">
-  <iframe
-    src="https://www.youtube.com/embed/{{ video.youtube_id }}?origin=http://127.0.0.1:8000"
-    title="{{ ejercicio.titulo }}"
-    frameborder="0"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    referrerpolicy="strict-origin-when-cross-origin"
-    allowfullscreen></iframe>
-</div>
+  <!-- VIDEO PRINCIPAL (SOLO SI ES VIDEO QUIZ O TIENE ARCHIVO) -->
+  {% if ejercicio.tipo == 'video_quiz' and ejercicio.video_url %}
+  <div class="video-section mb-4">
+    <h4 style="padding: 1rem 1rem 0.5rem; font-size: 0.9rem; color: var(--text-primary);">
+      <i class="bi bi-camera-video"></i> Video de la lección
+    </h4>
+    <div id="videoContainer" style="padding: 0 1rem 1rem;">
+      <!-- El JavaScript inyectará el video aquí de forma dinámica -->
+    </div>
+  </div>
+  {% elif ejercicio.video_principal %}
+  <div class="video-section mb-4">
+    <h4 style="padding: 1rem 1rem 0.5rem; font-size: 0.9rem; color: var(--text-primary);">
+      <i class="bi bi-camera-video"></i> Video de la lección
+    </h4>
+    <video controls style="width: 100%; max-height: 400px; display: block; border-radius: 8px;">
+      <source src="{{ ejercicio.video_principal.url }}" type="video/mp4">
+    </video>
+  </div>
+  {% endif %}
 
   <!-- VIDEOS DE RECURSOS (SI EXISTEN) -->
   {% if ejercicio.recursos.all %}

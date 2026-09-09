@@ -247,12 +247,13 @@ def detalle_clase_estudiante(request, clase_id):
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
         return redirect('estudiante:mis_clases')
     
-    # 🟢 CAMBIA ESTA LÍNEA: En lugar de traer todos, filtramos solo los activos
+    # Filtrar solo ejercicios activos
     ejercicios = clase.ejercicios.filter(activo=True)
 
     for ejercicio in ejercicios:
-        ejercicios.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
-        ejercicios.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
+        # ✅ Corrección: Asignado directamente a cada variable 'ejercicio' del bucle
+        ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
+        ejercicio.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
 
     solicitud = SolicitudClase.objects.filter(estudiante=request.user, clase=clase).first()
 
@@ -296,12 +297,33 @@ def mis_calificaciones_estudiante(request):
 def resolver_ejercicio(request, clase_id, ejercicio_id):
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
     
+    # 🚫 1. Validar si el ejercicio está inactivo
+    if not getattr(ejercicio, 'activo', True):
+        messages.error(request, 'Este ejercicio no está disponible en este momento.')
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
+    
+    # ⏳ 2. VALIDAR SI YA EXISTE UN INTENTO ENVIADO (PENDIENTE)
+    # Buscamos si el estudiante ya envió este ejercicio y aún no ha sido aprobado/rechazado (o simplemente tiene un intento previo)
+    intento_existente = IntentoEjercicio.objects.filter(
+        estudiante=request.user, 
+        ejercicio=ejercicio
+    ).first()
+
+    if intento_existente:
+        # Si ya fue enviado, impedimos resolverlo de nuevo y avisamos que está pendiente
+        messages.warning(request, 'Ya has enviado este ejercicio anteriormente. Está pendiente de revisión por el docente.')
+        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
+
     # ─── SI ES UN JUEGO, RENDERIZA LA PLANTILLA DE JUEGOS ───
     if ejercicio.tipo == 'juego':
         if request.method == 'POST':
-            # Lógica para guardar el intento del juego aquí si lo requieres
-            intento = Intento.objects.create(estudiante=request.user, ejercicio=ejercicio)
-            messages.success(request, 'Juego enviado correctamente.')
+            # Guardar el intento del juego marcándolo como enviado
+            IntentoEjercicio.objects.create(
+                estudiante=request.user, 
+                ejercicio=ejercicio,
+                fecha_envio=timezone.now()
+            )
+            messages.success(request, 'Juego enviado correctamente. Espera la calificación.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
             
         return render(request, 'estudiante/resolver_juego.html', {
@@ -311,9 +333,11 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
 
     # ─── RESTO DE LA LÓGICA PARA QUIZZES Y OTROS ───
     if request.method == 'POST':
-        intento = Intento.objects.create(
+        # Crear el intento principal asociado al estudiante y ejercicio
+        intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
-            ejercicio=ejercicio
+            ejercicio=ejercicio,
+            fecha_envio=timezone.now()
         )
         
         preguntas = ejercicio.preguntas.all()
@@ -327,7 +351,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
                     es_correcta=False
                 )
             
-        messages.success(request, 'Ejercicio enviado. Espera la calificación del docente.')
+        messages.success(request, 'Ejercicio enviado con éxito. Estado: Pendiente de calificación.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
 
     return render(request, 'estudiante/resolver_ejercicio.html', {
@@ -390,52 +414,6 @@ def subir_banner(request):
     
     return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})
 
-
-@login_required
-def resolver_ejercicio(request, clase_id, ejercicio_id):
-    """
-    Vista unificada para resolver cualquier tipo de ejercicio
-    (Quiz, Video-Quiz, Verdadero/Falso, etc.)
-    """
-    from docente.models import Clase
-    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
-    from django.utils import timezone
-    
-    clase = get_object_or_404(Clase, id=clase_id)
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
-    # Verificar inscripción
-    if request.user not in clase.estudiantes.all():
-        messages.error(request, 'No estás inscrito en esta clase.')
-        return redirect('inicio')
-    
-    # Verificar fecha límite
-    if ejercicio.fecha_limite and ejercicio.fecha_limite < timezone.now():
-        messages.error(request, 'La fecha límite de este ejercicio ya pasó.')
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
-    # Verificar intentos
-    intentos_count = IntentoEjercicio.objects.filter(
-        estudiante=request.user,
-        ejercicio=ejercicio
-    ).count()
-    
-    if intentos_count >= 2:
-        messages.error(request, 'Has agotado tus 2 intentos para este ejercicio.')
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
-    # Obtener preguntas con opciones
-    preguntas = Pregunta.objects.filter(
-        ejercicio=ejercicio
-    ).prefetch_related('opciones')
-    
-    context = {
-        'clase': clase,
-        'ejercicio': ejercicio,
-        'preguntas': preguntas,
-    }
-    
-    return render(request, 'estudiante/resolver_ejercicio.html', context)
 
 
 @login_required
