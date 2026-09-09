@@ -213,13 +213,13 @@ def explorar_clases(request):
             Q(descripcion__icontains=query)
         )
     
-    # ✅ SOLO solicitudes PENDIENTES
+    # SOLO solicitudes PENDIENTES
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='pendiente'
     ).values_list('clase_id', flat=True)
     
-    # ✅ Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    # Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='rechazada'
@@ -247,7 +247,6 @@ def detalle_clase_estudiante(request, clase_id):
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
         return redirect('estudiante:mis_clases')
     
-    # Filtrar solo ejercicios activos
     ejercicios = clase.ejercicios.filter(activo=True)
 
     for ejercicio in ejercicios:
@@ -292,6 +291,7 @@ def mis_calificaciones_estudiante(request):
         'reporte_clases': reporte_clases,
     })
 
+<<<<<<< HEAD
 
 @login_required
 def resolver_ejercicio(request, clase_id, ejercicio_id):
@@ -414,6 +414,50 @@ def subir_banner(request):
     
     return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})
 
+
+@login_required
+def resolver_ejercicio(request, clase_id, ejercicio_id):
+    """
+    Vista unificada para resolver cualquier tipo de ejercicio
+    """
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
+    from django.utils import timezone
+    import re
+    
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    # Verificar inscripción
+    if request.user not in clase.estudiantes.all():
+        messages.error(request, 'No estás inscrito en esta clase.')
+        return redirect('inicio')
+    
+    # Obtener preguntas con opciones
+    preguntas = Pregunta.objects.filter(
+        ejercicio=ejercicio
+    ).prefetch_related('opciones')
+    
+    # Convertir URL de YouTube a embed
+    embed_url = None
+    if ejercicio.video_url:
+        match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', ejercicio.video_url)
+        if match:
+            video_id = match.group(1)
+            embed_url = f"https://www.youtube.com/embed/{video_id}"
+            print(f"DEBUG - Video ID: {video_id}")
+            print(f"DEBUG - Embed URL: {embed_url}")
+        else:
+            print(f"DEBUG - No se pudo extraer ID de: {ejercicio.video_url}")
+    
+    context = {
+        'clase': clase,
+        'ejercicio': ejercicio,
+        'preguntas': preguntas,
+        'embed_url': embed_url,
+    }
+    
+    return render(request, 'estudiante/resolver_ejercicio.html', context)
 
 
 @login_required

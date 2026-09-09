@@ -48,7 +48,8 @@ def toggle_estado_ejercicio(request, ejercicio_id):
     estado_texto = "activado" if ejercicio.activo else "desactivado"
     messages.success(request, f"El ejercicio ha sido {estado_texto} correctamente.")
     
-    return redirect('clase:detalle_clase', clase_id=ejercicio.clase.id) # Ajusta la ruta según tu proyecto
+    return redirect('editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
+
 # ============================================================
 # CREAR EJERCICIO (QUIZ O VIDEO-QUIZ UNIFICADO)
 # ============================================================

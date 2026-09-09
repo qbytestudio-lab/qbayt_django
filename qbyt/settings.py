@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'clase',
     'ejercicios',
     'notificaciones',
-    'mensajeria'
+    'mensajeria',
+    'django_extensions',
     
 ]
 

@@ -75,9 +75,45 @@ class Ejercicio(models.Model):
     
     @property
     def url_video(self):
+        """Devuelve la URL del video (archivo o URL externa)"""
         if self.video_principal:
             return self.video_principal.url
         return self.video_url
+    
+    @property
+    def embed_url(self):
+        """Convierte la URL de YouTube a formato embed"""
+        if not self.video_url:
+            return None
+        
+        url = self.video_url.strip()
+        
+        # Si ya es embed
+        if 'youtube.com/embed/' in url:
+            return url
+        
+        # YouTube watch
+        if 'youtube.com/watch' in url:
+            import re
+            match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        
+        # YouTube shorts
+        if 'youtube.com/shorts/' in url:
+            import re
+            match = re.search(r'shorts/([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        
+        # youtu.be
+        if 'youtu.be/' in url:
+            import re
+            match = re.search(r'youtu\.be/([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return f"https://www.youtube.com/embed/{match.group(1)}"
+        
+        return url
 
     class Meta:
         verbose_name = "Ejercicio"

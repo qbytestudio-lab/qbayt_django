@@ -154,7 +154,7 @@ def crear_anuncio(request, clase_id):
         if texto:
             Anuncio.objects.create(clase=clase, texto=texto)
             messages.success(request, 'Anuncio publicado.')
-    return redirect('detalle_clase', clase_id=clase_id)
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 
 @login_required
@@ -164,10 +164,10 @@ def eliminar_anuncio(request, clase_id, anuncio_id):
     anuncio = get_object_or_404(Anuncio, id=anuncio_id, clase__docente=request.user)
     anuncio.delete()
     messages.success(request, 'Anuncio eliminado.')
-    return redirect('detalle_clase', clase_id=clase_id)
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 # ═══════════════════════════════════════════
 #         REPORTES Y ESTADÍSTICAS
-# ═══════════════════════════════════════════
+# ══════════════════════════════════════════
 
 @login_required
 def generar_reporte_pdf(request, clase_id):
@@ -424,7 +424,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
                 ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
             except ValueError:
                 messages.error(request, 'Formato de fecha inválido.')
-                return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
+                return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
         else:
             ejercicio.fecha_limite = None
         
