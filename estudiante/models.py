@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from clase.models import Clase
-from ejercicios.models import Ejercicio, Pregunta  # ← Importa de ejercicios, NO definas aquí
+from ejercicios.models import Ejercicio, Pregunta 
 
 class RespuestaEstudiante(models.Model):
     estudiante = models.ForeignKey(

@@ -213,13 +213,13 @@ def explorar_clases(request):
             Q(descripcion__icontains=query)
         )
     
-    # ✅ SOLO solicitudes PENDIENTES
+    # SOLO solicitudes PENDIENTES
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='pendiente'
     ).values_list('clase_id', flat=True)
     
-    # ✅ Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    # Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='rechazada'
@@ -247,7 +247,7 @@ def detalle_clase_estudiante(request, clase_id):
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
         return redirect('estudiante:mis_clases')
     
-    # 🟢 CAMBIA ESTA LÍNEA: En lugar de traer todos, filtramos solo los activos
+    # CAMBIA ESTA LÍNEA: En lugar de traer todos, filtramos solo los activos
     ejercicios = clase.ejercicios.filter(activo=True)
 
     for ejercicio in ejercicios:
@@ -294,46 +294,72 @@ def mis_calificaciones_estudiante(request):
 
 @login_required
 def resolver_ejercicio(request, clase_id, ejercicio_id):
-    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+    """
+    Vista unificada para resolver cualquier tipo de ejercicio
+    """
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
+    from django.utils import timezone
+    import re
     
-    # ─── SI ES UN JUEGO, RENDERIZA LA PLANTILLA DE JUEGOS ───
-    if ejercicio.tipo == 'juego':
-        if request.method == 'POST':
-            # Lógica para guardar el intento del juego aquí si lo requieres
-            intento = Intento.objects.create(estudiante=request.user, ejercicio=ejercicio)
-            messages.success(request, 'Juego enviado correctamente.')
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
-            
-        return render(request, 'estudiante/resolver_juego.html', {
-            'ejercicio': ejercicio,
-            'clase_id': clase_id
-        })
-
-    # ─── RESTO DE LA LÓGICA PARA QUIZZES Y OTROS ───
-    if request.method == 'POST':
-        intento = Intento.objects.create(
-            estudiante=request.user,
-            ejercicio=ejercicio
-        )
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
+    # Verificar inscripción
+    if request.user not in clase.estudiantes.all():
+        messages.error(request, 'No estás inscrito en esta clase.')
+        return redirect('inicio')
+    
+    # Obtener preguntas
+    preguntas = Pregunta.objects.filter(
+        ejercicio=ejercicio
+    ).prefetch_related('opciones')
+    
+    # Convertir URL de YouTube a embed
+    embed_url = None
+    if ejercicio.video_url:
+        video_url = ejercicio.video_url.strip()
         
-        preguntas = ejercicio.preguntas.all()
-        for pregunta in preguntas:
-            respuesta_valor = request.POST.get(f'pregunta_{pregunta.id}')
-            if respuesta_valor:
-                RespuestaEstudiante.objects.create(
-                    estudiante=request.user,
-                    pregunta=pregunta,
-                    respuesta_seleccionada=str(respuesta_valor),
-                    es_correcta=False
-                )
+        # Función para extraer ID de YouTube
+        def extract_video_id(url):
+            if not url:
+                return None
             
-        messages.success(request, 'Ejercicio enviado. Espera la calificación del docente.')
-        return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_id)
-
-    return render(request, 'estudiante/resolver_ejercicio.html', {
+            # Formato: youtube.com/watch?v=VIDEO_ID&otros
+            match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return match.group(1)
+            
+            # Formato: youtu.be/VIDEO_ID
+            match = re.search(r'youtu\.be/([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return match.group(1)
+            
+            # Formato: youtube.com/embed/VIDEO_ID
+            match = re.search(r'embed/([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return match.group(1)
+            
+            # Formato: youtube.com/shorts/VIDEO_ID
+            match = re.search(r'shorts/([a-zA-Z0-9_-]{11})', url)
+            if match:
+                return match.group(1)
+            
+            return None
+        
+        video_id = extract_video_id(video_url)
+        
+        if video_id:
+            embed_url = f"https://www.youtube.com/embed/{video_id}"
+    
+    context = {
+        'clase': clase,
         'ejercicio': ejercicio,
-        'clase_id': clase_id
-    })
+        'preguntas': preguntas,
+        'embed_url': embed_url,
+    }
+    
+    return render(request, 'estudiante/resolver_ejercicio.html', context)
 
 @login_required
 @require_POST

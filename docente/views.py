@@ -424,7 +424,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
                 ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
             except ValueError:
                 messages.error(request, 'Formato de fecha inválido.')
-                return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
+                return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
         else:
             ejercicio.fecha_limite = None
         
