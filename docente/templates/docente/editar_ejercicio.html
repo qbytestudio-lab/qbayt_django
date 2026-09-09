@@ -19,13 +19,29 @@
   </div>
 
   <!-- HEADER -->
-  <div class="editar-header">
-    <h1 class="editar-title">
-      <i class="bi bi-pencil-square"></i> Editar Ejercicio
-    </h1>
-    <p class="editar-subtitle">
-      Actualiza la información del ejercicio "{{ ejercicio.titulo }}"
-    </p>
+  <div class="editar-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+    <div>
+      <h1 class="editar-title">
+        <i class="bi bi-pencil-square"></i> Editar Ejercicio
+      </h1>
+      <p class="editar-subtitle">
+        Actualiza la información del ejercicio "{{ ejercicio.titulo }}"
+      </p>
+    </div>
+
+    <!-- 🔘 BOTÓN DE DESACTIVAR / ACTIVAR -->
+    <form action="{% url 'ejercicios:toggle_estado_ejercicio' ejercicio.id %}" method="POST" style="margin: 0;">
+      {% csrf_token %}
+      {% if ejercicio.activo %}
+        <button type="submit" class="btn-estado-toggle btn-desactivar" title="Ocultar ejercicio para los estudiantes">
+          <i class="bi bi-eye-slash-fill"></i> Desactivar ejercicio
+        </button>
+      {% else %}
+        <button type="submit" class="btn-estado-toggle btn-activar" title="Mostrar ejercicio a los estudiantes">
+          <i class="bi bi-eye-fill"></i> Activar ejercicio
+        </button>
+      {% endif %}
+    </form>
   </div>
 
   <!-- FORMULARIO -->

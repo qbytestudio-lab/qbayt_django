@@ -123,49 +123,27 @@ def unirse_clase(request):
     if request.method == 'POST':
         codigo = request.POST.get('codigo', '').strip().upper()
 
+        if not codigo:
+            messages.error(request, 'Por favor ingresa un código de clase.')
+            return redirect('estudiante:explorar_clases')
+
         try:
             clase_nueva = Clase.objects.get(codigo=codigo)
 
-            solicitud, created = SolicitudClase.objects.get_or_create(
-                estudiante=request.user,
-                clase=clase_nueva,
-                defaults={'estado': 'pendiente', 'intentos': 1}
-            )
-
-            if solicitud.bloqueado:
-                messages.error(request, 'Has agotado tus 2 oportunidades en esta clase y estás bloqueado permanentemente.')
-                return redirect('estudiante:explorar_clases')
-
+            # Verificar si ya está inscrito
             if request.user in clase_nueva.estudiantes.all():
-                messages.warning(request, 'Ya estás en esta clase.')
+                messages.warning(request, 'Ya estás inscrito en esta clase.')
                 return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
 
-            if not created and solicitud.estado == 'rechazada':
-                if solicitud.intentos < 2:
-                    solicitud.intentos += 1
-                    solicitud.estado = 'pendiente'
-                    solicitud.save()
-                    
-                    # ✅ NOTIFICAR AL DOCENTE
-                    notificar_solicitud_clase(clase_nueva.docente, request.user, clase_nueva)
-                    
-                    messages.success(request, f'Nueva solicitud enviada. Intento de curso: {solicitud.intentos}/2')
-                else:
-                    solicitud.bloqueado = True
-                    solicitud.save()
-                    messages.error(request, 'Has agotado tus 2 oportunidades de cursar esta clase.')
-                    return redirect('estudiante:explorar_clases')
-            else:
-                # ✅ NOTIFICAR AL DOCENTE
-                if created:
-                    notificar_solicitud_clase(clase_nueva.docente, request.user, clase_nueva)
-                
-                messages.success(request, f'¡Solicitud enviada para la clase "{clase_nueva.nombre}"!')
-
-            return redirect('estudiante:explorar_clases')
+            # Inscribir directamente al estudiante a la clase
+            clase_nueva.estudiantes.add(request.user)
+            messages.success(request, f'¡Te has unido exitosamente a la clase "{clase_nueva.nombre}"!')
+            
+            # Redirigir de una vez al detalle de la clase para que entre de golpe
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
 
         except Clase.DoesNotExist:
-            messages.error(request, 'Código inválido.')
+            messages.error(request, 'El código ingresado no es válido o la clase no existe.')
             return redirect('estudiante:explorar_clases')
 
     return redirect('estudiante:explorar_clases')
@@ -265,13 +243,12 @@ def detalle_clase_estudiante(request, clase_id):
         
     clase = get_object_or_404(Clase, id=clase_id)
     
-    # (Opcional) Si quieres permitir ver la clase aunque no estés inscrito, 
-    # o si prefieres validar que esté inscrito, ajusta este bloque con una ruta real como 'progreso' o 'mis_clases':
     if request.user not in clase.estudiantes.all():
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
-        return redirect('estudiante:mis_clases') # 👈 Cambiado de 'dashboard' a 'mis_clases'
+        return redirect('estudiante:mis_clases')
     
-    ejercicios = clase.ejercicios.all()
+    # 🟢 CAMBIA ESTA LÍNEA: En lugar de traer todos, filtramos solo los activos
+    ejercicios = clase.ejercicios.filter(activo=True)
 
     for ejercicio in ejercicios:
         ejercicios.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()

@@ -15,4 +15,5 @@ urlpatterns = [
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/docente/', views.detalle_ejercicio_docente, name='detalle_ejercicio_docente'),
     path('intento/<int:intento_id>/rechazar/', views.reenviar_ejercicio, name='reenviar_ejercicio'),
+    path('ejercicio/<int:ejercicio_id>/toggle/', views.toggle_estado_ejercicio, name='toggle_estado_ejercicio'),
     ]

@@ -20,4 +20,5 @@ urlpatterns = [
     path('biblioteca-recursos/', views.biblioteca_recursos, name='biblioteca_recursos'),
     path('biblioteca-recursos/crear/', views.crear_recurso, name='crear_recurso'),
     path('biblioteca-recursos/eliminar/<int:recurso_id>/', views.eliminar_recurso, name='eliminar_recurso'),
+    
 ]

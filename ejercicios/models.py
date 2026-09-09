@@ -16,7 +16,7 @@ class Ejercicio(models.Model):
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='quiz')
     clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
     titulo = models.CharField(max_length=200)
-    
+    activo = models.BooleanField(default=True)
     descripcion = models.TextField(blank=True, null=True)
     contenido = models.TextField(blank=True, null=True)
 

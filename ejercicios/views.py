@@ -32,7 +32,23 @@ def crear_ejercicio(request, clase_id):
         
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
 
-
+@login_required
+def toggle_estado_ejercicio(request, ejercicio_id):
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+    
+    # Validar que el usuario sea el docente dueño de la clase o superusuario
+    if request.user != ejercicio.clase.docente and not request.user.is_superuser:
+        messages.error(request, "No tienes permisos para modificar este ejercicio.")
+        return redirect('inicio')
+    
+    # Alternar el estado booleano
+    ejercicio.activo = not ejercicio.activo
+    ejercicio.save()
+    
+    estado_texto = "activado" if ejercicio.activo else "desactivado"
+    messages.success(request, f"El ejercicio ha sido {estado_texto} correctamente.")
+    
+    return redirect('clase:detalle_clase', clase_id=ejercicio.clase.id) # Ajusta la ruta según tu proyecto
 # ============================================================
 # CREAR EJERCICIO (QUIZ O VIDEO-QUIZ UNIFICADO)
 # ============================================================
