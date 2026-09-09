@@ -173,58 +173,27 @@ def unirse_clase(request):
 
 @login_required
 def solicitar_clase(request):
-    if request.user.perfil.rol != 'estudiante':
+    # Validar que el usuario sea estudiante
+    if hasattr(request.user, 'perfil') and request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
         
     if request.method == 'POST':
         clase_id = request.POST.get('clase_id')
         clase_solicitada = get_object_or_404(Clase, id=clase_id)
-
-        # === 🚫 RESTRICCIÓN GLOBAL POR TÍTULO ===
-        # Si el título es "Acordes mayores" (sin importar el docente), se bloquea la solicitud
-        if clase_solicitada.nombre.strip().lower() == "acordes mayores":
-            messages.error(request, "El acceso y registro a la clase 'Acordes mayores' está restringido.")
-            referer = request.META.get('HTTP_REFERER')
-            return redirect(referer if referer else 'inicio')
-
-        clases_misma_categoria = request.user.clases_estudiante.filter(
-            categoria_tema=clase_solicitada.categoria_tema
-        )
-
+        
+        # 1. Validar si ya está inscrito en esta clase
         if request.user in clase_solicitada.estudiantes.all():
-            messages.warning(request, 'Ya estás en esta clase.')
-        elif clases_misma_categoria.exists():
-            messages.error(request, f'Ya tienes una clase en la categoría "{clase_solicitada.get_categoria_tema_display()}".')
-        else:
-            # === USO DE get_or_create PARA EVITAR EL CRASH DE INTEGRITYERROR ===
-            solicitud, creada = SolicitudClase.objects.get_or_create(
-                clase=clase_solicitada,
-                estudiante=request.user,
-                defaults={'estado': 'pendiente'}
-            )
-            
-            if not creada:
-                # Si la solicitud ya existía previamente en la base de datos:
-                if solicitud.estado == 'pendiente':
-                    messages.warning(request, 'Ya tienes una solicitud pendiente para esta clase.')
-                elif solicitud.estado == 'rechazada':
-                    # Si fue rechazada antes, puedes actualizarla a pendiente de nuevo o avisarle
-                    solicitud.estado = 'pendiente'
-                    solicitud.save()
-                    notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
-                    messages.success(request, f'Nueva solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
-                else:
-                    messages.info(request, 'Ya tienes una gestión previa registrada con esta clase.')
-            else:
-                # Si se creó por primera vez con éxito
-                notificar_solicitud_clase(clase_solicitada.docente, request.user, clase_solicitada)
-                messages.success(request, f'Solicitud enviada a "{clase_solicitada.nombre}". Espera que el docente la acepte.')
-    
-    referer = request.META.get('HTTP_REFERER')
-    if referer:
-        return redirect(referer)
-    return redirect('inicio')
+            messages.warning(request, "Ya estás inscrito en esta clase.")
+            return redirect('mis_clases')
 
+        # 2. Inscribir directamente al estudiante sin filtros rotos
+        clase_solicitada.estudiantes.add(request.user)
+        messages.success(request, f"Te has inscrito correctamente a {clase_solicitada.nombre}.")
+        return redirect('mis_clases')
+
+    # Si entran por GET o la petición no es POST, devolvemos a la página anterior o a mis clases
+    referer = request.META.get('HTTP_REFERER')
+    return redirect(referer if referer else 'mis_clases')
 
 @login_required
 def salir_clase(request, clase_id):
@@ -291,30 +260,22 @@ def explorar_clases(request):
 
 @login_required
 def detalle_clase_estudiante(request, clase_id):
-    if request.user.perfil.rol != 'estudiante':
+    if hasattr(request.user, 'perfil') and request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
         
     clase = get_object_or_404(Clase, id=clase_id)
     
-    if hasattr(clase, 'categoria') and clase.categoria:
-        otra_clase_misma_categoria = Clase.objects.filter(
-            categoria=clase.categoria,
-            estudiantes=request.user
-        ).exclude(id=clase.id).exists()
-        
-        if otra_clase_misma_categoria and request.user not in clase.estudiantes.all():
-            messages.error(request, "Ya estás participando en otra clase de esta misma categoría y no puedes ingresar a esta.")
-            return redirect('estudiante:dashboard')
-
+    # (Opcional) Si quieres permitir ver la clase aunque no estés inscrito, 
+    # o si prefieres validar que esté inscrito, ajusta este bloque con una ruta real como 'progreso' o 'mis_clases':
     if request.user not in clase.estudiantes.all():
-        messages.error(request, "No tienes acceso a esta clase.")
-        return redirect('estudiante:dashboard')
+        messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
+        return redirect('estudiante:mis_clases') # 👈 Cambiado de 'dashboard' a 'mis_clases'
     
     ejercicios = clase.ejercicios.all()
 
     for ejercicio in ejercicios:
-        ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
-        ejercicio.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
+        ejercicios.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
+        ejercicios.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
 
     solicitud = SolicitudClase.objects.filter(estudiante=request.user, clase=clase).first()
 
@@ -323,7 +284,7 @@ def detalle_clase_estudiante(request, clase_id):
         'ejercicios': ejercicios,
         'solicitud': solicitud,
     })
-
+    
 
 @login_required
 def mis_calificaciones_estudiante(request):

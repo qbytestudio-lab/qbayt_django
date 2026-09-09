@@ -75,7 +75,7 @@ def agregar_estudiante(request, clase_id):
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
     
-    return redirect('detalle_clase', clase_id=clase_id)
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):
@@ -382,7 +382,7 @@ def aceptar_solicitud(request, solicitud_id):
     notificar_aceptacion(solicitud.estudiante, solicitud.clase)
     
     messages.success(request, 'Solicitud aceptada.')
-    return redirect('detalle_clase', clase_id=solicitud.clase.id)
+    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
 # En la función rechazar_solicitud
 def rechazar_solicitud(request, solicitud_id):
