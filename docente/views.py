@@ -55,28 +55,38 @@ def agregar_estudiante(request, clase_id):
             if estudiante in clase.estudiantes.all():
                 messages.warning(request, f'"{username}" ya está en esta clase.')
             else:
-                # 1. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema'
-                clases_misma_categoria = Clase.objects.filter(
-                    categoria_tema=clase.categoria_tema,
+                # 🚫 1. RESTRICCIÓN POR TÍTULO EXACTO
+                clase_mismo_titulo = Clase.objects.filter(
+                    nombre__iexact=clase.nombre,
                     estudiantes=estudiante
-                ).exclude(id=clase.id)
+                ).exclude(id=clase.id).exists()
+
+                if clase_mismo_titulo:
+                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otro curso con el mismo título ("{clase.nombre}").')
                 
-                if clases_misma_categoria.exists():
-                    otra_clase = clases_misma_categoria.first()
-                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
                 else:
-                    # 2. Si pasa la validación, lo agregamos normalmente
-                    clase.estudiantes.add(estudiante)
-                    SolicitudClase.objects.filter(
-                        clase=clase, estudiante=estudiante
-                    ).update(estado='aceptada')
-                    messages.success(request, f'"{username}" agregado a la clase.')
+                    # 2. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema' (Tu validación previa)
+                    clases_misma_categoria = Clase.objects.filter(
+                        categoria_tema=clase.categoria_tema,
+                        estudiantes=estudiante
+                    ).exclude(id=clase.id)
                     
+                    if clases_misma_categoria.exists():
+                        otra_clase = clases_misma_categoria.first()
+                        messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
+                    else:
+                        # 3. Si pasa todas las validaciones, lo agregamos normalmente
+                        clase.estudiantes.add(estudiante)
+                        SolicitudClase.objects.filter(
+                            clase=clase, estudiante=estudiante
+                        ).update(estado='aceptada')
+                        messages.success(request, f'"{username}" agregado a la clase.')
+                
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
     
     return redirect('clase:detalle_clase', clase_id=clase_id)
-
+    
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):
     if request.user.perfil.rol != 'docente':
@@ -85,7 +95,7 @@ def eliminar_estudiante_clase(request, clase_id, estudiante_id):
     estudiante = get_object_or_404(User, id=estudiante_id)
     clase.estudiantes.remove(estudiante)
     messages.success(request, 'Estudiante removido.')
-    return redirect('detalle_clase', clase_id=clase_id)
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 
 @login_required
@@ -110,7 +120,7 @@ def expulsar_estudiante_clase(request, clase_id, estudiante_id):
         except SolicitudClase.DoesNotExist:
             pass
     
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect('clase:detalle_clase', clase_id=clase.id)
 
 
 # ═══════════════════════════════════════════
@@ -121,13 +131,74 @@ def expulsar_estudiante_clase(request, clase_id, estudiante_id):
 def aceptar_solicitud(request, solicitud_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
+    
     solicitud = get_object_or_404(SolicitudClase, id=solicitud_id, clase__docente=request.user)
+    
+    # 🚫 1. RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en otra clase con el mismo nombre
+    clase_mismo_titulo = Clase.objects.filter(
+        nombre__iexact=solicitud.clase.nombre,
+        estudiantes=solicitud.estudiante
+    ).exclude(id=solicitud.clase.id).exists()
+
+    if clase_mismo_titulo:
+        messages.error(request, f'No se pudo aceptar. El estudiante "{solicitud.estudiante.username}" ya está inscrito en otro curso con el título "{solicitud.clase.nombre}".')
+        solicitud.estado = 'rechazada'
+        solicitud.save()
+        return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
+
+    # 2. Si pasa la validación, lo acepta e inscribe
     solicitud.clase.estudiantes.add(solicitud.estudiante)
     solicitud.estado = 'aceptada'
     solicitud.save()
+    
     messages.success(request, f'"{solicitud.estudiante.username}" aceptado en "{solicitud.clase.nombre}".')
-    return redirect('detalle_clase', clase_id=solicitud.clase.id)
+    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
+
+@login_required
+def agregar_estudiante(request, clase_id):
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        try:
+            estudiante = User.objects.get(username=username, perfil__rol='estudiante')
+            if estudiante in clase.estudiantes.all():
+                messages.warning(request, f'"{username}" ya está en esta clase.')
+            else:
+                # 🚫 1. RESTRICCIÓN POR TÍTULO EXACTO
+                clase_mismo_titulo = Clase.objects.filter(
+                    nombre__iexact=clase.nombre,
+                    estudiantes=estudiante
+                ).exclude(id=clase.id).exists()
+
+                if clase_mismo_titulo:
+                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otro curso con el mismo título ("{clase.nombre}").')
+                
+                else:
+                    # 2. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema' (Tu validación previa)
+                    clases_misma_categoria = Clase.objects.filter(
+                        categoria_tema=clase.categoria_tema,
+                        estudiantes=estudiante
+                    ).exclude(id=clase.id)
+                    
+                    if clases_misma_categoria.exists():
+                        otra_clase = clases_misma_categoria.first()
+                        messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
+                    else:
+                        # 3. Si pasa todas las validaciones, lo agregamos normalmente
+                        clase.estudiantes.add(estudiante)
+                        SolicitudClase.objects.filter(
+                            clase=clase, estudiante=estudiante
+                        ).update(estado='aceptada')
+                        messages.success(request, f'"{username}" agregado a la clase.')
+                
+        except User.DoesNotExist:
+            messages.error(request, f'No existe un estudiante con usuario "{username}".')
+    
+    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 @login_required
 def rechazar_solicitud(request, solicitud_id):
@@ -137,7 +208,7 @@ def rechazar_solicitud(request, solicitud_id):
     solicitud.estado = 'rechazada'
     solicitud.save()
     messages.info(request, f'Solicitud de "{solicitud.estudiante.username}" rechazada.')
-    return redirect('detalle_clase', clase_id=solicitud.clase.id)
+    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
 
 # ═══════════════════════════════════════════
@@ -394,7 +465,7 @@ def rechazar_solicitud(request, solicitud_id):
     notificar_rechazo(solicitud.estudiante, solicitud.clase)
     
     messages.success(request, 'Solicitud rechazada.')
-    return redirect('detalle_clase', clase_id=solicitud.clase.id)
+    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
 @login_required
 def editar_ejercicio(request, clase_id, ejercicio_id):

@@ -117,61 +117,76 @@ def perfil_estudiante(request):
 
 @login_required
 def unirse_clase(request):
-    if request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-
     if request.method == 'POST':
-        codigo = request.POST.get('codigo', '').strip().upper()
-
-        if not codigo:
-            messages.error(request, 'Por favor ingresa un código de clase.')
-            return redirect('estudiante:explorar_clases')
-
+        codigo = request.POST.get('codigo', '').strip()
+        
         try:
-            clase_nueva = Clase.objects.get(codigo=codigo)
-
-            # Verificar si ya está inscrito
-            if request.user in clase_nueva.estudiantes.all():
-                messages.warning(request, 'Ya estás inscrito en esta clase.')
-                return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
-
-            # Inscribir directamente al estudiante a la clase
-            clase_nueva.estudiantes.add(request.user)
-            messages.success(request, f'¡Te has unido exitosamente a la clase "{clase_nueva.nombre}"!')
+            clase = Clase.objects.get(codigo=codigo)
             
-            # Redirigir de una vez al detalle de la clase para que entre de golpe
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase_nueva.id)
+            # 🚫 1. RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en un curso con el mismo título
+            clase_mismo_titulo = Clase.objects.filter(
+                nombre__iexact=clase.nombre,
+                estudiantes=request.user
+            ).exclude(id=clase.id).exists()
 
+            if clase_mismo_titulo:
+                messages.error(request, f"No puedes unirte. Ya estás inscrito en otro curso con el título '{clase.nombre}'.")
+                return redirect('estudiante:explorar_clases')
+
+            # 2. Verificar si ya está inscrito exactamente en esta misma clase
+            if request.user in clase.estudiantes.all():
+                messages.warning(request, "Ya estás inscrito en esta clase.")
+            else:
+                # 3. ¡Inscribir de una vez al estudiante con el código!
+                clase.estudiantes.add(request.user)
+                
+                # Opcional por si tenía alguna solicitud pendiente para esta misma clase
+                SolicitudClase.objects.filter(
+                    clase=clase, estudiante=request.user
+                ).update(estado='aceptada')
+                
+                messages.success(request, f"¡Te has inscrito correctamente a la clase '{clase.nombre}'!")
+                
         except Clase.DoesNotExist:
-            messages.error(request, 'El código ingresado no es válido o la clase no existe.')
-            return redirect('estudiante:explorar_clases')
-
+            messages.error(request, "El código de acceso es inválido.")
+            
     return redirect('estudiante:explorar_clases')
 
 
 @login_required
 def solicitar_clase(request):
-    # Validar que el usuario sea estudiante
-    if hasattr(request.user, 'perfil') and request.user.perfil.rol != 'estudiante':
-        return redirect('inicio')
-        
     if request.method == 'POST':
         clase_id = request.POST.get('clase_id')
-        clase_solicitada = get_object_or_404(Clase, id=clase_id)
+        clase = get_object_or_404(Clase, id=clase_id)
         
-        # 1. Validar si ya está inscrito en esta clase
-        if request.user in clase_solicitada.estudiantes.all():
+        # 🚫 RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en otro curso con el mismo título
+        clase_mismo_titulo = Clase.objects.filter(
+            nombre__iexact=clase.nombre,
+            estudiantes=request.user
+        ).exists()
+
+        if clase_mismo_titulo:
+            messages.error(request, f"No puedes solicitar acceso. Ya estás inscrito en otro curso con el título '{clase.nombre}'.")
+            return redirect('estudiante:explorar_clases')
+        
+        if request.user in clase.estudiantes.all():
             messages.warning(request, "Ya estás inscrito en esta clase.")
-            return redirect('mis_clases')
-
-        # 2. Inscribir directamente al estudiante sin filtros rotos
-        clase_solicitada.estudiantes.add(request.user)
-        messages.success(request, f"Te has inscrito correctamente a {clase_solicitada.nombre}.")
-        return redirect('mis_clases')
-
-    # Si entran por GET o la petición no es POST, devolvemos a la página anterior o a mis clases
-    referer = request.META.get('HTTP_REFERER')
-    return redirect(referer if referer else 'mis_clases')
+            return redirect('estudiante:explorar_clases')
+            
+        solicitud, creado = SolicitudClase.objects.get_or_create(
+            estudiante=request.user,
+            clase=clase,
+            defaults={'estado': 'pendiente'}
+        )
+        
+        if not creado:
+            solicitud.estado = 'pendiente'
+            solicitud.save()
+            messages.success(request, f"Se ha vuelto a enviar la solicitud para la clase '{clase.nombre}'.")
+        else:
+            messages.success(request, f"Solicitud enviada para la clase '{clase.nombre}'. Espera la aprobación del docente.")
+            
+    return redirect('estudiante:explorar_clases')
 
 @login_required
 def salir_clase(request, clase_id):
@@ -188,7 +203,7 @@ def explorar_clases(request):
     """
     Vista unificada para explorar clases disponibles
     """
-    from docente.models import SolicitudClase
+    from docente.models import SolicitudClase, Clase
     
     usuario = request.user
     
@@ -199,7 +214,7 @@ def explorar_clases(request):
         docente=usuario
     )
     
-    # Filtros
+    # Filtros por categoría
     categoria = request.GET.get('categoria')
     if categoria:
         clases = clases.filter(categoria_tema=categoria)
@@ -207,19 +222,21 @@ def explorar_clases(request):
     # Búsqueda
     query = request.GET.get('q')
     if query:
-        from django.db.models import Q
         clases = clases.filter(
             Q(nombre__icontains=query) | 
             Q(descripcion__icontains=query)
         )
     
+    # IDs de clases donde el usuario ya está inscrito
+    clases_inscritas_ids = usuario.clases_estudiante.values_list('id', flat=True)
+
     # SOLO solicitudes PENDIENTES
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='pendiente'
     ).values_list('clase_id', flat=True)
     
-    # Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
+    # Solicitudes RECHAZADAS
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='rechazada'
@@ -227,8 +244,9 @@ def explorar_clases(request):
     
     context = {
         'clases': clases,
-        'categorias': Clase.TEMA_CATEGORIAS,
+        'categorias': getattr(Clase, 'TEMA_CATEGORIAS', []),
         'total_clases': clases.count(),
+        'clases_inscritas_ids': clases_inscritas_ids,
         'solicitudes_enviadas': solicitudes_enviadas,
         'solicitudes_rechazadas': solicitudes_rechazadas,
     }

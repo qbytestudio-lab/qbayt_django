@@ -572,58 +572,6 @@ def calendario(request):
     
     return render(request, 'web/calendario.html', context)
 
-@login_required
-def explorar_clases(request):
-    """
-    Vista unificada para explorar clases disponibles
-    """
-    from docente.models import SolicitudClase
-    
-    usuario = request.user
-    
-    # Clases donde el usuario NO está inscrito y NO es docente
-    clases = Clase.objects.exclude(
-        estudiantes=usuario
-    ).exclude(
-        docente=usuario
-    )
-    
-    # Filtros
-    categoria = request.GET.get('categoria')
-    if categoria:
-        clases = clases.filter(categoria_tema=categoria)
-    
-    # Búsqueda
-    query = request.GET.get('q')
-    if query:
-        from django.db.models import Q
-        clases = clases.filter(
-            Q(nombre__icontains=query) | 
-            Q(descripcion__icontains=query)
-        )
-    
-    # SOLO solicitudes PENDIENTES
-    solicitudes_enviadas = SolicitudClase.objects.filter(
-        estudiante=usuario,
-        estado='pendiente'
-    ).values_list('clase_id', flat=True)
-    
-    # Solicitudes RECHAZADAS (para mostrar botón re-solicitar)
-    solicitudes_rechazadas = SolicitudClase.objects.filter(
-        estudiante=usuario,
-        estado='rechazada'
-    ).values_list('clase_id', flat=True)
-    
-    context = {
-        'clases': clases,
-        'categorias': Clase.TEMA_CATEGORIAS,
-        'total_clases': clases.count(),
-        'solicitudes_enviadas': solicitudes_enviadas,
-        'solicitudes_rechazadas': solicitudes_rechazadas,
-    }
-    
-    return render(request, 'estudiante/explorar_clases.html', context)
-
 
 @login_required
 def descargar_certificado(request, clase_id):

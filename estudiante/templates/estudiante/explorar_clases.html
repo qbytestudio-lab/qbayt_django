@@ -110,7 +110,13 @@
       </div>
       
       <div class="class-card-footer">
-        {% if clase.id in solicitudes_enviadas %}
+        <!-- 🟢 VALIDACIÓN SI YA ESTÁ INSCRITO -->
+        {% if request.user in clase.estudiantes.all %}
+        <div class="btn-pendiente" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3);">
+          <i class="bi bi-check-circle-fill"></i> Ya estás inscrito
+        </div>
+
+        {% elif clase.id in solicitudes_enviadas %}
         <div class="btn-pendiente">
           <i class="bi bi-clock"></i> Solicitud pendiente
         </div>
