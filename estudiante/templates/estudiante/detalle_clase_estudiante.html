@@ -118,7 +118,7 @@
       {% endif %}
     </div>
 
-    <!-- EJERCICIOS - MISMO DISEÑO QUE DOCENTE -->
+    <!-- EJERCICIOS -->
     <div class="section-card">
       <div class="section-card-header">
         <h3 class="section-card-title">
@@ -131,65 +131,56 @@
       <div class="ejercicios-container mt-3">
         {% if ejercicios %}
           {% for ejercicio in ejercicios %}
-          <div class="ejercicio-item">
-            <div class="ejercicio-info-wrapper">
-              <h4 class="ejercicio-titulo">{{ ejercicio.titulo }}</h4>
-              {% if ejercicio.descripcion %}
-              <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
-              {% endif %}
-              <span class="ejercicio-tipo-badge">{{ ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
-            </div>
-            
-            <div class="ejercicio-actions">
-              {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
-                {% if intento and intento.calificacion is not None %}
-                  <span class="status-badge calificado">
-                    <i class="bi bi-check-circle-fill"></i> {{ intento.calificacion }}/5.0
-                  </span>
-                {% elif intento and intento.calificacion is None %}
-                  <span class="status-badge pendiente">
-                    <i class="bi bi-clock-fill"></i> Pendiente
+            <div class="ejercicio-item {% if not ejercicio.activo %}ejercicio-inactivo-estudiante{% endif %}">
+              <div class="ejercicio-info-wrapper">
+                <h4 class="ejercicio-titulo">{{ ejercicio.titulo }}</h4>
+                {% if ejercicio.descripcion %}
+                <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
+                {% endif %}
+                
+                {% if not ejercicio.activo %}
+                  <div class="badge-deshabilitado-aviso">
+                    <i class="bi bi-lock-fill"></i> Este ejercicio se encuentra deshabilitado por el docente.
+                  </div>
+                {% endif %}
+
+                <span class="ejercicio-tipo-badge">{{ ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
+              </div>
+              
+              <div class="ejercicio-actions">
+                {% if not ejercicio.activo %}
+                  <span class="status-badge deshabilitado" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.4rem 0.8rem; border-radius: 8px; font-size: 0.8rem; font-weight: 600;">
+                    <i class="bi bi-slash-circle"></i> No disponible
                   </span>
                 {% else %}
-                  {% if total >= 2 %}
-                    <span class="status-badge sin-intentos">
-                      <i class="bi bi-x-circle-fill"></i> Sin intentos
-                    </span>
-                  {% else %}
-                    <!-- ✅ SOLO UNA URL PARA TODOS LOS TIPOS -->
-                    <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
-                      <i class="bi bi-play-fill"></i> Resolver
-                    </a>
-                  {% endif %}
-                {% endif %}
-              {% endwith %}
-            </div>
-          </div>
-          
-          <!-- FEEDBACK DEL DOCENTE -->
-          {% with intento=ejercicio.mi_intento %}
-            {% if intento and intento.retroalimentacion %}
-            <div class="feedback-section">
-              <div class="feedback-header">
-                <div class="feedback-icon">
-                  <i class="bi bi-chat-square-text-fill"></i>
-                </div>
-                <span class="feedback-label">Comentario del docente</span>
-                {% if intento.calificacion %}
-                <span class="feedback-score">
-                  <i class="bi bi-star-fill"></i> {{ intento.calificacion }}/5.0
-                </span>
+                  {% with intento=ejercicio.mi_intento total=ejercicio.total_intentos %}
+                    {% if intento and intento.calificacion is not None %}
+                      <span class="status-badge calificado">
+                        <i class="bi bi-check-circle-fill"></i> {{ intento.calificacion }}/5.0
+                      </span>
+                    {% elif intento and intento.calificacion is None %}
+                      <span class="status-badge pendiente">
+                        <i class="bi bi-clock-fill"></i> Pendiente
+                      </span>
+                    {% else %}
+                      {% if total >= 2 %}
+                        <span class="status-badge sin-intentos">
+                          <i class="bi bi-x-circle-fill"></i> Sin intentos
+                        </span>
+                      {% else %}
+                        <a href="{% url 'estudiante:resolver_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
+                          <i class="bi bi-play-fill"></i> Resolver
+                        </a>
+                      {% endif %}
+                    {% endif %}
+                  {% endwith %}
                 {% endif %}
               </div>
-              <p class="feedback-text">{{ intento.retroalimentacion }}</p>
             </div>
-            {% endif %}
-          {% endwith %}
           {% endfor %}
         {% else %}
-          <p class="empty-msg text-center py-3">
-            <i class="bi bi-collection me-2"></i>
-            No hay ejercicios creados aún. ¡Crea el primero!
+          <p class="text-muted text-center py-3">
+            <i class="bi bi-collection me-2"></i> No hay ejercicios publicados en esta clase.
           </p>
         {% endif %}
       </div>

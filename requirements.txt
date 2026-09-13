@@ -1,6 +1,7 @@
 asgiref==3.11.1
 charset-normalizer==3.4.7
 Django==4.2.30
+django-extensions==4.1
 pillow==12.2.0
 PyMySQL==1.2.0
 reportlab==5.0.0

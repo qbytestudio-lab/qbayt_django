@@ -456,6 +456,26 @@ body {
   background: rgba(139, 92, 246, 0.2);
 }
 
+.ejercicio-inactivo-estudiante {
+  opacity: 0.55;
+  background-color: rgba(255, 255, 255, 0.01);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.badge-deshabilitado-aviso {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: #ef4444;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
+  margin-bottom: 0.4rem;
+  background: rgba(239, 68, 68, 0.08);
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+}
+
 /* ═══════════════════════════════════════════ */
 /* STATUS BADGES                             */
 /* ═══════════════════════════════════════════ */

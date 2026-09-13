@@ -105,6 +105,7 @@ body {
   padding: 2rem;
   margin-bottom: 2rem;
   box-shadow: 0 4px 16px var(--shadow);
+  transition: all 0.3s ease;
 }
 
 /* Form groups */
@@ -363,7 +364,6 @@ body {
   text-decoration: none;
 }
 
-/* Estado cuando está activo (permite desactivarlo - color naranja/alerta suave) */
 .btn-desactivar {
   background: rgba(234, 179, 8, 0.1);
   color: #eab308;
@@ -377,7 +377,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Estado cuando está inactivo (permite activarlo - color verde fresco) */
 .btn-activar {
   background: rgba(16, 185, 129, 0.1);
   color: var(--spotify-green);
@@ -388,4 +387,38 @@ body {
   background: rgba(16, 185, 129, 0.2);
   border-color: var(--spotify-green);
   transform: translateY(-1px);
+}
+
+/* ============================================ */
+/* ESTADOS DE FORMULARIO INACTIVO / BLOQUEADO   */
+/* ============================================ */
+
+.form-desactivado {
+  opacity: 0.7;
+}
+
+/* Forzar colores oscuros para inputs deshabilitados */
+.form-desactivado input:disabled,
+.form-desactivado textarea:disabled,
+.form-desactivado select:disabled {
+  background-color: #1a1a1a !important;
+  color: #999999 !important;
+  -webkit-text-fill-color: #999999 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  cursor: not-allowed !important;
+}
+
+/* Banner de aviso cuando está inactivo */
+.alert-inactivo-banner {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px dashed rgba(234, 179, 8, 0.4);
+  color: #eab308;
+  padding: 0.9rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
 }

@@ -404,6 +404,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
     
+    
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()

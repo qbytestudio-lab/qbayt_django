@@ -235,7 +235,6 @@ def explorar_clases(request):
     
     return render(request, 'estudiante/explorar_clases.html', context)
 
-
 @login_required
 def detalle_clase_estudiante(request, clase_id):
     if hasattr(request.user, 'perfil') and request.user.perfil.rol != 'estudiante':
@@ -247,10 +246,10 @@ def detalle_clase_estudiante(request, clase_id):
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
         return redirect('estudiante:mis_clases')
     
-    ejercicios = clase.ejercicios.filter(activo=True)
+    # 🟢 TRAEMOS TODOS LOS EJERCICIOS (activos e inactivos)
+    ejercicios = clase.ejercicios.all()
 
     for ejercicio in ejercicios:
-        # ✅ Corrección: Asignado directamente a cada variable 'ejercicio' del bucle
         ejercicio.mi_intento = ejercicio.intentos.filter(estudiante=request.user).first()
         ejercicio.total_intentos = ejercicio.intentos.filter(estudiante=request.user).count()
 
@@ -261,7 +260,6 @@ def detalle_clase_estudiante(request, clase_id):
         'ejercicios': ejercicios,
         'solicitud': solicitud,
     })
-    
 
 @login_required
 def mis_calificaciones_estudiante(request):
@@ -290,8 +288,6 @@ def mis_calificaciones_estudiante(request):
     return render(request, 'estudiante/mis_calificaciones.html', {
         'reporte_clases': reporte_clases,
     })
-
-<<<<<<< HEAD
 
 @login_required
 def resolver_ejercicio(request, clase_id, ejercicio_id):

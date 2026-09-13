@@ -33,19 +33,27 @@
     <form action="{% url 'ejercicios:toggle_estado_ejercicio' ejercicio.id %}" method="POST" style="margin: 0;">
       {% csrf_token %}
       {% if ejercicio.activo %}
-        <button type="submit" class="btn-estado-toggle btn-desactivar" title="Ocultar ejercicio para los estudiantes">
-          <i class="bi bi-eye-slash-fill"></i> Desactivar ejercicio
+        <button type="submit" class="btn-estado-toggle btn-desactivar" title="Inhabilitar ejercicio para los estudiantes">
+          <i class="bi bi-eye-slash-fill"></i> Inhabilitar ejercicio
         </button>
       {% else %}
-        <button type="submit" class="btn-estado-toggle btn-activar" title="Mostrar ejercicio a los estudiantes">
+        <button type="submit" class="btn-estado-toggle btn-activar" title="Activar ejercicio para los estudiantes">
           <i class="bi bi-eye-fill"></i> Activar ejercicio
         </button>
       {% endif %}
     </form>
   </div>
 
-  <!-- FORMULARIO -->
-  <div class="form-card">
+  <!-- FORMULARIO (Se bloquea si el ejercicio está activo) -->
+  <div class="form-card {% if ejercicio.activo %}form-desactivado{% endif %}">
+    
+    <!-- 🔒 BANNER DE AVISO SI ESTÁ INACTIVO -->
+    {% if ejercicio.activo %}
+    <div class="alert-inactivo-banner">
+      <i class="bi bi-lock-fill"></i> Este ejercicio se encuentra inhabilitado. Actívalo arriba para poder editar su contenido.
+    </div>
+    {% endif %}
+
     <form method="POST" action="{% url 'editar_ejercicio' clase.id ejercicio.id %}" enctype="multipart/form-data" id="formEditarEjercicio">
       {% csrf_token %}
 
@@ -55,8 +63,7 @@
           <i class="bi bi-fonts"></i> Título del ejercicio
           <span class="required">*</span>
         </label>
-        <input type="text" name="titulo" class="form-control" 
-               value="{{ ejercicio.titulo }}" required>
+        <input type="text" name="titulo" class="form-control" value="{{ ejercicio.titulo }}" required {% if ejercicio.activo %}disabled{% endif %}>
       </div>
 
       <!-- Descripción -->
@@ -65,8 +72,7 @@
           <i class="bi bi-file-text"></i> Descripción
           <span class="optional">(opcional)</span>
         </label>
-        <textarea name="descripcion" class="form-control textarea-custom" rows="4" 
-                  placeholder="Describe de qué trata este ejercicio...">{{ ejercicio.descripcion }}</textarea>
+        <textarea name="descripcion" class="form-control textarea-custom" rows="4" {% if ejercicio.activo %}disabled{% endif %}>{{ ejercicio.descripcion }}</textarea>
       </div>
 
       <!-- Fecha límite -->
@@ -75,8 +81,7 @@
           <i class="bi bi-clock"></i> Fecha límite
           <span class="optional">(opcional)</span>
         </label>
-        <input type="datetime-local" name="fecha_limite" class="form-control" 
-               value="{{ ejercicio.fecha_limite|date:'Y-m-d\TH:i' }}">
+        <input type="datetime-local" name="fecha_limite" class="form-control" value="{{ ejercicio.fecha_limite|date:'Y-m-d\TH:i' }}" {% if ejercicio.activo %}disabled{% endif %}>
       </div>
 
       <!-- Campos específicos para video quiz -->
@@ -87,7 +92,7 @@
         </label>
         <input type="url" name="video_url" class="form-control" 
                value="{{ ejercicio.video_url|default:'' }}" 
-               placeholder="https://www.youtube.com/watch?v=...">
+               placeholder="https://www.youtube.com/watch?v=..." {% if ejercicio.activo %}disabled{% endif %}>
         <small class="text-muted">Deja vacío si no deseas cambiar el video</small>
       </div>
 
@@ -95,7 +100,7 @@
         <label class="form-label">
           <i class="bi bi-camera-video"></i> O sube un nuevo video
         </label>
-        <input type="file" name="video_principal" class="form-control" accept="video/mp4,video/webm">
+        <input type="file" name="video_principal" class="form-control" accept="video/mp4,video/webm" {% if ejercicio.activo %}disabled{% endif %}>
         {% if ejercicio.video_principal %}
         <small class="text-muted">Video actual: {{ ejercicio.video_principal.name }}</small>
         {% endif %}
@@ -108,7 +113,7 @@
           <i class="bi bi-image"></i> Imagen del ejercicio
           <span class="optional">(opcional)</span>
         </label>
-        <input type="file" name="imagen_principal" class="form-control" accept="image/*">
+        <input type="file" name="imagen_principal" class="form-control" accept="image/*" {% if ejercicio.activo %}disabled{% endif %}>
         {% if ejercicio.imagen_principal %}
         <small class="text-muted">Imagen actual: {{ ejercicio.imagen_principal.name }}</small>
         {% endif %}
@@ -125,7 +130,7 @@
         <a href="/clase/detalle/{{ clase.id }}/" class="btn-cancelar">
           <i class="bi bi-x-lg"></i> Cancelar
         </a>
-        <button type="submit" class="btn-guardar">
+        <button type="submit" class="btn-guardar" {% if ejercicio.activo %}disabled style="opacity: 0.5; cursor: not-allowed;"{% endif %}>
           <i class="bi bi-check-lg"></i> Guardar cambios
         </button>
       </div>
