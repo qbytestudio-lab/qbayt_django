@@ -1,9 +1,15 @@
 from datetime import date, datetime
+
+from urllib import request
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
-from .models import Clase, SolicitudClase, Anuncio, InscripcionClase, HistorialInscripcion
+from django.db.models import Count, Q
+from django.utils import timezone
+from .models import (Clase, SolicitudClase, Anuncio, InscripcionClase, HistorialInscripcion,)
+from ejercicios.models import Ejercicio, IntentoEjercicio
 
 def index(request):
     return render(request, 'clase/index.html')
@@ -183,39 +189,71 @@ def eliminar_clase(request, clase_id):
     if request.method == 'POST':
         clase.delete()
         messages.success(request, "La clase fue eliminada para siempre.")
-        return redirect('mis_clases')
+        return redirect('docente/mis_clases_docente.html')
     
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect('clase/detalle_clase.html', clase_id=clase.id)
 
 
 @login_required
 def detalle_clase(request, clase_id):
+
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
-    
-    # Verificar que la clase pertenece al docente
+
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    
-    # Obtener solicitudes pendientes
+
     solicitudes = clase.solicitudes.filter(estado='pendiente')
-    
-    # Obtener anuncios ordenados por fecha
     anuncios = clase.anuncios.all().order_by('-fecha')
-    
-    # Obtener ejercicios - Verificar la relación correcta
-    # Si tu modelo Clase tiene related_name='ejercicios' en la FK de Ejercicio
     ejercicios = clase.ejercicios.all().order_by('-fecha_creacion')
-    
-    # O si Ejercicio tiene FK a Clase sin related_name específico:
-    # from ejercicios.models import Ejercicio
-    # ejercicios = Ejercicio.objects.filter(clase=clase).order_by('-fecha_creacion')
-    
-    # Debug para verificar
-    print(f"Clase: {clase.nombre}")
-    print(f"Solicitudes: {solicitudes.count()}")
-    print(f"Anuncios: {anuncios.count()}")
-    print(f"Ejercicios: {ejercicios.count()}")
-    
+
+    # Datos para las cards (docente)
+    for ejercicio in ejercicios:
+
+        total_intentos = ejercicio.intentos.count()
+        pendientes = ejercicio.intentos.filter(calificacion__isnull=True).count()
+        calificados = ejercicio.intentos.filter(calificacion__isnull=False).count()
+
+        ejercicio.intentos_total = total_intentos
+        ejercicio.intentos_pendientes = pendientes
+        ejercicio.intentos_calificados = calificados
+
+        # Estado calculado (el template solo lee esto)
+        if not ejercicio.activo:
+            ejercicio.estado_docente = 'desactivado'
+            ejercicio.estado_label_docente = 'Desactivado'
+            ejercicio.estado_icon_docente = 'bi-slash-circle'
+
+        elif ejercicio.esta_vencido:
+
+            # Vencido pero con intentos pendientes por calificar
+            if pendientes > 0:
+                ejercicio.estado_docente = 'pendiente'
+                ejercicio.estado_label_docente = f'{pendientes} por calificar'
+                ejercicio.estado_icon_docente = 'bi-hourglass-split'
+
+            else:
+                ejercicio.estado_docente = 'vencido'
+                ejercicio.estado_label_docente = 'Vencido'
+                ejercicio.estado_icon_docente = 'bi-calendar-x'
+
+        else:
+
+            # Activo → revisar si hay intentos pendientes o calificados
+            if pendientes > 0:
+                ejercicio.estado_docente = 'pendiente'
+                ejercicio.estado_label_docente = f'{pendientes} por calificar'
+                ejercicio.estado_icon_docente = 'bi-hourglass-split'
+
+            elif calificados > 0:
+                ejercicio.estado_docente = 'calificado'
+                ejercicio.estado_label_docente = f'{calificados} entregado{"s" if calificados != 1 else ""}'
+                ejercicio.estado_icon_docente = 'bi-check-circle-fill'
+
+            else:
+                ejercicio.estado_docente = 'activo'
+                ejercicio.estado_label_docente = 'Activo'
+                ejercicio.estado_icon_docente = 'bi-check-circle-fill'
+
     return render(request, 'clase/detalle_clase.html', {
         'clase': clase,
         'solicitudes': solicitudes,
@@ -223,4 +261,3 @@ def detalle_clase(request, clase_id):
         'anuncios': anuncios,
         'ejercicios': ejercicios,
     })
-    

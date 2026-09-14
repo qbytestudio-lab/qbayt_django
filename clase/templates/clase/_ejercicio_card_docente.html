@@ -1,0 +1,42 @@
+{% comment %}
+TARJETA DE EJERCICIO — Vista DOCENTE
+Variables: ejercicio, estado, estado_label, estado_icon, clase
+{% endcomment %}
+
+<div class="ej-card estado-{{ estado }}"
+     onclick="abrirModalEjercicioDocente(this)"
+     data-titulo="{{ ejercicio.titulo|escapejs }}"
+     data-descripcion="{{ ejercicio.descripcion|default:''|escapejs }}"
+     data-tipo="{{ ejercicio.get_tipo_display|default:'Ejercicio'|escapejs }}"
+     data-estado="{{ estado }}"
+     data-estado-label="{{ estado_label|escapejs }}"
+     data-estado-icon="{{ estado_icon }}"
+     data-fecha-limite="{% if ejercicio.fecha_limite %}{{ ejercicio.fecha_limite|date:'d/m/Y H:i' }}{% else %}Sin fecha límite{% endif %}"
+     data-fecha-limite-raw="{% if ejercicio.fecha_limite %}1{% else %}0{% endif %}"
+     data-activo="{% if ejercicio.activo %}1{% else %}0{% endif %}"
+     data-intentos-total="{{ ejercicio.intentos_total|default:0 }}"
+     data-intentos-pendientes="{{ ejercicio.intentos_pendientes|default:0 }}"
+     data-intentos-calificados="{{ ejercicio.intentos_calificados|default:0 }}"
+     data-url-ver="{% url 'ejercicios:detalle_ejercicio_docente' clase.id ejercicio.id %}"
+     data-url-editar="{% url 'editar_ejercicio' clase.id ejercicio.id %}"
+     data-url-toggle="{% url 'ejercicios:toggle_estado_ejercicio' ejercicio.id %}">
+
+    <div class="ej-card-icon">
+        <i class="bi {{ estado_icon }}"></i>
+    </div>
+
+    <h4 class="ej-card-title">{{ ejercicio.titulo }}</h4>
+
+    {% if ejercicio.descripcion %}
+        <p class="ej-card-desc">{{ ejercicio.descripcion }}</p>
+    {% else %}
+        <p class="ej-card-desc ej-card-desc-empty">Sin descripción</p>
+    {% endif %}
+
+    <div class="ej-card-meta">
+        <span class="ej-card-tipo">{{ ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
+        <span class="ej-badge {{ estado }}">
+            <i class="bi {{ estado_icon }}"></i> {{ estado_label }}
+        </span>
+    </div>
+</div>

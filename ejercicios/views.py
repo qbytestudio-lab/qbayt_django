@@ -331,7 +331,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
         if imagen_principal:
             ejercicio.imagen_principal = imagen_principal
         
-        # ✅ GUARDAR RECURSOS
+        # GUARDAR RECURSOS
         recursos_ids = request.POST.getlist('recursos')
         if recursos_ids:
             recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)

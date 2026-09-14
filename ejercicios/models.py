@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.utils import timezone
 
 
 class Ejercicio(models.Model):
@@ -114,6 +115,66 @@ class Ejercicio(models.Model):
                 return f"https://www.youtube.com/embed/{match.group(1)}"
         
         return url
+
+    # ============================================================
+    # PROPIEDADES PARA VALIDACIÓN DE FECHA LÍMITE
+    # ============================================================
+    @property
+    def esta_vencido(self):
+        """True si la fecha límite ya pasó. False si no tiene fecha límite."""
+        if not self.fecha_limite:
+            return False
+        return timezone.now() > self.fecha_limite
+
+    @property
+    def disponible(self):
+        """True si el ejercicio se puede realizar (activo y sin vencer)."""
+        return self.activo and not self.esta_vencido
+
+    @property
+    def estado_estudiante(self):
+        """
+        Devuelve el estado del ejercicio para el estudiante:
+          - 'desactivado' si activo=False
+          - 'vencido'     si la fecha límite ya pasó
+          - 'disponible'  si se puede realizar
+        """
+        if not self.activo:
+            return 'desactivado'
+        if self.esta_vencido:
+            return 'vencido'
+        return 'disponible'
+
+    @property
+    def tiempo_restante(self):
+        """
+        Devuelve un dict con días, horas y minutos restantes hasta la fecha límite.
+        Si no hay fecha límite o ya venció, devuelve None.
+        """
+        if not self.fecha_limite or self.esta_vencido:
+            return None
+        
+        delta = self.fecha_limite - timezone.now()
+        total_segundos = int(delta.total_seconds())
+        
+        dias = total_segundos // 86400
+        horas = (total_segundos % 86400) // 3600
+        minutos = (total_segundos % 3600) // 60
+        
+        return {
+            'dias': dias,
+            'horas': horas,
+            'minutos': minutos,
+            'total_segundos': total_segundos,
+        }
+
+    @property
+    def vence_pronto(self):
+        """True si la fecha límite está a menos de 24 horas."""
+        if not self.fecha_limite or self.esta_vencido:
+            return False
+        delta = self.fecha_limite - timezone.now()
+        return delta.total_seconds() < 86400  # menos de 24h
 
     class Meta:
         verbose_name = "Ejercicio"

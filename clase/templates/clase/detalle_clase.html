@@ -268,38 +268,20 @@
                         </button>
                     </div>
 
-                    <div class="ejercicios-container mt-3">
-                        {% if ejercicios %}
+                    {% if ejercicios %}
+                        <div class="ejercicios-grid">
                             {% for ejercicio in ejercicios %}
-                            <div class="ejercicio-item">
-                                <div class="ejercicio-info-wrapper">
-                                    <h4 class="ejercicio-titulo">{{ ejercicio.titulo }}</h4>
-                                    {% if ejercicio.descripcion %}
-                                    <p class="ejercicio-descripcion">{{ ejercicio.descripcion }}</p>
-                                    {% endif %}
-                                    <span class="ejercicio-tipo-badge">{{ ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
-                                </div>
-                                
-                                <div class="ejercicio-actions">
-                                    <!-- Botón Ver -->
-                                    <a href="{% url 'ejercicios:detalle_ejercicio_docente' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-preguntas">
-                                        <i class="bi bi-eye"></i> Ver
-                                    </a>
-                                    
-                                    <!-- Botón Editar - AHORA ES UN ENLACE DIRECTO -->
-                                    <a href="{% url 'editar_ejercicio' clase.id ejercicio.id %}" class="btn-ejercicio btn-ejercicio-editar" title="Editar ejercicio">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                </div>
-                            </div>
+                                {% with estado=ejercicio.estado_docente estado_label=ejercicio.estado_label_docente estado_icon=ejercicio.estado_icon_docente %}
+                                    {% include 'clase/_ejercicio_card_docente.html' %}
+                                {% endwith %}
                             {% endfor %}
-                        {% else %}
-                            <p class="empty-msg text-center py-3">
-                                <i class="bi bi-collection me-2"></i>
-                                No hay ejercicios creados aún. ¡Crea el primero!
-                            </p>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% else %}
+                        <p class="empty-msg text-center py-3">
+                            <i class="bi bi-collection me-2"></i>
+                            No hay ejercicios creados aún. ¡Crea el primero!
+                        </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -443,7 +425,6 @@
                         <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
                     </a>
                     
-                    
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
                         <h4 class="option-title">Juego Interactivo</h4>
@@ -473,6 +454,70 @@
                 </button>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- =====================================================
+     MODAL DE DETALLE DEL EJERCICIO — VISTA DOCENTE
+     ===================================================== -->
+<div class="ej-modal-backdrop" id="ejModalBackdropDocente" onclick="cerrarModalEjercicioDocente()"></div>
+
+<div class="ej-modal" id="ejModalDocente" role="dialog" aria-modal="true">
+    <div class="ej-modal-header">
+        <button class="ej-modal-close" onclick="cerrarModalEjercicioDocente()" aria-label="Cerrar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <div class="ej-modal-header-icon" id="ejModalHeaderIconDocente">
+            <i class="bi bi-collection-play-fill"></i>
+        </div>
+        <h3 class="ej-modal-title" id="ejModalTitleDocente">Título del ejercicio</h3>
+        <div class="ej-modal-badges" id="ejModalBadgesDocente"></div>
+    </div>
+
+    <div class="ej-modal-body">
+        <div class="ej-modal-alert" id="ejModalAlertDocente" style="display:none;"></div>
+
+        <p class="ej-modal-desc" id="ejModalDescDocente"></p>
+
+        <div class="ej-modal-info">
+            <div class="ej-modal-info-item">
+                <span class="ej-modal-info-label">Tipo</span>
+                <span class="ej-modal-info-value" id="ejModalTipoDocente">—</span>
+            </div>
+            <div class="ej-modal-info-item">
+                <span class="ej-modal-info-label">Fecha límite</span>
+                <span class="ej-modal-info-value" id="ejModalFechaDocente">—</span>
+            </div>
+            <div class="ej-modal-info-item">
+                <span class="ej-modal-info-label">Intentos totales</span>
+                <span class="ej-modal-info-value" id="ejModalIntentosTotalDocente">—</span>
+            </div>
+            <div class="ej-modal-info-item">
+                <span class="ej-modal-info-label">Por calificar</span>
+                <span class="ej-modal-info-value" id="ejModalIntentosPendientesDocente">—</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="ej-modal-footer" style="flex-wrap: wrap;">
+        <button class="ej-btn ej-btn-secondary" onclick="cerrarModalEjercicioDocente()">
+            Cerrar
+        </button>
+
+        <form method="POST" id="ejModalToggleForm" style="display:inline; margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="ej-btn ej-btn-toggle" id="ejModalToggleBtn">
+                <i class="bi bi-power"></i> Cambiar estado
+            </button>
+        </form>
+
+        <a href="#" class="ej-btn ej-btn-edit" id="ejModalEditBtn">
+            <i class="bi bi-pencil"></i> Editar
+        </a>
+
+        <a href="#" class="ej-btn ej-btn-primary" id="ejModalVerBtn">
+            <i class="bi bi-eye"></i> Ver entregas
+        </a>
     </div>
 </div>
 
@@ -555,5 +600,113 @@
     setTimeout(() => {
         document.querySelectorAll('.alert').forEach(a => new bootstrap.Alert(a).close());
     }, 4000);
+
+    /* =====================================================
+       MODAL DE DETALLE DEL EJERCICIO — VISTA DOCENTE
+       ===================================================== */
+
+    function abrirModalEjercicioDocente(card) {
+        const d = card.dataset;
+
+        const backdrop = document.getElementById('ejModalBackdropDocente');
+        const modal    = document.getElementById('ejModalDocente');
+
+        document.getElementById('ejModalTitleDocente').textContent = d.titulo;
+        document.getElementById('ejModalDescDocente').textContent  = d.descripcion || 'Sin descripción disponible.';
+        document.getElementById('ejModalTipoDocente').textContent  = d.tipo || 'Ejercicio';
+        document.getElementById('ejModalFechaDocente').textContent = d.fechaLimite || 'Sin fecha límite';
+        document.getElementById('ejModalIntentosTotalDocente').textContent       = d.intentosTotal || '0';
+        document.getElementById('ejModalIntentosPendientesDocente').textContent  = d.intentosPendientes || '0';
+
+        // Icono dinámico
+        const iconWrap = document.getElementById('ejModalHeaderIconDocente');
+        let iconClass = 'bi-collection-play-fill';
+        if (d.estado === 'vencido')       iconClass = 'bi-calendar-x';
+        if (d.estado === 'desactivado')   iconClass = 'bi-slash-circle';
+        if (d.estado === 'pendiente')     iconClass = 'bi-hourglass-split';
+        if (d.estado === 'calificado')    iconClass = 'bi-check-circle-fill';
+        iconWrap.innerHTML = `<i class="bi ${iconClass}"></i>`;
+
+        // Badge
+        document.getElementById('ejModalBadgesDocente').innerHTML =
+            `<span class="ej-badge ${d.estado}">
+                <i class="bi ${d.estadoIcon}"></i> ${d.estadoLabel}
+            </span>`;
+
+        // Aviso contextual
+        const alertBox = document.getElementById('ejModalAlertDocente');
+        alertBox.className = 'ej-modal-alert';
+        alertBox.style.display = 'none';
+
+        if (d.estado === 'vencido') {
+            alertBox.classList.add('alert-danger');
+            alertBox.innerHTML = `<i class="bi bi-calendar-x"></i>
+                <div>La fecha límite de este ejercicio ya pasó.</div>`;
+            alertBox.style.display = 'flex';
+        } else if (d.estado === 'desactivado') {
+            alertBox.classList.add('alert-warning');
+            alertBox.innerHTML = `<i class="bi bi-slash-circle"></i>
+                <div>Este ejercicio está desactivado. Los estudiantes no pueden realizarlo.</div>`;
+            alertBox.style.display = 'flex';
+        } else if (d.estado === 'pendiente') {
+            alertBox.classList.add('alert-info');
+            alertBox.innerHTML = `<i class="bi bi-hourglass-split"></i>
+                <div>Tienes <strong>${d.intentosPendientes}</strong> intento(s) pendiente(s) por calificar.</div>`;
+            alertBox.style.display = 'flex';
+        } else if (d.estado === 'calificado') {
+            alertBox.classList.add('alert-success');
+            alertBox.innerHTML = `<i class="bi bi-check-circle-fill"></i>
+                <div>Este ejercicio ya tiene entregas calificadas.</div>`;
+            alertBox.style.display = 'flex';
+        }
+
+        // Botones de acción
+        document.getElementById('ejModalVerBtn').href    = d.urlVer;
+        document.getElementById('ejModalEditBtn').href   = d.urlEditar;
+        document.getElementById('ejModalToggleForm').action = d.urlToggle;
+
+        // Cambiar texto del botón toggle según estado actual
+        const toggleBtn = document.getElementById('ejModalToggleBtn');
+        if (d.activo === '1') {
+            toggleBtn.innerHTML = '<i class="bi bi-pause-circle"></i> Desactivar';
+            toggleBtn.classList.remove('ej-btn-success');
+            toggleBtn.classList.add('ej-btn-warning');
+        } else {
+            toggleBtn.innerHTML = '<i class="bi bi-play-circle"></i> Activar';
+            toggleBtn.classList.remove('ej-btn-warning');
+            toggleBtn.classList.add('ej-btn-success');
+        }
+
+        backdrop.classList.add('show');
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function cerrarModalEjercicioDocente() {
+        document.getElementById('ejModalBackdropDocente').classList.remove('show');
+        document.getElementById('ejModalDocente').classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') cerrarModalEjercicioDocente();
+    });
+
+    // Animación de entrada
+    const observerDocente = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.ej-card, .announcement-item').forEach((item, i) => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(15px)';
+        item.style.transition = `all 0.4s ease ${i * 0.05}s`;
+        observerDocente.observe(item);
+    });
 </script>
 {% endblock %}

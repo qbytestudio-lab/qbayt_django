@@ -52,35 +52,35 @@ def agregar_estudiante(request, clase_id):
         username = request.POST.get('username', '').strip()
         try:
             estudiante = User.objects.get(username=username, perfil__rol='estudiante')
+            
+            # Verificar si ya está en ESTA clase
             if estudiante in clase.estudiantes.all():
                 messages.warning(request, f'"{username}" ya está en esta clase.')
+            
             else:
-                # 🚫 1. RESTRICCIÓN POR TÍTULO EXACTO
-                clase_mismo_titulo = Clase.objects.filter(
+                # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
+                clase_duplicada = Clase.objects.filter(
                     nombre__iexact=clase.nombre,
+                    categoria_tema=clase.categoria_tema,
                     estudiantes=estudiante
                 ).exclude(id=clase.id).exists()
 
-                if clase_mismo_titulo:
-                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otro curso con el mismo título ("{clase.nombre}").')
+                if clase_duplicada:
+                    messages.error(
+                        request, 
+                        f'El estudiante "{username}" ya está inscrito en otra clase con el mismo título ("{clase.nombre}") y la misma categoría.'
+                    )
                 
                 else:
-                    # 2. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema' (Tu validación previa)
-                    clases_misma_categoria = Clase.objects.filter(
-                        categoria_tema=clase.categoria_tema,
-                        estudiantes=estudiante
-                    ).exclude(id=clase.id)
+                    #  Si pasa la validación, lo agregamos normalmente
+                    clase.estudiantes.add(estudiante)
                     
-                    if clases_misma_categoria.exists():
-                        otra_clase = clases_misma_categoria.first()
-                        messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
-                    else:
-                        # 3. Si pasa todas las validaciones, lo agregamos normalmente
-                        clase.estudiantes.add(estudiante)
-                        SolicitudClase.objects.filter(
-                            clase=clase, estudiante=estudiante
-                        ).update(estado='aceptada')
-                        messages.success(request, f'"{username}" agregado a la clase.')
+                    # Actualizar solicitud si existe
+                    SolicitudClase.objects.filter(
+                        clase=clase, estudiante=estudiante
+                    ).update(estado='aceptada')
+                    
+                    messages.success(request, f'"{username}" agregado a la clase.')
                 
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
@@ -134,19 +134,23 @@ def aceptar_solicitud(request, solicitud_id):
     
     solicitud = get_object_or_404(SolicitudClase, id=solicitud_id, clase__docente=request.user)
     
-    # 🚫 1. RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en otra clase con el mismo nombre
-    clase_mismo_titulo = Clase.objects.filter(
+    # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
+    clase_duplicada = Clase.objects.filter(
         nombre__iexact=solicitud.clase.nombre,
+        categoria_tema=solicitud.clase.categoria_tema,
         estudiantes=solicitud.estudiante
     ).exclude(id=solicitud.clase.id).exists()
 
-    if clase_mismo_titulo:
-        messages.error(request, f'No se pudo aceptar. El estudiante "{solicitud.estudiante.username}" ya está inscrito en otro curso con el título "{solicitud.clase.nombre}".')
+    if clase_duplicada:
+        messages.error(
+            request, 
+            f'No se pudo aceptar. El estudiante "{solicitud.estudiante.username}" ya está inscrito en otra clase con el mismo título ("{solicitud.clase.nombre}") y la misma categoría.'
+        )
         solicitud.estado = 'rechazada'
         solicitud.save()
         return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
-    # 2. Si pasa la validación, lo acepta e inscribe
+    #  Si pasa la validación, lo acepta e inscribe
     solicitud.clase.estudiantes.add(solicitud.estudiante)
     solicitud.estado = 'aceptada'
     solicitud.save()
@@ -159,41 +163,42 @@ def aceptar_solicitud(request, solicitud_id):
 def agregar_estudiante(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
+    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         try:
             estudiante = User.objects.get(username=username, perfil__rol='estudiante')
+            
+            # Verificar si ya está en ESTA clase
             if estudiante in clase.estudiantes.all():
                 messages.warning(request, f'"{username}" ya está en esta clase.')
+            
             else:
-                # 🚫 1. RESTRICCIÓN POR TÍTULO EXACTO
-                clase_mismo_titulo = Clase.objects.filter(
+                # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
+                clase_duplicada = Clase.objects.filter(
                     nombre__iexact=clase.nombre,
+                    categoria_tema=clase.categoria_tema,
                     estudiantes=estudiante
                 ).exclude(id=clase.id).exists()
 
-                if clase_mismo_titulo:
-                    messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otro curso con el mismo título ("{clase.nombre}").')
+                if clase_duplicada:
+                    messages.error(
+                        request, 
+                        f'El estudiante "{username}" ya está inscrito en otra clase con el mismo título ("{clase.nombre}") y la misma categoría.'
+                    )
                 
                 else:
-                    # 2. VERIFICAR SI YA ESTÁ EN OTRA CLASE DE LA MISMA CATEGORÍA USANDO 'categoria_tema' (Tu validación previa)
-                    clases_misma_categoria = Clase.objects.filter(
-                        categoria_tema=clase.categoria_tema,
-                        estudiantes=estudiante
-                    ).exclude(id=clase.id)
+                    #  Si pasa la validación, lo agregamos normalmente
+                    clase.estudiantes.add(estudiante)
                     
-                    if clases_misma_categoria.exists():
-                        otra_clase = clases_misma_categoria.first()
-                        messages.error(request, f'El estudiante "{username}" ya se encuentra inscrito en otra clase de la misma categoría/tema ("{otra_clase.nombre}").')
-                    else:
-                        # 3. Si pasa todas las validaciones, lo agregamos normalmente
-                        clase.estudiantes.add(estudiante)
-                        SolicitudClase.objects.filter(
-                            clase=clase, estudiante=estudiante
-                        ).update(estado='aceptada')
-                        messages.success(request, f'"{username}" agregado a la clase.')
+                    # Actualizar solicitud si existe
+                    SolicitudClase.objects.filter(
+                        clase=clase, estudiante=estudiante
+                    ).update(estado='aceptada')
+                    
+                    messages.success(request, f'"{username}" agregado a la clase.')
                 
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
