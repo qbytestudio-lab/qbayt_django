@@ -18,6 +18,10 @@ from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor
 import io
+from web.utils import enviar_correo_verificacion
+from web.tokens import generador_token_verificacion
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
 
 
 def index(request):
@@ -153,47 +157,73 @@ def registro(request):
         email = request.POST.get('email')
         password1 = request.POST.get('password1')
         password2 = request.POST.get('password2')
-        rol = request.POST.get('rol', 'estudiante')  # Por defecto estudiante
+        rol = request.POST.get('rol', 'estudiante')
 
         if password1 != password2:
             messages.error(request, 'Las contraseñas no coinciden.')
             return redirect('registro')
 
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'El usuario ya existe.')
+            messages.error(request, 'El nombre de usuario ya está en uso.')
             return redirect('registro')
 
-        # Creamos el usuario de una vez sin pasar por sesiones temporales
+        if User.objects.filter(email=email).exists():
+            messages.error(request, 'Ese correo ya está registrado.')
+            return redirect('registro')
+
         user = User.objects.create_user(
             username=username,
             email=email,
             password=password1,
             first_name=first_name,
             last_name=last_name,
+            is_active=False,
         )
-        
-        # Creamos su perfil con el rol correspondiente
+
         Perfil.objects.create(user=user, rol=rol)
-        
-        # Iniciamos sesión automáticamente y mandamos éxito
-        login(request, user)
-        messages.success(request, '¡Cuenta creada con éxito!')
-        return redirect('inicio')
+
+        try:
+            enviar_correo_verificacion(request, user)   # 👈 ESTA LÍNEA
+            messages.success(request, f'Te enviamos un correo a {email}...')
+        except Exception as e:
+            messages.warning(request, f'Cuenta creada pero no se pudo enviar el correo: {e}')
+
+        return redirect('login')
 
     return render(request, 'web/registro.html')
 
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '')
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # 🔒 Bloquear si la cuenta no está verificada
+            if not user.is_active:
+                messages.error(
+                    request,
+                    'Debes verificar tu correo antes de iniciar sesión. Revisa tu bandeja.'
+                )
+                return redirect('login')
+
             login(request, user)
             return redirect('inicio')
-        else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')
-            return redirect('login')
+
+        # Verificar si existe pero está inactivo
+        try:
+            u = User.objects.get(username=username)
+            if not u.is_active:
+                messages.warning(
+                    request,
+                    'Tu cuenta existe pero aún no está verificada. Revisa tu correo.'
+                )
+                return redirect('login')
+        except User.DoesNotExist:
+            pass
+
+        messages.error(request, 'Usuario o contraseña incorrectos.')
+        return redirect('login')
 
     return render(request, 'web/login.html')
 
@@ -794,3 +824,50 @@ def descargar_certificado(request, clase_id):
         response['Content-Disposition'] = f'attachment; filename="certificado_{clase.nombre}.html"'
         
         return response
+
+def verificar_correo(request, uidb64, token):
+    """
+    Vista que activa la cuenta al hacer clic en el link del correo.
+    """
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        user = None
+
+    if user is not None and generador_token_verificacion.check_token(user, token):
+        if user.is_active:
+            messages.info(request, 'Tu cuenta ya estaba verificada. Puedes iniciar sesión.')
+            return redirect('login')
+
+        user.is_active = True
+        user.save(update_fields=['is_active'])
+
+        messages.success(request, '¡Cuenta verificada con éxito! Ya puedes iniciar sesión.')
+        return redirect('login')
+    else:
+        return render(request, 'web/verificacion_fallida.html')
+
+def reenviar_verificacion(request):
+    """
+    Permite reenviar el correo de verificación si el usuario lo perdió.
+    """
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+
+        try:
+            user = User.objects.get(email=email)
+
+            if user.is_active:
+                messages.info(request, 'Esa cuenta ya está verificada. Puedes iniciar sesión.')
+                return redirect('login')
+
+            enviar_correo_verificacion(request, user)
+            messages.success(request, f'Reenviamos el correo a {email}. Revisa tu bandeja.')
+            return redirect('login')
+
+        except User.DoesNotExist:
+            messages.error(request, 'No existe ninguna cuenta con ese correo.')
+            return redirect('reenviar_verificacion')
+
+    return render(request, 'web/reenviar_verificacion.html')

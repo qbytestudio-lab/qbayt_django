@@ -1,0 +1,28 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Verificación fallida — QBYT{% endblock %}
+
+{% block content %}
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 3rem; max-width: 500px; text-align: center;">
+        <div style="font-size: 4rem; color: #ef4444; margin-bottom: 1rem;">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <h1 style="font-family: 'Syne', sans-serif; font-size: 1.8rem; margin-bottom: 1rem;">
+            Link inválido o expirado
+        </h1>
+        <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.6;">
+            El enlace de verificación ya no es válido. Puede que ya hayas verificado tu cuenta o que el enlace haya expirado.
+        </p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'login' %}" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 700;">
+                Iniciar sesión
+            </a>
+            <a href="{% url 'reenviar_verificacion' %}" style="background: var(--bg-hover); color: var(--text-primary); padding: 0.75rem 1.5rem; border-radius: 10px; text-decoration: none; font-weight: 700; border: 1px solid var(--border-color);">
+                Reenviar correo
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

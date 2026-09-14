@@ -62,6 +62,15 @@
                 {% endfor %}
                 {% endif %}
 
+                <!-- AVISO DE VERIFICACIÓN DE CORREO -->
+                <div class="verify-notice">
+                    <i class="bi bi-envelope-check-fill verify-notice-icon"></i>
+                    <div class="verify-notice-text">
+                        <strong>Verificación por correo</strong>
+                        <span>Te enviaremos un enlace a tu correo para activar tu cuenta antes de poder iniciar sesión.</span>
+                    </div>
+                </div>
+
                 <form method="POST" action="{% url 'registro' %}">
                     {% csrf_token %}
 

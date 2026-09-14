@@ -1,0 +1,44 @@
+{% extends 'web/base.html' %}
+
+{% block title %}Reenviar verificación — QBYT{% endblock %}
+
+{% block content %}
+<div style="min-height: 70vh; display: flex; align-items: center; justify-content: center; padding: 2rem;">
+    <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 3rem; max-width: 500px; width: 100%;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; color: #8b5cf6; margin-bottom: 1rem;">
+                <i class="bi bi-envelope-arrow-up-fill"></i>
+            </div>
+            <h1 style="font-family: 'Syne', sans-serif; font-size: 1.6rem; margin-bottom: 0.5rem;">
+                Reenviar verificación
+            </h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Te enviaremos un nuevo enlace a tu correo
+            </p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display: block; color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">
+                    Correo electrónico
+                </label>
+                <input type="email" name="email" required
+                       placeholder="tu@correo.com"
+                       style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-hover); border: 1px solid var(--border-color); border-radius: 10px; color: var(--text-primary); font-size: 0.95rem; outline: none;">
+            </div>
+
+            <button type="submit"
+                    style="width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; border: none; border-radius: 10px; font-weight: 700; font-size: 1rem; cursor: pointer;">
+                Enviar nuevo enlace
+            </button>
+        </form>
+
+        <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.85rem;">
+            <a href="{% url 'login' %}" style="color: #8b5cf6; text-decoration: none; font-weight: 600;">
+                ← Volver al login
+            </a>
+        </p>
+    </div>
+</div>
+{% endblock %}
