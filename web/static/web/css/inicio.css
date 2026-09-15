@@ -17,7 +17,7 @@
   --accent-orange: #ff9f43;
   --accent-blue: #40a9ff;
   --danger: #e91429;
-  
+
   /* Superficies */
   --bg-body: #121212;
   --bg-card: #181818;
@@ -45,7 +45,7 @@
   --accent-orange: #f59e0b;
   --accent-blue: #06b6d4;
   --danger: #ef4444;
-  
+
   --bg-body: #f8f9fe;
   --bg-card: #ffffff;
   --bg-hover: #f0f2ff;
@@ -98,6 +98,7 @@ body {
   height: 400px;
   background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
   border-radius: 50%;
+  pointer-events: none;
 }
 
 .hero-banner::after {
@@ -109,11 +110,13 @@ body {
   height: 250px;
   background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
   border-radius: 50%;
+  pointer-events: none;
 }
 
 .hero-content {
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .hero-greeting {
@@ -155,6 +158,7 @@ body {
   gap: 0.5rem;
   backdrop-filter: blur(10px);
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .btn-hero:hover {
@@ -202,13 +206,11 @@ body {
 .stat-card::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   border-radius: 16px;
   opacity: 0;
   transition: opacity 0.3s;
+  pointer-events: none;
 }
 
 .stat-card:hover {
@@ -220,18 +222,10 @@ body {
   opacity: 1;
 }
 
-.stat-gradient-green::before {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent);
-}
-.stat-gradient-purple::before {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), transparent);
-}
-.stat-gradient-pink::before {
-  background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), transparent);
-}
-.stat-gradient-orange::before {
-  background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), transparent);
-}
+.stat-gradient-green::before  { background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent); }
+.stat-gradient-purple::before { background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), transparent); }
+.stat-gradient-pink::before   { background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), transparent); }
+.stat-gradient-orange::before { background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), transparent); }
 
 .stat-icon-wrapper {
   width: 50px;
@@ -246,15 +240,16 @@ body {
   z-index: 1;
 }
 
-.stat-gradient-green .stat-icon-wrapper { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
+.stat-gradient-green .stat-icon-wrapper  { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
 .stat-gradient-purple .stat-icon-wrapper { background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); }
-.stat-gradient-pink .stat-icon-wrapper { background: rgba(236, 72, 153, 0.12); color: var(--accent-pink); }
+.stat-gradient-pink .stat-icon-wrapper   { background: rgba(236, 72, 153, 0.12); color: var(--accent-pink); }
 .stat-gradient-orange .stat-icon-wrapper { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
 
-.stat-content { 
-  flex: 1; 
+.stat-content {
+  flex: 1;
   position: relative;
   z-index: 1;
+  min-width: 0;
 }
 
 .stat-value {
@@ -296,6 +291,7 @@ body {
   align-items: center;
   margin-bottom: 1.5rem;
   margin-top: 0.5rem;
+  gap: 1rem;
 }
 
 .section-title {
@@ -306,12 +302,13 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  margin: 0;
 }
 
 .section-title i { font-size: 1.6rem; }
-.section-title .icon-green { color: var(--spotify-green); }
+.section-title .icon-green  { color: var(--spotify-green); }
 .section-title .icon-purple { color: var(--accent-purple); }
-.section-title .icon-pink { color: var(--accent-pink); }
+.section-title .icon-pink   { color: var(--accent-pink); }
 .section-title .icon-orange { color: var(--accent-orange); }
 
 .see-all-link {
@@ -325,9 +322,10 @@ body {
   display: flex;
   align-items: center;
   gap: 0.3rem;
+  white-space: nowrap;
 }
 
-.see-all-link:hover { 
+.see-all-link:hover {
   color: var(--spotify-green);
 }
 
@@ -391,10 +389,7 @@ body {
 
 .course-card-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.7) 100%);
   opacity: 0;
   transition: opacity 0.3s;
@@ -447,7 +442,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*    ETIQUETAS DE CATEGORÍA (ARMONÍA, RITMO, MELODÍA) */
+/*    ETIQUETAS DE CATEGORÍA                  */
 /* ═══════════════════════════════════════════ */
 
 .course-level {
@@ -462,31 +457,24 @@ body {
   gap: 0.3rem;
 }
 
-/* Armonía - Verde */
 .course-level.armonia {
   background: rgba(16, 185, 129, 0.12);
   color: var(--spotify-green);
   border: 1px solid rgba(16, 185, 129, 0.25);
 }
-
-/* Ritmo - Naranja */
 .course-level.ritmo {
   background: rgba(245, 158, 11, 0.12);
   color: var(--accent-orange);
   border: 1px solid rgba(245, 158, 11, 0.25);
 }
-
-/* Melodía - Púrpura */
 .course-level.melodia {
   background: rgba(139, 92, 246, 0.12);
   color: var(--accent-purple);
   border: 1px solid rgba(139, 92, 246, 0.25);
 }
-
-/* Niveles */
-.course-level.basico { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
+.course-level.basico     { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
 .course-level.intermedio { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
-.course-level.avanzado { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
+.course-level.avanzado   { background: rgba(239, 68, 68, 0.12); color: var(--danger); }
 
 .course-duration {
   color: var(--text-secondary);
@@ -701,25 +689,170 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */
-/*         RESPONSIVE                         */
+/*         RESPONSIVE - TABLET                */
 /* ═══════════════════════════════════════════ */
 
 @media (max-width: 992px) {
-  .courses-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+  .inicio-container { padding: 1.25rem 1.5rem; }
+
   .hero-banner { padding: 2rem 1.5rem; }
   .hero-greeting { font-size: 1.8rem; }
+  .hero-subtitle { font-size: 0.95rem; }
+
+  .courses-grid { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.25rem; }
+
+  .stat-card { padding: 1.25rem; }
+  .stat-icon-wrapper { width: 44px; height: 44px; font-size: 1.2rem; }
+  .stat-value { font-size: 1.4rem; }
 }
+
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE - MOBILE                */
+/* ═══════════════════════════════════════════ */
 
 @media (max-width: 768px) {
   .inicio-container { padding: 1rem; }
-  .hero-banner { flex-direction: column; text-align: center; }
-  .hero-actions { justify-content: center; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .courses-grid { grid-template-columns: 1fr; }
-  .modal-footer-action { text-align: center; }
+
+  /* Hero */
+  .hero-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+    margin-bottom: 1.5rem;
+    gap: 1.25rem;
+  }
+
+  .hero-greeting { font-size: 1.5rem; }
+  .hero-subtitle { font-size: 0.88rem; }
+
+  .hero-actions {
+    justify-content: center;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .btn-hero {
+    padding: 0.55rem 1.15rem;
+    font-size: 0.78rem;
+    flex: 1;
+    justify-content: center;
+    min-width: 0;
+  }
+
+  /* Stats */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+    border-radius: 14px;
+    gap: 0.75rem;
+  }
+
+  .stat-icon-wrapper {
+    width: 38px;
+    height: 38px;
+    font-size: 1.05rem;
+    border-radius: 10px;
+  }
+
+  .stat-value { font-size: 1.25rem; }
+  .stat-label { font-size: 0.72rem; }
+
+  .stat-trend { font-size: 1rem; }
+
+  /* Section headers */
+  .section-header {
+    margin-bottom: 1rem;
+    margin-top: 0.25rem;
+  }
+
+  .section-title {
+    font-size: 1.1rem;
+    gap: 0.5rem;
+  }
+  .section-title i { font-size: 1.25rem; }
+
+  .see-all-link {
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
+  }
+
+  /* Courses grid */
+  .courses-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .course-card-body { padding: 1rem; }
+  .course-title { font-size: 0.95rem; }
+  .course-description { font-size: 0.78rem; }
+
+  /* Modal */
+  .modal-header { padding: 1.15rem !important; }
+  .modal-body { padding: 1.15rem !important; }
+  .modal-image { height: 170px; margin-bottom: 1rem; }
+
+  .modal-title { font-size: 1.1rem; }
+  .modal-footer-action { text-align: center; margin-top: 1rem; padding-top: 1rem; }
+  .modal-footer-action form { display: block; }
+  .btn-spotify-success { width: 100%; justify-content: center; }
+
+  .clase-descripcion-full { padding: 1rem; }
 }
 
+/* ═══════════════════════════════════════════ */
+/*         RESPONSIVE - MOBILE PEQUEÑO        */
+/* ═══════════════════════════════════════════ */
+
 @media (max-width: 480px) {
+  .inicio-container { padding: 0.75rem; }
+
+  /* Hero */
+  .hero-banner { padding: 1.5rem 1rem; border-radius: 14px; }
+  .hero-greeting { font-size: 1.3rem; }
+  .hero-subtitle { font-size: 0.82rem; }
+
+  .hero-actions {
+    flex-direction: row;
+    gap: 0.4rem;
+  }
+
+  .btn-hero {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.72rem;
+    gap: 0.35rem;
+  }
+
+  /* Stats - una columna */
   .stats-grid { grid-template-columns: 1fr; }
-  .hero-greeting { font-size: 1.5rem; }
+
+  .stat-card { padding: 0.9rem; gap: 0.65rem; }
+  .stat-icon-wrapper { width: 36px; height: 36px; font-size: 1rem; }
+  .stat-value { font-size: 1.15rem; }
+  .stat-label { font-size: 0.7rem; }
+
+  /* Section headers */
+  .section-title { font-size: 1rem; }
+  .section-title i { font-size: 1.1rem; }
+  .see-all-link span { display: none; } /* opcional: ocultar texto, dejar solo flecha */
+
+  /* Course cards */
+  .course-card-fallback { font-size: 2.5rem; min-height: 150px; }
+  .course-card-body { padding: 0.85rem; }
+  .course-title { font-size: 0.9rem; }
+  .course-description { font-size: 0.75rem; -webkit-line-clamp: 3; }
+
+  .course-level { font-size: 0.65rem; padding: 0.2rem 0.6rem; }
+  .course-duration { font-size: 0.7rem; }
+
+  /* Modal */
+  .modal-image { height: 140px; }
+  .modal-section-title { font-size: 0.9rem; }
+  .clase-descripcion-full p { font-size: 0.85rem; }
 }
