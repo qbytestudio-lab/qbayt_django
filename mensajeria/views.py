@@ -5,43 +5,40 @@ from django.contrib.auth.models import User
 from clase.models import Clase
 from .models import Conversacion, Mensaje
 from notificaciones.services import crear_notificacion
+from django.db.models import Count
 
 
 @login_required
 def listar_conversaciones(request):
-    """
-    Vista principal de mensajería
-    """
-    # Obtener clases según el rol
-    if request.user.perfil.rol == 'docente':
-        clases = Clase.objects.filter(docente=request.user)
-    else:
-        clases = request.user.clases_estudiante.all()
-    
-    # Obtener conversaciones
+    # Solo conversaciones donde participa el usuario Y que tengan al menos 2 participantes
     conversaciones = Conversacion.objects.filter(
         participantes=request.user
-    ).order_by('-ultimo_mensaje', '-fecha_creacion')
-    
-    conversaciones_info = []
-    for conversacion in conversaciones:
-        otro_participante = conversacion.obtener_otro_participante(request.user)
-        no_leidos = conversacion.contar_no_leidos(request.user)
-        ultimo_mensaje = conversacion.mensajes.last()
-        
-        conversaciones_info.append({
-            'conversacion': conversacion,
-            'otro_participante': otro_participante,
-            'no_leidos': no_leidos,
-            'ultimo_mensaje': ultimo_mensaje,
-        })
-    
-    context = {
-        'clases': clases,
-        'conversaciones': conversaciones_info,
-    }
-    return render(request, 'mensajeria/lista_conversaciones.html', context)
+    ).annotate(
+        num_participantes=Count('participantes')
+    ).filter(
+        num_participantes__gte=2  # filtra las huérfanas
+    ).distinct()
 
+    items = []
+    for conv in conversaciones:
+        # Buscar el "otro" participante (que no sea el usuario actual)
+        otro = conv.participantes.exclude(id=request.user.id).first()
+
+        # Si no hay otro, saltar esta conversación (defensivo)
+        if otro is None:
+            continue
+
+        ultimo = conv.mensajes.order_by('-fecha_envio').first()
+
+        items.append({
+            'conversacion': conv,
+            'otro_participante': otro,
+            'ultimo_mensaje': ultimo,
+        })
+
+    return render(request, 'mensajeria/lista_conversaciones.html', {
+        'items': items,
+    })
 
 @login_required
 def contactos_clase(request, clase_id):
