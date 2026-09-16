@@ -9,4 +9,6 @@ urlpatterns = [
     path('editar/<int:clase_id>/', views.editar_clase, name='editar_clase'),
     path('eliminar/<int:clase_id>/', views.eliminar_clase, name='eliminar_clase'),
     path('detalle/<int:clase_id>/', views.detalle_clase, name='detalle_clase'),
+    path('<int:clase_id>/toggle-estado/', views.toggle_estado_clase, name='toggle_estado_clase'),
+    path('<int:clase_id>/extender-fecha/', views.extender_fecha_clase, name='extender_fecha_clase'),
 ]

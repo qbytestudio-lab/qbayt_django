@@ -12,7 +12,8 @@
 {% block content %}
 
 <div class="contactos-container">
-    
+
+    <!-- Header -->
     <div class="contactos-header">
         <a href="{% url 'mensajeria:lista' %}" class="btn-volver">
             <i class="bi bi-arrow-left"></i>
@@ -23,6 +24,34 @@
         </div>
     </div>
 
+    <!-- Chat grupal -->
+    {% if conversacion_clase %}
+    <a href="{% url 'mensajeria:detalle' conversacion_clase.id %}" class="contacto-item grupo-card">
+        <div class="contacto-avatar avatar-grupo">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="contacto-info">
+            <div class="contacto-nombre">
+                Chat grupal de la clase
+                <span class="contacto-rol grupo">Grupo</span>
+            </div>
+            <div class="contacto-username">
+                {{ conversacion_clase.participantes.count }} participantes
+            </div>
+        </div>
+        <span class="btn-enviar-mensaje btn-grupo">
+            <i class="bi bi-chat-dots-fill"></i> Entrar
+        </span>
+    </a>
+    {% endif %}
+
+    {% if contactos %}
+    <div class="section-label">
+        <i class="bi bi-person-fill"></i> Mensajes directos
+    </div>
+    {% endif %}
+
+    <!-- Contactos individuales -->
     <div class="contactos-list">
         {% for contacto in contactos %}
         <a href="{% url 'mensajeria:iniciar' contacto.id %}" class="contacto-item">

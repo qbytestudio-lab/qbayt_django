@@ -1,7 +1,5 @@
 from datetime import date, datetime
-
 from urllib import request
-
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ValidationError
@@ -10,7 +8,9 @@ from django.db.models import Count, Q
 from django.utils import timezone
 from .models import (Clase, SolicitudClase, Anuncio, InscripcionClase, HistorialInscripcion,)
 from ejercicios.models import Ejercicio, IntentoEjercicio
+from django.views.decorators.http import require_POST
 
+@require_POST
 def index(request):
     return render(request, 'clase/index.html')
 # ═══════════════════════════════════════════
@@ -184,14 +184,25 @@ def editar_clase(request, clase_id):
 def eliminar_clase(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
-    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    # Buscar la clase - si no existe, redirige con mensaje
+    clase = Clase.objects.filter(id=clase_id, docente=request.user).first()
+    
+    if not clase:
+        messages.error(
+            request,
+            f'No se encontró la clase con ID {clase_id} o no tienes permisos para eliminarla.'
+        )
+        return redirect('mis_clases')
     
     if request.method == 'POST':
+        nombre = clase.nombre
         clase.delete()
-        messages.success(request, "La clase fue eliminada para siempre.")
-        return redirect('docente/mis_clases_docente.html')
+        messages.success(request, f'Clase "{nombre}" eliminada correctamente.')
+        return redirect('mis_clases')
     
-    return redirect('clase/detalle_clase.html', clase_id=clase.id)
+    # Si es GET, muestra confirmación o redirige
+    return redirect('clase:detalle_clase', clase_id=clase.id)
 
 
 @login_required
@@ -260,4 +271,98 @@ def detalle_clase(request, clase_id):
         'solicitudes_pendientes': solicitudes,
         'anuncios': anuncios,
         'ejercicios': ejercicios,
-    })
+})
+
+@login_required
+@require_POST
+def toggle_estado_clase(request, clase_id):
+    """Activa o desactiva una clase."""
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    clase.activa = not clase.activa
+    clase.save(update_fields=['activa'])
+    
+    if clase.activa:
+        messages.success(request, f'Clase "{clase.nombre}" reactivada. Los estudiantes ya pueden acceder.')
+    else:
+        messages.warning(request, f'Clase "{clase.nombre}" desactivada. Los estudiantes no pueden acceder.')
+    
+    return redirect('clase:detalle_clase', clase_id=clase.id)
+
+# ═══════════════════════════════════════════
+# ACTIVAR / DESACTIVAR CLASE
+# ═══════════════════════════════════════════
+
+@login_required
+@require_POST
+def toggle_estado_clase(request, clase_id):
+    """
+    Alterna el estado `activa` de la clase.
+    - Si estaba activa → la desactiva (los estudiantes no pueden entrar).
+    - Si estaba desactivada → la reactiva.
+    Solo el docente dueño puede hacerlo.
+    """
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if clase.docente != request.user:
+        messages.error(request, "No tienes permiso para modificar esta clase.")
+        return redirect('inicio')
+
+    clase.activa = not clase.activa
+    clase.save()
+
+    if clase.activa:
+        messages.success(request, f'La clase "{clase.nombre}" fue reactivada.')
+    else:
+        messages.warning(request, f'La clase "{clase.nombre}" fue desactivada. Los estudiantes no podrán acceder.')
+
+    return redirect('detalle_clase', clase_id=clase.id)
+
+
+# ═══════════════════════════════════════════
+# EXTENDER FECHA DE FIN
+# ═══════════════════════════════════════════
+
+@login_required
+@require_POST
+def extender_fecha_clase(request, clase_id):
+    """
+    Permite al docente cambiar la fecha_fin de una clase.
+    Útil cuando la clase ya venció y quiere dar más tiempo.
+    """
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    if clase.docente != request.user:
+        messages.error(request, "No tienes permiso para modificar esta clase.")
+        return redirect('inicio')
+
+    nueva_fecha_str = request.POST.get('nueva_fecha_fin', '').strip()
+
+    if not nueva_fecha_str:
+        messages.error(request, "Debes indicar una nueva fecha de finalización.")
+        return redirect('detalle_clase', clase_id=clase.id)
+
+    try:
+        nueva_fecha = datetime.strptime(nueva_fecha_str, '%Y-%m-%d').date()
+    except ValueError:
+        messages.error(request, "Formato de fecha inválido.")
+        return redirect('detalle_clase', clase_id=clase.id)
+
+    # Validación: no puede ser una fecha pasada
+    if nueva_fecha <= timezone.now().date():
+        messages.error(request, "La nueva fecha debe ser posterior a hoy.")
+        return redirect('detalle_clase', clase_id=clase.id)
+
+    # Validación: no puede ser anterior o igual a la fecha de inicio
+    if clase.fecha_inicio and nueva_fecha <= clase.fecha_inicio:
+        messages.error(request, "La nueva fecha debe ser posterior a la fecha de inicio de la clase.")
+        return redirect('detalle_clase', clase_id=clase.id)
+
+    clase.fecha_fin = nueva_fecha
+    clase.save()
+
+    messages.success(
+        request,
+        f'La fecha de finalización fue actualizada al {nueva_fecha.strftime("%d/%m/%Y")}.'
+    )
+    return redirect('detalle_clase', clase_id=clase.id)

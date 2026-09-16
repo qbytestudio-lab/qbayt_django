@@ -23,9 +23,15 @@ urlpatterns = [
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('admin/logout/', views.admin_logout_view, name='admin_logout'),
     path('clase/<int:clase_id>/progreso/', views.progreso_clase_detalle, name='progreso_detalle_clase'),
-    path('certificados/', views.certificados, name='certificados'),
-    path('certificados/descargar/<int:clase_id>/', views.descargar_certificado, name='descargar_certificado'),
     # Rutas para verificación de correo
     path('verificar/<uidb64>/<token>/', views.verificar_correo, name='verificar_correo'),
     path('reenviar-verificacion/', views.reenviar_verificacion, name='reenviar_verificacion'),
+        # ═══════════════════════════════════════════
+    # CERTIFICADOS (DOCENTE)
+    # ═══════════════════════════════════════════
+    path('certificados/', views.certificados, name='certificados'),
+    path('certificados/descargar/<int:clase_id>/', views.descargar_certificado, name='descargar_certificado'),
+    path('clase/<int:clase_id>/certificados/', views.gestionar_certificados, name='gestionar_certificados'),
+    path('clase/<int:clase_id>/certificados/emitir/', views.emitir_certificados_lote, name='emitir_certificados_lote'),
+    path('certificado/<int:certificado_id>/revocar/', views.revocar_certificado, name='revocar_certificado'),
 ]

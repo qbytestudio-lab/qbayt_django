@@ -27,28 +27,36 @@
   --shadow: rgba(0, 0, 0, 0.4);
 }
 
+/* ═══════════════════════════════════════════ */
+/* MODO CLARO - CREMA + VERDE                  */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-  --spotify-black: #f8f9fe;
+  --spotify-black: #fefce8;
   --spotify-dark: #ffffff;
-  --spotify-gray: #f0f2ff;
-  --spotify-light-gray: #c5c9e0;
-  --spotify-green: #10b981;
-  --spotify-green-hover: #059669;
-  --spotify-text: #1e1e2e;
-  --spotify-subtext: #4a4a6a;
-  --spotify-muted: #8b8ba7;
-  --accent-green: #10b981;
+  --spotify-gray: #fef9c3;
+  --spotify-light-gray: #ecfccb;
+  --spotify-green: #16a34a;
+  --spotify-green-hover: #15803d;
+  --spotify-text: #1c1917;
+  --spotify-subtext: #44403c;
+  --spotify-muted: #a8a29e;
+  --accent-green: #16a34a;
+  --accent-purple: #16a34a;
+  --accent-pink: #ec4899;
+  --accent-orange: #f59e0b;
+  --accent-blue: #06b6d4;
   --danger: #ef4444;
-  
-  --bg-body: #f8f9fe;
+
+  --bg-body: #fefce8;
   --bg-card: #ffffff;
-  --bg-hover: rgba(16, 185, 129, 0.06);
-  --text-primary: #1e1e2e;
-  --text-secondary: #4a4a6a;
-  --text-muted: #8b8ba7;
-  --border-color: rgba(16, 185, 129, 0.12);
-  --border-subtle: rgba(16, 185, 129, 0.08);
-  --shadow: rgba(16, 185, 129, 0.1);
+  --bg-hover: rgba(34, 197, 94, 0.06);
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #a8a29e;
+  --border-color: rgba(34, 197, 94, 0.18);
+  --border-subtle: rgba(34, 197, 94, 0.1);
+  --shadow: rgba(34, 197, 94, 0.12);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -137,12 +145,12 @@ body {
 
 .juego-tipo-card:hover {
   border-color: var(--accent-green);
-  background: rgba(16, 185, 129, 0.05);
+  background: rgba(22, 163, 74, 0.05);
 }
 
 .juego-tipo-card.selected {
   border-color: var(--accent-green);
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(22, 163, 74, 0.1);
 }
 
 .juego-tipo-card i {
@@ -184,7 +192,7 @@ body {
 
 .form-control:focus {
   border-color: var(--accent-green);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
 .form-control::placeholder {
@@ -231,7 +239,7 @@ textarea.form-control {
 .btn-submit:hover {
   background: var(--spotify-green-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
   color: #fff;
 }
 

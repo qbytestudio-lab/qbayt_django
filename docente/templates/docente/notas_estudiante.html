@@ -1,0 +1,161 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Notas de {{ estudiante.username }} — QBYT{% endblock %}
+{% block page_title %}Progreso del estudiante{% endblock %}
+{% block nav_clases %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/notas_estudiante.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- BOTÓN VOLVER -->
+<div class="back-navigation">
+    <a href="{% url 'perfil_docente' %}" class="btn-back-classes">
+        <i class="bi bi-arrow-left"></i> Volver al perfil
+    </a>
+</div>
+
+<!-- HERO DEL ESTUDIANTE -->
+<section class="student-hero">
+    <div class="student-hero-content">
+        <div class="student-hero-avatar">
+            {% if estudiante.perfil.foto_perfil %}
+                <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}">
+            {% else %}
+                {{ estudiante.username|first|upper }}
+            {% endif %}
+        </div>
+
+        <div class="student-hero-info">
+            <span class="student-hero-badge">
+                <i class="bi bi-person-badge-fill"></i> Estudiante
+            </span>
+            <h1>{{ estudiante.get_full_name|default:estudiante.username }}</h1>
+            <div class="student-hero-meta">
+                <span><i class="bi bi-at"></i> {{ estudiante.username }}</span>
+                <span class="separator">·</span>
+                <span><i class="bi bi-envelope"></i> {{ estudiante.email }}</span>
+                <span class="separator">·</span>
+                <span><i class="bi bi-bookmark-fill"></i> {{ clase.nombre }}</span>
+            </div>
+        </div>
+
+        <a href="{% url 'mensajeria:iniciar' estudiante.id %}" class="btn-send-message">
+            <i class="bi bi-chat-dots-fill"></i> Enviar mensaje
+        </a>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-box green">
+            <i class="bi bi-check-circle-fill"></i>
+            <div>
+                <div class="stat-number">{{ completados }}/{{ total_ejercicios }}</div>
+                <div class="stat-label">Ejercicios aprobados</div>
+            </div>
+        </div>
+        <div class="stat-box purple">
+            <i class="bi bi-bar-chart-fill"></i>
+            <div>
+                <div class="stat-number">{{ promedio }}%</div>
+                <div class="stat-label">Promedio general</div>
+            </div>
+        </div>
+        <div class="stat-box orange">
+            <i class="bi bi-clock-history"></i>
+            <div>
+                <div class="stat-number">{{ total_ejercicios }}</div>
+                <div class="stat-label">Total de ejercicios</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- TABLA DE NOTAS -->
+<section class="notas-section">
+    <div class="section-header">
+        <h2 class="section-title">
+            <i class="bi bi-clipboard-check-fill"></i>
+            Detalle de calificaciones
+        </h2>
+    </div>
+
+    {% if notas %}
+    <div class="notas-table-wrapper">
+        <table class="notas-table">
+            <thead>
+                <tr>
+                    <th>Ejercicio</th>
+                    <th>Tipo</th>
+                    <th class="text-center">Intentos</th>
+                    <th class="text-center">Calificación</th>
+                    <th class="text-center">Estado</th>
+                    <th class="text-center">Fecha</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for nota in notas %}
+                <tr>
+                    <td class="nota-titulo">
+                        <strong>{{ nota.ejercicio.titulo }}</strong>
+                    </td>
+                    <td>
+                        <span class="tipo-badge">
+                            {{ nota.ejercicio.get_tipo_display|default:"Ejercicio" }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span class="intentos-count">{{ nota.total_intentos }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if nota.calificacion %}
+                            <span class="calificacion {% if nota.aprobado %}aprobado{% else %}reprobado{% endif %}">
+                                {{ nota.calificacion }}/5.0
+                            </span>
+                        {% else %}
+                            <span class="sin-calificar">—</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if nota.aprobado %}
+                            <span class="estado-badge aprobado">
+                                <i class="bi bi-check-circle-fill"></i> Aprobado
+                            </span>
+                        {% elif nota.calificacion %}
+                            <span class="estado-badge reprobado">
+                                <i class="bi bi-x-circle-fill"></i> Reprobado
+                            </span>
+                        {% elif nota.total_intentos > 0 %}
+                            <span class="estado-badge pendiente">
+                                <i class="bi bi-clock-fill"></i> Pendiente
+                            </span>
+                        {% else %}
+                            <span class="estado-badge sin-entregar">
+                                <i class="bi bi-dash-circle-fill"></i> Sin entregar
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if nota.fecha_envio %}
+                            <span class="fecha-envio">{{ nota.fecha_envio|date:"d M Y" }}</span>
+                        {% else %}
+                            <span class="sin-fecha">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-clipboard-x"></i>
+        <p>Este estudiante no tiene calificaciones registradas aún</p>
+    </div>
+    {% endif %}
+</section>
+
+{% endblock %}

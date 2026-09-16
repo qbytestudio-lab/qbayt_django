@@ -66,29 +66,50 @@
         <!-- SIDEBAR -->
         <div class="calendar-sidebar">
 
-            <!-- Quick Stats -->
+            <!-- 👇 NUEVA SECCIÓN: CLASES PRÓXIMAS A FINALIZAR -->
             <div class="sidebar-card">
                 <div class="sidebar-card-title">
-                    <i class="bi bi-speedometer2" style="color: var(--accent-purple);"></i>
-                    Resumen
+                    <i class="bi bi-hourglass-split" style="color: var(--accent-orange);"></i>
+                    Clases por finalizar
                 </div>
-                <div class="quick-summary">
-                    <div class="quick-stat">
-                        <div class="quick-stat-value">{{ total_clases|default:0 }}</div>
-                        <div class="quick-stat-label">Clases</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value">{{ actividades_pendientes|default:0 }}</div>
-                        <div class="quick-stat-label">Pendientes</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value">{{ actividades_completadas|default:0 }}</div>
-                        <div class="quick-stat-label">Completadas</div>
-                    </div>
-                    <div class="quick-stat">
-                        <div class="quick-stat-value">{{ proximos|length|default:0 }}</div>
-                        <div class="quick-stat-label">Próximas</div>
-                    </div>
+                <div class="proximos-list">
+                    {% if clases_por_finalizar %}
+                        {% for item in clases_por_finalizar %}
+                        <a href="{% url 'estudiante:detalle_clase_estudiante' item.clase.id %}" class="proximo-item">
+                            <div class="proximo-icon {% if item.dias_restantes <= 3 %}danger{% elif item.dias_restantes <= 7 %}orange{% else %}purple{% endif %}">
+                                <i class="bi bi-calendar-x"></i>
+                            </div>
+                            <div class="proximo-info">
+                                <div class="proximo-title">{{ item.clase.nombre|truncatechars:22 }}</div>
+                                <div class="proximo-date">
+                                    <i class="bi bi-clock"></i>
+                                    {% if item.dias_restantes == 0 %}
+                                        <span style="color: var(--danger); font-weight: 700;">¡Vence HOY!</span>
+                                    {% elif item.dias_restantes == 1 %}
+                                        <span style="color: var(--accent-orange); font-weight: 700;">Vence mañana</span>
+                                    {% elif item.dias_restantes < 0 %}
+                                        <span style="color: var(--danger);">Finalizada hace {{ item.dias_restantes|cut:"-" }} día{{ item.dias_restantes|cut:"-"|pluralize:"s" }}</span>
+                                    {% else %}
+                                        <span style="color: var(--accent-orange); font-weight: 600;">
+                                            {{ item.dias_restantes }} día{{ item.dias_restantes|pluralize:"s" }} restante{{ item.dias_restantes|pluralize:"s" }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="proximo-subdate" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                    Fin: {{ item.clase.fecha_fin|date:"d M Y" }}
+                                </div>
+                            </div>
+                            <div class="proximo-arrow">
+                                <i class="bi bi-chevron-right"></i>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="empty-state">
+                            <i class="bi bi-check-circle-fill empty-icon" style="color: var(--spotify-green);"></i>
+                            <p class="empty-text">Sin clases por finalizar</p>
+                        </div>
+                    {% endif %}
                 </div>
             </div>
 
@@ -108,7 +129,7 @@
                             <div class="proximo-info">
                                 <div class="proximo-title">{{ act.titulo|truncatechars:25 }}</div>
                                 <div class="proximo-date">
-                                    <i class="bi bi-clock"></i> 
+                                    <i class="bi bi-clock"></i>
                                     {% if act.fecha_limite %}
                                         {{ act.fecha_limite|date:"d M · H:i" }}
                                         <span style="color: var(--accent-orange); font-weight: 600; font-size: 0.65rem;">
@@ -169,15 +190,12 @@
         const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
         label.textContent = `${monthNames[month]} ${year}`;
 
-        // Días del mes
         const firstDay = new Date(year, month, 1).getDay();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
         const today = new Date();
 
-        // Ajustar para que empiece en Lunes (Domingo = 0 → Lunes = 1)
         let startOffset = firstDay === 0 ? 6 : firstDay - 1;
 
-        // Obtener eventos del mes
         const eventsByDay = {};
         eventosData.forEach(event => {
             const date = new Date(event.start);
@@ -190,12 +208,10 @@
 
         let html = '';
 
-        // Días vacíos antes del primer día
         for (let i = 0; i < startOffset; i++) {
             html += `<div class="day-cell empty"></div>`;
         }
 
-        // Días del mes
         for (let d = 1; d <= daysInMonth; d++) {
             const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
             const dayEvents = eventsByDay[d] || [];
@@ -210,7 +226,6 @@
 
             if (dayEvents.length > 0) {
                 html += `<div class="day-events">`;
-                // Mostrar máximo 3 eventos
                 const maxShow = 3;
                 const showEvents = dayEvents.slice(0, maxShow);
                 showEvents.forEach(event => {
@@ -268,7 +283,6 @@
         const today = new Date();
         let startOffset = firstDay === 0 ? 6 : firstDay - 1;
 
-        // Eventos del mes
         const eventsByDay = {};
         eventosData.forEach(event => {
             const date = new Date(event.start);

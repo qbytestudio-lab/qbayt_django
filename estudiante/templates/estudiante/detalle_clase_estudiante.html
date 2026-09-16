@@ -64,11 +64,10 @@
       <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
         <i class="bi bi-star-fill"></i> Mis Calificaciones
       </a>
-      <a href="{% url 'estudiante:salir_clase' clase.id %}"
-         onclick="return confirm('¿Seguro que quieres salir de esta clase?')"
-         class="btn-leave-class">
-        <i class="bi bi-box-arrow-right"></i> Salir de la clase
-      </a>
+      <!-- 👇 Ahora abre el modal en lugar de redirigir directo -->
+      <button type="button" class="btn-leave-class" onclick="abrirModalSalir()">
+        <i class="bi bi-box-arrow-right"></i> Eliminar clase
+      </button>
     </div>
   </div>
 </div>
@@ -239,6 +238,99 @@
 
 </div>
 
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: CONFIRMAR SALIR DE CLASE            -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="ej-modal-backdrop" id="salirModalBackdrop" onclick="cerrarModalSalir()"></div>
+
+<div class="salir-modal" id="salirModal" role="dialog" aria-modal="true">
+    <div class="salir-modal-header">
+        <div class="salir-modal-icon">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <h3 class="salir-modal-title">¿Eliminar esta clase?</h3>
+        <p class="salir-modal-subtitle">Esta acción es irreversible</p>
+    </div>
+
+    <div class="salir-modal-body">
+        <p class="salir-modal-text">
+            Estás a punto de <strong>salir de "{{ clase.nombre }}"</strong>. Al hacerlo:
+        </p>
+
+        <ul class="salir-modal-list">
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Perderás acceso a todos los ejercicios y anuncios de la clase</span>
+            </li>
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Ya no aparecerás como estudiante inscrito</span>
+            </li>
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Si el docente tiene cupos disponibles podrás volver a unirte, pero <strong>deberás volver a hacer los ejercicios</strong></span>
+            </li>
+            <li>
+                <i class="bi bi-x-circle-fill"></i>
+                <span>Se consumirá <strong>1 de tus 2 intentos</strong> disponibles en esta clase</span>
+            </li>
+        </ul>
+
+        <div class="salir-modal-warning">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>Si tienes un ejercicio en progreso, perderás tu avance actual.</span>
+        </div>
+    </div>
+
+    <div class="salir-modal-footer">
+        <button type="button" class="salir-btn salir-btn-cancel" onclick="cerrarModalSalir()">
+            <i class="bi bi-arrow-left"></i> Cancelar
+        </button>
+        <a href="{% url 'estudiante:salir_clase' clase.id %}" class="salir-btn salir-btn-danger">
+            <i class="bi bi-box-arrow-right"></i> Sí, eliminar clase
+        </a>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: CLASE BLOQUEADA / FINALIZADA        -->
+<!-- Solo se muestra si clase_bloqueada = True  -->
+<!-- ═══════════════════════════════════════════ -->
+{% if clase_bloqueada %}
+<div class="clase-bloqueada-backdrop" id="claseBloqueadaBackdrop"></div>
+
+<div class="clase-bloqueada-modal" id="claseBloqueadaModal" role="dialog" aria-modal="true">
+    <div class="clase-bloqueada-icon">
+        <i class="bi bi-lock-fill"></i>
+    </div>
+
+    <h2 class="clase-bloqueada-title">
+        {% if not clase.activa %}
+            Clase desactivada
+        {% else %}
+            Clase finalizada
+        {% endif %}
+    </h2>
+
+    <p class="clase-bloqueada-text">
+        {{ motivo_bloqueo }}
+    </p>
+
+    <div class="clase-bloqueada-info">
+        <i class="bi bi-info-circle-fill"></i>
+        <span>
+            Si necesitas más tiempo, contacta a tu docente
+            <strong>{{ clase.docente.get_full_name|default:clase.docente.username }}</strong>
+            para que extienda la fecha de la clase.
+        </span>
+    </div>
+
+    <a href="{% url 'mis_clases' %}" class="clase-bloqueada-btn">
+        <i class="bi bi-arrow-left"></i> Volver a Mis clases
+    </a>
+</div>
+{% endif %}
+
 {% endblock %}
 
 {% block extra_js %}
@@ -253,20 +345,12 @@ function abrirModalEjercicio(btn) {
     const backdrop = document.getElementById('ejModalBackdrop');
     const modal    = document.getElementById('ejModal');
 
-    // Título
     document.getElementById('ejModalTitle').textContent = d.titulo;
     document.getElementById('ejModalDesc').textContent  = d.descripcion || 'Sin descripción disponible.';
-
-    // Tipo
     document.getElementById('ejModalTipo').textContent = d.tipo || 'Ejercicio';
-
-    // Fecha límite
     document.getElementById('ejModalFecha').textContent = d.fechaLimite || 'Sin fecha límite';
-
-    // Docente
     document.getElementById('ejModalDocente').textContent = d.docente;
 
-    // Icono dinámico según estado
     const iconWrap = document.getElementById('ejModalHeaderIcon');
     let iconClass = 'bi-collection-play-fill';
     if (d.estado === 'vencido')       iconClass = 'bi-calendar-x';
@@ -275,13 +359,11 @@ function abrirModalEjercicio(btn) {
     if (d.estado === 'calificado')    iconClass = 'bi-check-circle-fill';
     iconWrap.innerHTML = `<i class="bi ${iconClass}"></i>`;
 
-    // Badge de estado
     const badgeHtml = `<span class="ej-badge ${d.estado}">
         <i class="bi ${d.estadoIcon}"></i> ${d.estadoLabel}
     </span>`;
     document.getElementById('ejModalBadges').innerHTML = badgeHtml;
 
-    // Aviso contextual
     const alertBox = document.getElementById('ejModalAlert');
     alertBox.className = 'ej-modal-alert';
     alertBox.style.display = 'none';
@@ -313,7 +395,6 @@ function abrirModalEjercicio(btn) {
         alertBox.style.display = 'flex';
     }
 
-    // Botón de acción del footer
     const btnAction = document.getElementById('ejModalActionBtn');
     if (d.disponible === '1') {
         btnAction.style.display = 'inline-flex';
@@ -333,9 +414,28 @@ function cerrarModalEjercicio() {
     document.body.style.overflow = '';
 }
 
+/* =====================================================
+   MODAL DE SALIR DE CLASE
+   ===================================================== */
+
+function abrirModalSalir() {
+    document.getElementById('salirModalBackdrop').classList.add('show');
+    document.getElementById('salirModal').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalSalir() {
+    document.getElementById('salirModalBackdrop').classList.remove('show');
+    document.getElementById('salirModal').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
 // Cerrar con ESC
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') cerrarModalEjercicio();
+    if (e.key === 'Escape') {
+        cerrarModalEjercicio();
+        cerrarModalSalir();
+    }
 });
 
 // Animación de entrada para las tarjetas
@@ -354,10 +454,17 @@ document.querySelectorAll('.ej-card, .announcement-item').forEach((item, i) => {
     item.style.transition = `all 0.4s ease ${i * 0.05}s`;
     observer.observe(item);
 });
+
+/* =====================================================
+   BLOQUEO TOTAL SI LA CLASE ESTÁ BLOQUEADA
+   ===================================================== */
+{% if clase_bloqueada %}
+document.body.classList.add('clase-bloqueada-activa');
+{% endif %}
 </script>
 
 <!-- =====================================================
-     MODAL DE DETALLE
+     MODAL DE DETALLE DE EJERCICIO
      ===================================================== -->
 <div class="ej-modal-backdrop" id="ejModalBackdrop" onclick="cerrarModalEjercicio()"></div>
 

@@ -15,6 +15,8 @@
   --accent-purple: #7c6fff;
   --accent-purple-hover: #9b8fff;
   --accent-pink: #b06fff;
+  --accent-orange: #ff9f43;
+  --danger: #e91429;
   
   /* Superficies */
   --bg-body: #121212;
@@ -28,29 +30,36 @@
   --shadow: rgba(0, 0, 0, 0.4);
 }
 
+/* ═══════════════════════════════════════════ */
+/* MODO CLARO - CREMA + VERDE                  */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-  --spotify-black: #f8f9fe;
+  --spotify-black: #fefce8;
   --spotify-dark: #ffffff;
-  --spotify-gray: #f0f2ff;
-  --spotify-light-gray: #c5c9e0;
-  --spotify-green: #10b981;
-  --spotify-green-hover: #059669;
-  --spotify-text: #1e1e2e;
-  --spotify-subtext: #4a4a6a;
-  --spotify-muted: #8b8ba7;
-  --accent-purple: #8b5cf6;
-  --accent-purple-hover: #7c3aed;
-  --accent-pink: #d946ef;
-  
-  --bg-body: #f8f9fe;
+  --spotify-gray: #fef9c3;
+  --spotify-light-gray: #ecfccb;
+  --spotify-green: #16a34a;
+  --spotify-green-hover: #15803d;
+  --spotify-text: #1c1917;
+  --spotify-subtext: #44403c;
+  --spotify-muted: #a8a29e;
+  --accent-purple: #16a34a;
+  --accent-purple-hover: #15803d;
+  --accent-pink: #ec4899;
+  --accent-orange: #f59e0b;
+  --accent-blue: #06b6d4;
+  --danger: #ef4444;
+
+  --bg-body: #fefce8;
   --bg-card: #ffffff;
-  --bg-hover: rgba(139, 92, 246, 0.06);
-  --text-primary: #1e1e2e;
-  --text-secondary: #4a4a6a;
-  --text-muted: #8b8ba7;
-  --border-color: rgba(139, 92, 246, 0.12);
-  --border-subtle: rgba(139, 92, 246, 0.08);
-  --shadow: rgba(139, 92, 246, 0.1);
+  --bg-hover: rgba(34, 197, 94, 0.06);
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #a8a29e;
+  --border-color: rgba(34, 197, 94, 0.18);
+  --border-subtle: rgba(34, 197, 94, 0.1);
+  --shadow: rgba(34, 197, 94, 0.12);
 }
 
 body {
@@ -204,15 +213,15 @@ body {
 }
 
 .activity-type-badge.quiz {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(22, 163, 74, 0.12);
   color: var(--spotify-green);
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  border: 1px solid rgba(22, 163, 74, 0.25);
 }
 
 .activity-type-badge.texto {
-  background: rgba(139, 92, 246, 0.12);
+  background: rgba(22, 163, 74, 0.12);
   color: var(--accent-purple);
-  border: 1px solid rgba(139, 92, 246, 0.25);
+  border: 1px solid rgba(22, 163, 74, 0.25);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -263,12 +272,12 @@ body {
 }
 
 .section-badge.green {
-  background: rgba(16, 185, 129, 0.1);
+  background: rgba(22, 163, 74, 0.1);
   color: var(--spotify-green);
 }
 
 .section-badge.purple {
-  background: rgba(139, 92, 246, 0.1);
+  background: rgba(22, 163, 74, 0.1);
   color: var(--accent-purple);
 }
 
@@ -330,7 +339,7 @@ body {
 }
 
 .question-card:hover {
-  border-color: rgba(139, 92, 246, 0.15);
+  border-color: rgba(22, 163, 74, 0.15);
 }
 
 .question-header {
@@ -387,8 +396,8 @@ body {
 }
 
 .option-item.correct {
-  background: rgba(16, 185, 129, 0.08);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  background: rgba(22, 163, 74, 0.08);
+  border: 1px solid rgba(22, 163, 74, 0.2);
   color: var(--spotify-green);
 }
 
@@ -421,7 +430,7 @@ body {
   border-radius: 20px;
   font-size: 0.65rem;
   font-weight: 700;
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(22, 163, 74, 0.12);
   color: var(--spotify-green);
   letter-spacing: 0.5px;
   text-transform: uppercase;
@@ -570,7 +579,7 @@ body {
 
 .form-control:focus {
   border-color: var(--accent-purple) !important;
-  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15) !important;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.15) !important;
 }
 
 .form-control::placeholder {
@@ -648,6 +657,10 @@ body {
   filter: brightness(0) invert(1);
 }
 
+[data-theme="light"] .btn-close-white {
+  filter: none;
+}
+
 /* ═══════════════════════════════════════════ */
 /*         ALERT MESSAGES                     */
 /* ═══════════════════════════════════════════ */
@@ -661,9 +674,9 @@ body {
 }
 
 .alert-floating.alert-success {
-  background: rgba(16, 185, 129, 0.15) !important;
+  background: rgba(22, 163, 74, 0.15) !important;
   color: var(--spotify-green) !important;
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(22, 163, 74, 0.3);
 }
 
 .alert-floating.alert-danger {

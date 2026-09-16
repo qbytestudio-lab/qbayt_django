@@ -26,27 +26,36 @@
   --shadow: rgba(0, 0, 0, 0.4);
 }
 
+/* ═══════════════════════════════════════════ */
+/* MODO CLARO - CREMA + VERDE                  */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-  --spotify-black: #f8f9fe;
+  --spotify-black: #fefce8;
   --spotify-dark: #ffffff;
-  --spotify-gray: #f0f2ff;
-  --spotify-light-gray: #c5c9e0;
-  --spotify-text: #1e1e2e;
-  --spotify-subtext: #4a4a6a;
-  --spotify-muted: #8b8ba7;
-  --accent-orange: #f59e0b;
-  --accent-orange-hover: #fbbf24;
+  --spotify-gray: #fef9c3;
+  --spotify-light-gray: #ecfccb;
+  --spotify-green: #16a34a;
+  --spotify-green-hover: #15803d;
+  --spotify-text: #1c1917;
+  --spotify-subtext: #44403c;
+  --spotify-muted: #a8a29e;
+  --accent-orange: #16a34a;
+  --accent-orange-hover: #15803d;
+  --accent-purple: #16a34a;
+  --accent-pink: #ec4899;
+  --accent-blue: #06b6d4;
   --danger: #ef4444;
-  
-  --bg-body: #f8f9fe;
+
+  --bg-body: #fefce8;
   --bg-card: #ffffff;
-  --bg-hover: rgba(245, 158, 11, 0.06);
-  --text-primary: #1e1e2e;
-  --text-secondary: #4a4a6a;
-  --text-muted: #8b8ba7;
-  --border-color: rgba(245, 158, 11, 0.12);
-  --border-subtle: rgba(245, 158, 11, 0.08);
-  --shadow: rgba(245, 158, 11, 0.1);
+  --bg-hover: rgba(34, 197, 94, 0.06);
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #a8a29e;
+  --border-color: rgba(34, 197, 94, 0.18);
+  --border-subtle: rgba(34, 197, 94, 0.1);
+  --shadow: rgba(34, 197, 94, 0.12);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -146,7 +155,7 @@ body {
 
 .form-control:focus {
   border-color: var(--accent-orange);
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
 }
 
 .form-control::placeholder { color: var(--text-muted); }
@@ -162,18 +171,18 @@ textarea.form-control {
 /* ═══════════════════════════════════════════ */
 
 .image-upload-area {
-  border: 2px dashed rgba(245, 158, 11, 0.3);
+  border: 2px dashed rgba(22, 163, 74, 0.3);
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s;
-  background: rgba(245, 158, 11, 0.03);
+  background: rgba(22, 163, 74, 0.03);
 }
 
 .image-upload-area:hover {
   border-color: var(--accent-orange);
-  background: rgba(245, 158, 11, 0.06);
+  background: rgba(22, 163, 74, 0.06);
 }
 
 .image-upload-area i {
@@ -268,7 +277,7 @@ textarea.form-control {
 .btn-submit:hover {
   background: var(--accent-orange-hover);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.3);
+  box-shadow: 0 8px 24px rgba(22, 163, 74, 0.3);
   color: #fff;
 }
 

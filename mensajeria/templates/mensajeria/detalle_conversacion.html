@@ -1,7 +1,10 @@
 {% extends 'web/base.html' %}
 {% load static %}
 
-{% block title %}Conversación — QBYT{% endblock %}
+{% block title %}
+    {% if es_clase %}{{ conversacion.clase.nombre }}{% else %}Conversación{% endif %} — QBYT
+{% endblock %}
+
 {% block page_title %}Conversación{% endblock %}
 {% block nav_mensajeria %}active{% endblock %}
 
@@ -12,67 +15,113 @@
 {% block content %}
 
 <div class="chat-container">
-    
+
+    <!-- HEADER -->
     <div class="chat-header">
         <a href="{% url 'mensajeria:lista' %}" class="btn-volver">
             <i class="bi bi-arrow-left"></i>
         </a>
-        <div class="chat-avatar">
-            {% if otro_participante.perfil.foto_perfil %}
-                <img src="{{ otro_participante.perfil.foto_perfil.url }}" alt="{{ otro_participante.username }}" class="avatar-img">
-            {% elif otro_participante.foto_perfil %}
-                <img src="{{ otro_participante.foto_perfil.url }}" alt="{{ otro_participante.username }}" class="avatar-img">
-            {% else %}
-                {{ otro_participante.username|first|upper }}
-            {% endif %}
-        </div>
-        <div class="chat-info">
-            <div class="chat-nombre">
-                {{ otro_participante.get_full_name|default:otro_participante.username }}
+
+        {% if es_clase %}
+            <div class="chat-avatar avatar-clase">
+                <i class="bi bi-people-fill"></i>
             </div>
-            <div class="chat-rol">{{ otro_participante.perfil.rol }}</div>
-        </div>
+            <div class="chat-info">
+                <div class="chat-nombre">
+                    {{ conversacion.clase.nombre }}
+                    <span class="tag-clase">Clase</span>
+                </div>
+                <div class="chat-rol">
+                    {{ conversacion.participantes.count }} participantes
+                </div>
+            </div>
+        {% else %}
+            <div class="chat-avatar">
+                {% if otro_participante and otro_participante.perfil.foto_perfil %}
+                    <img src="{{ otro_participante.perfil.foto_perfil.url }}" 
+                         alt="{{ otro_participante.username }}" 
+                         class="avatar-img">
+                {% elif otro_participante and otro_participante.foto_perfil %}
+                    <img src="{{ otro_participante.foto_perfil.url }}" 
+                         alt="{{ otro_participante.username }}" 
+                         class="avatar-img">
+                {% elif otro_participante %}
+                    {{ otro_participante.username|first|upper }}
+                {% else %}
+                    <i class="bi bi-person-x-fill"></i>
+                {% endif %}
+            </div>
+            <div class="chat-info">
+                <div class="chat-nombre">
+                    {% if otro_participante %}
+                        {{ otro_participante.get_full_name|default:otro_participante.username }}
+                    {% else %}
+                        Usuario eliminado
+                    {% endif %}
+                </div>
+                <div class="chat-rol">
+                    {% if otro_participante %}{{ otro_participante.perfil.rol }}{% endif %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 
+    <!-- MENSAJES -->
     <div class="chat-mensajes" id="chatMensajes">
         {% for mensaje in mensajes %}
         <div class="mensaje {% if mensaje.remitente == request.user %}propio{% else %}otro{% endif %}">
+            
             {% if mensaje.remitente != request.user %}
             <div class="mensaje-avatar">
                 {% if mensaje.remitente.perfil.foto_perfil %}
-                    <img src="{{ mensaje.remitente.perfil.foto_perfil.url }}" alt="{{ mensaje.remitente.username }}" class="avatar-img-small">
+                    <img src="{{ mensaje.remitente.perfil.foto_perfil.url }}" 
+                         alt="{{ mensaje.remitente.username }}" 
+                         class="avatar-img-small">
                 {% elif mensaje.remitente.foto_perfil %}
-                    <img src="{{ mensaje.remitente.foto_perfil.url }}" alt="{{ mensaje.remitente.username }}" class="avatar-img-small">
+                    <img src="{{ mensaje.remitente.foto_perfil.url }}" 
+                         alt="{{ mensaje.remitente.username }}" 
+                         class="avatar-img-small">
                 {% else %}
                     {{ mensaje.remitente.username|first|upper }}
                 {% endif %}
             </div>
             {% endif %}
+
             <div class="mensaje-contenido">
+                {% if es_clase and mensaje.remitente != request.user %}
+                <div class="mensaje-remitente-nombre">
+                    {{ mensaje.remitente.get_full_name|default:mensaje.remitente.username }}
+                </div>
+                {% endif %}
+
                 <div class="mensaje-burbuja">
                     {{ mensaje.contenido }}
                 </div>
+
                 <div class="mensaje-fecha">
                     {{ mensaje.fecha_envio|date:"d M, H:i" }}
                     {% if mensaje.leido and mensaje.remitente == request.user %}
-                    <i class="bi bi-check2-all"></i>
+                        <i class="bi bi-check2-all"></i>
                     {% endif %}
                 </div>
             </div>
         </div>
         {% empty %}
         <div class="chat-vacio">
+            <i class="bi bi-chat-dots"></i>
             <p>No hay mensajes. ¡Envía el primero!</p>
         </div>
         {% endfor %}
     </div>
 
+    <!-- FORMULARIO -->
     <div class="chat-form">
         <form method="POST" action="{% url 'mensajeria:detalle' conversacion.id %}">
             {% csrf_token %}
             <div class="chat-input-group">
                 <input type="text" name="contenido" class="chat-input" 
-                       placeholder="Escribe un mensaje..." required autofocus>
+                       placeholder="Escribe un mensaje..." required autofocus
+                       autocomplete="off">
                 <button type="submit" class="btn-enviar">
                     <i class="bi bi-send-fill"></i>
                 </button>

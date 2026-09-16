@@ -1,43 +1,56 @@
 /* ============================================ */
 /*      REENVIAR VERIFICACIÓN - QBYT           */
 /*      Página standalone (sin base.html)      */
+/*      Tema claro: crema + verde intenso      */
 /* ============================================ */
 
+/* ═══════════════════════════════════════════ */
+/* VARIABLES DE TEMA                           */
+/* ═══════════════════════════════════════════ */
+
 :root {
-    --rv-bg: #121212;
-    --rv-card: #181818;
-    --rv-border: rgba(255, 255, 255, 0.08);
-    --rv-border-subtle: rgba(255, 255, 255, 0.05);
-    --rv-hover: rgba(255, 255, 255, 0.05);
+    /* Tema oscuro */
+    --rv-bg: #0a1a1c;
+    --rv-card: #112426;
+    --rv-border: rgba(34, 211, 238, 0.15);
+    --rv-border-subtle: rgba(34, 211, 238, 0.08);
+    --rv-hover: rgba(34, 211, 238, 0.06);
 
     --rv-text: #ffffff;
-    --rv-subtext: #b3b3b3;
-    --rv-muted: #6a6a6a;
+    --rv-subtext: #a7d8e0;
+    --rv-muted: #64748b;
 
-    --rv-green: #1db954;
-    --rv-green-hover: #1ed760;
-    --rv-purple: #8b5cf6;
-    --rv-purple-hover: #7c3aed;
+    --rv-green: #10b981;
+    --rv-green-hover: #059669;
+    --rv-purple: #06b6d4;
+    --rv-purple-hover: #0891b2;
     --rv-danger: #ef4444;
 
     --rv-shadow: rgba(0, 0, 0, 0.5);
 }
 
+/* ═══════════════════════════════════════════ */
+/* MODO CLARO - CREMA + VERDE                  */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-    --rv-bg: #f8f9fe;
+    --rv-bg: #fefce8;
     --rv-card: #ffffff;
-    --rv-border: rgba(139, 92, 246, 0.15);
-    --rv-border-subtle: rgba(139, 92, 246, 0.08);
-    --rv-hover: rgba(139, 92, 246, 0.06);
+    --rv-border: rgba(34, 197, 94, 0.18);
+    --rv-border-subtle: rgba(34, 197, 94, 0.1);
+    --rv-hover: rgba(34, 197, 94, 0.06);
 
-    --rv-text: #1e1e2e;
-    --rv-subtext: #4a4a6a;
-    --rv-muted: #8b8ba7;
+    --rv-text: #1c1917;
+    --rv-subtext: #44403c;
+    --rv-muted: #a8a29e;
 
-    --rv-purple: #7c3aed;
-    --rv-purple-hover: #6d28d9;
+    --rv-green: #16a34a;
+    --rv-green-hover: #15803d;
+    --rv-purple: #16a34a;
+    --rv-purple-hover: #15803d;
+    --rv-danger: #ef4444;
 
-    --rv-shadow: rgba(139, 92, 246, 0.12);
+    --rv-shadow: rgba(34, 197, 94, 0.12);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -60,6 +73,7 @@ body {
     background: var(--rv-bg);
     color: var(--rv-text);
     min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -67,6 +81,7 @@ body {
     padding: 1.5rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background 0.3s ease, color 0.3s ease;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -124,6 +139,7 @@ body {
     padding: 2.5rem 2.25rem;
     box-shadow: 0 12px 40px var(--rv-shadow);
     animation: rvFadeIn 0.45s ease both;
+    transition: background 0.3s ease, border-color 0.3s ease;
 }
 
 @keyframes rvFadeIn {
@@ -184,14 +200,14 @@ body {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(236, 72, 153, 0.12));
-    border: 2px solid rgba(139, 92, 246, 0.25);
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(22, 163, 74, 0.1));
+    border: 2px solid rgba(34, 197, 94, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 1.25rem;
     font-size: 2.25rem;
-    color: var(--rv-purple);
+    color: var(--rv-green);
     animation: rvFloat 3.5s ease-in-out infinite;
 }
 
@@ -257,28 +273,32 @@ body {
 }
 
 .rv-alert-success {
-    background: rgba(29, 185, 84, 0.12);
-    color: #1ed760;
-    border: 1px solid rgba(29, 185, 84, 0.25);
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--rv-green);
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+[data-theme="light"] .rv-alert-success {
+    color: #15803d;
 }
 
 .rv-alert-danger,
 .rv-alert-error {
     background: rgba(239, 68, 68, 0.12);
-    color: #ff6b6b;
+    color: #dc2626;
     border: 1px solid rgba(239, 68, 68, 0.25);
 }
 
 .rv-alert-warning {
     background: rgba(245, 158, 11, 0.12);
-    color: #fbbf24;
+    color: #d97706;
     border: 1px solid rgba(245, 158, 11, 0.25);
 }
 
 .rv-alert-info {
-    background: rgba(59, 130, 246, 0.12);
-    color: #60a5fa;
-    border: 1px solid rgba(59, 130, 246, 0.25);
+    background: rgba(34, 197, 94, 0.12);
+    color: var(--rv-green);
+    border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -307,7 +327,7 @@ body {
 }
 
 .rv-label i {
-    color: var(--rv-purple);
+    color: var(--rv-green);
     font-size: 0.9rem;
 }
 
@@ -329,9 +349,9 @@ body {
 }
 
 .rv-input:focus {
-    border-color: var(--rv-purple);
+    border-color: var(--rv-green);
     background: var(--rv-hover);
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.15);
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
 }
 
 /* ═══════════════════════════════════════════ */
@@ -341,8 +361,8 @@ body {
 .rv-btn {
     width: 100%;
     padding: 0.9rem 1rem;
-    background: linear-gradient(135deg, var(--rv-purple), var(--rv-purple-hover));
-    color: #fff;
+    background: linear-gradient(135deg, var(--rv-green), var(--rv-green-hover));
+    color: #ffffff;
     border: none;
     border-radius: 11px;
     font-weight: 700;
@@ -372,7 +392,7 @@ body {
 
 .rv-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
+    box-shadow: 0 10px 24px rgba(34, 197, 94, 0.35);
 }
 
 .rv-btn:hover::before {
@@ -381,7 +401,7 @@ body {
 
 .rv-btn:active {
     transform: translateY(0) scale(0.99);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.25);
 }
 
 .rv-btn i {
@@ -418,7 +438,7 @@ body {
 }
 
 .rv-back-link:hover {
-    color: var(--rv-purple);
+    color: var(--rv-green);
     transform: translateX(-3px);
 }
 
@@ -452,7 +472,7 @@ body {
 
 .rv-wave-bar {
     width: 3px;
-    background: var(--rv-purple);
+    background: var(--rv-green);
     border-radius: 2px;
     animation: rvWave 1.4s ease-in-out infinite;
 }
@@ -468,57 +488,6 @@ body {
 @keyframes rvWave {
     0%, 100% { transform: scaleY(0.5); opacity: 0.4; }
     50%      { transform: scaleY(1);   opacity: 1;   }
-}
-
-/* ═══════════════════════════════════════════ */
-/*         TEMA CLARO                         */
-/* ═══════════════════════════════════════════ */
-
-[data-theme="light"] body {
-    background: #f8f9fe;
-}
-
-[data-theme="light"] .rv-card {
-    background: #ffffff;
-    border-color: rgba(139, 92, 246, 0.15);
-    box-shadow: 0 12px 40px rgba(139, 92, 246, 0.12);
-}
-
-[data-theme="light"] .rv-brand-logo {
-    border-color: #1e1e2e;
-}
-
-[data-theme="light"] .rv-title {
-    color: #1e1e2e;
-}
-
-[data-theme="light"] .rv-subtitle,
-[data-theme="light"] .rv-label {
-    color: #4a4a6a;
-}
-
-[data-theme="light"] .rv-input {
-    background: #f8f9fe;
-    border-color: rgba(139, 92, 246, 0.18);
-    color: #1e1e2e;
-}
-
-[data-theme="light"] .rv-input:focus {
-    background: #ffffff;
-    border-color: #8b5cf6;
-    box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
-}
-
-[data-theme="light"] .rv-input::placeholder {
-    color: #8b8ba7;
-}
-
-[data-theme="light"] .rv-back-link {
-    color: #8b8ba7;
-}
-
-[data-theme="light"] .rv-back-link:hover {
-    color: #7c3aed;
 }
 
 /* ═══════════════════════════════════════════ */

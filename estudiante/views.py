@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -13,6 +15,19 @@ from django.http import JsonResponse, request
 from django.views.decorators.http import require_POST
 import json
 from notificaciones.services import notificar_solicitud_clase
+
+
+# ═══════════════════════════════════════════════════════════
+# HELPER DE EXPIRACIÓN
+# ═══════════════════════════════════════════════════════════
+
+DIAS_GRACIA = 5
+
+
+def _clases_visibles_estudiante(user):
+    """Clases del estudiante que NO han expirado (≤ 5 días vencidas)."""
+    limite = timezone.now().date() - timedelta(days=DIAS_GRACIA)
+    return user.clases_estudiante.all().exclude(fecha_fin__lt=limite)
 
 
 def calcular_progreso_clase(estudiante, clase):
@@ -34,7 +49,7 @@ def perfil_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
 
-    clases = request.user.clases_estudiante.all()
+    clases = _clases_visibles_estudiante(request.user)
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
 
     progreso_clases = []
@@ -70,7 +85,7 @@ def perfil_estudiante(request):
     # Construir historial SOLO con clases activas y eliminadas
     historial = []
     
-    # Agregar clases activas (todas las clases donde está inscrito)
+    # Agregar clases activas (todas las clases donde está inscrito y NO expiradas)
     for clase in clases:
         historial.append({
             'nombre': clase.nombre,
@@ -88,6 +103,9 @@ def perfil_estudiante(request):
     ).select_related('clase', 'clase__docente')
     
     for solicitud in solicitudes_rechazadas:
+        # 🚫 Ocultar también si la clase está expirada
+        if solicitud.clase.esta_expirada:
+            continue
         historial.append({
             'nombre': solicitud.clase.nombre,
             'tipo': 'clase',
@@ -110,9 +128,8 @@ def perfil_estudiante(request):
         'pendientes_count': pendientes_count,
         'historial': historial,
         'clases_activas': clases.count(),
-        'clases_completadas': 0,  # Por ahora no hay clases completadas
+        'clases_completadas': 0,
     })
-
 
 
 @login_required
@@ -123,7 +140,7 @@ def unirse_clase(request):
         try:
             clase = Clase.objects.get(codigo=codigo)
             
-            # 1. RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en un curso con el mismo título
+            # 1. RESTRICCIÓN POR TÍTULO
             clase_mismo_titulo = Clase.objects.filter(
                 nombre__iexact=clase.nombre,
                 estudiantes=request.user
@@ -133,14 +150,13 @@ def unirse_clase(request):
                 messages.error(request, f"No puedes unirte. Ya estás inscrito en otro curso con el título '{clase.nombre}'.")
                 return redirect('estudiante:explorar_clases')
 
-            # 2. Verificar si ya está inscrito exactamente en esta misma clase
+            # 2. Verificar si ya está inscrito
             if request.user in clase.estudiantes.all():
                 messages.warning(request, "Ya estás inscrito en esta clase.")
             else:
-                # 3. ¡Inscribir de una vez al estudiante con el código!
+                # 3. Inscribir
                 clase.estudiantes.add(request.user)
                 
-                # Opcional por si tenía alguna solicitud pendiente para esta misma clase
                 SolicitudClase.objects.filter(
                     clase=clase, estudiante=request.user
                 ).update(estado='aceptada')
@@ -159,7 +175,6 @@ def solicitar_clase(request):
         clase_id = request.POST.get('clase_id')
         clase = get_object_or_404(Clase, id=clase_id)
         
-        #  RESTRICCIÓN POR TÍTULO: Verificar si ya está inscrito en otro curso con el mismo título
         clase_mismo_titulo = Clase.objects.filter(
             nombre__iexact=clase.nombre,
             estudiantes=request.user
@@ -188,6 +203,7 @@ def solicitar_clase(request):
             
     return redirect('estudiante:explorar_clases')
 
+
 @login_required
 def salir_clase(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
@@ -201,17 +217,20 @@ def salir_clase(request, clase_id):
 @login_required
 def explorar_clases(request):
     """
-    Vista unificada para explorar clases disponibles
+    Vista unificada para explorar clases disponibles.
+    No muestra clases expiradas (> 5 días vencidas).
     """
     from docente.models import SolicitudClase, Clase
     
     usuario = request.user
     
-    # Clases donde el usuario NO está inscrito y NO es docente
+    # Clases donde el usuario NO está inscrito, NO es docente y NO están expiradas
     clases = Clase.objects.exclude(
         estudiantes=usuario
     ).exclude(
         docente=usuario
+    ).exclude(
+        fecha_fin__lt=timezone.now().date() - timedelta(days=DIAS_GRACIA)
     )
     
     # Filtros por categoría
@@ -253,18 +272,19 @@ def explorar_clases(request):
     
     return render(request, 'estudiante/explorar_clases.html', context)
 
+
 @login_required
 def detalle_clase_estudiante(request, clase_id):
     if hasattr(request.user, 'perfil') and request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
-        
+
     clase = get_object_or_404(Clase, id=clase_id)
-    
+
+    # Validación: inscripción
     if request.user not in clase.estudiantes.all():
         messages.error(request, "No tienes acceso a esta clase o aún no estás inscrito.")
-        return redirect('estudiante:mis_clases')
-    
-    # 🟢 TRAEMOS TODOS LOS EJERCICIOS (activos e inactivos)
+        return redirect('estudiante:explorar_clases')
+
     ejercicios = clase.ejercicios.all()
 
     for ejercicio in ejercicios:
@@ -277,14 +297,17 @@ def detalle_clase_estudiante(request, clase_id):
         'clase': clase,
         'ejercicios': ejercicios,
         'solicitud': solicitud,
+        'clase_bloqueada': clase.esta_bloqueada,
+        'motivo_bloqueo': clase.motivo_bloqueo,
     })
+
 
 @login_required
 def mis_calificaciones_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
     
-    clases = Clase.objects.filter(estudiantes=request.user)
+    clases = _clases_visibles_estudiante(request.user)
     
     reporte_clases = []
     for clase in clases:
@@ -306,6 +329,28 @@ def mis_calificaciones_estudiante(request):
     return render(request, 'estudiante/mis_calificaciones.html', {
         'reporte_clases': reporte_clases,
     })
+
+
+@login_required
+def mis_clases(request):
+    """Lista de clases del estudiante."""
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+
+    clases = _clases_visibles_estudiante(request.user)
+
+    progreso_clases = []
+    for clase in clases:
+        progreso_clases.append({
+            'clase': clase,
+            'porcentaje': calcular_progreso_clase(request.user, clase),
+        })
+
+    return render(request, 'estudiante/mis_clases.html', {
+        'progreso_clases': progreso_clases,
+        'total_clases': clases.count(),
+    })
+
 
 @login_required
 @require_POST
@@ -392,7 +437,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         )
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
     
-    # VALIDACIÓN 3: Ya envió el ejercicio (pendiente de calificación)
+    # VALIDACIÓN 3: Ya envió el ejercicio
     intento_existente = IntentoEjercicio.objects.filter(
         estudiante=request.user,
         ejercicio=ejercicio
@@ -436,15 +481,11 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     
     return render(request, 'estudiante/resolver_ejercicio.html', context)
 
+
 @login_required
 def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     """
     Vista unificada para enviar respuestas de cualquier tipo de ejercicio.
-    Incluye validaciones de:
-      - Inscripción del estudiante a la clase
-      - Ejercicio activo
-      - Fecha límite no vencida
-      - Máximo de 2 intentos
     """
     from docente.models import Clase
     from ejercicios.models import (
@@ -456,19 +497,16 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
 
-    #  Validación: el estudiante debe estar inscrito
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
         return redirect('inicio')
 
     if request.method == 'POST':
 
-        #  Validación 1: ejercicio desactivado
         if not ejercicio.activo:
             messages.error(request, 'Este ejercicio está desactivado por el docente.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        #  Validación 2: fecha límite vencida
         if ejercicio.esta_vencido:
             messages.error(
                 request,
@@ -478,7 +516,6 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        #  Validación 3: ya envió el ejercicio (pendiente de calificación)
         intento_existente = IntentoEjercicio.objects.filter(
             estudiante=request.user,
             ejercicio=ejercicio
@@ -491,7 +528,6 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        #  Validación 4: máximo de 2 intentos
         intentos_count = IntentoEjercicio.objects.filter(
             estudiante=request.user,
             ejercicio=ejercicio
@@ -501,14 +537,12 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             messages.error(request, 'Has agotado tus 2 intentos.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # Crear intento
         intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
             ejercicio=ejercicio,
             fecha_envio=timezone.now(),
         )
 
-        # Procesar respuestas
         preguntas = Pregunta.objects.filter(ejercicio=ejercicio)
 
         for pregunta in preguntas:

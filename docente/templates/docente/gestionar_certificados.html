@@ -1,0 +1,177 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Certificados — {{ clase.nombre }}{% endblock %}
+{% block page_title %}Certificados{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/estadisticas.css' %}">
+<style>
+.cert-container { max-width: 1100px; margin: 0 auto; padding: 1.5rem; }
+.cert-header { margin-bottom: 2rem; }
+.cert-header h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; margin: 0.5rem 0; color: var(--text-primary); }
+.cert-header p { color: var(--text-secondary); font-size: 0.9rem; margin: 0; }
+.cert-requirements { background: rgba(139, 92, 246, 0.08); border-left: 4px solid #8b5cf6; padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; }
+.cert-requirements strong { color: #8b5cf6; }
+.cert-table-wrapper { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 14px; overflow: hidden; margin-bottom: 1.5rem; }
+.cert-table { width: 100%; border-collapse: collapse; }
+.cert-table thead { background: var(--bg-hover); }
+.cert-table th { padding: 1rem; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); border-bottom: 1px solid var(--border-subtle); }
+.cert-table td { padding: 1rem; border-bottom: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.9rem; }
+.cert-table tr:last-child td { border-bottom: none; }
+.cert-table tbody tr:hover { background: var(--bg-hover); }
+.cert-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #8b5cf6; }
+.cert-badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; }
+.cert-badge.aprobado { background: rgba(16, 185, 129, 0.12); color: #10b981; }
+.cert-badge.reprobado { background: rgba(239, 68, 68, 0.12); color: #ef4444; }
+.cert-badge.emitido { background: rgba(139, 92, 246, 0.15); color: #8b5cf6; }
+.cert-student-info { display: flex; align-items: center; gap: 0.75rem; }
+.cert-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #ec4899); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; overflow: hidden; flex-shrink: 0; }
+.cert-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.cert-actions { display: flex; gap: 1rem; justify-content: flex-end; }
+.cert-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: 25px; font-weight: 700; font-size: 0.9rem; text-decoration: none; cursor: pointer; border: none; transition: all 0.2s; }
+.cert-btn-primary { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: #fff; }
+.cert-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.35); color: #fff; }
+.cert-btn-secondary { background: var(--bg-hover); color: var(--text-secondary); border: 1px solid var(--border-color); }
+.cert-btn-secondary:hover { background: var(--border-color); color: var(--text-primary); }
+.cert-revoke { color: #ef4444; text-decoration: none; font-size: 0.78rem; font-weight: 600; }
+.cert-revoke:hover { text-decoration: underline; }
+.cert-empty { padding: 3rem; text-align: center; color: var(--text-muted); }
+@media (max-width: 768px) {
+    .cert-container { padding: 1rem; }
+    .cert-header h1 { font-size: 1.4rem; }
+    .cert-table th, .cert-table td { padding: 0.75rem 0.5rem; font-size: 0.8rem; }
+    .cert-table th:nth-child(3), .cert-table td:nth-child(3),
+    .cert-table th:nth-child(4), .cert-table td:nth-child(4) { display: none; }
+    .cert-actions { flex-direction: column; }
+    .cert-btn { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="cert-container">
+
+    <div class="cert-header">
+        <a href="{% url 'estadisticas_clase' clase.id %}" class="back-link-modern">
+            <i class="bi bi-arrow-left"></i> Volver a calificaciones
+        </a>
+        <h1>🎓 Emitir Certificados</h1>
+        <p>{{ clase.nombre }} — {{ clase.estudiantes.count }} estudiantes</p>
+    </div>
+
+    <div class="cert-requirements">
+        <strong>Requisitos para certificar:</strong>
+        Progreso ≥ {{ progreso_minimo }}% y promedio ≥ {{ promedio_minimo }}/5.0
+    </div>
+
+    <form method="POST" action="{% url 'emitir_certificados_lote' clase.id %}">
+        {% csrf_token %}
+
+        <div class="cert-table-wrapper">
+            <table class="cert-table">
+                <thead>
+                    <tr>
+                        <th style="width: 50px;">
+                            <input type="checkbox" id="selectAll" class="cert-checkbox">
+                        </th>
+                        <th>Estudiante</th>
+                        <th>Progreso</th>
+                        <th>Promedio</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in data %}
+                    <tr>
+                        <td>
+                            {% if item.puede_certificar %}
+                                <input type="checkbox" name="estudiantes" value="{{ item.estudiante.id }}" class="cert-checkbox">
+                            {% else %}
+                                <span style="opacity: 0.3;">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="cert-student-info">
+                                <div class="cert-avatar">
+                                    {% if item.estudiante.perfil.foto_perfil %}
+                                        <img src="{{ item.estudiante.perfil.foto_perfil.url }}" alt="{{ item.estudiante.username }}">
+                                    {% else %}
+                                        {{ item.estudiante.username|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 600;">{{ item.estudiante.get_full_name|default:item.estudiante.username }}</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">@{{ item.estudiante.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <strong>{{ item.progreso }}%</strong>
+                            <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completados }}/{{ item.total }}</div>
+                        </td>
+                        <td>
+                            <strong>{{ item.promedio }}/5.0</strong>
+                        </td>
+                        <td>
+                            {% if item.certificado %}
+                                <span class="cert-badge emitido">
+                                    <i class="bi bi-patch-check-fill"></i> Emitido
+                                </span>
+                                <a href="{% url 'revocar_certificado' item.certificado.id %}"
+                                   class="cert-revoke"
+                                   onclick="return confirm('¿Revocar el certificado de {{ item.estudiante.username }}?')"
+                                   style="margin-left: 0.5rem;">
+                                    Revocar
+                                </a>
+                            {% elif item.puede_certificar %}
+                                <span class="cert-badge aprobado">
+                                    <i class="bi bi-check-circle-fill"></i> Listo
+                                </span>
+                            {% else %}
+                                <span class="cert-badge reprobado">
+                                    <i class="bi bi-x-circle-fill"></i> No cumple
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="cert-empty">
+                            <i class="bi bi-people" style="font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.3;"></i>
+                            No hay estudiantes inscritos aún
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="cert-actions">
+            <a href="{% url 'estadisticas_clase' clase.id %}" class="cert-btn cert-btn-secondary">
+                Cancelar
+            </a>
+            <button type="submit" class="cert-btn cert-btn-primary">
+                <i class="bi bi-patch-check-fill"></i> Emitir certificados seleccionados
+            </button>
+        </div>
+    </form>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Checkbox "Seleccionar todos"
+    const selectAll = document.getElementById('selectAll');
+    if (selectAll) {
+        selectAll.addEventListener('change', function() {
+            document.querySelectorAll('input[name="estudiantes"]').forEach(cb => {
+                cb.checked = this.checked;
+            });
+        });
+    }
+</script>
+{% endblock %}

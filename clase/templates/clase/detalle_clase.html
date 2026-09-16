@@ -21,20 +21,22 @@
 {% if messages %}
 <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px; max-width:500px;">
     {% for message in messages %}
-    <div class="alert alert-dismissible fade show shadow-sm 
+    <div class="alert alert-dismissible fade show shadow-sm
         {% if message.tags == 'error' %}alert-danger bg-danger text-white
         {% elif message.tags == 'warning' %}alert-warning bg-warning text-dark
-        {% else %}alert-success bg-success text-white{% endif %}" 
+        {% else %}alert-success bg-success text-white{% endif %}"
         role="alert" style="border-radius: 8px;">
-        
-        <i class="bi 
+
+        <i class="bi
             {% if message.tags == 'error' %}bi-exclamation-triangle-fill
             {% elif message.tags == 'warning' %}bi-exclamation-circle-fill
             {% else %}bi-check-circle-fill{% endif %} me-2"></i>
-        
+
         {{ message }}
-        
-        <button type="button" class="btn-close {% if message.tags != 'warning' %}btn-close-white{% endif %}" data-bs-dismiss="alert" aria-label="Close" style="float: right; background: transparent; border: 0; font-size: 1rem; cursor: pointer;"></button>
+
+        <button type="button" class="btn-close {% if message.tags != 'warning' %}btn-close-white{% endif %}"
+            data-bs-dismiss="alert" aria-label="Close"
+            style="float: right; background: transparent; border: 0; font-size: 1rem; cursor: pointer;"></button>
     </div>
     {% endfor %}
 </div>
@@ -42,23 +44,30 @@
 
 <!-- CLASS HERO -->
 <section class="class-hero">
-    <div class="class-hero-bg {% if not clase.imagen %}no-image{% endif %}" 
-         style="{% if clase.imagen %}background-image: url('{{ clase.imagen.url }}');{% endif %}">
+    <div class="class-hero-bg {% if not clase.imagen %}no-image{% endif %}"
+        style="{% if clase.imagen %}background-image: url('{{ clase.imagen.url }}');{% endif %}">
     </div>
     <div class="class-hero-overlay"></div>
-    
+
     <div class="class-hero-content">
         <div class="class-hero-info">
             <span class="class-hero-badge">
                 <i class="bi bi-mortarboard-fill"></i> Docente
             </span>
-            
+
             <h1 class="class-hero-title">{{ clase.nombre }}</h1>
-            
+
+            {% if clase.esta_bloqueada %}
+            <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff9999; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-top: 0.5rem; backdrop-filter: blur(10px);">
+                <i class="bi {{ clase.estado_icon_docente }}"></i>
+                {{ clase.estado_label_docente }} — los estudiantes no pueden acceder
+            </div>
+            {% endif %}
+
             {% if clase.descripcion %}
             <p class="class-hero-description">{{ clase.descripcion }}</p>
             {% endif %}
-            
+
             <div class="class-hero-meta">
                 <span class="class-hero-meta-item">
                     <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }} estudiantes
@@ -78,21 +87,21 @@
                 {% endif %}
             </div>
         </div>
-        
+
         <div class="class-hero-actions">
             <div class="d-flex gap-2 flex-wrap">
                 <a href="{% url 'estadisticas_clase' clase.id %}" class="btn-stats" title="Ver estadísticas">
                     <i class="bi bi-graph-up"></i> Calificaciones
                 </a>
-                
+
                 <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key-fill"></i> {{ clase.codigo }}
                 </div>
-                
+
                 <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings btn-pdf" title="Descargar PDF">
                     <i class="bi bi-file-earmark-pdf-fill"></i>
                 </a>
-                
+
                 <div class="dropdown">
                     <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
                         <i class="bi bi-gear-fill"></i>
@@ -103,7 +112,34 @@
                                 <i class="bi bi-pencil-square"></i> Editar clase
                             </button>
                         </li>
-                        <li><hr class="dropdown-divider"></li>
+
+                        <!-- Activar / Desactivar clase -->
+                        <li>
+                            <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST" style="margin: 0;">
+                                {% csrf_token %}
+                                {% if clase.activa %}
+                                <button type="submit" class="dropdown-item text-warning">
+                                    <i class="bi bi-pause-circle"></i> Desactivar clase
+                                </button>
+                                {% else %}
+                                <button type="submit" class="dropdown-item text-success">
+                                    <i class="bi bi-play-circle"></i> Reactivar clase
+                                </button>
+                                {% endif %}
+                            </form>
+                        </li>
+
+                        <!-- Extender fecha de fin -->
+                        <li>
+                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalExtenderFecha">
+                                <i class="bi bi-calendar-plus"></i> Extender fecha de fin
+                            </button>
+                        </li>
+                        <!-- FIN -->
+
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
                         <li>
                             <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
                                 <i class="bi bi-trash-fill"></i> Eliminar clase
@@ -120,8 +156,10 @@
 <main class="content-area">
     <div class="container">
         <div class="row g-4">
+
             <!-- COLUMNA IZQUIERDA -->
             <div class="col-lg-4">
+
                 <!-- SOLICITUDES -->
                 <div class="section-card mb-4">
                     <div class="section-header">
@@ -133,27 +171,27 @@
                     </div>
 
                     {% if solicitudes %}
-                        {% for sol in solicitudes %}
-                        <div class="solicitud-row">
-                            <div class="solicitud-avatar">
-                                {% if sol.estudiante.perfil.foto_perfil %}
-                                    <img src="{{ sol.estudiante.perfil.foto_perfil.url }}" alt="{{ sol.estudiante.username }}" class="avatar-img">
-                                {% else %}
-                                    {{ sol.estudiante.username|first|upper }}
-                                {% endif %}
-                            </div>
-                            <div class="solicitud-info">
-                                <strong>{{ sol.estudiante.get_full_name|default:sol.estudiante.username }}</strong>
-                                <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept"><i class="bi bi-check-lg"></i></a>
-                                <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject"><i class="bi bi-x-lg"></i></a>
-                            </div>
+                    {% for sol in solicitudes %}
+                    <div class="solicitud-row">
+                        <div class="solicitud-avatar">
+                            {% if sol.estudiante.perfil.foto_perfil %}
+                            <img src="{{ sol.estudiante.perfil.foto_perfil.url }}" alt="{{ sol.estudiante.username }}" class="avatar-img">
+                            {% else %}
+                            {{ sol.estudiante.username|first|upper }}
+                            {% endif %}
                         </div>
-                        {% endfor %}
+                        <div class="solicitud-info">
+                            <strong>{{ sol.estudiante.get_full_name|default:sol.estudiante.username }}</strong>
+                            <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept"><i class="bi bi-check-lg"></i></a>
+                            <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject"><i class="bi bi-x-lg"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
+                    <p class="empty-msg"><i class="bi bi-check-circle me-2"></i>Sin solicitudes pendientes</p>
                     {% endif %}
                 </div>
 
@@ -186,34 +224,35 @@
                     </div>
 
                     {% if clase.estudiantes.all %}
-                        {% for estudiante in clase.estudiantes.all %}
-                        <div class="student-row">
-                            <div class="student-avatar">
-                                {% if estudiante.perfil.foto_perfil %}
-                                    <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}" class="avatar-img">
-                                {% else %}
-                                    {{ estudiante.username|first|upper }}
-                                {% endif %}
-                            </div>
-                            <div class="student-info">
-                                <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
-                                <p>@{{ estudiante.username }}</p>
-                            </div>
-                            <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}"
-                                class="btn-danger-soft"
-                                onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
-                                <i class="bi bi-person-dash"></i> Remover
-                            </a>
+                    {% for estudiante in clase.estudiantes.all %}
+                    <div class="student-row">
+                        <div class="student-avatar">
+                            {% if estudiante.perfil.foto_perfil %}
+                            <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}" class="avatar-img">
+                            {% else %}
+                            {{ estudiante.username|first|upper }}
+                            {% endif %}
                         </div>
-                        {% endfor %}
+                        <div class="student-info">
+                            <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
+                            <p>@{{ estudiante.username }}</p>
+                        </div>
+                        <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft"
+                            onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
+                            <i class="bi bi-person-dash"></i> Remover
+                        </a>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <p class="empty-msg">No hay estudiantes inscritos aún</p>
+                    <p class="empty-msg">No hay estudiantes inscritos aún</p>
                     {% endif %}
                 </div>
+
             </div>
 
             <!-- COLUMNA DERECHA -->
             <div class="col-lg-8">
+
                 <!-- ANUNCIOS -->
                 <div class="section-card mb-4">
                     <div class="section-header">
@@ -227,32 +266,33 @@
                     </div>
 
                     {% if anuncios %}
-                        {% for anuncio in anuncios %}
-                        <div class="announcement-item mt-3">
-                            <div class="announcement-header">
-                                <div class="announcement-avatar">
-                                    {% if clase.docente.perfil.foto_perfil %}
-                                        <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
-                                    {% else %}
-                                        {{ clase.docente.username|first|upper }}
-                                    {% endif %}
-                                </div>
-                                <div>
-                                    <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
-                                    <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
-                                </div>
-                                <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement" onclick="return confirm('¿Eliminar anuncio?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                    {% for anuncio in anuncios %}
+                    <div class="announcement-item mt-3">
+                        <div class="announcement-header">
+                            <div class="announcement-avatar">
+                                {% if clase.docente.perfil.foto_perfil %}
+                                <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+                                {% else %}
+                                {{ clase.docente.username|first|upper }}
+                                {% endif %}
                             </div>
-                            <p class="announcement-text">{{ anuncio.texto }}</p>
+                            <div>
+                                <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
+                            </div>
+                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement"
+                                onclick="return confirm('¿Eliminar anuncio?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
                         </div>
-                        {% endfor %}
+                        <p class="announcement-text">{{ anuncio.texto }}</p>
+                    </div>
+                    {% endfor %}
                     {% else %}
-                        <p class="empty-msg mt-3">
-                            <i class="bi bi-info-circle me-2"></i>
-                            No hay anuncios aún. ¡Publica el primero!
-                        </p>
+                    <p class="empty-msg mt-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        No hay anuncios aún. ¡Publica el primero!
+                    </p>
                     {% endif %}
                 </div>
 
@@ -269,21 +309,21 @@
                     </div>
 
                     {% if ejercicios %}
-                        <div class="ejercicios-grid">
-                            {% for ejercicio in ejercicios %}
-                                {% with estado=ejercicio.estado_docente estado_label=ejercicio.estado_label_docente estado_icon=ejercicio.estado_icon_docente %}
-                                    {% include 'clase/_ejercicio_card_docente.html' %}
-                                {% endwith %}
-                            {% endfor %}
-                        </div>
+                    <div class="ejercicios-grid">
+                        {% for ejercicio in ejercicios %}
+                        {% include 'clase/_ejercicio_card_docente.html' with estado=ejercicio.estado_docente estado_label=ejercicio.estado_label_docente estado_icon=ejercicio.estado_icon_docente %}
+                        {% endfor %}
+                    </div>
                     {% else %}
-                        <p class="empty-msg text-center py-3">
-                            <i class="bi bi-collection me-2"></i>
-                            No hay ejercicios creados aún. ¡Crea el primero!
-                        </p>
+                    <p class="empty-msg text-center py-3">
+                        <i class="bi bi-collection me-2"></i>
+                        No hay ejercicios creados aún. ¡Crea el primero!
+                    </p>
                     {% endif %}
                 </div>
+
             </div>
+
         </div>
     </div>
 </main>
@@ -329,7 +369,7 @@
                         <label class="form-label">Nombre de la clase <span class="text-danger">*</span></label>
                         <input type="text" name="nombre" class="form-control" value="{{ clase.nombre }}" required>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Categoría del tema <span class="text-danger">*</span></label>
                         <select class="form-select" name="categoria_tema" required>
@@ -338,33 +378,31 @@
                             <option value="melodia" {% if clase.categoria_tema == 'melodia' %}selected{% endif %}>Melodía</option>
                         </select>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
                         <textarea name="descripcion" class="form-control" rows="3">{{ clase.descripcion }}</textarea>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha de inicio <span class="text-danger">*</span></label>
-                            <input type="date" name="fecha_inicio" class="form-control" 
-                                   value="{{ clase.fecha_inicio|date:'Y-m-d' }}" 
-                                   id="editFechaInicio" required>
+                            <input type="date" name="fecha_inicio" class="form-control"
+                                value="{{ clase.fecha_inicio|date:'Y-m-d' }}" id="editFechaInicio" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha de finalización <span class="text-danger">*</span></label>
-                            <input type="date" name="fecha_fin" class="form-control" 
-                                   value="{{ clase.fecha_fin|date:'Y-m-d' }}" 
-                                   id="editFechaFin" required>
+                            <input type="date" name="fecha_fin" class="form-control"
+                                value="{{ clase.fecha_fin|date:'Y-m-d' }}" id="editFechaFin" required>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Máximo de estudiantes</label>
-                        <input type="number" name="max_estudiantes" class="form-control" 
-                               value="{{ clase.max_estudiantes }}" min="1" max="35">
+                        <input type="number" name="max_estudiantes" class="form-control"
+                            value="{{ clase.max_estudiantes }}" min="1" max="35">
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Imagen de portada</label>
                         <input type="file" name="imagen" class="form-control" accept="image/*">
@@ -373,6 +411,43 @@
                 <div class="modal-footer">
                     <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
                     <button type="submit" class="btn-modal-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Extender Fecha de Fin -->
+<div class="modal fade" id="modalExtenderFecha" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-calendar-plus icon-purple"></i> Extender fecha de finalización</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="{% url 'clase:extender_fecha_clase' clase.id %}" method="POST" id="formExtenderFecha">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <p style="color: var(--text-secondary); font-size: 0.88rem; margin-bottom: 1rem;">
+                        Fecha actual de finalización:
+                        <strong style="color: var(--text-primary);">
+                            {% if clase.fecha_fin %}{{ clase.fecha_fin|date:"d/m/Y" }}{% else %}Sin fecha{% endif %}
+                        </strong>
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nueva fecha de finalización <span class="text-danger">*</span></label>
+                        <input type="date" name="nueva_fecha_fin" class="form-control" id="nuevaFechaFin" required>
+                        <div class="form-text" style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem;">
+                            Debe ser posterior a hoy y a la fecha de inicio.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-modal-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn-modal-primary">
+                        <i class="bi bi-check-lg"></i> Guardar nueva fecha
+                    </button>
                 </div>
             </form>
         </div>
@@ -409,7 +484,7 @@
         <div class="modal-content tipo-ejercicio-modal">
             <div class="modal-header border-0 pb-0">
                 <h3 class="modal-title w-100 text-center">
-                    <i class="bi bi-plus-circle-fill"></i> 
+                    <i class="bi bi-plus-circle-fill"></i>
                     ¿Qué tipo de ejercicio quieres crear?
                 </h3>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
@@ -417,35 +492,35 @@
             <div class="modal-body px-4 pb-4">
                 <p class="text-center text-muted mb-4">Elige el formato que mejor se adapte a tu contenido</p>
                 <div class="ejercicio-options-grid">
-                    
+
                     <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
                         <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.</p>
                         <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
                     </a>
-                    
+
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
                         <h4 class="option-title">Juego Interactivo</h4>
                         <p class="option-desc">Gamificación: emparejar, ordenar, o completar con puntaje.</p>
                         <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y premios</span>
                     </a>
-                    
+
                     <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
                         <h4 class="option-title">Texto / Lectura</h4>
                         <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
                         <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
                     </a>
-                    
+
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon completar-icon"><i class="bi bi-input-cursor-text"></i></div>
                         <h4 class="option-title">Completar Espacios</h4>
                         <p class="option-desc">Frases con espacios en blanco que el estudiante debe rellenar.</p>
                         <span class="option-badge badge-yellow"><i class="bi bi-pencil-fill"></i> Rellenar huecos</span>
                     </a>
-                    
+
                 </div>
             </div>
             <div class="modal-footer border-0 pt-0 justify-content-center">
@@ -543,58 +618,90 @@
         });
     });
 
-    document.getElementById('formEditarClase').addEventListener('submit', function(e) {
+    document.getElementById('formEditarClase').addEventListener('submit', function (e) {
         e.preventDefault();
-        
+
         const fechaInicioInput = document.getElementById('editFechaInicio');
         const fechaFinInput = document.getElementById('editFechaFin');
         const fechaInicio = fechaInicioInput.value;
         const fechaFin = fechaFinInput.value;
-        
+
         let isValid = true;
-        
+
         const hoy = new Date();
         const hoyStr = hoy.toLocaleDateString('en-CA');
-        
+
         if (!fechaInicio) {
             alert('La fecha de inicio es obligatoria.');
             isValid = false;
         }
-        
+
         if (!fechaFin) {
             alert('La fecha de finalización es obligatoria.');
             isValid = false;
         }
-        
+
         if (fechaInicio && fechaFin) {
             if (fechaInicio < hoyStr) {
                 alert('No puedes usar una fecha de inicio pasada.');
                 isValid = false;
             }
-            
+
             if (fechaFin < hoyStr) {
                 alert('No puedes usar una fecha de finalización pasada.');
                 isValid = false;
             }
-            
+
             if (fechaFin <= fechaInicio) {
                 alert('La fecha de finalización debe ser posterior a la fecha de inicio.');
                 isValid = false;
             }
-            
+
             const fechaInicioDate = new Date(fechaInicio + 'T12:00:00');
             const fechaFinDate = new Date(fechaFin + 'T12:00:00');
             const diferenciaDias = Math.round((fechaFinDate - fechaInicioDate) / (1000 * 60 * 60 * 24));
-            
+
             if (diferenciaDias < 5) {
                 alert(`La clase debe durar al menos 5 días (actual: ${diferenciaDias} días).`);
                 isValid = false;
             }
         }
-        
+
         if (isValid) {
             this.submit();
         }
+    });
+
+    /* =====================================================
+       VALIDACIÓN DEL MODAL EXTENDER FECHA
+       ===================================================== */
+    document.getElementById('formExtenderFecha').addEventListener('submit', function (e) {
+        const input = document.getElementById('nuevaFechaFin');
+        const nuevaFecha = input.value;
+
+        if (!nuevaFecha) {
+            e.preventDefault();
+            alert('Debes seleccionar una nueva fecha.');
+            return;
+        }
+
+        const hoy = new Date();
+        const hoyStr = hoy.toLocaleDateString('en-CA');
+
+        if (nuevaFecha <= hoyStr) {
+            e.preventDefault();
+            alert('La nueva fecha debe ser posterior a hoy.');
+            return;
+        }
+
+        {% if clase.fecha_inicio %}
+        const fechaInicio = '{{ clase.fecha_inicio|date:"Y-m-d" }}';
+        if (nuevaFecha <= fechaInicio) {
+            e.preventDefault();
+            alert('La nueva fecha debe ser posterior a la fecha de inicio de la clase.');
+            return;
+        }
+        {% endif %}
     });
 
     setTimeout(() => {
@@ -609,31 +716,28 @@
         const d = card.dataset;
 
         const backdrop = document.getElementById('ejModalBackdropDocente');
-        const modal    = document.getElementById('ejModalDocente');
+        const modal = document.getElementById('ejModalDocente');
 
         document.getElementById('ejModalTitleDocente').textContent = d.titulo;
-        document.getElementById('ejModalDescDocente').textContent  = d.descripcion || 'Sin descripción disponible.';
-        document.getElementById('ejModalTipoDocente').textContent  = d.tipo || 'Ejercicio';
+        document.getElementById('ejModalDescDocente').textContent = d.descripcion || 'Sin descripción disponible.';
+        document.getElementById('ejModalTipoDocente').textContent = d.tipo || 'Ejercicio';
         document.getElementById('ejModalFechaDocente').textContent = d.fechaLimite || 'Sin fecha límite';
-        document.getElementById('ejModalIntentosTotalDocente').textContent       = d.intentosTotal || '0';
-        document.getElementById('ejModalIntentosPendientesDocente').textContent  = d.intentosPendientes || '0';
+        document.getElementById('ejModalIntentosTotalDocente').textContent = d.intentosTotal || '0';
+        document.getElementById('ejModalIntentosPendientesDocente').textContent = d.intentosPendientes || '0';
 
-        // Icono dinámico
         const iconWrap = document.getElementById('ejModalHeaderIconDocente');
         let iconClass = 'bi-collection-play-fill';
-        if (d.estado === 'vencido')       iconClass = 'bi-calendar-x';
-        if (d.estado === 'desactivado')   iconClass = 'bi-slash-circle';
-        if (d.estado === 'pendiente')     iconClass = 'bi-hourglass-split';
-        if (d.estado === 'calificado')    iconClass = 'bi-check-circle-fill';
+        if (d.estado === 'vencido') iconClass = 'bi-calendar-x';
+        if (d.estado === 'desactivado') iconClass = 'bi-slash-circle';
+        if (d.estado === 'pendiente') iconClass = 'bi-hourglass-split';
+        if (d.estado === 'calificado') iconClass = 'bi-check-circle-fill';
         iconWrap.innerHTML = `<i class="bi ${iconClass}"></i>`;
 
-        // Badge
         document.getElementById('ejModalBadgesDocente').innerHTML =
             `<span class="ej-badge ${d.estado}">
                 <i class="bi ${d.estadoIcon}"></i> ${d.estadoLabel}
             </span>`;
 
-        // Aviso contextual
         const alertBox = document.getElementById('ejModalAlertDocente');
         alertBox.className = 'ej-modal-alert';
         alertBox.style.display = 'none';
@@ -660,12 +764,10 @@
             alertBox.style.display = 'flex';
         }
 
-        // Botones de acción
-        document.getElementById('ejModalVerBtn').href    = d.urlVer;
-        document.getElementById('ejModalEditBtn').href   = d.urlEditar;
+        document.getElementById('ejModalVerBtn').href = d.urlVer;
+        document.getElementById('ejModalEditBtn').href = d.urlEditar;
         document.getElementById('ejModalToggleForm').action = d.urlToggle;
 
-        // Cambiar texto del botón toggle según estado actual
         const toggleBtn = document.getElementById('ejModalToggleBtn');
         if (d.activo === '1') {
             toggleBtn.innerHTML = '<i class="bi bi-pause-circle"></i> Desactivar';
@@ -692,7 +794,6 @@
         if (e.key === 'Escape') cerrarModalEjercicioDocente();
     });
 
-    // Animación de entrada
     const observerDocente = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {

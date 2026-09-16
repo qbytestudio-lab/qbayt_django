@@ -21,6 +21,9 @@
 <body>
     <div class="wrapper">
 
+        <!-- OVERLAY PARA MÓVIL -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="cerrarSidebar()"></div>
+
         <!-- SIDEBAR -->
         <aside class="sidebar" id="sidebar">
             <div class="logo-area">
@@ -39,7 +42,7 @@
                         <i class="bi bi-journal-bookmark"></i><span>Mis clases</span>
                     </a>
                 </li>
-                
+
                 <!-- ✅ BIBLIOTECA SOLO PARA DOCENTES -->
                 {% if request.user.perfil.rol == 'docente' %}
                 <li class="{% block nav_biblioteca %}{% endblock %}">
@@ -48,7 +51,7 @@
                     </a>
                 </li>
                 {% endif %}
-                
+
                 {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_explorar %}{% endblock %}">
                     <a href="{% url 'estudiante:explorar_clases' %}">
@@ -56,7 +59,7 @@
                     </a>
                 </li>
                 {% endif %}
-                
+
                 {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_progreso %}{% endblock %}">
                     <a href="{% url 'progreso' %}">
@@ -64,13 +67,13 @@
                     </a>
                 </li>
                 {% endif %}
-                
+
                 <li class="{% block nav_calendario %}{% endblock %}">
                     <a href="{% url 'calendario' %}">
                         <i class="bi bi-calendar-week"></i><span>Calendario</span>
                     </a>
                 </li>
-                
+
                 {% if request.user.perfil.rol == 'estudiante' %}
                 <li class="{% block nav_certificados %}{% endblock %}">
                     <a href="{% url 'certificados' %}">
@@ -78,13 +81,13 @@
                     </a>
                 </li>
                 {% endif %}
-                
+
                 <li class="{% block nav_mensajeria %}{% endblock %}">
                     <a href="{% url 'mensajeria:lista' %}">
                         <i class="bi bi-chat-dots"></i><span>Mensajes</span>
                     </a>
                 </li>
-                
+
                 <li class="{% block nav_perfil %}{% endblock %}">
                     {% if request.user.perfil.rol == 'estudiante' %}
                     <a href="{% url 'estudiante:perfil_estudiante' %}">
@@ -100,7 +103,7 @@
                     </a>
                     {% endif %}
                 </li>
-                
+
                 <li class="logout">
                     <a href="{% url 'logout' %}">
                         <i class="bi bi-box-arrow-left"></i><span>Salir</span>
@@ -113,7 +116,9 @@
         <div class="main-content" id="mainContent">
             <!-- TOPBAR -->
             <div class="topbar">
-                <button class="menu-toggle" onclick="toggleSidebar()"><i class="bi bi-list"></i></button>
+                <button class="menu-toggle" onclick="toggleSidebar()" aria-label="Menú">
+                    <i class="bi bi-list"></i>
+                </button>
                 <span class="topbar-title">{% block page_title %}{% endblock %}</span>
 
                 <!-- Espaciador flexible -->
@@ -206,9 +211,50 @@
             applyTheme(newTheme);
         }
 
+        // ============================================
+        // SIDEBAR
+        // - Escritorio: colapsa/expande a solo iconos
+        // - Móvil: oculta/muestra por completo con overlay
+        // ============================================
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('collapsed');
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const isMobile = window.innerWidth <= 768;
+
+            if (isMobile) {
+                // En móvil: mostrar/ocultar por completo
+                const abierto = sidebar.classList.toggle('open');
+                overlay.classList.toggle('active');
+                document.body.classList.toggle('sidebar-open', abierto);
+            } else {
+                // En escritorio: colapsar/expandir a solo iconos
+                sidebar.classList.toggle('collapsed');
+            }
         }
+
+        function cerrarSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.classList.remove('sidebar-open');
+        }
+
+        // Cerrar el sidebar en móvil al hacer clic en un enlace
+        document.querySelectorAll('.menu-list a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    cerrarSidebar();
+                }
+            });
+        });
+
+        // Cerrar el sidebar si se cambia a desktop
+        window.addEventListener('resize', () => {
+            if (window.innerWidth > 768) {
+                cerrarSidebar();
+            }
+        });
 
         // ============================================
         // NOTIFICACIONES

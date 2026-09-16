@@ -30,6 +30,13 @@
         </a>
         <h1>Libro de Calificaciones</h1>
         <p>Matriz de seguimiento de notas por estudiante y ejercicio</p>
+
+        <!--NUEVO BOTÓN -->
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'gestionar_certificados' clase.id %}" class="cert-action-btn">
+                <i class="bi bi-patch-check-fill"></i> Emitir certificados
+            </a>
+        </div>
     </div>
 
     <!-- RESUMEN / KPIs -->
@@ -41,7 +48,7 @@
                 <div class="summary-label">Estudiantes</div>
             </div>
         </div>
-        
+
         <div class="summary-card green">
             <div class="summary-icon"><i class="bi bi-list-task"></i></div>
             <div>
@@ -49,7 +56,7 @@
                 <div class="summary-label">Ejercicios</div>
             </div>
         </div>
-        
+
         <div class="summary-card orange">
             <div class="summary-icon"><i class="bi bi-trophy-fill"></i></div>
             <div>
@@ -68,7 +75,7 @@
                 <tr>
                     <th class="col-student sticky-col">Estudiante</th>
                     <th class="col-average text-center">Progreso Global</th>
-                    
+
                     {% for item_ej in data_ejercicios %}
                     <th class="col-exercise text-center" title="{{ item_ej.ejercicio.titulo }}">
                         <span class="exercise-date">{{ item_ej.ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
@@ -87,13 +94,14 @@
                         <div class="student-info-cell">
                             <div class="student-avatar-sm">
                                 {% if item.estudiante.perfil.foto_perfil %}
-                                <img src="{{ item.estudiante.perfil.foto_perfil.url }}" alt="{{ item.estudiante.username }}">
+                                <img src="{{ item.estudiante.perfil.foto_perfil.url }}"
+                                    alt="{{ item.estudiante.username }}">
                                 {% else %}
                                 {{ item.estudiante.username|first|upper }}
                                 {% endif %}
                             </div>
                             <div class="student-text-data">
-                                <span class="s-name">{{ item.estudiante.get_full_name|default:item.estudiante.username }}</span>
+                                <span class="s-name">{{ item.estudiante.get_full_name|default:item.estudiante.username}}</span>
                                 <span class="s-username">@{{ item.estudiante.username }}</span>
                             </div>
                         </div>
@@ -101,39 +109,40 @@
 
                     <!-- Columna 2: Progreso Global -->
                     <td class="text-center">
-                        <span class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
+                        <span
+                            class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
                             {{ item.progreso }}%
                         </span>
-                        <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completadas }}/{{ item.total }}</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completadas }}/{{ item.total}}</div>
                     </td>
 
                     <!-- Columnas Dinámicas de Ejercicios -->
                     {% for item_ej in data_ejercicios %}
                     <td class="text-center grade-cell">
                         {% with intento_encontrado=False %}
-                            {% for id_ej, i in item.intentos_dict.items %}
-                                {% if id_ej == item_ej.ejercicio.id %}
-                                    {% if i.calificacion is not None and i.aprobado %}
-                                        <span class="badge-status aprobado">
-                                            <i class="bi bi-check-circle-fill"></i> {{ i.calificacion }}/5.0
-                                        </span>
-                                    {% elif i.calificacion is not None %}
-                                        <span class="badge-status reprobado">
-                                            <i class="bi bi-x-circle-fill"></i> {{ i.calificacion }}/5.0
-                                        </span>
-                                    {% elif i.fecha_envio %}
-                                        <span class="badge-status sin-calificar">
-                                            <i class="bi bi-clock-fill"></i> Sin calificar
-                                        </span>
-                                    {% else %}
-                                        <span class="badge-status no-iniciado">—</span>
-                                    {% endif %}
-                                {% endif %}
-                            {% endfor %}
-                            
-                            {% if not item.intentos_dict %}
-                                <span class="badge-status no-iniciado">—</span>
-                            {% endif %}
+                        {% for id_ej, i in item.intentos_dict.items %}
+                        {% if id_ej == item_ej.ejercicio.id %}
+                        {% if i.calificacion is not None and i.aprobado %}
+                        <span class="badge-status aprobado">
+                            <i class="bi bi-check-circle-fill"></i> {{ i.calificacion }}/5.0
+                        </span>
+                        {% elif i.calificacion is not None %}
+                        <span class="badge-status reprobado">
+                            <i class="bi bi-x-circle-fill"></i> {{ i.calificacion }}/5.0
+                        </span>
+                        {% elif i.fecha_envio %}
+                        <span class="badge-status sin-calificar">
+                            <i class="bi bi-clock-fill"></i> Sin calificar
+                        </span>
+                        {% else %}
+                        <span class="badge-status no-iniciado">—</span>
+                        {% endif %}
+                        {% endif %}
+                        {% endfor %}
+
+                        {% if not item.intentos_dict %}
+                        <span class="badge-status no-iniciado">—</span>
+                        {% endif %}
                         {% endwith %}
                     </td>
                     {% endfor %}

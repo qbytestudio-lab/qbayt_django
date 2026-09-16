@@ -21,7 +21,11 @@
   <!-- STUDENT INFO CARD -->
   <div class="student-info-card">
     <div class="student-avatar">
-      {{ intento.estudiante.username|first|upper }}
+      {% if intento.estudiante.perfil.foto_perfil %}
+        <img src="{{ intento.estudiante.perfil.foto_perfil.url }}" alt="{{ intento.estudiante.username }}">
+      {% else %}
+        {{ intento.estudiante.username|first|upper }}
+      {% endif %}
     </div>
     <div class="student-details">
       <h2 class="student-name">
@@ -47,27 +51,79 @@
     {% endif %}
   </div>
 
-  <!-- STUDENT RESPONSES -->
+  <!-- RESPUESTAS DEL ESTUDIANTE -->
   <div class="section-header">
     <h3 class="section-title">
       <i class="bi bi-chat-square-text"></i>
       Respuestas del estudiante
     </h3>
-    <span class="section-badge">{{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}</span>
+    <span class="section-badge">
+      {{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}
+    </span>
   </div>
 
   {% if respuestas %}
   <div class="responses-grid">
     {% for respuesta in respuestas %}
-    <div class="response-card">
-      <div class="response-number">{{ forloop.counter }}</div>
-      <div class="response-content">
-        <h4 class="response-question">{{ respuesta.pregunta.enunciado }}</h4>
-        <div class="response-answer">
-          <i class="bi bi-check-circle-fill"></i>
-          <span>Respuesta seleccionada:</span>
-          <strong>{{ respuesta.opcion_seleccionada.texto_opcion }}</strong>
+    <div class="response-card {% if respuesta.opcion_seleccionada.es_correcta %}correcta{% else %}incorrecta{% endif %}">
+
+      <!-- Header de la card -->
+      <div class="response-header">
+        <div class="response-number">{{ forloop.counter }}</div>
+        <div class="response-status-badge">
+          {% if respuesta.opcion_seleccionada.es_correcta %}
+            <i class="bi bi-check-circle-fill"></i> Correcta
+          {% else %}
+            <i class="bi bi-x-circle-fill"></i> Incorrecta
+          {% endif %}
         </div>
+      </div>
+
+      <div class="response-content">
+        <!-- Pregunta -->
+        <h4 class="response-question">{{ respuesta.pregunta.enunciado }}</h4>
+
+        <!-- Opción elegida por el estudiante -->
+        <div class="response-block {% if respuesta.opcion_seleccionada.es_correcta %}block-correct{% else %}block-wrong{% endif %}">
+          <div class="block-label">
+            <i class="bi bi-person-fill"></i>
+            Respuesta del estudiante
+          </div>
+          <div class="block-value">
+            {% if respuesta.opcion_seleccionada.es_correcta %}
+              <i class="bi bi-check-circle-fill"></i>
+            {% else %}
+              <i class="bi bi-x-circle-fill"></i>
+            {% endif %}
+            {{ respuesta.opcion_seleccionada.texto_opcion }}
+          </div>
+        </div>
+
+        <!-- Respuesta correcta (SIEMPRE se muestra para verificación del docente) -->
+        {% with correcta=respuesta.pregunta.opcion_correcta %}
+          {% if correcta %}
+          <div class="response-block block-correct-answer">
+            <div class="block-label">
+              <i class="bi bi-patch-check-fill"></i>
+              Respuesta correcta
+            </div>
+            <div class="block-value">
+              <i class="bi bi-check-circle-fill"></i>
+              {{ correcta.texto_opcion }}
+            </div>
+          </div>
+          {% else %}
+          <div class="response-block block-no-correct">
+            <div class="block-label">
+              <i class="bi bi-exclamation-triangle-fill"></i>
+              Sin respuesta correcta
+            </div>
+            <div class="block-value">
+              El docente no marcó una opción correcta para esta pregunta.
+            </div>
+          </div>
+          {% endif %}
+        {% endwith %}
       </div>
     </div>
     {% endfor %}
@@ -79,7 +135,7 @@
   </div>
   {% endif %}
 
-  <!-- CALIFICATION FORM -->
+  <!-- FORMULARIO DE CALIFICACIÓN -->
   <div class="section-header" style="margin-top: 2.5rem;">
     <h3 class="section-title">
       <i class="bi bi-pencil-square"></i>
@@ -90,7 +146,7 @@
   <div class="form-card">
     <form method="POST">
       {% csrf_token %}
-      
+
       <!-- Calificación -->
       <div class="form-group">
         <label class="form-label">
@@ -98,9 +154,9 @@
           <span class="required">*</span>
         </label>
         <div class="score-input-wrapper">
-          <input type="number" min="1.0" max="5.0" step="0.1" name="calificacion" 
-                 class="form-control score-input" 
-                 value="{{ intento.calificacion|default:'' }}" 
+          <input type="number" min="1.0" max="5.0" step="0.1" name="calificacion"
+                 class="form-control score-input"
+                 value="{{ intento.calificacion|default:'' }}"
                  placeholder="0.0" required>
           <span class="score-suffix">/5.0</span>
         </div>
@@ -112,24 +168,27 @@
           <i class="bi bi-chat-dots"></i> Retroalimentación / Comentarios
           <span class="optional">(opcional)</span>
         </label>
-        <textarea name="retroalimentacion" class="form-control textarea-custom" rows="4" 
+        <textarea name="retroalimentacion" class="form-control textarea-custom" rows="4"
                   placeholder="Escribe comentarios, observaciones y sugerencias para el estudiante...">{{ intento.retroalimentacion|default:'' }}</textarea>
       </div>
 
-     <!-- Action Buttons -->
-<div class="form-actions">
-    <!-- Reemplazamos el href="#" por la etiqueta de URL de Django -->
-    <a href="{% url 'ejercicios:reenviar_ejercicio' intento.id %}" 
-       class="btn-reject"
-       onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
-        <i class="bi bi-arrow-counterclockwise"></i>
-        Rechazar y reenviar ejercicio
-    </a>
-    
-    <button type="submit" class="btn-save">
-        <i class="bi bi-check-lg"></i>
-        Guardar calificación
-    </button>
+      <!-- Botones -->
+      <div class="form-actions">
+        <a href="{% url 'ejercicios:reenviar_ejercicio' intento.id %}"
+           class="btn-reject"
+           onclick="return confirm('¿Estás seguro de querer reenviar este ejercicio para que el estudiante lo repita?');">
+          <i class="bi bi-arrow-counterclockwise"></i>
+          Rechazar y reenviar ejercicio
+        </a>
+
+        <button type="submit" class="btn-save">
+          <i class="bi bi-check-lg"></i>
+          Guardar calificación
+        </button>
+      </div>
+    </form>
+  </div>
+
 </div>
 
 {% endblock %}

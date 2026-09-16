@@ -22,6 +22,8 @@ from web.utils import enviar_correo_verificacion
 from web.tokens import generador_token_verificacion
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
+from web.models import Perfil, Certificado
+from django.views.decorators.http import require_POST
 
 
 def index(request):
@@ -455,85 +457,56 @@ def progreso_clase_detalle(request, clase_id):
 @login_required
 def certificados(request):
     """
-    Vista de certificados del estudiante
+    Vista de certificados del estudiante.
+    Solo muestra los certificados que el docente ha emitido oficialmente.
     """
-    
-    # Obtener clases donde el estudiante está inscrito
-    clases_inscritas = request.user.clases_estudiante.all()
-    
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+
+    certificados_qs = Certificado.objects.filter(
+        estudiante=request.user,
+        activo=True
+    ).select_related('clase', 'docente').order_by('-fecha_emision')
+
     certificados_lista = []
-    
-    for clase in clases_inscritas:
-        # Calcular progreso
-        total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
-        ejercicios_completados = IntentoEjercicio.objects.filter(
-            estudiante=request.user,
-            ejercicio__clase=clase,
-            aprobado=True
-        ).values('ejercicio').distinct().count()
-        
-        progreso = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
-        
-        # Solo mostrar certificado si el progreso es 100%
-        if progreso >= 100:
-            # Obtener promedio
-            promedio = IntentoEjercicio.objects.filter(
-                estudiante=request.user,
-                ejercicio__clase=clase,
-                calificacion__isnull=False
-            ).aggregate(avg=Avg('calificacion'))['avg'] or 0
-            
-            # Obtener fecha de completación
-            ultimo_intento = IntentoEjercicio.objects.filter(
-                estudiante=request.user,
-                ejercicio__clase=clase,
-                aprobado=True
-            ).order_by('-fecha_envio').first()
-            
-            # Generar código de verificación único
-            codigo_verificacion = f"CERT-{timezone.now().year}-{clase.id:04d}-{request.user.id:04d}"
-            
-            # Calcular horas (estimación: 2 horas por ejercicio)
-            horas_completadas = total_ejercicios * 2
-            
-            certificados_lista.append({
-                'id': clase.id,
-                'nombre_curso': clase.nombre,
-                'instructor': clase.docente.get_full_name() or clase.docente.username,
-                'fecha_emision': ultimo_intento.fecha_envio.strftime("%d de %B, %Y") if ultimo_intento else timezone.now().strftime("%d de %B, %Y"),
-                'codigo_verificacion': codigo_verificacion,
-                'horas': horas_completadas,
-                'promedio': round(promedio, 1),
-                'progreso': progreso,
-            })
-    
-    # Ordenar por fecha (más recientes primero)
-    certificados_lista.sort(key=lambda x: x['fecha_emision'], reverse=True)
-    
+    for cert in certificados_qs:
+        certificados_lista.append({
+            'id': cert.clase.id,
+            'certificado_id': cert.id,
+            'nombre_curso': cert.clase.nombre,
+            'instructor': cert.docente.get_full_name() or cert.docente.username,
+            'fecha_emision': cert.fecha_emision,
+            'codigo_verificacion': cert.codigo_verificacion,
+            'horas': cert.horas_completadas,
+            'promedio': float(cert.promedio_final),
+            'progreso': cert.progreso_final,
+        })
+
     context = {
         'certificados': certificados_lista,
         'total_certificados': len(certificados_lista),
     }
-    
+
     return render(request, 'web/certificados.html', context)
 
 @login_required
 def calendario(request):
     """
-    Vista del calendario - Versión corregida
+    Vista del calendario - con clases próximas a finalizar
     """
-    
+    from datetime import date, timedelta
+
     usuario = request.user
-    
+
     # Obtener las clases donde el estudiante está inscrito
     clases_inscritas = Clase.objects.filter(estudiantes=usuario)
-    
+
     # Inicializar contadores
     actividades_pendientes_count = 0
     actividades_completadas_count = 0
     proximos = []
     eventos = []
-    
+
     # Agregar clases como eventos
     for clase in clases_inscritas:
         fecha = clase.fecha_inicio if clase.fecha_inicio else timezone.now().date()
@@ -544,31 +517,26 @@ def calendario(request):
             'url': f'/estudiante/clase/{clase.id}/',
             'descripcion': f'Clase: {clase.nombre}'
         })
-    
+
     # Obtener ejercicios de las clases inscritas
     ejercicios = Ejercicio.objects.filter(clase__in=clases_inscritas)
-    
+
     # Procesar cada ejercicio
     for ejercicio in ejercicios:
-        # Verificar si el estudiante tiene intentos aprobados
         intento_aprobado = IntentoEjercicio.objects.filter(
             estudiante=usuario,
             ejercicio=ejercicio,
             aprobado=True
         ).exists()
-        
+
         if intento_aprobado:
-            # Ejercicio completado y aprobado
             actividades_completadas_count += 1
         else:
-            # Ejercicio pendiente
             actividades_pendientes_count += 1
-            
-            # Agregar a próximos si tiene fecha límite futura
+
             if ejercicio.fecha_limite and ejercicio.fecha_limite >= timezone.now():
                 proximos.append(ejercicio)
-            
-            # Agregar al calendario si tiene fecha límite
+
             if ejercicio.fecha_limite:
                 eventos.append({
                     'title': f'✏️ {ejercicio.titulo}',
@@ -576,19 +544,35 @@ def calendario(request):
                     'tipo': 'actividad',
                     'url': f'/estudiante/clase/{ejercicio.clase.id}/',
                 })
-    
-    # Ordenar próximos por fecha límite
+
     if proximos:
         proximos.sort(key=lambda x: x.fecha_limite if x.fecha_limite else timezone.now())
-    
-    hoy = timezone.now()
-    
-    # Convertir a JSON
+
+    # ─────────────────────────────────────────────
+    # NUEVO: Calcular clases próximas a finalizar
+    # ─────────────────────────────────────────────
+    hoy = timezone.now().date()
+    clases_por_finalizar = []
+
+    for clase in clases_inscritas:
+        if clase.fecha_fin:
+            dias_restantes = (clase.fecha_fin - hoy).days
+
+            # Mostrar clases que finalizan en los próximos 30 días (incluyendo las ya finalizadas hace poco)
+            if dias_restantes <= 30:
+                clases_por_finalizar.append({
+                    'clase': clase,
+                    'dias_restantes': dias_restantes,
+                    'fecha_fin': clase.fecha_fin,
+                })
+
+    # Ordenar por días restantes (las que vencen primero arriba)
+    clases_por_finalizar.sort(key=lambda x: x['dias_restantes'])
+
+    hoy_dt = timezone.now()
     eventos_json = json.dumps(eventos, default=str)
-    
-    # Eventos del día de hoy
-    eventos_hoy = [e for e in eventos if e['start'] == hoy.date().isoformat()]
-    
+    eventos_hoy = [e for e in eventos if e['start'] == hoy_dt.date().isoformat()]
+
     context = {
         'eventos_json': eventos_json,
         'eventos_hoy': eventos_hoy,
@@ -596,234 +580,128 @@ def calendario(request):
         'total_clases': clases_inscritas.count(),
         'actividades_pendientes': actividades_pendientes_count,
         'actividades_completadas': actividades_completadas_count,
-        'hoy': hoy.date(),
+        'hoy': hoy_dt.date(),
         'clases': clases_inscritas,
+        'clases_por_finalizar': clases_por_finalizar,   # 👈 NUEVO
     }
-    
-    return render(request, 'web/calendario.html', context)
 
+    return render(request, 'web/calendario.html', context)
 
 @login_required
 def descargar_certificado(request, clase_id):
     """
-    Vista para descargar certificado en PDF
+    Descarga el certificado SOLO si el docente lo ha emitido.
     """
-    
-    # Obtener la clase
     clase = get_object_or_404(Clase, id=clase_id)
-    
-    # Verificar que el estudiante esté inscrito
+
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No tienes acceso a este certificado.')
         return redirect('certificados')
-    
-    # Calcular datos del certificado
-    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
-    ejercicios_completados = IntentoEjercicio.objects.filter(
+
+    # Verificar que exista un certificado emitido
+    certificado = Certificado.objects.filter(
         estudiante=request.user,
-        ejercicio__clase=clase,
-        aprobado=True
-    ).values('ejercicio').distinct().count()
-    
-    progreso = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
-    
-    # Verificar que el progreso sea 100%
-    if progreso < 100:
-        messages.error(request, 'Aún no has completado esta clase al 100%.')
+        clase=clase,
+        activo=True
+    ).first()
+
+    if not certificado:
+        messages.error(
+            request,
+            'El certificado aún no ha sido emitido por el docente. '
+            'Completa el 100% de la clase y espera la emisión.'
+        )
         return redirect('certificados')
-    
-    # Obtener promedio
-    promedio = IntentoEjercicio.objects.filter(
-        estudiante=request.user,
-        ejercicio__clase=clase,
-        calificacion__isnull=False
-    ).aggregate(avg=Avg('calificacion'))['avg'] or 0
-    
-    # Obtener fecha de completación
-    ultimo_intento = IntentoEjercicio.objects.filter(
-        estudiante=request.user,
-        ejercicio__clase=clase,
-        aprobado=True
-    ).order_by('-fecha_envio').first()
-    
-    fecha_emision = ultimo_intento.fecha_envio if ultimo_intento else timezone.now()
-    
-    # Intentar importar reportlab
+
+    promedio = float(certificado.promedio_final)
+    fecha_emision = certificado.fecha_emision
+    codigo_verificacion = certificado.codigo_verificacion
+
+    # Generar PDF con ReportLab (reusa el código que ya tenías)
     try:
         from reportlab.pdfgen import canvas
         from reportlab.lib.pagesizes import A4, landscape
         from reportlab.lib.colors import HexColor
-        
-        # Crear PDF
+
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="certificado_{clase.nombre}.pdf"'
-        
-        # Crear canvas en orientación horizontal
+
         p = canvas.Canvas(response, pagesize=landscape(A4))
         width, height = landscape(A4)
-        
-        # Colores
+
         color_principal = HexColor('#1db954')
         color_secundario = HexColor('#7c6fff')
         color_texto = HexColor('#333333')
         color_dorado = HexColor('#FFD700')
-        
-        # Fondo
+
         p.setFillColor(HexColor('#f8f9fe'))
         p.rect(0, 0, width, height, fill=1, stroke=0)
-        
-        # Borde decorativo
+
         p.setStrokeColor(color_dorado)
         p.setLineWidth(3)
         p.rect(30, 30, width-60, height-60, fill=0, stroke=1)
-        
-        # Borde interior
+
         p.setStrokeColor(color_principal)
         p.setLineWidth(1)
         p.rect(40, 40, width-80, height-80, fill=0, stroke=1)
-        
-        # Título principal
+
         p.setFillColor(color_principal)
         p.setFont("Helvetica-Bold", 28)
         p.drawCentredString(width/2, height-120, "CERTIFICADO")
-        
-        # Subtítulo
+
         p.setFillColor(color_secundario)
         p.setFont("Helvetica-Bold", 16)
         p.drawCentredString(width/2, height-150, "DE FINALIZACIÓN")
-        
-        # Línea decorativa
+
         p.setStrokeColor(color_dorado)
         p.setLineWidth(1.5)
         p.line(width/2 - 100, height-165, width/2 + 100, height-165)
-        
-        # Texto de presentación
+
         p.setFillColor(color_texto)
         p.setFont("Helvetica", 14)
         p.drawCentredString(width/2, height-200, "Este certificado se otorga a:")
-        
-        # Nombre del estudiante
+
         p.setFillColor(color_secundario)
         p.setFont("Helvetica-Bold", 24)
         p.drawCentredString(width/2, height-240, request.user.get_full_name() or request.user.username)
-        
-        # Texto de clase
+
         p.setFillColor(color_texto)
         p.setFont("Helvetica", 14)
         p.drawCentredString(width/2, height-280, "Por completar exitosamente la clase:")
-        
-        # Nombre de la clase
+
         p.setFillColor(color_principal)
         p.setFont("Helvetica-Bold", 20)
         p.drawCentredString(width/2, height-315, clase.nombre)
-        
-        # Detalles
+
         p.setFillColor(color_texto)
         p.setFont("Helvetica", 12)
-        p.drawCentredString(width/2, height-360, f"Docente: {clase.docente.get_full_name() or clase.docente.username}")
-        p.drawCentredString(width/2, height-380, f"Fecha: {fecha_emision.strftime('%d de %B de %Y')}")
-        p.drawCentredString(width/2, height-400, f"Promedio: {promedio:.1f}")
-        
-        # Firma decorativa
+        p.drawCentredString(width/2, height-355, f"Docente: {clase.docente.get_full_name() or clase.docente.username}")
+        p.drawCentredString(width/2, height-375, f"Fecha: {fecha_emision.strftime('%d de %B de %Y')}")
+        p.drawCentredString(width/2, height-395, f"Promedio: {promedio:.1f}")
+
+        # Código de verificación
+        p.setFillColor(color_secundario)
+        p.setFont("Helvetica-Bold", 10)
+        p.drawCentredString(width/2, 160, f"Código de verificación: {codigo_verificacion}")
+
         p.setStrokeColor(color_texto)
         p.setLineWidth(0.5)
-        p.line(width/2 - 150, 120, width/2 + 150, 120)
+        p.line(width/2 - 150, 100, width/2 + 150, 100)
         p.setFillColor(color_texto)
         p.setFont("Helvetica", 10)
-        p.drawCentredString(width/2, 105, "Director de QBYT")
-        
-        # Sello decorativo
+        p.drawCentredString(width/2, 85, "Director de QBYT")
+
         p.setFillColor(color_dorado)
         p.setFont("Helvetica-Bold", 10)
-        p.drawCentredString(width/2, 200, "★ QBYT ★")
-        
+        p.drawCentredString(width/2, 190, "★ QBYT ★")
+
         p.showPage()
         p.save()
-        
         return response
-        
+
     except ImportError:
-        # Si reportlab no está instalado, generar HTML simple
-        html_content = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Certificado - {clase.nombre}</title>
-            <style>
-                body {{
-                    font-family: Arial, sans-serif;
-                    text-align: center;
-                    padding: 50px;
-                    background: #f8f9fe;
-                }}
-                .certificado {{
-                    border: 3px solid #FFD700;
-                    padding: 50px;
-                    max-width: 800px;
-                    margin: 0 auto;
-                    background: white;
-                    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-                }}
-                h1 {{
-                    color: #1db954;
-                    font-size: 36px;
-                    margin-bottom: 10px;
-                }}
-                h2 {{
-                    color: #7c6fff;
-                    font-size: 24px;
-                    margin-bottom: 30px;
-                }}
-                .nombre {{
-                    font-size: 28px;
-                    font-weight: bold;
-                    color: #333;
-                    margin: 20px 0;
-                }}
-                .clase {{
-                    font-size: 22px;
-                    color: #1db954;
-                    margin: 20px 0;
-                }}
-                .fecha {{
-                    color: #666;
-                    margin-top: 30px;
-                }}
-                .sello {{
-                    display: inline-block;
-                    width: 100px;
-                    height: 100px;
-                    border: 3px solid #FFD700;
-                    border-radius: 50%;
-                    line-height: 100px;
-                    font-size: 12px;
-                    color: #FFD700;
-                    margin-top: 30px;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="certificado">
-                <h1>CERTIFICADO</h1>
-                <h2>DE FINALIZACIÓN</h2>
-                <p>Se otorga a:</p>
-                <div class="nombre">{request.user.get_full_name() or request.user.username}</div>
-                <p>Por completar exitosamente la clase:</p>
-                <div class="clase">{clase.nombre}</div>
-                <p>Docente: {clase.docente.get_full_name() or clase.docente.username}</p>
-                <p>Promedio: {promedio:.1f}</p>
-                <p class="fecha">Fecha: {fecha_emision.strftime('%d de %B de %Y')}</p>
-                <div class="sello">★ QBYT ★</div>
-            </div>
-        </body>
-        </html>
-        """
-        
-        response = HttpResponse(html_content, content_type='text/html')
-        response['Content-Disposition'] = f'attachment; filename="certificado_{clase.nombre}.html"'
-        
-        return response
+        messages.error(request, 'Error al generar el PDF.')
+        return redirect('certificados')
 
 def verificar_correo(request, uidb64, token):
     """
@@ -871,3 +749,195 @@ def reenviar_verificacion(request):
             return redirect('reenviar_verificacion')
 
     return render(request, 'web/reenviar_verificacion.html')
+
+# ═══════════════════════════════════════════
+#         GESTIÓN DE CERTIFICADOS (DOCENTE)
+# ═══════════════════════════════════════════
+
+@login_required
+def gestionar_certificados(request, clase_id):
+    """
+    Pantalla donde el docente selecciona a qué estudiantes emitir certificados.
+    """
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+
+    # Requisitos mínimos para certificar
+    PROGRESO_MINIMO = 100
+    PROMEDIO_MINIMO = 3.0
+
+    estudiantes = clase.estudiantes.all()
+    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
+
+    data = []
+    for estudiante in estudiantes:
+        # Calcular progreso (ejercicios aprobados / total)
+        completados = IntentoEjercicio.objects.filter(
+            estudiante=estudiante,
+            ejercicio__clase=clase,
+            aprobado=True
+        ).values('ejercicio').distinct().count()
+
+        progreso = round((completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
+
+        # Calcular promedio
+        promedio = IntentoEjercicio.objects.filter(
+            estudiante=estudiante,
+            ejercicio__clase=clase,
+            calificacion__isnull=False
+        ).aggregate(avg=Avg('calificacion'))['avg'] or 0
+        promedio = round(float(promedio), 1)
+
+        # Verificar si ya tiene certificado
+        certificado = Certificado.objects.filter(
+            estudiante=estudiante,
+            clase=clase,
+            activo=True
+        ).first()
+
+        puede_certificar = (
+            progreso >= PROGRESO_MINIMO
+            and promedio >= PROMEDIO_MINIMO
+            and certificado is None
+        )
+
+        data.append({
+            'estudiante': estudiante,
+            'progreso': progreso,
+            'completados': completados,
+            'total': total_ejercicios,
+            'promedio': promedio,
+            'certificado': certificado,
+            'puede_certificar': puede_certificar,
+        })
+
+    # Ordenar: primero los que pueden certificar, luego por promedio
+    data.sort(key=lambda x: (not x['puede_certificar'], -x['promedio']))
+
+    context = {
+        'clase': clase,
+        'data': data,
+        'total_elegibles': sum(1 for d in data if d['puede_certificar']),
+        'total_emitidos': sum(1 for d in data if d['certificado']),
+        'progreso_minimo': PROGRESO_MINIMO,
+        'promedio_minimo': PROMEDIO_MINIMO,
+    }
+
+    return render(request, 'docente/gestionar_certificados.html', context)
+
+
+@login_required
+@require_POST
+def emitir_certificados_lote(request, clase_id):
+    """
+    Emite certificados a los estudiantes seleccionados.
+    """
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    estudiantes_ids = request.POST.getlist('estudiantes')
+
+    if not estudiantes_ids:
+        messages.warning(request, 'No seleccionaste ningún estudiante.')
+        return redirect('gestionar_certificados', clase_id=clase.id)
+
+    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
+    PROGRESO_MINIMO = 100
+    PROMEDIO_MINIMO = 3.0
+
+    emitidos = 0
+    omitidos = 0
+
+    for estudiante_id in estudiantes_ids:
+        estudiante = get_object_or_404(User, id=estudiante_id)
+
+        # Validar
+        if estudiante not in clase.estudiantes.all():
+            continue
+
+        completados = IntentoEjercicio.objects.filter(
+            estudiante=estudiante,
+            ejercicio__clase=clase,
+            aprobado=True
+        ).values('ejercicio').distinct().count()
+
+        progreso = round((completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
+
+        promedio = IntentoEjercicio.objects.filter(
+            estudiante=estudiante,
+            ejercicio__clase=clase,
+            calificacion__isnull=False
+        ).aggregate(avg=Avg('calificacion'))['avg'] or 0
+        promedio = round(float(promedio), 1)
+
+        if progreso < PROGRESO_MINIMO or promedio < PROMEDIO_MINIMO:
+            omitidos += 1
+            continue
+
+        # Crear o reactivar certificado
+        certificado, created = Certificado.objects.get_or_create(
+            estudiante=estudiante,
+            clase=clase,
+            defaults={
+                'docente': request.user,
+                'promedio_final': promedio,
+                'progreso_final': progreso,
+                'horas_completadas': total_ejercicios * 2,
+            }
+        )
+
+        if not created:
+            certificado.activo = True
+            certificado.promedio_final = promedio
+            certificado.progreso_final = progreso
+            certificado.save()
+
+        emitidos += 1
+
+        # Notificar al estudiante
+        try:
+            from notificaciones.services import crear_notificacion
+            crear_notificacion(
+                usuario=estudiante,
+                tipo='sistema',
+                titulo='🎓 ¡Nuevo certificado!',
+                mensaje=f'Has recibido un certificado por completar la clase "{clase.nombre}".',
+                url_destino='/certificados/'
+            )
+        except Exception:
+            pass
+
+    if emitidos > 0:
+        messages.success(request, f'✅ {emitidos} certificado(s) emitido(s) correctamente.')
+    if omitidos > 0:
+        messages.warning(request, f'⚠️ {omitidos} estudiante(s) no cumplían los requisitos.')
+
+    return redirect('gestionar_certificados', clase_id=clase.id)
+
+
+@login_required
+def revocar_certificado(request, certificado_id):
+    """
+    Revoca un certificado emitido (opcional pero útil).
+    """
+    if request.user.perfil.rol != 'docente':
+        return redirect('inicio')
+
+    certificado = get_object_or_404(
+        Certificado,
+        id=certificado_id,
+        docente=request.user
+    )
+
+    certificado.activo = False
+    certificado.save(update_fields=['activo'])
+
+    messages.info(
+        request,
+        f'Certificado de {certificado.estudiante.get_full_name() or certificado.estudiante.username} revocado.'
+    )
+
+    return redirect('gestionar_certificados', clase_id=certificado.clase.id)

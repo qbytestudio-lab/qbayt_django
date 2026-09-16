@@ -547,10 +547,19 @@ def mis_clases(request):
             clase__docente=request.user, estado='pendiente'
         )
         total_estudiantes = sum(c.estudiantes.count() for c in clases)
+
+        # NUEVO: límite de clases
+        LIMITE_CLASES = 3
+        clases_count = clases.count()
+
         return render(request, 'docente/mis_clases_docente.html', {
             'clases': clases,
             'solicitudes_pendientes': solicitudes_pendientes,
             'total_estudiantes': total_estudiantes,
+            'clases_count': clases_count,
+            'limite_clases': LIMITE_CLASES,
+            'puede_crear_clase': clases_count < LIMITE_CLASES,
+            'clases_restantes': max(0, LIMITE_CLASES - clases_count),
         })
     else:
         clases = request.user.clases_estudiante.all()

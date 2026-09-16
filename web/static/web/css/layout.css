@@ -23,7 +23,7 @@
     /* Layout */
     --sidebar-w: 240px;
     --sidebar-collapsed: 68px;
-    
+
     /* Superficies - TEMA OSCURO */
     --bg-body: #121212;
     --bg-sidebar: #000000;
@@ -43,49 +43,63 @@
     --shadow: rgba(0, 0, 0, 0.4);
 }
 
-/* TEMA CLARO - DISEÑO INNOVADOR */
+/* ═══════════════════════════════════════════ */
+/* TEMA CLARO - VERDE ESMERALDA + CREMA       */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-    --spotify-black: #fff2e0;
-    --spotify-dark-gray: #ffffff;
-    --spotify-gray: #ffe6cc;
-    --spotify-light-gray: #d9c9f0;
-    --spotify-green: #22c55e;
-    --spotify-green-hover: #16a34a;
-    --spotify-text: #2a1a55;
-    --spotify-subtext: #6b5a94;
-    --spotify-muted: #a396c4;
+    /* Superficies */
+    --bg-body: #fefce8;
+    --bg-sidebar: #ffffff;                    /* ✅ Sólido */
+    --bg-main: linear-gradient(160deg, #fefce8 0%, #f5fce8 100%);
+    --bg-topbar: rgba(34, 197, 94, 0.05);
+    --bg-card: #ffffff;
+    --bg-hover: rgba(34, 197, 94, 0.06);
+    --bg-active: rgba(34, 197, 94, 0.12);
+    --bg-input: rgba(34, 197, 94, 0.06);
+
+    /* Texto */
+    --text-primary: #1c1917;
+    --text-secondary: #44403c;
+    --text-muted: #a8a29e;
+
+    /* Bordes */
+    --border-color: rgba(34, 197, 94, 0.18);
+    --border-subtle: rgba(34, 197, 94, 0.1);
+
+    /* Acentos */
+    --accent: #16a34a;
+    --accent-hover: #15803d;
+    --accent-purple: #16a34a;
+    --accent-purple-hover: #15803d;
+    --accent-pink: #ec4899;
+    --accent-orange: #f97316;
+    --accent-cyan: #06b6d4;
+    --accent-yellow: #eab308;
+
+    /* Verde principal (mapea a --spotify-green del tema oscuro) */
+    --spotify-green: #16a34a;
+    --spotify-green-hover: #15803d;
+
+    /* Peligro / logout */
+    --danger: #ef4444;
     --spotify-danger: #ef4444;
 
-    --accent: #7c3aed;
-    --accent-hover: #6d28d9;
-    --accent-purple: #7c3aed;
-    --accent-pink: #ec4899;
-    --accent-orange: #ff6b5b;
-    --accent-cyan: #06b6d4;
-    --accent-yellow: #ffb84d;
-
-    --bg-body: #fff2e0;
-    --bg-sidebar: #3a1f7a13;
-    --bg-main: linear-gradient(160deg, #fff2e0 0%, #ffe6cc 100%);
-    --bg-topbar: rgba(58, 31, 122, 0.05);
-    --bg-card: #ffffff;
-    --bg-hover: rgba(124, 58, 237, 0.08);
-    --bg-active: rgba(124, 58, 237, 0.16);
-    --bg-input: rgba(124, 58, 237, 0.06);
-    --text-primary: #2a1a55;
-    --text-secondary: #6b5a94;
-    --text-muted: #a396c4;
-    --border-color: rgba(58, 31, 122, 0.12);
-    --border-subtle: rgba(58, 31, 122, 0.06);
-    --scrollbar-thumb: rgba(124, 58, 237, 0.35);
-    --scrollbar-thumb-hover: rgba(124, 58, 237, 0.5);
-    --shadow: rgba(124, 58, 237, 0.14);
+    /* Sombras */
+    --shadow: rgba(34, 197, 94, 0.15);
+    --scrollbar-thumb: rgba(34, 197, 94, 0.3);
+    --scrollbar-thumb-hover: rgba(34, 197, 94, 0.5);
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+}
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
 }
 
 body {
@@ -122,15 +136,23 @@ body {
     top: 0;
     left: 0;
     bottom: 0;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
+    transition:
+        width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+        background 0.3s ease,
+        transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 100;
     overflow: hidden;
     border-right: 1px solid var(--border-subtle);
 }
 
+/* Estado colapsado (solo escritorio) */
 .sidebar.collapsed {
     width: var(--sidebar-collapsed);
 }
+
+/* ═══════════════════════════════════════════ */
+/* LOGO */
+/* ═══════════════════════════════════════════ */
 
 .logo-area {
     display: flex;
@@ -183,6 +205,10 @@ body {
     width: 0;
     pointer-events: none;
 }
+
+/* ═══════════════════════════════════════════ */
+/* MENÚ */
+/* ═══════════════════════════════════════════ */
 
 .nav-section {
     margin-bottom: 1.5rem;
@@ -287,7 +313,7 @@ body {
 
 .menu-list li.logout a:hover {
     color: var(--spotify-danger);
-    background: rgba(233, 20, 41, 0.1);
+    background: rgba(239, 68, 68, 0.1);
 }
 
 .menu-list li.logout a:hover i {
@@ -306,9 +332,10 @@ body {
     transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
     background: var(--bg-main);
+    min-width: 0;
 }
 
-.sidebar.collapsed~.main-content {
+.sidebar.collapsed ~ .main-content {
     margin-left: var(--sidebar-collapsed);
 }
 
@@ -330,6 +357,7 @@ body {
     z-index: 50;
 }
 
+/* ✅ Botón hamburguesa: VISIBLE SIEMPRE */
 .menu-toggle {
     background: var(--bg-input);
     border: 1px solid var(--border-color);
@@ -361,6 +389,10 @@ body {
 .topbar-spacer {
     flex: 1;
 }
+
+/* ═══════════════════════════════════════════ */
+/* TEMA */
+/* ═══════════════════════════════════════════ */
 
 .theme-toggle {
     width: 36px;
@@ -544,7 +576,6 @@ body {
     background: var(--bg-hover);
 }
 
-/* ✅ AVATAR CON FOTO DE PERFIL */
 .user-avatar {
     width: 36px;
     height: 36px;
@@ -558,7 +589,7 @@ body {
     font-family: 'Syne', sans-serif;
     color: #fff;
     flex-shrink: 0;
-    overflow: hidden; /* ← IMPORTANTE para recortar la foto */
+    overflow: hidden;
     position: relative;
 }
 
@@ -624,31 +655,116 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
+/* OVERLAY PARA MÓVIL */
+/* ═══════════════════════════════════════════ */
+
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 900;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+/* ═══════════════════════════════════════════ */
 /* RESPONSIVE */
 /* ═══════════════════════════════════════════ */
 
-@media (max-width: 768px) {
-    .sidebar {
-        width: var(--sidebar-collapsed);
-    }
-
-    .sidebar .logo-area h2,
-    .sidebar .menu-list span,
-    .sidebar .nav-section-title {
-        opacity: 0;
-        pointer-events: none;
-    }
-
-    .main-content {
-        margin-left: var(--sidebar-collapsed);
+/* Tablet */
+@media (max-width: 992px) {
+    :root {
+        --sidebar-w: 210px;
     }
 
     .content {
-        padding: 1rem;
+        padding: 1.25rem;
+    }
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+    /* El sidebar se sale de la pantalla por defecto */
+    .sidebar {
+        width: 78vw;
+        max-width: 300px;
+        min-width: 220px;
+        transform: translateX(-100%);
+        z-index: 1000;
+        transition:
+            transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+            background 0.3s ease;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+        padding: 1.25rem 1rem;
+        height: 100vh;
+        height: 100dvh;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    /* Cuando se abre, entra desde la izquierda */
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    /* Ignoramos el estado "collapsed" en móvil */
+    .sidebar.collapsed {
+        width: 78vw;
+        max-width: 300px;
+        min-width: 220px;
+        transform: translateX(-100%);
+    }
+
+    .sidebar.collapsed.open {
+        transform: translateX(0);
+    }
+
+    .sidebar.collapsed .logo-area h2,
+    .sidebar.collapsed .menu-list span,
+    .sidebar.collapsed .nav-section-title {
+        opacity: 1;
+        width: auto;
+        pointer-events: auto;
+    }
+
+    .sidebar.collapsed .logo-area {
+        justify-content: flex-start;
+        padding: 0 0.5rem;
+    }
+
+    .sidebar.collapsed .menu-list li a {
+        justify-content: flex-start;
+        padding: 0.7rem 0.75rem;
+    }
+
+    .sidebar.collapsed .menu-list li a::before {
+        display: block;
+    }
+
+    /* El contenido ocupa toda la pantalla */
+    .main-content,
+    .sidebar.collapsed ~ .main-content {
+        margin-left: 0;
+    }
+
+    /* Botón hamburguesa */
+    .menu-toggle {
+        display: flex;
+    }
+
+    /* Ocultar info del usuario en topbar */
+    .user-info {
+        display: none;
     }
 
     .topbar {
-        padding: 0.6rem 0.75rem;
+        padding: 0.6rem 0.9rem;
         gap: 0.5rem;
     }
 
@@ -656,16 +772,25 @@ body {
         font-size: 0.95rem;
     }
 
-    .user-info {
-        display: none;
+    .content {
+        padding: 1rem;
     }
 
+    /* Panel de notificaciones más angosto */
     .notifications-panel {
         width: 300px;
         right: -50px;
     }
+
+    /* Evitar scroll de fondo cuando el menú está abierto */
+    body.sidebar-open {
+        overflow: hidden;
+        position: fixed;
+        width: 100%;
+    }
 }
 
+/* Móvil pequeño */
 @media (max-width: 480px) {
     .content {
         padding: 0.75rem;
@@ -710,4 +835,3 @@ body {
 .menu-list li:nth-child(4) { animation-delay: 0.2s; }
 .menu-list li:nth-child(5) { animation-delay: 0.25s; }
 .menu-list li:nth-child(6) { animation-delay: 0.3s; }
-

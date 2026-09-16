@@ -29,31 +29,37 @@
   --shadow: rgba(0, 0, 0, 0.4);
 }
 
+/* ═══════════════════════════════════════════ */
+/* MODO CLARO - CREMA + VERDE                  */
+/* ═══════════════════════════════════════════ */
+
 [data-theme="light"] {
-  --spotify-black: #f8f9fe;
-  --spotify-dark-gray: #ffffff;
-  --spotify-gray: #f0f2ff;
-  --spotify-light-gray: #c5c9e0;
-  --spotify-green: #10b981;
-  --spotify-green-hover: #059669;
-  --spotify-text: #1e1e2e;
-  --spotify-subtext: #4a4a6a;
-  --spotify-muted: #8b8ba7;
-  --accent-purple: #8b5cf6;
+  --spotify-black: #fefce8;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #fef9c3;
+  --spotify-light-gray: #ecfccb;
+  --spotify-green: #16a34a;
+  --spotify-green-hover: #15803d;
+  --spotify-text: #1c1917;
+  --spotify-subtext: #44403c;
+  --spotify-muted: #a8a29e;
+  --accent-purple: #16a34a;
+  --accent-purple-hover: #15803d;
   --accent-pink: #ec4899;
   --accent-orange: #f59e0b;
   --accent-blue: #06b6d4;
+  --accent-gold: #f59e0b;
   --danger: #ef4444;
-  
-  --bg-body: #f8f9fe;
+
+  --bg-body: #fefce8;
   --bg-card: #ffffff;
-  --bg-hover: #f0f2ff;
-  --text-primary: #1e1e2e;
-  --text-secondary: #4a4a6a;
-  --text-muted: #8b8ba7;
-  --border-color: rgba(139, 92, 246, 0.12);
-  --border-subtle: rgba(139, 92, 246, 0.08);
-  --shadow: rgba(139, 92, 246, 0.1);
+  --bg-hover: #fef9c3;
+  --text-primary: #1c1917;
+  --text-secondary: #44403c;
+  --text-muted: #a8a29e;
+  --border-color: rgba(34, 197, 94, 0.18);
+  --border-subtle: rgba(34, 197, 94, 0.1);
+  --shadow: rgba(34, 197, 94, 0.12);
 }
 
 * {
@@ -85,7 +91,7 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .hero-section {
-  background: linear-gradient(135deg, #1db954 0%, #169c46 50%, #0d7a32 100%);
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);
   border-radius: 20px;
   padding: 2.5rem 2.5rem;
   margin-bottom: 2rem;
@@ -95,8 +101,13 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  box-shadow: 0 8px 32px rgba(29, 185, 84, 0.25);
+  box-shadow: 0 8px 32px rgba(22, 163, 74, 0.25);
   min-height: 180px;
+}
+
+[data-theme="light"] .hero-section {
+  background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);
+  box-shadow: 0 8px 32px rgba(22, 163, 74, 0.25);
 }
 
 .hero-section::before {
@@ -250,8 +261,12 @@ body {
 }
 
 .overall-progress-card:hover {
-  border-color: rgba(16, 185, 129, 0.2);
+  border-color: rgba(22, 163, 74, 0.2);
   box-shadow: 0 4px 20px var(--shadow);
+}
+
+[data-theme="light"] .overall-progress-card:hover {
+  border-color: rgba(22, 163, 74, 0.25);
 }
 
 .overall-progress-header {
@@ -314,7 +329,7 @@ body {
   height: 16px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 12px rgba(16, 185, 129, 0.6);
+  box-shadow: 0 0 12px rgba(22, 163, 74, 0.6);
 }
 
 .progress-details {
@@ -372,11 +387,11 @@ body {
 }
 
 .stat-gradient-green::before {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), transparent);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), transparent);
 }
 
 .stat-gradient-purple::before {
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), transparent);
+  background: linear-gradient(135deg, rgba(22, 163, 74, 0.08), transparent);
 }
 
 .stat-gradient-orange::before {
@@ -396,8 +411,8 @@ body {
   z-index: 1;
 }
 
-.stat-gradient-green .stat-icon-wrapper { background: rgba(16, 185, 129, 0.12); color: var(--spotify-green); }
-.stat-gradient-purple .stat-icon-wrapper { background: rgba(139, 92, 246, 0.12); color: var(--accent-purple); }
+.stat-gradient-green .stat-icon-wrapper { background: rgba(22, 163, 74, 0.12); color: var(--spotify-green); }
+.stat-gradient-purple .stat-icon-wrapper { background: rgba(22, 163, 74, 0.12); color: var(--accent-purple); }
 .stat-gradient-orange .stat-icon-wrapper { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
 
 .stat-content {
@@ -508,7 +523,7 @@ body {
 }
 
 .exercise-icon.approved {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(22, 163, 74, 0.12);
   color: var(--spotify-green);
 }
 
@@ -543,7 +558,7 @@ body {
 }
 
 .score-badge {
-  background: rgba(16, 185, 129, 0.12);
+  background: rgba(22, 163, 74, 0.12);
   color: var(--spotify-green);
   padding: 0.35rem 0.8rem;
   border-radius: 20px;

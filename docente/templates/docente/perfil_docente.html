@@ -59,7 +59,8 @@
                 title="Cambiar foto de perfil">
                 <i class="bi bi-camera-fill"></i>
             </div>
-            <input type="file" id="fotoPerfilInput" accept="image/*" style="display: none;" onchange="subirFotoPerfil(this)">
+            <input type="file" id="fotoPerfilInput" accept="image/*" style="display: none;"
+                onchange="subirFotoPerfil(this)">
         </div>
 
         <!-- Info -->
@@ -99,19 +100,6 @@
             <i class="bi bi-bell-fill"></i>
             <span class="stat-value">{{ solicitudes_pendientes.count }}</span>
             <span class="stat-label">Solicitudes</span>
-        </div>
-        <div class="stat-pill docente">
-            <i class="bi bi-star-fill"></i>
-            <span class="stat-value">4.8</span>
-            <span class="stat-label">
-                <div class="star-rating">
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-fill"></i>
-                    <i class="bi bi-star-half"></i>
-                </div>
-            </span>
         </div>
     </div>
 </section>
@@ -186,7 +174,8 @@
                     <i class="bi bi-exclamation-triangle-fill"></i>
                     Zona de Peligro
                 </h4>
-                <p class="danger-text">Si eliminas tu cuenta de docente, se desvincularán permanentemente todas tus clases
+                <p class="danger-text">Si eliminas tu cuenta de docente, se desvincularán permanentemente todas tus
+                    clases
                     creadas y perderás el acceso a los datos de tus estudiantes.</p>
                 <button class="btn-danger-spotify" data-bs-toggle="modal" data-bs-target="#modalEliminar">
                     <i class="bi bi-trash"></i> Eliminar mi cuenta permanentemente
@@ -231,12 +220,17 @@
                         <i class="bi bi-check-circle-fill me-1"></i> Activo
                     </span>
                     <div class="student-actions">
-                        <button class="btn-action message" title="Enviar mensaje">
+                        <!-- Mensaje privado -->
+                        <a href="{% url 'mensajeria:iniciar' estudiante.id %}" class="btn-action message"
+                            title="Enviar mensaje a {{ estudiante.username }}">
                             <i class="bi bi-chat-dots"></i>
-                        </button>
-                        <button class="btn-action view" title="Ver progreso">
+                        </a>
+
+                        <!-- Ver progreso del estudiante en esta clase -->
+                        <a href="{% url 'notas_estudiante' clase.id estudiante.id %}" class="btn-action view"
+                            title="Ver progreso de {{ estudiante.username }}">
                             <i class="bi bi-graph-up"></i>
-                        </button>
+                        </a>
                     </div>
                 </div>
                 {% endfor %}
@@ -270,7 +264,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Nombre de usuario</label>
-                        <input type="text" class="form-control" name="username" value="{{ request.user.username }}" required>
+                        <input type="text" class="form-control" name="username" value="{{ request.user.username }}"
+                            required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
@@ -310,7 +305,8 @@
                     <strong>Esta acción es irreversible.</strong>
                 </p>
                 <p style="color: var(--spotify-subtext); margin-bottom: 0;">
-                    Se eliminarán permanentemente todas tus clases creadas, datos de estudiantes y registros como docente en la
+                    Se eliminarán permanentemente todas tus clases creadas, datos de estudiantes y registros como
+                    docente en la
                     plataforma QBYT.
                 </p>
             </div>
@@ -318,7 +314,8 @@
                 <button type="button" class="btn-spotify-secondary" data-bs-dismiss="modal">
                     No, cancelar
                 </button>
-                <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger" style="border-radius: 20px; font-weight: 700;">
+                <a href="{% url 'eliminar_perfil' %}" class="btn btn-danger"
+                    style="border-radius: 20px; font-weight: 700;">
                     Sí, eliminar cuenta
                 </a>
             </div>
@@ -377,18 +374,18 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error al subir la foto: ' + (data.error || 'Intenta de nuevo.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión.');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error al subir la foto: ' + (data.error || 'Intenta de nuevo.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión.');
+                });
         }
     }
 
@@ -415,18 +412,18 @@
                     'X-CSRFToken': '{{ csrf_token }}'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Error al subir el banner: ' + (data.error || 'Intenta de nuevo.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error de conexión.');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error al subir el banner: ' + (data.error || 'Intenta de nuevo.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión.');
+                });
         }
     }
 
