@@ -316,7 +316,7 @@ def toggle_estado_clase(request, clase_id):
     else:
         messages.warning(request, f'La clase "{clase.nombre}" fue desactivada. Los estudiantes no podrán acceder.')
 
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect('clase:detalle_clase', clase_id=clase.id)
 
 
 # ═══════════════════════════════════════════
