@@ -1,0 +1,717 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear Entrenamiento Auditivo — QBYT{% endblock %}
+{% block page_title %}Entrenamiento Auditivo{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_entrenamiento_auditivo.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="entrenamiento-creator">
+
+    <!-- Header -->
+    <div class="ent-header">
+        <a href="{% url 'clase:detalle_clase' clase.id %}" class="back-link">
+            <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+        </a>
+        <h1 class="ent-title">
+            <i class="bi bi-music-note-beamed"></i> Crear Entrenamiento Auditivo
+        </h1>
+        <p class="ent-subtitle">Configura una práctica auditiva interactiva con audio generado en vivo</p>
+    </div>
+
+    <form method="POST" action="{% url 'ejercicios:crear_entrenamiento_auditivo' clase.id %}"
+        enctype="multipart/form-data" id="formEntrenamiento">
+        {% csrf_token %}
+
+        <!-- Info General -->
+        <div class="form-card">
+            <div class="mb-3">
+                <label class="form-label">Título <span class="required">*</span></label>
+                <input type="text" name="titulo" class="form-control"
+                    placeholder="Ej: Práctica de intervalos - 3ªs y 5ªs" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="form-control" rows="2"
+                    placeholder="Instrucciones para el estudiante..."></textarea>
+            </div>
+            <div class="mb-0">
+                <label class="form-label">Fecha límite <span class="required">*</span></label>
+                <input type="datetime-local" name="fecha_limite" class="form-control" id="fechaLimite" required>
+            </div>
+        </div>
+
+        <!-- Configuración de Práctica -->
+        <div class="form-card">
+            <h3 class="card-title"><i class="bi bi-sliders"></i> Configuración de la práctica</h3>
+
+            <!-- Tipo de práctica -->
+            <div class="mb-3">
+                <label class="form-label">¿Qué practicar? <span class="required">*</span></label>
+                <div class="tipo-practica-grid">
+                    <label class="tipo-card active" data-tipo="intervalos">
+                        <input type="radio" name="tipo_practica" value="intervalos" checked hidden>
+                        <i class="bi bi-music-note-list"></i>
+                        <span>Intervalos</span>
+                        <small>2ªs, 3ªs, 5ªs, 8ªs...</small>
+                    </label>
+                    <label class="tipo-card" data-tipo="acordes">
+                        <input type="radio" name="tipo_practica" value="acordes" hidden>
+                        <i class="bi bi-collection-fill"></i>
+                        <span>Acordes</span>
+                        <small>Mayor, menor, 7ª...</small>
+                    </label>
+                    <label class="tipo-card" data-tipo="notas">
+                        <input type="radio" name="tipo_practica" value="notas" hidden>
+                        <i class="bi bi-music-note"></i>
+                        <span>Notas</span>
+                        <small>Do, Re, Mi...</small>
+                    </label>
+                    <label class="tipo-card" data-tipo="ritmo">
+                        <input type="radio" name="tipo_practica" value="ritmo" hidden>
+                        <i class="bi bi-soundwave"></i>
+                        <span>Ritmo</span>
+                        <small>Patrones rítmicos</small>
+                    </label>
+                    <label class="tipo-card" data-tipo="melodia">
+                        <input type="radio" name="tipo_practica" value="melodia" hidden>
+                        <i class="bi bi-music-note-beamed"></i>
+                        <span>Melodía</span>
+                        <small>Dictado melódico</small>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Subtipo (solo aparece si eligen Acordes) -->
+            <div class="mb-3" id="subtipoGroup" style="display: none;">
+                <label class="form-label">
+                    <i class="bi bi-sliders"></i> Tipo de práctica de acordes
+                </label>
+                <div class="subtipo-grid">
+                    <label class="subtipo-card active" data-subtipo="basico">
+                        <input type="radio" name="subtipo" value="basico" checked hidden>
+                        <div class="subtipo-icon"><i class="bi bi-music-note-beamed"></i></div>
+                        <div class="subtipo-label">Básico</div>
+                        <div class="subtipo-desc">Mayor, menor, dim, aug</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="inversiones">
+                        <input type="radio" name="subtipo" value="inversiones" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-arrow-down-up"></i></div>
+                        <div class="subtipo-label">Inversiones</div>
+                        <div class="subtipo-desc">Do-Mi-Sol, Mi-Sol-Do, Sol-Do-Mi</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="cifrado">
+                        <input type="radio" name="subtipo" value="cifrado" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-braces"></i></div>
+                        <div class="subtipo-label">Cifrado americano</div>
+                        <div class="subtipo-desc">C, Am, F, G7, Cmaj7</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="progresiones">
+                        <input type="radio" name="subtipo" value="progresiones" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-diagram-3"></i></div>
+                        <div class="subtipo-label">Progresiones</div>
+                        <div class="subtipo-desc">I-V-vi-IV, ii-V-I</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dificultad y número de preguntas -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Dificultad</label>
+                    <select name="dificultad" class="form-select" id="dificultadSelect">
+                        <option value="facil">⭐ Fácil</option>
+                        <option value="medio" selected>⭐⭐ Medio</option>
+                        <option value="dificil">⭐⭐⭐ Difícil</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Número de preguntas</label>
+                    <input type="number" name="num_preguntas" class="form-control" value="10" min="3" max="30">
+                </div>
+            </div>
+
+            <!-- Instrumento -->
+            <div class="mb-3">
+                <label class="form-label">Instrumento</label>
+                <select name="instrumento" class="form-select" id="instrumentoSelect">
+                    <option value="piano" selected>🎹 Piano</option>
+                    <option value="guitarra">🎸 Guitarra</option>
+                    <option value="sine">🔔 Tono puro</option>
+                    <option value="triangle">🎺 Trompeta</option>
+                    <option value="organ">🎼 Órgano</option>
+                    <option value="bass">🎸 Bajo</option>
+                </select>
+            </div>
+
+            <!-- Vista previa MEJORADA -->
+            <div class="preview-box">
+                <div class="preview-header">
+                    <div class="preview-label">
+                        <i class="bi bi-headphones"></i> Vista previa
+                    </div>
+                    <div class="preview-actions">
+                        <button type="button" class="btn-preview" onclick="probarSonido()">
+                            <i class="bi bi-play-fill"></i> Escuchar ejemplo
+                        </button>
+                        <button type="button" class="btn-stop" onclick="detenerSonido()" title="Detener">
+                            <i class="bi bi-stop-fill"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Info que muestra qué sonó -->
+                <div class="preview-info" id="previewInfo">
+                    <span class="preview-hint">
+                        <i class="bi bi-info-circle"></i>
+                        Presiona "Escuchar ejemplo" para oír una muestra aleatoria de tu configuración
+                    </span>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Recursos de apoyo -->
+        <div class="form-card">
+            <label class="form-label">
+                <i class="bi bi-folder2-open"></i> Recursos de apoyo <span class="opcional-text">(opcional)</span>
+            </label>
+            <div id="recursosSeleccionados" class="recursos-seleccionados-container">
+                <p class="ningun-recurso-text">Ningún recurso seleccionado</p>
+            </div>
+            <button type="button" class="btn-seleccionar-recursos" data-bs-toggle="modal"
+                data-bs-target="#modalRecursos">
+                <i class="bi bi-folder2-open"></i> Seleccionar recursos
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="form-footer">
+            <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn-cancelar">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-lg"></i> Crear Entrenamiento
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<!-- Modal recursos -->
+<div class="modal fade" id="modalRecursos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content custom-modal-content">
+            <div class="modal-header custom-modal-header">
+                <h5 class="modal-title custom-modal-title">
+                    <i class="bi bi-folder2-open"></i> Seleccionar recursos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body custom-modal-body">
+                {% if recursos_disponibles %}
+                <div class="modal-recursos-list">
+                    {% for recurso in recursos_disponibles %}
+                    <label class="modal-recurso-item">
+                        <input type="checkbox" name="recursos" value="{{ recurso.id }}" class="checkbox-recurso">
+                        <span class="modal-recurso-icon tipo-{{ recurso.tipo }}">
+                            <i class="bi bi-music-note-beamed"></i>
+                        </span>
+                        <span class="modal-recurso-info">
+                            <strong>{{ recurso.titulo }}</strong>
+                            <small>{{ recurso.get_tipo_display }}</small>
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="sin-recursos-text">No tienes recursos disponibles.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-submit" data-bs-dismiss="modal"
+                    onclick="actualizarRecursosSeleccionados()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<!-- Tone.js -->
+<script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+
+<script>
+    // ============================================================
+    // BANCO DE DATOS MUSICALES
+    // ============================================================
+
+    // Notas con nombres en español
+    const NOTAS_ES = [
+        { nota: 'C4', nombre: 'Do' },
+        { nota: 'C#4', nombre: 'Do#' },
+        { nota: 'D4', nombre: 'Re' },
+        { nota: 'D#4', nombre: 'Re#' },
+        { nota: 'E4', nombre: 'Mi' },
+        { nota: 'F4', nombre: 'Fa' },
+        { nota: 'F#4', nombre: 'Fa#' },
+        { nota: 'G4', nombre: 'Sol' },
+        { nota: 'G#4', nombre: 'Sol#' },
+        { nota: 'A4', nombre: 'La' },
+        { nota: 'A#4', nombre: 'La#' },
+        { nota: 'B4', nombre: 'Si' },
+    ];
+
+    // Intervalos musicales
+    const INTERVALOS = {
+        facil: [
+            { nombre: '2ª Mayor', semitonos: 2, corto: '2M' },
+            { nombre: '3ª Mayor', semitonos: 4, corto: '3M' },
+            { nombre: '3ª Menor', semitonos: 3, corto: '3m' },
+            { nombre: '5ª Justa', semitonos: 7, corto: '5J' },
+        ],
+        medio: [
+            { nombre: '2ª Mayor', semitonos: 2, corto: '2M' },
+            { nombre: '2ª Menor', semitonos: 1, corto: '2m' },
+            { nombre: '3ª Mayor', semitonos: 4, corto: '3M' },
+            { nombre: '3ª Menor', semitonos: 3, corto: '3m' },
+            { nombre: '4ª Justa', semitonos: 5, corto: '4J' },
+            { nombre: '5ª Justa', semitonos: 7, corto: '5J' },
+            { nombre: '6ª Mayor', semitonos: 9, corto: '6M' },
+            { nombre: '8ª Justa', semitonos: 12, corto: '8J' },
+        ],
+        dificil: [
+            { nombre: '2ª Mayor', semitonos: 2, corto: '2M' },
+            { nombre: '2ª Menor', semitonos: 1, corto: '2m' },
+            { nombre: '3ª Mayor', semitonos: 4, corto: '3M' },
+            { nombre: '3ª Menor', semitonos: 3, corto: '3m' },
+            { nombre: '4ª Justa', semitonos: 5, corto: '4J' },
+            { nombre: 'Tritono', semitonos: 6, corto: 'TT' },
+            { nombre: '5ª Justa', semitonos: 7, corto: '5J' },
+            { nombre: '6ª Mayor', semitonos: 9, corto: '6M' },
+            { nombre: '6ª Menor', semitonos: 8, corto: '6m' },
+            { nombre: '7ª Mayor', semitonos: 11, corto: '7M' },
+            { nombre: '7ª Menor', semitonos: 10, corto: '7m' },
+            { nombre: '8ª Justa', semitonos: 12, corto: '8J' },
+        ]
+    };
+
+    // Acordes
+    const ACORDES = {
+        facil: [
+            { nombre: 'Mayor', semitonos: [0, 4, 7], corto: 'M' },
+            { nombre: 'Menor', semitonos: [0, 3, 7], corto: 'm' },
+        ],
+        medio: [
+            { nombre: 'Mayor', semitonos: [0, 4, 7], corto: 'M' },
+            { nombre: 'Menor', semitonos: [0, 3, 7], corto: 'm' },
+            { nombre: 'Disminuido', semitonos: [0, 3, 6], corto: 'dim' },
+            { nombre: 'Aumentado', semitonos: [0, 4, 8], corto: 'aug' },
+        ],
+        dificil: [
+            { nombre: 'Mayor', semitonos: [0, 4, 7], corto: 'M' },
+            { nombre: 'Menor', semitonos: [0, 3, 7], corto: 'm' },
+            { nombre: 'Disminuido', semitonos: [0, 3, 6], corto: 'dim' },
+            { nombre: 'Aumentado', semitonos: [0, 4, 8], corto: 'aug' },
+            { nombre: 'Sus2', semitonos: [0, 2, 7], corto: 'sus2' },
+            { nombre: 'Sus4', semitonos: [0, 5, 7], corto: 'sus4' },
+            { nombre: 'Séptima Mayor', semitonos: [0, 4, 7, 11], corto: 'maj7' },
+            { nombre: 'Séptima Dominante', semitonos: [0, 4, 7, 10], corto: '7' },
+            { nombre: 'Séptima Menor', semitonos: [0, 3, 7, 10], corto: 'm7' },
+        ]
+    };
+
+    // Ritmos (1 = golpe, 0 = silencio)
+    const RITMOS = {
+        facil: [
+            { nombre: 'Negras', patron: [1, 0, 1, 0, 1, 0, 1, 0] },
+            { nombre: 'Corcheas', patron: [1, 1, 1, 1, 1, 1, 1, 1] },
+        ],
+        medio: [
+            { nombre: '3/4', patron: [1, 0, 0, 1, 0, 0, 1, 0] },
+            { nombre: 'Síncopa', patron: [1, 0, 1, 1, 0, 1, 0, 0] },
+            { nombre: 'Marcha', patron: [1, 0, 1, 0, 1, 1, 0, 1] },
+        ],
+        dificil: [
+            { nombre: '7/8', patron: [1, 0, 0, 1, 0, 1, 0, 1] },
+            { nombre: 'Tresillo', patron: [1, 1, 0, 1, 1, 0, 1, 0] },
+            { nombre: 'Síncopa compleja', patron: [1, 0, 1, 1, 0, 1, 1, 0] },
+        ]
+    };
+
+    // Melodías (índices de notas, 0 = Do)
+    const MELODIAS = {
+        facil: [
+            { nombre: 'Do-Mi-Sol', notas: [0, 2, 4] },
+            { nombre: 'Sol-Mi-Do', notas: [4, 2, 0] },
+            { nombre: 'Do-Re-Mi', notas: [0, 1, 2] },
+        ],
+        medio: [
+            { nombre: 'Arpegio Mayor', notas: [0, 2, 4, 7] },
+            { nombre: 'Arpegio Menor', notas: [0, 2, 3, 7] },
+            { nombre: 'Escala corta', notas: [0, 1, 2, 3, 4] },
+        ],
+        dificil: [
+            { nombre: 'Escala completa', notas: [0, 1, 2, 3, 4, 5, 6, 7] },
+            { nombre: 'Arpegio Maj7', notas: [0, 2, 4, 7, 11] },
+            { nombre: 'Salto de 6ª', notas: [0, 4, 9, 4, 0] },
+        ]
+    };
+
+    // ============================================================
+    // SÍNTESIS DE AUDIO CON TONE.JS
+    // ============================================================
+
+    let synth = null;
+    let partesActivas = [];
+
+    function getSynth(instrumento = 'piano') {
+        detenerSonido();
+
+        const opciones = {
+            piano: {
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.01, decay: 0.3, sustain: 0.2, release: 1 }
+            },
+            guitarra: {
+                oscillator: { type: 'sawtooth' },
+                envelope: { attack: 0.02, decay: 0.5, sustain: 0.1, release: 0.8 }
+            },
+            sine: {
+                oscillator: { type: 'sine' },
+                envelope: { attack: 0.05, decay: 0.3, sustain: 0.3, release: 1 }
+            },
+            triangle: {
+                oscillator: { type: 'triangle' },
+                envelope: { attack: 0.1, decay: 0.4, sustain: 0.5, release: 1.5 }
+            },
+            organ: {
+                oscillator: { type: 'square' },
+                envelope: { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.5 }
+            },
+            bass: {
+                oscillator: { type: 'sawtooth' },
+                envelope: { attack: 0.02, decay: 0.4, sustain: 0.3, release: 0.6 },
+                filter: { type: 'lowpass', frequency: 400 }
+            }
+        };
+
+        return new Tone.Synth(opciones[instrumento] || opciones.piano).toDestination();
+    }
+
+    // ============================================================
+    // PROBAR SONIDO (respeta tipo + dificultad + instrumento)
+    // ============================================================
+
+    async function probarSonido() {
+        try {
+            await Tone.start();
+        } catch (e) {
+            alert('Haz clic en la página primero para activar el audio.');
+            return;
+        }
+
+        const instrumento = document.getElementById('instrumentoSelect').value;
+        const dificultad = document.getElementById('dificultadSelect').value;
+        const tipoPractica = document.querySelector('[name="tipo_practica"]:checked').value;
+
+        synth = getSynth(instrumento);
+
+        let info = '';
+        if (tipoPractica === 'intervalos') info = tocarIntervaloAleatorio(dificultad);
+        else if (tipoPractica === 'acordes') info = tocarAcordeAleatorio(dificultad);
+        else if (tipoPractica === 'notas') info = tocarNotaAleatoria();
+        else if (tipoPractica === 'ritmo') info = await tocarRitmoAleatorio(dificultad);
+        else if (tipoPractica === 'melodia') info = tocarMelodiaAleatoria(dificultad);
+
+        mostrarInfoPreview(info);
+    }
+
+    // ============================================================
+    // INTERVALOS
+    // ============================================================
+
+    function tocarIntervaloAleatorio(dificultad) {
+        const lista = INTERVALOS[dificultad];
+        const intervalo = lista[Math.floor(Math.random() * lista.length)];
+        const baseIdx = Math.floor(Math.random() * (NOTAS_ES.length - 12));
+        const notaBase = NOTAS_ES[baseIdx];
+        const notaSup = NOTAS_ES[baseIdx + intervalo.semitonos];
+
+        synth.triggerAttackRelease(notaBase.nota, "8n", Tone.now());
+        synth.triggerAttackRelease(notaSup.nota, "8n", Tone.now() + 0.6);
+
+        return {
+            tipo: 'Intervalo',
+            detalle: `${notaBase.nombre} → ${notaSup.nombre}`,
+            respuesta: intervalo.nombre,
+            color: 'purple'
+        };
+    }
+
+    // ============================================================
+    // ACORDES
+    // ============================================================
+
+    function tocarAcordeAleatorio(dificultad) {
+        const lista = ACORDES[dificultad];
+        const acorde = lista[Math.floor(Math.random() * lista.length)];
+        const baseIdx = Math.floor(Math.random() * (NOTAS_ES.length - 12));
+        const notas = acorde.semitonos.map(s => NOTAS_ES[baseIdx + s]);
+
+        notas.forEach(n => {
+            synth.triggerAttackRelease(n.nota, "2n", Tone.now());
+        });
+
+        return {
+            tipo: 'Acorde',
+            detalle: notas.map(n => n.nombre).join(' - '),
+            respuesta: `${NOTAS_ES[baseIdx].nombre} ${acorde.nombre}`,
+            color: 'cyan'
+        };
+    }
+
+    // ============================================================
+    // NOTAS INDIVIDUALES
+    // ============================================================
+
+    function tocarNotaAleatoria() {
+        const nota = NOTAS_ES[Math.floor(Math.random() * NOTAS_ES.length)];
+        synth.triggerAttackRelease(nota.nota, "4n", Tone.now());
+
+        return {
+            tipo: 'Nota',
+            detalle: nota.nota,
+            respuesta: nota.nombre,
+            color: 'green'
+        };
+    }
+
+    // ============================================================
+    // RITMO
+    // ============================================================
+
+    async function tocarRitmoAleatorio(dificultad) {
+        const lista = RITMOS[dificultad];
+        const ritmo = lista[Math.floor(Math.random() * lista.length)];
+
+        const click = new Tone.MembraneSynth().toDestination();
+        const tiempoInicio = Tone.now() + 0.1;
+
+        ritmo.patron.forEach((golpe, i) => {
+            if (golpe === 1) {
+                click.triggerAttackRelease("C2", "32n", tiempoInicio + i * 0.25);
+            }
+        });
+
+        // Esperamos a que termine el ritmo antes de devolver la info
+        await new Promise(r => setTimeout(r, (ritmo.patron.length * 0.25 + 0.5) * 1000));
+
+        return {
+            tipo: 'Ritmo',
+            detalle: ritmo.patron.map(x => x ? '●' : '○').join(' '),
+            respuesta: ritmo.nombre,
+            color: 'orange'
+        };
+    }
+
+    // ============================================================
+    // MELODÍA
+    // ============================================================
+
+    function tocarMelodiaAleatoria(dificultad) {
+        const lista = MELODIAS[dificultad];
+        const melodia = lista[Math.floor(Math.random() * lista.length)];
+        const tiempoInicio = Tone.now();
+
+        melodia.notas.forEach((idx, i) => {
+            synth.triggerAttackRelease(NOTAS_ES[idx].nota, "8n", tiempoInicio + i * 0.4);
+        });
+
+        return {
+            tipo: 'Melodía',
+            detalle: melodia.notas.map(i => NOTAS_ES[i].nombre).join(' - '),
+            respuesta: melodia.nombre,
+            color: 'pink'
+        };
+    }
+
+    // ============================================================
+    // INFO DE PREVIEW
+    // ============================================================
+
+    function mostrarInfoPreview(info) {
+        const container = document.getElementById('previewInfo');
+        if (!info) return;
+
+        const colores = {
+            purple: { bg: 'rgba(124, 111, 255, 0.15)', border: 'rgba(124, 111, 255, 0.4)', text: '#7c6fff' },
+            cyan: { bg: 'rgba(34, 211, 238, 0.15)', border: 'rgba(34, 211, 238, 0.4)', text: '#22d3ee' },
+            green: { bg: 'rgba(34, 197, 94, 0.15)', border: 'rgba(34, 197, 94, 0.4)', text: '#22c55e' },
+            orange: { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.4)', text: '#f59e0b' },
+            pink: { bg: 'rgba(236, 72, 153, 0.15)', border: 'rgba(236, 72, 153, 0.4)', text: '#ec4899' },
+        };
+        const c = colores[info.color] || colores.green;
+
+        container.innerHTML = `
+        <div class="preview-result" style="
+            background: ${c.bg};
+            border: 1px solid ${c.border};
+            color: ${c.text};
+        ">
+            <div class="preview-result-tipo">
+                <i class="bi bi-music-note-beamed"></i> ${info.tipo}
+            </div>
+            <div class="preview-result-detalle">
+                <span class="preview-result-label">Sonó:</span>
+                <strong>${info.detalle}</strong>
+            </div>
+            <div class="preview-result-respuesta">
+                <span class="preview-result-label">Respuesta correcta:</span>
+                <strong>${info.respuesta}</strong>
+            </div>
+        </div>
+    `;
+    }
+
+    // ============================================================
+    // DETENER SONIDO
+    // ============================================================
+
+    function detenerSonido() {
+        try {
+            if (synth) {
+                synth.triggerRelease();
+            }
+            if (Tone.Transport) {
+                Tone.Transport.stop();
+                Tone.Transport.cancel();
+            }
+            partesActivas.forEach(p => {
+                try { p.stop(); } catch (e) { }
+            });
+            partesActivas = [];
+        } catch (e) {
+            console.warn('Error deteniendo sonido:', e);
+        }
+    }
+
+    // ============================================================
+    // SELECCIÓN DE TIPO DE PRÁCTICA
+    // ============================================================
+
+    document.querySelectorAll('.tipo-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input[type="radio"]').checked = true;
+
+            // Limpiar preview al cambiar tipo
+            document.getElementById('previewInfo').innerHTML = `
+            <span class="preview-hint">
+                <i class="bi bi-info-circle"></i>
+                Presiona "Escuchar ejemplo" para oír una muestra aleatoria de tu configuración
+            </span>
+        `;
+        });
+    });
+
+    // ============================================================
+    // FECHA LÍMITE POR DEFECTO
+    // ============================================================
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const fechaInput = document.getElementById('fechaLimite');
+        const hoy = new Date();
+        const hoyStr = hoy.toLocaleDateString('en-CA');
+        fechaInput.min = hoyStr + 'T00:00';
+
+        const fechaDefault = new Date();
+        fechaDefault.setDate(fechaDefault.getDate() + 7);
+        fechaInput.value = fechaDefault.toLocaleDateString('en-CA') + 'T23:59';
+    });
+
+    // ============================================================
+    // RECURSOS
+    // ============================================================
+
+    function actualizarRecursosSeleccionados() {
+        const container = document.getElementById('recursosSeleccionados');
+        const checkboxes = document.querySelectorAll('.checkbox-recurso:checked');
+        if (checkboxes.length === 0) {
+            container.innerHTML = '<p class="ningun-recurso-text">Ningún recurso seleccionado</p>';
+            return;
+        }
+        let html = '';
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.closest('.modal-recurso-item');
+            const titulo = label.querySelector('strong').textContent;
+            html += `<span class="recurso-tag"><i class="bi bi-check-circle"></i> ${titulo}</span>`;
+        });
+        container.innerHTML = html;
+    }
+
+    // ============================================================
+    // VALIDACIÓN DEL FORMULARIO
+    // ============================================================
+
+    document.getElementById('formEntrenamiento').addEventListener('submit', function (e) {
+        const titulo = this.querySelector('[name="titulo"]').value.trim();
+        const fechaLimite = this.querySelector('[name="fechaLimite"]').value;
+
+        if (!titulo) {
+            e.preventDefault();
+            alert('El título es obligatorio.');
+            return;
+        }
+        if (!fechaLimite) {
+            e.preventDefault();
+            alert('La fecha límite es obligatoria.');
+            return;
+        }
+    });
+    // ═══════════════════════════════════════════
+// SUBTIPO (solo para ACORDES)
+// ═══════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function () {
+    const subtipoGroup = document.getElementById('subtipoGroup');
+
+    function actualizarSubtipo() {
+        const tipoSeleccionado = document.querySelector('input[name="tipo_practica"]:checked')?.value;
+        if (tipoSeleccionado === 'acordes') {
+            subtipoGroup.style.display = 'block';
+        } else {
+            subtipoGroup.style.display = 'none';
+        }
+    }
+
+    // Cuando hacen clic en una tarjeta de tipo
+    document.querySelectorAll('.tipo-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+            actualizarSubtipo();
+        });
+    });
+
+    // Estado inicial
+    actualizarSubtipo();
+
+    // Selección subtipo
+    document.querySelectorAll('.subtipo-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.subtipo-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+        });
+    });
+});
+</script>
+{% endblock %}

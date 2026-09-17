@@ -1,0 +1,461 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Calendario — Docente{% endblock %}
+{% block page_title %}Calendario{% endblock %}
+{% block nav_calendario %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'docente/css/calendario_docente.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="calendar-page">
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- HEADER CON FILTRO DE CLASES                 -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="calendar-header">
+        <h1 class="calendar-title">
+            <i class="bi bi-calendar3"></i> Calendario
+        </h1>
+
+        <div class="calendar-filters">
+            <!-- Filtro por clase -->
+            <div class="filter-dropdown">
+                <i class="bi bi-funnel-fill"></i>
+                <select id="filtroClase" onchange="filtrarPorClase(this.value)">
+                    <option value="todas">Todas las clases</option>
+                    {% for clase in mis_clases %}
+                    <option value="{{ clase.id }}">{{ clase.nombre|truncatechars:30 }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Navegación de mes -->
+            <div class="calendar-month-nav">
+                <button class="btn-month-nav" onclick="cambiarMes(-1)">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                <span class="month-label" id="monthLabel">—</span>
+                <button class="btn-month-nav" onclick="cambiarMes(1)">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+                <button class="btn-today" onclick="irHoy()">Hoy</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LEYENDA                                     -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="calendar-legend">
+        <div class="legend-item">
+            <span class="legend-dot clase"></span> Clase activa
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot deadline"></span> Deadline de ejercicio
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot entregas"></span> Entregas por calificar
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LAYOUT PRINCIPAL                            -->
+    <!-- ═══════════════════════════════════════════ -->
+    <div class="calendar-layout">
+
+        <!-- CALENDARIO PRINCIPAL -->
+        <div class="calendar-main">
+            <div class="weekdays">
+                <div class="weekday">Lun</div>
+                <div class="weekday">Mar</div>
+                <div class="weekday">Mié</div>
+                <div class="weekday">Jue</div>
+                <div class="weekday">Vie</div>
+                <div class="weekday">Sáb</div>
+                <div class="weekday">Dom</div>
+            </div>
+            <div class="days-grid" id="daysGrid">
+                <!-- Los días se renderizan con JavaScript -->
+            </div>
+        </div>
+
+        <!-- SIDEBAR DERECHO -->
+        <div class="calendar-sidebar">
+
+            <!-- 📊 ESTA SEMANA -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">
+                    <i class="bi bi-graph-up-arrow" style="color: var(--spotify-green);"></i>
+                    Esta semana
+                </div>
+                <div class="week-metrics">
+                    <div class="metric-row">
+                        <div class="metric-icon red">
+                            <i class="bi bi-clipboard-check-fill"></i>
+                        </div>
+                        <div class="metric-info">
+                            <div class="metric-value">{{ por_calificar_count|default:0 }}</div>
+                            <div class="metric-label">Por calificar</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-icon orange">
+                            <i class="bi bi-clock-fill"></i>
+                        </div>
+                        <div class="metric-info">
+                            <div class="metric-value">{{ deadlines_semana_count|default:0 }}</div>
+                            <div class="metric-label">Deadlines esta semana</div>
+                        </div>
+                    </div>
+
+                    <div class="metric-row">
+                        <div class="metric-icon purple">
+                            <i class="bi bi-person-dash-fill"></i>
+                        </div>
+                        <div class="metric-info">
+                            <div class="metric-value">{{ inactivos_count|default:0 }}</div>
+                            <div class="metric-label">Estudiantes inactivos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔥 ACTIVIDAD (heatmap) -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">
+                    <i class="bi bi-fire" style="color: var(--accent-orange);"></i>
+                    Actividad de entregas
+                </div>
+                <div class="heatmap">
+                    {% for dia in actividad_semanal %}
+                    <div class="heatmap-row">
+                        <span class="heatmap-day">{{ dia.dia }}</span>
+                        <div class="heatmap-bar-wrap">
+                            <div class="heatmap-bar" style="width: {% widthratio dia.count max_actividad 100 %}%;"></div>
+                        </div>
+                        <span class="heatmap-count">{{ dia.count }}</span>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state" style="padding: 1rem;">
+                        <p class="empty-text" style="font-size: 0.8rem;">Sin datos de actividad</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ⏰ ALERTAS -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">
+                    <i class="bi bi-bell-fill" style="color: var(--accent-orange);"></i>
+                    Alertas
+                </div>
+                <div class="alertas-list">
+                    {% for alerta in alertas %}
+                    <a href="{{ alerta.url|default:'#' }}" class="alerta-item alerta-{{ alerta.tipo }}">
+                        <div class="alerta-icon">
+                            <i class="bi bi-{{ alerta.icono }}"></i>
+                        </div>
+                        <div class="alerta-texto">{{ alerta.texto }}</div>
+                        <i class="bi bi-chevron-right alerta-arrow"></i>
+                    </a>
+                    {% empty %}
+                    <div class="empty-state" style="padding: 1rem;">
+                        <i class="bi bi-check-circle-fill empty-icon" style="color: var(--spotify-green);"></i>
+                        <p class="empty-text" style="font-size: 0.8rem;">¡Todo al día! 🎉</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- 🎓 POR CERRAR -->
+            <div class="sidebar-card">
+                <div class="sidebar-card-title">
+                    <i class="bi bi-hourglass-split" style="color: var(--accent-orange);"></i>
+                    Clases por cerrar
+                </div>
+                <div class="proximos-list">
+                    {% for item in clases_por_cerrar %}
+                    <a href="{% url 'clase:detalle_clase' item.clase.id %}" class="proximo-item">
+                        <div class="proximo-icon {% if item.dias_restantes <= 0 %}danger{% elif item.dias_restantes <= 3 %}danger{% elif item.dias_restantes <= 7 %}orange{% else %}purple{% endif %}">
+                            <i class="bi bi-calendar-x"></i>
+                        </div>
+                        <div class="proximo-info">
+                            <div class="proximo-title">{{ item.clase.nombre|truncatechars:22 }}</div>
+                            <div class="proximo-date">
+                                <i class="bi bi-clock"></i>
+                                {% if item.dias_restantes < 0 %}
+                                    <span style="color: var(--danger); font-weight: 700;">
+                                        Vencida hace {{ item.dias_restantes|cut:"-" }} día{{ item.dias_restantes|cut:"-"|pluralize:"s" }}
+                                    </span>
+                                {% elif item.dias_restantes == 0 %}
+                                    <span style="color: var(--danger); font-weight: 700;">¡Vence HOY!</span>
+                                {% elif item.dias_restantes == 1 %}
+                                    <span style="color: var(--accent-orange); font-weight: 700;">Vence mañana</span>
+                                {% else %}
+                                    <span style="color: var(--accent-orange); font-weight: 600;">
+                                        {{ item.dias_restantes }} días restantes
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <div class="proximo-subdate" style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.2rem;">
+                                Fin: {{ item.clase.fecha_fin|date:"d M Y" }}
+                            </div>
+                        </div>
+                        <div class="proximo-arrow">
+                            <i class="bi bi-chevron-right"></i>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="empty-state" style="padding: 1rem;">
+                        <i class="bi bi-check-circle-fill empty-icon" style="color: var(--spotify-green);"></i>
+                        <p class="empty-text" style="font-size: 0.8rem;">Sin clases próximas a cerrar</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PANEL LATERAL AL HACER CLIC EN UN DÍA       -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="day-panel-backdrop" id="dayPanelBackdrop" onclick="cerrarDiaPanel()"></div>
+
+<div class="day-panel" id="dayPanel">
+    <div class="day-panel-header">
+        <div>
+            <h3 class="day-panel-title" id="dayPanelTitle">—</h3>
+            <p class="day-panel-subtitle" id="dayPanelSubtitle">—</p>
+        </div>
+        <button class="day-panel-close" onclick="cerrarDiaPanel()">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="day-panel-body" id="dayPanelBody">
+        <!-- Se llena con JS -->
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ============================================
+    // DATOS DESDE DJANGO
+    // ============================================
+    const eventosData = {{ eventos_json|safe|default:'[]' }};
+
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+    let claseFiltro = 'todas';
+
+    // ============================================
+    // RENDER PRINCIPAL
+    // ============================================
+    function renderCalendar(month, year) {
+        const grid = document.getElementById('daysGrid');
+        const label = document.getElementById('monthLabel');
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        label.textContent = `${monthNames[month]} ${year}`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const today = new Date();
+        let startOffset = firstDay === 0 ? 6 : firstDay - 1;
+
+        // Agrupa eventos por día (aplicando filtro)
+        const eventsByDay = {};
+        eventosData.forEach(event => {
+            if (claseFiltro !== 'todas' && String(event.clase_id) !== String(claseFiltro)) return;
+
+            const date = new Date(event.start);
+            if (date.getMonth() === month && date.getFullYear() === year) {
+                const day = date.getDate();
+                if (!eventsByDay[day]) eventsByDay[day] = [];
+                eventsByDay[day].push(event);
+            }
+        });
+
+        let html = '';
+
+        // Días vacíos del inicio
+        for (let i = 0; i < startOffset; i++) {
+            html += `<div class="day-cell empty"></div>`;
+        }
+
+        // Días del mes
+        for (let d = 1; d <= daysInMonth; d++) {
+            const isToday = d === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+            const dayEvents = eventsByDay[d] || [];
+            const hasEvents = dayEvents.length > 0;
+
+            let classes = 'day-cell';
+            if (isToday) classes += ' today';
+            if (hasEvents) classes += ' has-events';
+
+            html += `<div class="${classes}" data-day="${d}" onclick="abrirDiaPanel(${d})">`;
+            html += `<div class="day-number">${d}</div>`;
+
+            if (dayEvents.length > 0) {
+                html += `<div class="day-events">`;
+                const maxShow = 3;
+                dayEvents.slice(0, maxShow).forEach(event => {
+                    const tipo = event.tipo || 'clase';
+                    html += `
+                        <div class="day-event ${tipo}">
+                            <span class="dot"></span>
+                            <span>${event.title}</span>
+                        </div>
+                    `;
+                });
+                if (dayEvents.length > maxShow) {
+                    html += `<div class="day-more">+${dayEvents.length - maxShow} más</div>`;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div>`;
+        }
+
+        grid.innerHTML = html;
+    }
+
+    // ============================================
+    // NAVEGACIÓN DE MES
+    // ============================================
+    function cambiarMes(delta) {
+        currentMonth += delta;
+        if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+        else if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+        renderCalendar(currentMonth, currentYear);
+    }
+
+    function irHoy() {
+        const hoy = new Date();
+        currentMonth = hoy.getMonth();
+        currentYear = hoy.getFullYear();
+        renderCalendar(currentMonth, currentYear);
+    }
+
+    // ============================================
+    // FILTRO POR CLASE
+    // ============================================
+    function filtrarPorClase(claseId) {
+        claseFiltro = claseId;
+        renderCalendar(currentMonth, currentYear);
+    }
+
+    // ============================================
+    // PANEL DE DÍA
+    // ============================================
+    function abrirDiaPanel(day) {
+        // Si el clic fue dentro de un evento, no abrir el panel
+        if (event && event.target && event.target.closest('.day-event')) return;
+
+        const monthNames = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+                            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+        const dayNames = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const fecha = new Date(currentYear, currentMonth, day);
+
+        document.getElementById('dayPanelTitle').textContent =
+            `${dayNames[fecha.getDay()]} ${day} de ${monthNames[currentMonth]}`;
+        document.getElementById('dayPanelSubtitle').textContent =
+            `Año ${currentYear}`;
+
+        // Filtrar eventos del día
+        const eventosDelDia = eventosData.filter(e => {
+            const f = new Date(e.start);
+            return f.getDate() === day &&
+                   f.getMonth() === currentMonth &&
+                   f.getFullYear() === currentYear &&
+                   (claseFiltro === 'todas' || String(e.clase_id) === String(claseFiltro));
+        });
+
+        const body = document.getElementById('dayPanelBody');
+
+        if (eventosDelDia.length === 0) {
+            body.innerHTML = `
+                <div class="empty-state" style="padding: 2rem 1rem;">
+                    <i class="bi bi-calendar-x empty-icon" style="color: var(--text-muted);"></i>
+                    <p class="empty-text">Sin eventos este día</p>
+                </div>
+            `;
+        } else {
+            body.innerHTML = eventosDelDia.map(e => {
+                const tipo = e.tipo || 'clase';
+                const entregas = e.entregas_count || 0;
+
+                let extra = '';
+                if (tipo === 'entregas' && entregas > 0) {
+                    extra = `<div class="panel-action">
+                        <a href="${e.url || '#'}" class="btn-panel-primary">
+                            <i class="bi bi-clipboard-check"></i> Ver ${entregas} entrega${entregas !== 1 ? 's' : ''}
+                        </a>
+                    </div>`;
+                } else if (tipo === 'deadline') {
+                    extra = `<div class="panel-actions-row">
+                        <a href="${e.url || '#'}" class="btn-panel-secondary">
+                            <i class="bi bi-eye"></i> Ver ejercicio
+                        </a>
+                        <a href="${e.url_editar || '#'}" class="btn-panel-primary">
+                            <i class="bi bi-calendar-plus"></i> Extender fecha
+                        </a>
+                    </div>`;
+                } else if (tipo === 'clase') {
+                    extra = `<div class="panel-action">
+                        <a href="${e.url || '#'}" class="btn-panel-primary">
+                            <i class="bi bi-arrow-right"></i> Ir a la clase
+                        </a>
+                    </div>`;
+                }
+
+                return `
+                    <div class="panel-event panel-event-${tipo}">
+                        <div class="panel-event-header">
+                            <span class="panel-event-badge ${tipo}">
+                                <i class="bi bi-${e.icono || 'circle-fill'}"></i>
+                                ${e.tipo_label || tipo}
+                            </span>
+                            ${e.hora ? `<span class="panel-event-hora"><i class="bi bi-clock"></i> ${e.hora}</span>` : ''}
+                        </div>
+                        <h4 class="panel-event-title">${e.title}</h4>
+                        ${e.descripcion ? `<p class="panel-event-desc">${e.descripcion}</p>` : ''}
+                        ${extra}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('dayPanel').classList.add('active');
+        document.getElementById('dayPanelBackdrop').classList.add('active');
+    }
+
+    function cerrarDiaPanel() {
+        document.getElementById('dayPanel').classList.remove('active');
+        document.getElementById('dayPanelBackdrop').classList.remove('active');
+    }
+
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') cerrarDiaPanel();
+    });
+
+    // ============================================
+    // INICIALIZACIÓN
+    // ============================================
+    const hoy = new Date();
+    currentMonth = hoy.getMonth();
+    currentYear = hoy.getFullYear();
+    renderCalendar(currentMonth, currentYear);
+</script>
+{% endblock %}

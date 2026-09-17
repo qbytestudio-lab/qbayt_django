@@ -492,16 +492,31 @@ def certificados(request):
 @login_required
 def calendario(request):
     """
-    Vista del calendario - con clases próximas a finalizar
+    Vista del calendario.
+    - Estudiante: muestra sus clases, actividades y clases por finalizar.
+    - Docente: muestra el calendario con métricas, heatmap, alertas y clases por cerrar.
     """
-    from datetime import date, timedelta
-
     usuario = request.user
+    rol = usuario.perfil.rol if hasattr(usuario, 'perfil') else 'estudiante'
 
-    # Obtener las clases donde el estudiante está inscrito
+    # ═══════════════════════════════════════════
+    # DOCENTE
+    # ═══════════════════════════════════════════
+    if rol == 'docente':
+        return _calendario_docente(request, usuario)
+
+    # ═══════════════════════════════════════════
+    # ESTUDIANTE (tu lógica original)
+    # ═══════════════════════════════════════════
+    return _calendario_estudiante(request, usuario)
+
+
+# ─────────────────────────────────────────────
+# CALENDARIO DEL ESTUDIANTE (tu lógica original)
+# ─────────────────────────────────────────────
+def _calendario_estudiante(request, usuario):
     clases_inscritas = Clase.objects.filter(estudiantes=usuario)
 
-    # Inicializar contadores
     actividades_pendientes_count = 0
     actividades_completadas_count = 0
     proximos = []
@@ -521,7 +536,6 @@ def calendario(request):
     # Obtener ejercicios de las clases inscritas
     ejercicios = Ejercicio.objects.filter(clase__in=clases_inscritas)
 
-    # Procesar cada ejercicio
     for ejercicio in ejercicios:
         intento_aprobado = IntentoEjercicio.objects.filter(
             estudiante=usuario,
@@ -548,17 +562,13 @@ def calendario(request):
     if proximos:
         proximos.sort(key=lambda x: x.fecha_limite if x.fecha_limite else timezone.now())
 
-    # ─────────────────────────────────────────────
-    # NUEVO: Calcular clases próximas a finalizar
-    # ─────────────────────────────────────────────
+    # Clases próximas a finalizar
     hoy = timezone.now().date()
     clases_por_finalizar = []
 
     for clase in clases_inscritas:
         if clase.fecha_fin:
             dias_restantes = (clase.fecha_fin - hoy).days
-
-            # Mostrar clases que finalizan en los próximos 30 días (incluyendo las ya finalizadas hace poco)
             if dias_restantes <= 30:
                 clases_por_finalizar.append({
                     'clase': clase,
@@ -566,7 +576,6 @@ def calendario(request):
                     'fecha_fin': clase.fecha_fin,
                 })
 
-    # Ordenar por días restantes (las que vencen primero arriba)
     clases_por_finalizar.sort(key=lambda x: x['dias_restantes'])
 
     hoy_dt = timezone.now()
@@ -582,10 +591,212 @@ def calendario(request):
         'actividades_completadas': actividades_completadas_count,
         'hoy': hoy_dt.date(),
         'clases': clases_inscritas,
-        'clases_por_finalizar': clases_por_finalizar,   # 👈 NUEVO
+        'clases_por_finalizar': clases_por_finalizar,
     }
 
     return render(request, 'web/calendario.html', context)
+
+
+# ─────────────────────────────────────────────
+# CALENDARIO DEL DOCENTE (nuevo)
+# ─────────────────────────────────────────────
+def _calendario_docente(request, usuario):
+    hoy = timezone.now().date()
+    ahora = timezone.now()
+    inicio_semana = hoy - timedelta(days=hoy.weekday())         # lunes
+    fin_semana = inicio_semana + timedelta(days=6)              # domingo
+
+    # Todas las clases del docente
+    mis_clases = Clase.objects.filter(docente=usuario)
+
+    # ─── EVENTOS DEL CALENDARIO ───
+    eventos = []
+
+    # 1) Clases: inicio y fin
+    for clase in mis_clases:
+        if clase.fecha_inicio:
+            eventos.append({
+                'title': f'📚 {clase.nombre}',
+                'start': clase.fecha_inicio.isoformat(),
+                'tipo': 'clase',
+                'clase_id': clase.id,
+                'url': f'/clase/detalle/{clase.id}/',
+                'icono': 'journal-bookmark-fill',
+                'tipo_label': 'Clase',
+                'descripcion': f'Inicio de la clase "{clase.nombre}"',
+            })
+
+        if clase.fecha_fin:
+            eventos.append({
+                'title': f'🏁 Cierre: {clase.nombre}',
+                'start': clase.fecha_fin.isoformat(),
+                'tipo': 'clase',
+                'clase_id': clase.id,
+                'url': f'/clase/detalle/{clase.id}/',
+                'icono': 'flag-fill',
+                'tipo_label': 'Cierre de clase',
+                'descripcion': f'Último día de la clase "{clase.nombre}"',
+            })
+
+    # 2) Ejercicios con deadline
+    ejercicios = Ejercicio.objects.filter(clase__in=mis_clases)
+    for ejercicio in ejercicios:
+        if ejercicio.fecha_limite:
+            eventos.append({
+                'title': f'⏰ {ejercicio.titulo}',
+                'start': ejercicio.fecha_limite.date().isoformat(),
+                'tipo': 'deadline',
+                'clase_id': ejercicio.clase.id,
+                'url': f'/clase/detalle/{ejercicio.clase.id}/',
+                'url_editar': f'/clase/{ejercicio.clase.id}/ejercicio/{ejercicio.id}/editar/',
+                'icono': 'clock-fill',
+                'tipo_label': 'Deadline',
+                'hora': ejercicio.fecha_limite.strftime('%H:%M'),
+                'descripcion': f'Ejercicio "{ejercicio.titulo}" de la clase "{ejercicio.clase.nombre}"',
+            })
+
+    # 3) Entregas por calificar (agrupadas por clase y fecha de entrega)
+    entregas_pendientes = IntentoEjercicio.objects.filter(
+        ejercicio__clase__in=mis_clases,
+        aprobado=False,
+    ).select_related('ejercicio', 'ejercicio__clase').order_by('fecha_envio')
+
+    entregas_por_dia = {}
+    for intento in entregas_pendientes:
+        if not intento.fecha_envio:
+            continue
+        dia = intento.fecha_envio.date()
+        key = (dia, intento.ejercicio.clase_id)
+        if key not in entregas_por_dia:
+            entregas_por_dia[key] = {
+                'dia': dia,
+                'clase': intento.ejercicio.clase,
+                'count': 0,
+            }
+        entregas_por_dia[key]['count'] += 1
+
+    for key, data in entregas_por_dia.items():
+        eventos.append({
+            'title': f'📝 {data["count"]} entrega{"s" if data["count"] != 1 else ""}',
+            'start': data['dia'].isoformat(),
+            'tipo': 'entregas',
+            'clase_id': data['clase'].id,
+            'url': f'/clase/detalle/{data["clase"].id}/',
+            'icono': 'clipboard-check-fill',
+            'tipo_label': 'Entregas',
+            'descripcion': f'{data["count"]} entrega(s) de "{data["clase"].nombre}" por calificar',
+            'entregas_count': data['count'],
+        })
+
+    # ─── MÉTRICAS DE LA SEMANA ───
+    por_calificar_count = entregas_pendientes.filter(
+        fecha_envio__date__gte=inicio_semana,
+        fecha_envio__date__lte=fin_semana,
+    ).count()
+
+    # Si no hay en esta semana, mostramos todas las pendientes
+    if por_calificar_count == 0:
+        por_calificar_count = entregas_pendientes.count()
+
+    deadlines_semana_count = Ejercicio.objects.filter(
+        clase__in=mis_clases,
+        fecha_limite__date__gte=inicio_semana,
+        fecha_limite__date__lte=fin_semana,
+    ).count()
+
+    # Estudiantes inactivos (sin entregas en los últimos 14 días)
+    hace_14_dias = ahora - timedelta(days=14)
+    estudiantes_clase = set()
+    for clase in mis_clases:
+        for est in clase.estudiantes.all():
+            estudiantes_clase.add(est.id)
+
+    estudiantes_activos_ids = set(
+        IntentoEjercicio.objects.filter(
+            ejercicio__clase__in=mis_clases,
+            fecha_envio__gte=hace_14_dias,
+        ).values_list('estudiante_id', flat=True).distinct()
+    )
+    inactivos_count = len(estudiantes_clase - estudiantes_activos_ids)
+
+    # ─── HEATMAP: actividad por día de la semana ───
+    dias_es = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
+    actividad_semanal = []
+    for i, nombre in enumerate(dias_es):
+        dia_objetivo = inicio_semana + timedelta(days=i)
+        count = IntentoEjercicio.objects.filter(
+            ejercicio__clase__in=mis_clases,
+            fecha_envio__date=dia_objetivo,
+        ).count()
+        actividad_semanal.append({'dia': nombre, 'count': count})
+
+    max_actividad = max([d['count'] for d in actividad_semanal], default=1) or 1
+
+    # ─── ALERTAS INTELIGENTES ───
+    alertas = []
+
+    # Entregas sin calificar hace más de 7 días
+    hace_7 = ahora - timedelta(days=7)
+    viejas = entregas_pendientes.filter(fecha_envio__lte=hace_7).count()
+    if viejas > 0:
+        alertas.append({
+            'tipo': 'warning',
+            'icono': 'exclamation-triangle-fill',
+            'texto': f'Tienes {viejas} entrega{"s" if viejas != 1 else ""} sin calificar hace más de 7 días',
+            'url': '/mis-clases/',
+        })
+
+    # Clases sin entregas esta semana
+    for clase in mis_clases:
+        entregas_semana = IntentoEjercicio.objects.filter(
+            ejercicio__clase=clase,
+            fecha_envio__date__gte=inicio_semana,
+            fecha_envio__date__lte=fin_semana,
+        ).count()
+        if entregas_semana == 0 and clase.estudiantes.exists():
+            alertas.append({
+                'tipo': 'danger',
+                'icono': 'x-circle-fill',
+                'texto': f'"{clase.nombre}" no tiene entregas esta semana',
+                'url': f'/clase/detalle/{clase.id}/',
+            })
+            break  # solo mostramos una para no saturar
+
+    # Estudiantes inactivos
+    if inactivos_count > 0:
+        alertas.append({
+            'tipo': 'info',
+            'icono': 'info-circle-fill',
+            'texto': f'{inactivos_count} estudiante{"s" if inactivos_count != 1 else ""} sin actividad en 14 días',
+            'url': '/mis-clases/',
+        })
+
+    # ─── CLASES POR CERRAR ───
+    clases_por_cerrar = []
+    for clase in mis_clases:
+        if clase.fecha_fin:
+            dias = (clase.fecha_fin - hoy).days
+            if dias <= 15:  # mostramos las que cierran en los próximos 15 días (o ya cerradas)
+                clases_por_cerrar.append({
+                    'clase': clase,
+                    'dias_restantes': dias,
+                })
+    clases_por_cerrar.sort(key=lambda x: x['dias_restantes'])
+
+    # ─── CONTEXTO FINAL ───
+    context = {
+        'mis_clases': mis_clases,
+        'eventos_json': json.dumps(eventos, default=str),
+        'por_calificar_count': por_calificar_count,
+        'deadlines_semana_count': deadlines_semana_count,
+        'inactivos_count': inactivos_count,
+        'actividad_semanal': actividad_semanal,
+        'max_actividad': max_actividad,
+        'alertas': alertas,
+        'clases_por_cerrar': clases_por_cerrar,
+    }
+
+    return render(request, 'docente/calendario_docente.html', context)
 
 @login_required
 def descargar_certificado(request, clase_id):

@@ -1,0 +1,104 @@
+/* ═══════════════════════════════════════════ */
+/* TAPPING RÍTMICO - QBYT                      */
+/* ═══════════════════════════════════════════ */
+
+.tapping-area {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 450px;
+  justify-content: center;
+}
+
+.tapping-instruction {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0;
+  max-width: 500px;
+}
+
+/* Botón TAP grande y morado */
+.btn-tap-big {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.2rem;
+  letter-spacing: 1px;
+  transition: all 0.15s ease;
+  box-shadow:
+    0 8px 32px rgba(168, 85, 247, 0.4),
+    0 0 0 8px rgba(168, 85, 247, 0.1);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn-tap-big:not(:disabled):hover {
+  transform: scale(1.05);
+}
+
+.btn-tap-big:not(:disabled):active {
+  transform: scale(0.92);
+  box-shadow:
+    0 4px 16px rgba(168, 85, 247, 0.7),
+    0 0 0 16px rgba(168, 85, 247, 0.2);
+}
+
+.btn-tap-big:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+
+.btn-tap-big i {
+  font-size: 3.5rem;
+}
+
+.tapping-feedback {
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tapping-progress {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* El botón de escuchar patrón reutiliza .btn-play-big pero con tono morado */
+#btnPlayTapping {
+  background: linear-gradient(135deg, #a855f7, #9333ea);
+  box-shadow:
+    0 8px 32px rgba(168, 85, 247, 0.4),
+    0 0 0 8px rgba(168, 85, 247, 0.1);
+}
+
+#btnPlayTapping:hover:not(:disabled) {
+  box-shadow:
+    0 12px 40px rgba(168, 85, 247, 0.55),
+    0 0 0 12px rgba(168, 85, 247, 0.15);
+}
+
+#btnPlayTapping:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

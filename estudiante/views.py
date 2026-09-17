@@ -414,20 +414,24 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
     from django.utils import timezone
     import re
-    
+
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
+
+    # ═══════════════════════════════════════════════════
+    # VALIDACIONES COMUNES (aplican a TODOS los tipos)
+    # ═══════════════════════════════════════════════════
+
     # Verificar inscripción
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
         return redirect('inicio')
-    
+
     # VALIDACIÓN 1: Ejercicio desactivado
     if not ejercicio.activo:
         messages.error(request, 'Este ejercicio está desactivado por el docente.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
+
     # VALIDACIÓN 2: Fecha límite vencida
     if ejercicio.esta_vencido:
         messages.error(
@@ -436,18 +440,29 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
             f'{ejercicio.fecha_limite.strftime("%d/%m/%Y a las %H:%M")}.'
         )
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
+
     # VALIDACIÓN 3: Ya envió el ejercicio
     intento_existente = IntentoEjercicio.objects.filter(
         estudiante=request.user,
         ejercicio=ejercicio
     ).first()
-    
+
     if intento_existente:
         messages.warning(request, 'Ya enviaste este ejercicio. Está pendiente de revisión.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-    
-    # ─── Si es juego ───
+
+    # ═══════════════════════════════════════════════════
+    # 🆕 ENRUTADOR POR TIPO (después de validaciones)
+    # ═══════════════════════════════════════════════════
+
+    # ─── Entrenamiento Auditivo ───
+    if ejercicio.tipo == 'entrenamiento_auditivo':
+        return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+        })
+
+    # ─── Juego ───
     if ejercicio.tipo == 'juego':
         if request.method == 'POST':
             IntentoEjercicio.objects.create(
@@ -456,29 +471,47 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
             )
             messages.success(request, 'Juego enviado. Espera la calificación.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-        
+
         return render(request, 'estudiante/resolver_juego.html', {
             'ejercicio': ejercicio,
             'clase_id': clase_id,
             'clase': clase,
         })
-    
-    # ─── Resto de tipos ───
+    # ═══════════════════════════════════════════════════
+    # ENRUTADOR POR TIPO
+    # ═══════════════════════════════════════════════════
+    if ejercicio.tipo == 'entrenamiento_auditivo':
+        return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+        })
+
+    if ejercicio.tipo == 'entrenamiento_avanzado':   # ← NUEVO
+        return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+        })
+# ═══════════════════════════════════════════════════
+
+    # ═══════════════════════════════════════════════════
+    # RESTO DE TIPOS (quiz, video_quiz, texto, verdadero_falso, completar)
+    # ═══════════════════════════════════════════════════
+
     preguntas = Pregunta.objects.filter(ejercicio=ejercicio).prefetch_related('opciones')
-    
+
     embed_url = None
     if ejercicio.video_url:
         match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', ejercicio.video_url)
         if match:
             embed_url = f"https://www.youtube.com/embed/{match.group(1)}"
-    
+
     context = {
         'clase': clase,
         'ejercicio': ejercicio,
         'preguntas': preguntas,
         'embed_url': embed_url,
     }
-    
+
     return render(request, 'estudiante/resolver_ejercicio.html', context)
 
 

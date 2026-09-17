@@ -51,88 +51,178 @@
     {% endif %}
   </div>
 
-  <!-- RESPUESTAS DEL ESTUDIANTE -->
-  <div class="section-header">
-    <h3 class="section-title">
-      <i class="bi bi-chat-square-text"></i>
-      Respuestas del estudiante
-    </h3>
-    <span class="section-badge">
-      {{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}
-    </span>
-  </div>
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- RESPUESTAS DEL ESTUDIANTE                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
 
-  {% if respuestas %}
-  <div class="responses-grid">
-    {% for respuesta in respuestas %}
-    <div class="response-card {% if respuesta.opcion_seleccionada.es_correcta %}correcta{% else %}incorrecta{% endif %}">
+  {% if ejercicio.tipo == 'entrenamiento_auditivo' %}
+    <!-- 🎼 ENTRENAMIENTO AUDITIVO -->
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="bi bi-clipboard-data"></i>
+        Resultado de la práctica auditiva
+      </h3>
+      {% if practica_auditiva %}
+      <span class="section-badge">
+        {{ practica_auditiva.aciertos }}/{{ practica_auditiva.total_preguntas }} correctas ·
+        {{ practica_auditiva.porcentaje }}%
+      </span>
+      {% endif %}
+    </div>
 
-      <!-- Header de la card -->
-      <div class="response-header">
-        <div class="response-number">{{ forloop.counter }}</div>
-        <div class="response-status-badge">
-          {% if respuesta.opcion_seleccionada.es_correcta %}
-            <i class="bi bi-check-circle-fill"></i> Correcta
-          {% else %}
-            <i class="bi bi-x-circle-fill"></i> Incorrecta
-          {% endif %}
+    {% if practica_auditiva %}
+    <div class="practica-resumen">
+      <div class="resumen-item aciertos">
+        <i class="bi bi-check-circle-fill"></i>
+        <div>
+          <span class="resumen-num">{{ practica_auditiva.aciertos }}</span>
+          <span class="resumen-lbl">Aciertos</span>
         </div>
       </div>
+      <div class="resumen-item errores">
+        <i class="bi bi-x-circle-fill"></i>
+        <div>
+          <span class="resumen-num">{{ practica_auditiva.errores }}</span>
+          <span class="resumen-lbl">Errores</span>
+        </div>
+      </div>
+      <div class="resumen-item tipo">
+        <i class="bi bi-music-note-beamed"></i>
+        <div>
+          <span class="resumen-num">{{ practica_auditiva.get_tipo_practica_display }}</span>
+          <span class="resumen-lbl">Tipo de práctica</span>
+        </div>
+      </div>
+    </div>
 
-      <div class="response-content">
-        <!-- Pregunta -->
-        <h4 class="response-question">{{ respuesta.pregunta.enunciado }}</h4>
-
-        <!-- Opción elegida por el estudiante -->
-        <div class="response-block {% if respuesta.opcion_seleccionada.es_correcta %}block-correct{% else %}block-wrong{% endif %}">
-          <div class="block-label">
-            <i class="bi bi-person-fill"></i>
-            Respuesta del estudiante
+    <div class="practica-detalle">
+      <h4 class="detalle-title">
+        <i class="bi bi-list-check"></i> Detalle pregunta por pregunta
+      </h4>
+      <div class="detalle-list">
+        {% for r in practica_auditiva.detalle_respuestas %}
+        <div class="detalle-item {% if r.acerto %}correcto{% else %}incorrecto{% endif %}">
+          <div class="detalle-num">{{ forloop.counter }}</div>
+          <div class="detalle-info">
+            <div class="detalle-row">
+              <span class="detalle-label">Respondió:</span>
+              <span class="detalle-value">
+                {{ r.respuesta|default:"Sin respuesta" }}
+              </span>
+            </div>
+            {% if not r.acerto %}
+            <div class="detalle-row">
+              <span class="detalle-label">Correcta:</span>
+              <span class="detalle-value correcta">
+                {{ r.correcta }}
+              </span>
+            </div>
+            {% endif %}
           </div>
-          <div class="block-value">
-            {% if respuesta.opcion_seleccionada.es_correcta %}
+          <div class="detalle-icon">
+            {% if r.acerto %}
               <i class="bi bi-check-circle-fill"></i>
             {% else %}
               <i class="bi bi-x-circle-fill"></i>
             {% endif %}
-            {{ respuesta.opcion_seleccionada.texto_opcion }}
+          </div>
+        </div>
+        {% empty %}
+        <p class="sin-detalle">
+          <i class="bi bi-info-circle"></i>
+          No se guardó el detalle de las respuestas.
+        </p>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-info-circle"></i>
+      <p>No se encontró el detalle de esta práctica auditiva.</p>
+    </div>
+    {% endif %}
+
+  {% else %}
+    <!-- 📝 RESPUESTAS TRADICIONALES (quiz, video_quiz, etc.) -->
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="bi bi-chat-square-text"></i>
+        Respuestas del estudiante
+      </h3>
+      <span class="section-badge">
+        {{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}
+      </span>
+    </div>
+
+    {% if respuestas %}
+    <div class="responses-grid">
+      {% for respuesta in respuestas %}
+      <div class="response-card {% if respuesta.opcion_seleccionada.es_correcta %}correcta{% else %}incorrecta{% endif %}">
+
+        <div class="response-header">
+          <div class="response-number">{{ forloop.counter }}</div>
+          <div class="response-status-badge">
+            {% if respuesta.opcion_seleccionada.es_correcta %}
+              <i class="bi bi-check-circle-fill"></i> Correcta
+            {% else %}
+              <i class="bi bi-x-circle-fill"></i> Incorrecta
+            {% endif %}
           </div>
         </div>
 
-        <!-- Respuesta correcta (SIEMPRE se muestra para verificación del docente) -->
-        {% with correcta=respuesta.pregunta.opcion_correcta %}
-          {% if correcta %}
-          <div class="response-block block-correct-answer">
+        <div class="response-content">
+          <h4 class="response-question">{{ respuesta.pregunta.enunciado }}</h4>
+
+          <div class="response-block {% if respuesta.opcion_seleccionada.es_correcta %}block-correct{% else %}block-wrong{% endif %}">
             <div class="block-label">
-              <i class="bi bi-patch-check-fill"></i>
-              Respuesta correcta
+              <i class="bi bi-person-fill"></i>
+              Respuesta del estudiante
             </div>
             <div class="block-value">
-              <i class="bi bi-check-circle-fill"></i>
-              {{ correcta.texto_opcion }}
+              {% if respuesta.opcion_seleccionada.es_correcta %}
+                <i class="bi bi-check-circle-fill"></i>
+              {% else %}
+                <i class="bi bi-x-circle-fill"></i>
+              {% endif %}
+              {{ respuesta.opcion_seleccionada.texto_opcion }}
             </div>
           </div>
-          {% else %}
-          <div class="response-block block-no-correct">
-            <div class="block-label">
-              <i class="bi bi-exclamation-triangle-fill"></i>
-              Sin respuesta correcta
+
+          {% with correcta=respuesta.pregunta.opcion_correcta %}
+            {% if correcta %}
+            <div class="response-block block-correct-answer">
+              <div class="block-label">
+                <i class="bi bi-patch-check-fill"></i>
+                Respuesta correcta
+              </div>
+              <div class="block-value">
+                <i class="bi bi-check-circle-fill"></i>
+                {{ correcta.texto_opcion }}
+              </div>
             </div>
-            <div class="block-value">
-              El docente no marcó una opción correcta para esta pregunta.
+            {% else %}
+            <div class="response-block block-no-correct">
+              <div class="block-label">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                Sin respuesta correcta
+              </div>
+              <div class="block-value">
+                El docente no marcó una opción correcta para esta pregunta.
+              </div>
             </div>
-          </div>
-          {% endif %}
-        {% endwith %}
+            {% endif %}
+          {% endwith %}
+        </div>
       </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
-  {% else %}
-  <div class="empty-state">
-    <i class="bi bi-inbox"></i>
-    <p>No hay respuestas registradas para este intento.</p>
-  </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <p>No hay respuestas registradas para este intento.</p>
+    </div>
+    {% endif %}
+
   {% endif %}
 
   <!-- FORMULARIO DE CALIFICACIÓN -->

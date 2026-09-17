@@ -1,0 +1,333 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Practicar — QBYT{% endblock %}
+{% block page_title %}Modo Libre{% endblock %}
+{% block nav_practicar %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/practicar.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="practicar-container">
+
+    <!-- HERO -->
+    <div class="practicar-hero">
+        <div class="hero-icon">
+            <i class="bi bi-ear-fill"></i>
+        </div>
+        <h1 class="hero-title">Modo Libre</h1>
+        <p class="hero-subtitle">
+            Entrena tu oído a tu ritmo. Elige qué practicar y empieza cuando quieras.
+        </p>
+    </div>
+
+    <!-- STATS DEL ESTUDIANTE -->
+    {% if total_practicas > 0 %}
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="bi bi-clipboard-data-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_practicas }}</span>
+                <span class="stat-label">Prácticas realizadas</span>
+            </div>
+        </div>
+
+        <div class="stat-card {% if promedio >= 70 %}green{% elif promedio >= 50 %}orange{% else %}red{% endif %}">
+            <div class="stat-icon">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ promedio }}%</span>
+                <span class="stat-label">Promedio general</span>
+            </div>
+        </div>
+
+        <div class="stat-card cyan">
+            <div class="stat-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ total_aciertos }}</span>
+                <span class="stat-label">Aciertos totales</span>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- SELECTOR DE PRÁCTICA -->
+    <div class="selector-section">
+        <h2 class="section-title">
+            <i class="bi bi-sliders"></i> Configura tu práctica
+        </h2>
+
+        <form action="{% url 'ejercicios:practicar_sesion' %}" method="GET" id="formPracticar">
+
+            <!-- Tipo de práctica -->
+            <div class="config-group">
+                <label class="config-label">
+                    <i class="bi bi-music-note-beamed"></i> ¿Qué quieres practicar?
+                </label>
+                <div class="tipo-grid">
+                    {% for value, label in tipos_disponibles %}
+                    <label class="tipo-card {% if forloop.first %}active{% endif %}" data-tipo="{{ value }}">
+                        <input type="radio" name="tipo" value="{{ value }}" {% if forloop.first %}checked{% endif %}
+                            hidden>
+                        <div class="tipo-icon">
+                            {% if value == 'intervalos' %}
+                            <i class="bi bi-music-note-list"></i>
+                            {% elif value == 'acordes' %}
+                            <i class="bi bi-collection-fill"></i>
+                            {% elif value == 'notas' %}
+                            <i class="bi bi-music-note"></i>
+                            {% elif value == 'ritmo' %}
+                            <i class="bi bi-soundwave"></i>
+                            {% elif value == 'melodia' %}
+                            <i class="bi bi-music-note-beamed"></i>
+                            {% endif %}
+                        </div>
+                        <div class="tipo-label">{{ label }}</div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Subtipo (solo aparece si eligen Acordes) -->
+            <div class="config-group" id="subtipoGroup" style="display: none;">
+                <label class="config-label">
+                    <i class="bi bi-sliders"></i> Tipo de práctica de acordes
+                </label>
+                <div class="subtipo-grid">
+                    <label class="subtipo-card active" data-subtipo="basico">
+                        <input type="radio" name="subtipo" value="basico" checked hidden>
+                        <div class="subtipo-icon"><i class="bi bi-music-note-beamed"></i></div>
+                        <div class="subtipo-label">Básico</div>
+                        <div class="subtipo-desc">Mayor, menor, dim, aug</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="inversiones">
+                        <input type="radio" name="subtipo" value="inversiones" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-arrow-down-up"></i></div>
+                        <div class="subtipo-label">Inversiones</div>
+                        <div class="subtipo-desc">Do-Mi-Sol, Mi-Sol-Do, Sol-Do-Mi</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="cifrado">
+                        <input type="radio" name="subtipo" value="cifrado" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-braces"></i></div>
+                        <div class="subtipo-label">Cifrado americano</div>
+                        <div class="subtipo-desc">C, Am, F, G7, Cmaj7</div>
+                    </label>
+                    <label class="subtipo-card" data-subtipo="progresiones">
+                        <input type="radio" name="subtipo" value="progresiones" hidden>
+                        <div class="subtipo-icon"><i class="bi bi-diagram-3"></i></div>
+                        <div class="subtipo-label">Progresiones</div>
+                        <div class="subtipo-desc">I-V-vi-IV, ii-V-I</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Dificultad -->
+            <div class="config-group">
+                <label class="config-label">
+                    <i class="bi bi-bar-chart-fill"></i> Dificultad
+                </label>
+                <div class="dificultad-grid">
+                    <label class="dificultad-card">
+                        <input type="radio" name="dificultad" value="facil" hidden>
+                        <div class="diff-emojis">⭐</div>
+                        <div class="diff-label">Fácil</div>
+                    </label>
+                    <label class="dificultad-card active">
+                        <input type="radio" name="dificultad" value="medio" checked hidden>
+                        <div class="diff-emojis">⭐⭐</div>
+                        <div class="diff-label">Medio</div>
+                    </label>
+                    <label class="dificultad-card">
+                        <input type="radio" name="dificultad" value="dificil" hidden>
+                        <div class="diff-emojis">⭐⭐⭐</div>
+                        <div class="diff-label">Difícil</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Número de preguntas -->
+            <div class="config-group">
+                <label class="config-label">
+                    <i class="bi bi-list-ol"></i> Número de preguntas
+                </label>
+                <div class="preguntas-grid">
+                    <label class="pregunta-card">
+                        <input type="radio" name="preguntas" value="5" hidden>
+                        <div class="pregunta-num">5</div>
+                        <div class="pregunta-label">Rápida</div>
+                    </label>
+                    <label class="pregunta-card active">
+                        <input type="radio" name="preguntas" value="10" checked hidden>
+                        <div class="pregunta-num">10</div>
+                        <div class="pregunta-label">Estándar</div>
+                    </label>
+                    <label class="pregunta-card">
+                        <input type="radio" name="preguntas" value="20" hidden>
+                        <div class="pregunta-num">20</div>
+                        <div class="pregunta-label">Extensa</div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Instrumento -->
+            <div class="config-group">
+                <label class="config-label">
+                    <i class="bi bi-music-note"></i> Instrumento
+                </label>
+                <select name="instrumento" class="form-select config-select">
+                    <option value="piano" selected>🎹 Piano</option>
+                    <option value="guitarra">🎸 Guitarra</option>
+                    <option value="sine">🔔 Tono puro</option>
+                    <option value="triangle">🎺 Trompeta</option>
+                    <option value="organ">🎼 Órgano</option>
+                </select>
+            </div>
+
+            <!-- Botón iniciar -->
+            <button type="submit" class="btn-iniciar">
+                <i class="bi bi-play-circle-fill"></i>
+                <span>Empezar a practicar</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- HISTORIAL POR TIPO -->
+    {% if stats_por_tipo %}
+    <div class="historial-section">
+        <h2 class="section-title">
+            <i class="bi bi-bar-chart-line-fill"></i> Tu rendimiento por tipo
+        </h2>
+        <div class="tipos-stats-grid">
+            {% for s in stats_por_tipo %}
+            <div class="tipo-stat-card">
+                <div class="tipo-stat-header">
+                    <span class="tipo-stat-name">{{ s.label }}</span>
+                    <span class="tipo-stat-pct
+                        {% if s.porcentaje >= 70 %}success
+                        {% elif s.porcentaje >= 50 %}warning
+                        {% else %}danger{% endif %}">
+                        {{ s.porcentaje }}%
+                    </span>
+                </div>
+                <div class="barra-container">
+                    <div class="barra-fill
+                        {% if s.porcentaje >= 70 %}success
+                        {% elif s.porcentaje >= 50 %}warning
+                        {% else %}danger{% endif %}" style="width: {{ s.porcentaje }}%;"></div>
+                </div>
+                <div class="tipo-stat-meta">
+                    {{ s.practicas }} práctica{{ s.practicas|pluralize:"s" }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- ÚLTIMAS PRÁCTICAS -->
+    {% if ultimas_practicas %}
+    <div class="historial-section">
+        <h2 class="section-title">
+            <i class="bi bi-clock-history"></i> Últimas prácticas
+        </h2>
+        <div class="ultimas-list">
+            {% for p in ultimas_practicas %}
+            <div class="ultima-item">
+                <div class="ultima-icon">
+                    <i class="bi bi-music-note-beamed"></i>
+                </div>
+                <div class="ultima-info">
+                    <div class="ultima-tipo">{{ p.get_tipo_practica_display }}</div>
+                    <div class="ultima-fecha">{{ p.fecha|date:"d M Y, H:i" }}</div>
+                </div>
+                <div
+                    class="ultima-resultado {% if p.porcentaje >= 70 %}success{% elif p.porcentaje >= 50 %}warning{% else %}danger{% endif %}">
+                    <span class="ultima-pct">{{ p.porcentaje }}%</span>
+                    <span class="ultima-aciertos">{{ p.aciertos }}/{{ p.total_preguntas }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    // ═══════════════════════════════════════════
+    // SELECCIÓN DE TIPO DE PRÁCTICA
+    // ═══════════════════════════════════════════
+    const subtipoGroup = document.getElementById('subtipoGroup');
+
+    function actualizarSubtipo() {
+        const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked')?.value;
+        if (tipoSeleccionado === 'acordes') {
+            subtipoGroup.style.display = 'block';
+        } else {
+            subtipoGroup.style.display = 'none';
+        }
+    }
+
+    document.querySelectorAll('.tipo-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+
+            // Actualizar subtipo DESPUÉS de marcar el radio
+            actualizarSubtipo();
+        });
+    });
+
+    // Estado inicial
+    actualizarSubtipo();
+
+    // ═══════════════════════════════════════════
+    // SELECCIÓN DE SUBTIPO
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.subtipo-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.subtipo-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+        });
+    });
+
+    // ═══════════════════════════════════════════
+    // SELECCIÓN DE DIFICULTAD
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.dificultad-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.dificultad-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+        });
+    });
+
+    // ═══════════════════════════════════════════
+    // SELECCIÓN DE NÚMERO DE PREGUNTAS
+    // ═══════════════════════════════════════════
+    document.querySelectorAll('.pregunta-card').forEach(card => {
+        card.addEventListener('click', function () {
+            document.querySelectorAll('.pregunta-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            this.querySelector('input').checked = true;
+        });
+    });
+
+});
+</script>
+{% endblock %}

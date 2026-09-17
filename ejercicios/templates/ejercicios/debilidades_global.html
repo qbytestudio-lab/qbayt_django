@@ -1,0 +1,390 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Debilidades Auditivas — QBYT{% endblock %}
+{% block page_title %}Debilidades Auditivas{% endblock %}
+{% block nav_debilidades %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/debilidades_global.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="global-container">
+
+    <!-- HEADER -->
+    <div class="global-header">
+        <div>
+            <h1 class="global-title">
+                <i class="bi bi-activity"></i> Debilidades Auditivas
+            </h1>
+            <p class="global-subtitle">
+                Análisis global de todas tus clases en entrenamiento auditivo
+            </p>
+        </div>
+
+        <!-- BOTÓN EXPORTAR PDF -->
+        <a href="{% url 'ejercicios:exportar_debilidades_pdf' %}?clase={{ clase_filtro }}&tipo={{ tipo_filtro }}&rango={{ rango_filtro }}"
+           class="btn-pdf-export"
+           title="Descargar reporte en PDF">
+            <i class="bi bi-file-earmark-pdf-fill"></i>
+            <span>Descargar PDF</span>
+        </a>
+    </div>
+
+    <!-- FILTROS -->
+    <div class="filtros-panel">
+        <form method="get" class="filtros-form">
+            <div class="filtro-item">
+                <label><i class="bi bi-folder-fill"></i> Clase</label>
+                <select name="clase" onchange="this.form.submit()">
+                    <option value="todas" {% if clase_filtro == 'todas' %}selected{% endif %}>
+                        Todas las clases
+                    </option>
+                    {% for clase in mis_clases %}
+                    <option value="{{ clase.id }}" {% if clase_filtro == clase.id|stringformat:"s" %}selected{% endif %}>
+                        {{ clase.nombre }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filtro-item">
+                <label><i class="bi bi-music-note-beamed"></i> Tipo</label>
+                <select name="tipo" onchange="this.form.submit()">
+                    <option value="todos" {% if tipo_filtro == 'todos' %}selected{% endif %}>
+                        Todos los tipos
+                    </option>
+                    {% for value, label in tipos_disponibles %}
+                    <option value="{{ value }}" {% if tipo_filtro == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filtro-item">
+                <label><i class="bi bi-calendar3"></i> Rango</label>
+                <select name="rango" onchange="this.form.submit()">
+                    <option value="7" {% if rango_filtro == '7' %}selected{% endif %}>Últimos 7 días</option>
+                    <option value="30" {% if rango_filtro == '30' %}selected{% endif %}>Últimos 30 días</option>
+                    <option value="90" {% if rango_filtro == '90' %}selected{% endif %}>Últimos 90 días</option>
+                    <option value="todo" {% if rango_filtro == 'todo' %}selected{% endif %}>Todo el historial</option>
+                </select>
+            </div>
+
+            <a href="{% url 'ejercicios:debilidades_global' %}" class="btn-reset" title="Limpiar filtros">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+        </form>
+    </div>
+
+    <!-- SIN DATOS -->
+    {% if practicas_total == 0 %}
+    <div class="empty-state">
+        <i class="bi bi-clipboard-x"></i>
+        <h3>Sin datos aún</h3>
+        <p>Cuando tus estudiantes realicen prácticas de entrenamiento auditivo, aquí verás el análisis global.</p>
+    </div>
+    {% else %}
+
+    <!-- STATS PRINCIPALES -->
+    <div class="stats-grid">
+        <div class="stat-card purple">
+            <div class="stat-icon"><i class="bi bi-collection-fill"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ clases_total }}</span>
+                <span class="stat-label">Clases analizadas</span>
+            </div>
+        </div>
+        <div class="stat-card cyan">
+            <div class="stat-icon"><i class="bi bi-clipboard-data-fill"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ practicas_total }}</span>
+                <span class="stat-label">Prácticas totales</span>
+            </div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ estudiantes_total }}</span>
+                <span class="stat-label">Estudiantes activos</span>
+            </div>
+        </div>
+        <div class="stat-card {% if promedio_global >= 70 %}green{% elif promedio_global >= 50 %}orange{% else %}danger{% endif %}">
+            <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">{{ promedio_global }}%</span>
+                <span class="stat-label">Promedio general</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SUGERENCIAS -->
+    {% if sugerencias %}
+    <div class="sugerencias-section">
+        <h3 class="section-heading">
+            <i class="bi bi-lightbulb-fill"></i> Sugerencias automáticas
+        </h3>
+        <div class="sugerencias-list">
+            {% for s in sugerencias %}
+            <div class="sugerencia sugerencia-{{ s.tipo }}">
+                <i class="bi bi-{{ s.icono }}"></i>
+                <span>{{ s.texto }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- TOP DEBILIDADES GLOBALES -->
+    <div class="section-block">
+        <h3 class="section-heading">
+            <i class="bi bi-graph-down-arrow"></i> Top debilidades globales
+        </h3>
+
+        {% if top_debilidades %}
+        <div class="top-debilidades-list">
+            {% for d in top_debilidades %}
+            <div class="top-debilidad-item">
+                <div class="rank-number">{{ forloop.counter }}</div>
+                <div class="top-debilidad-content">
+                    <div class="top-debilidad-header">
+                        <span class="debilidad-nombre">{{ d.nombre }}</span>
+                        <span class="debilidad-porcentaje
+                            {% if d.porcentaje_error >= 70 %}danger
+                            {% elif d.porcentaje_error >= 50 %}warning
+                            {% else %}success{% endif %}">
+                            {{ d.porcentaje_error }}% error
+                        </span>
+                    </div>
+
+                    <div class="barra-container">
+                        <div class="barra-error" style="width: {{ d.porcentaje_error }}%;"></div>
+                    </div>
+
+                    <div class="debilidad-meta">
+                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
+                        <span class="meta-divider">·</span>
+                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
+                        <span class="meta-divider">·</span>
+                        <span>{{ d.total }} intentos</span>
+                    </div>
+
+                    {% if d.clases %}
+                    <div class="clases-afectadas">
+                        <i class="bi bi-folder-fill"></i>
+                        En:
+                        {% for c in d.clases %}
+                        <span class="clase-chip">{{ c }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if d.confusiones %}
+                    <div class="confusiones">
+                        <div class="confusiones-label">
+                            <i class="bi bi-arrow-left-right"></i> Confunden con:
+                        </div>
+                        {% for c in d.confusiones %}
+                        <span class="confusion-chip">
+                            {{ c.respuesta }} <small>({{ c.veces }})</small>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-msg">Sin datos suficientes para analizar</p>
+        {% endif %}
+    </div>
+
+    <!-- GRID: DOMINADAS + COMPARATIVA -->
+    <div class="two-columns-grid">
+
+        <!-- DOMINADAS -->
+        <div class="column-card">
+            <h3 class="section-heading">
+                <i class="bi bi-graph-up-arrow"></i> Dominadas
+            </h3>
+            {% if dominadas %}
+            <div class="compact-list">
+                {% for d in dominadas %}
+                <div class="compact-item">
+                    <div class="compact-header">
+                        <span class="compact-nombre">{{ d.nombre }}</span>
+                        <span class="compact-porcentaje success">{{ d.porcentaje_acierto }}%</span>
+                    </div>
+                    <div class="barra-container small">
+                        <div class="barra-exito" style="width: {{ d.porcentaje_acierto }}%;"></div>
+                    </div>
+                    <div class="compact-meta">
+                        <span>{{ d.aciertos }} aciertos · {{ d.total }} intentos</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-msg">Sin datos aún</p>
+            {% endif %}
+        </div>
+
+        <!-- COMPARATIVA POR CLASE -->
+        <div class="column-card">
+            <h3 class="section-heading">
+                <i class="bi bi-bar-chart-fill"></i> Comparativa por clase
+            </h3>
+            {% if comparativa_clases %}
+            <div class="compact-list">
+                {% for c in comparativa_clases %}
+                <div class="compact-item">
+                    <div class="compact-header">
+                        <span class="compact-nombre">{{ c.clase.nombre|truncatechars:22 }}</span>
+                        <span class="compact-porcentaje
+                            {% if c.porcentaje >= 70 %}success
+                            {% elif c.porcentaje >= 50 %}warning
+                            {% else %}danger{% endif %}">
+                            {{ c.porcentaje }}%
+                        </span>
+                    </div>
+                    <div class="barra-container small">
+                        <div class="barra-clase"
+                             style="width: {{ c.porcentaje }}%;"
+                             data-nivel="{% if c.porcentaje >= 70 %}high{% elif c.porcentaje >= 50 %}mid{% else %}low{% endif %}">
+                        </div>
+                    </div>
+                    <div class="compact-meta">
+                        <span>{{ c.practicas }} prácticas · {{ c.aciertos }}/{{ c.total }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-msg">Sin datos aún</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- RENDIMIENTO POR TIPO: BÁSICO + AVANZADO -->
+    {% if resumen_tipos %}
+    <div class="section-block">
+        <h3 class="section-heading">
+            <i class="bi bi-music-note-list"></i> Rendimiento por tipo de práctica
+        </h3>
+
+        <!-- ═══ TIPOS BÁSICOS ═══ -->
+        <h4 class="subtipo-heading">
+            <i class="bi bi-music-note-list"></i> Básico
+        </h4>
+        <div class="tipos-grid">
+            {% for t in resumen_tipos %}
+                {% if t.tipo == 'intervalos' or t.tipo == 'acordes' or t.tipo == 'notas' or t.tipo == 'ritmo' or t.tipo == 'melodia' %}
+                <div class="tipo-card">
+                    <div class="tipo-header">
+                        <span class="tipo-nombre">{{ t.label }}</span>
+                        <span class="tipo-porcentaje
+                            {% if t.porcentaje >= 70 %}success
+                            {% elif t.porcentaje >= 50 %}warning
+                            {% else %}danger{% endif %}">
+                            {{ t.porcentaje }}%
+                        </span>
+                    </div>
+                    <div class="barra-container">
+                        <div class="barra-tipo"
+                             style="width: {{ t.porcentaje }}%;"
+                             data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
+                        </div>
+                    </div>
+                    <div class="tipo-meta">
+                        <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
+                        <span>·</span>
+                        <span>{{ t.aciertos }}/{{ t.total }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- ═══ TIPOS AVANZADOS ═══ -->
+        <h4 class="subtipo-heading subtipo-heading-advanced mt-4">
+            <i class="bi bi-stars"></i> Avanzado
+        </h4>
+        <div class="tipos-grid">
+            {% for t in resumen_tipos %}
+                {% if t.tipo == 'oido_absoluto' or t.tipo == 'oido_relativo' or t.tipo == 'tapping_ritmico' or t.tipo == 'dictado_melodico' %}
+                <div class="tipo-card tipo-card-avanzado">
+                    <div class="tipo-header">
+                        <span class="tipo-nombre">{{ t.label }}</span>
+                        <span class="tipo-porcentaje
+                            {% if t.porcentaje >= 70 %}success
+                            {% elif t.porcentaje >= 50 %}warning
+                            {% else %}danger{% endif %}">
+                            {{ t.porcentaje }}%
+                        </span>
+                    </div>
+                    <div class="barra-container">
+                        <div class="barra-tipo"
+                             style="width: {{ t.porcentaje }}%;"
+                             data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
+                        </div>
+                    </div>
+                    <div class="tipo-meta">
+                        <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
+                        <span>·</span>
+                        <span>{{ t.aciertos }}/{{ t.total }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- TOP ESTUDIANTES -->
+    {% if top_estudiantes %}
+    <div class="section-block">
+        <h3 class="section-heading">
+            <i class="bi bi-trophy-fill"></i> Mejores oídos (top 5)
+        </h3>
+        <div class="top-estudiantes-grid">
+            {% for e in top_estudiantes %}
+            <div class="estudiante-card">
+                <div class="estudiante-rank">
+                    {% if forloop.counter == 1 %}🥇
+                    {% elif forloop.counter == 2 %}🥈
+                    {% elif forloop.counter == 3 %}🥉
+                    {% else %}#{{ forloop.counter }}{% endif %}
+                </div>
+                <div class="estudiante-avatar">
+                    {% if e.estudiante.perfil.foto_perfil %}
+                    <img src="{{ e.estudiante.perfil.foto_perfil.url }}" alt="{{ e.estudiante.username }}">
+                    {% else %}
+                    {{ e.estudiante.username|first|upper }}
+                    {% endif %}
+                </div>
+                <div class="estudiante-info">
+                    <div class="estudiante-nombre">{{ e.estudiante.get_full_name|default:e.estudiante.username }}</div>
+                    <div class="estudiante-meta">{{ e.practicas }} práctica{{ e.practicas|pluralize:"s" }}</div>
+                </div>
+                <div class="estudiante-porcentaje
+                    {% if e.porcentaje >= 70 %}success
+                    {% elif e.porcentaje >= 50 %}warning
+                    {% else %}danger{% endif %}">
+                    {{ e.porcentaje }}%
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

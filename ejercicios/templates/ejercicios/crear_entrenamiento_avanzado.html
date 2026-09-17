@@ -1,0 +1,277 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear {{ subtipo_label }} — QBYT{% endblock %}
+{% block page_title %}Entrenamiento Avanzado{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_entrenamiento_auditivo.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="entrenamiento-creator">
+
+    <!-- Header -->
+    <div class="ent-header">
+        <a href="{% url 'clase:detalle_clase' clase.id %}" class="back-link">
+            <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+        </a>
+        <h1 class="ent-title">
+            <i class="bi bi-stars"></i> Crear {{ subtipo_label }}
+        </h1>
+        <p class="ent-subtitle">Configura una práctica avanzada de entrenamiento auditivo</p>
+    </div>
+
+    <form method="POST" action="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id subtipo %}"
+          id="formEntrenamiento" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <!-- Info general -->
+        <div class="form-card">
+            <div class="mb-3">
+                <label class="form-label">Título <span class="required">*</span></label>
+                <input type="text" name="titulo" class="form-control"
+                       placeholder="Ej: Práctica de oído absoluto nivel 1" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Descripción (opcional)</label>
+                <textarea name="descripcion" class="form-control" rows="2"
+                          placeholder="Instrucciones para el estudiante..."></textarea>
+            </div>
+            <div class="mb-0">
+                <label class="form-label">Fecha límite <span class="required">*</span></label>
+                <input type="datetime-local" name="fecha_limite" class="form-control"
+                       id="fechaLimite" required>
+            </div>
+        </div>
+
+        <!-- Configuración específica -->
+        <div class="form-card">
+            <h3 class="card-title">
+                <i class="bi bi-sliders"></i> Configuración
+            </h3>
+
+            <!-- Dificultad y preguntas (todos los subtipos) -->
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Dificultad</label>
+                    <select name="dificultad" class="form-select">
+                        <option value="facil">⭐ Fácil</option>
+                        <option value="medio" selected>⭐⭐ Medio</option>
+                        <option value="dificil">⭐⭐⭐ Difícil</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Número de preguntas</label>
+                    <input type="number" name="num_preguntas" class="form-control"
+                           value="10" min="3" max="30">
+                </div>
+            </div>
+
+            <!-- Específico: Oído Absoluto -->
+            {% if subtipo == 'oido_absoluto' %}
+            <div class="mb-3">
+                <label class="form-label">Rango de notas</label>
+                <select name="rango_notas" class="form-select">
+                    <option value="basico">Básico (Do, Mi, Sol)</option>
+                    <option value="medio" selected>Medio (sin alteraciones)</option>
+                    <option value="completo">Completo (con sostenidos)</option>
+                </select>
+                <div class="form-text">El estudiante escuchará una nota y deberá identificarla sin referencia previa.</div>
+            </div>
+            {% endif %}
+
+            <!-- Específico: Oído Relativo -->
+            {% if subtipo == 'oido_relativo' %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tonalidad base</label>
+                    <select name="tonalidad_base" class="form-select">
+                        <option value="C" selected>Do Mayor</option>
+                        <option value="G">Sol Mayor</option>
+                        <option value="F">Fa Mayor</option>
+                        <option value="D">Re Mayor</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Rango de notas</label>
+                    <select name="rango_notas" class="form-select">
+                        <option value="basico">Básico (5 notas)</option>
+                        <option value="medio" selected>Medio (7 notas)</option>
+                        <option value="completo">Completo (12 notas)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-text mb-3">
+                Primero suena la tónica de referencia, luego la nota a identificar.
+            </div>
+            {% endif %}
+
+            <!-- Específico: Tapping Rítmico -->
+            {% if subtipo == 'tapping_ritmico' %}
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">BPM (velocidad)</label>
+                    <input type="number" name="bpm" class="form-control"
+                           value="60" min="40" max="180">
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Tolerancia (ms)</label>
+                    <input type="number" name="tolerancia_ms" class="form-control"
+                           value="150" min="50" max="500">
+                </div>
+            </div>
+            <div class="form-text mb-3">
+                El estudiante escuchará un patrón y deberá reproducirlo tocando la pantalla.
+                Menor tolerancia = mayor precisión requerida.
+            </div>
+            {% endif %}
+
+            <!-- Específico: Dictado Melódico -->
+            {% if subtipo == 'dictado_melodico' %}
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Tonalidad</label>
+                    <select name="tonalidad" class="form-select">
+                        <option value="C" selected>Do Mayor</option>
+                        <option value="G">Sol Mayor</option>
+                        <option value="F">Fa Mayor</option>
+                    </select>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Notas mínimas</label>
+                    <input type="number" name="notas_min" class="form-control"
+                           value="3" min="2" max="8">
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="form-label">Notas máximas</label>
+                    <input type="number" name="notas_max" class="form-control"
+                           value="5" min="2" max="8">
+                </div>
+            </div>
+            <div class="form-text mb-3">
+                El estudiante escuchará una melodía y deberá escribirla en el pentagrama.
+            </div>
+            {% endif %}
+
+            <!-- Instrumento (todos excepto tapping) -->
+            {% if subtipo != 'tapping_ritmico' %}
+            <div class="mb-3">
+                <label class="form-label">Instrumento</label>
+                <select name="instrumento" class="form-select">
+                    <option value="piano" selected>🎹 Piano</option>
+                    <option value="guitarra">🎸 Guitarra</option>
+                    <option value="sine">🔔 Tono puro</option>
+                    <option value="organ">🎼 Órgano</option>
+                </select>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recursos -->
+        <div class="form-card">
+            <label class="form-label">
+                <i class="bi bi-folder2-open"></i> Recursos de apoyo <span class="opcional-text">(opcional)</span>
+            </label>
+            <div id="recursosSeleccionados" class="recursos-seleccionados-container">
+                <p class="ningun-recurso-text">Ningún recurso seleccionado</p>
+            </div>
+            <button type="button" class="btn-seleccionar-recursos"
+                    data-bs-toggle="modal" data-bs-target="#modalRecursos">
+                <i class="bi bi-folder2-open"></i> Seleccionar recursos
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="form-footer">
+            <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn-cancelar">
+                <i class="bi bi-x-lg"></i> Cancelar
+            </a>
+            <button type="submit" class="btn-submit">
+                <i class="bi bi-check-lg"></i> Crear {{ subtipo_label }}
+            </button>
+        </div>
+    </form>
+
+</div>
+
+<!-- Modal recursos -->
+<div class="modal fade" id="modalRecursos" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content custom-modal-content">
+            <div class="modal-header custom-modal-header">
+                <h5 class="modal-title custom-modal-title">
+                    <i class="bi bi-folder2-open"></i> Seleccionar recursos
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body custom-modal-body">
+                {% if recursos_disponibles %}
+                <div class="modal-recursos-list">
+                    {% for recurso in recursos_disponibles %}
+                    <label class="modal-recurso-item">
+                        <input type="checkbox" name="recursos" value="{{ recurso.id }}" class="checkbox-recurso">
+                        <span class="modal-recurso-icon tipo-{{ recurso.tipo }}">
+                            <i class="bi bi-music-note-beamed"></i>
+                        </span>
+                        <span class="modal-recurso-info">
+                            <strong>{{ recurso.titulo }}</strong>
+                            <small>{{ recurso.get_tipo_display }}</small>
+                        </span>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="sin-recursos-text">No tienes recursos disponibles.</p>
+                {% endif %}
+            </div>
+            <div class="modal-footer custom-modal-footer">
+                <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-submit" data-bs-dismiss="modal"
+                        onclick="actualizarRecursosSeleccionados()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Fecha límite por defecto
+document.addEventListener('DOMContentLoaded', function () {
+    const fechaInput = document.getElementById('fechaLimite');
+    const hoy = new Date();
+    fechaInput.min = hoy.toLocaleDateString('en-CA') + 'T00:00';
+
+    const fechaDefault = new Date();
+    fechaDefault.setDate(fechaDefault.getDate() + 7);
+    fechaInput.value = fechaDefault.toLocaleDateString('en-CA') + 'T23:59';
+});
+
+function actualizarRecursosSeleccionados() {
+    const container = document.getElementById('recursosSeleccionados');
+    const checkboxes = document.querySelectorAll('.checkbox-recurso:checked');
+    if (checkboxes.length === 0) {
+        container.innerHTML = '<p class="ningun-recurso-text">Ningún recurso seleccionado</p>';
+        return;
+    }
+    let html = '';
+    checkboxes.forEach(checkbox => {
+        const label = checkbox.closest('.modal-recurso-item');
+        const titulo = label.querySelector('strong').textContent;
+        html += `<span class="recurso-tag"><i class="bi bi-check-circle"></i> ${titulo}</span>`;
+    });
+    container.innerHTML = html;
+}
+
+// Validación
+document.getElementById('formEntrenamiento').addEventListener('submit', function (e) {
+    const titulo = this.querySelector('[name="titulo"]').value.trim();
+    const fecha = this.querySelector('[name="fecha_limite"]').value;
+    if (!titulo) { e.preventDefault(); alert('El título es obligatorio.'); }
+    if (!fecha) { e.preventDefault(); alert('La fecha límite es obligatoria.'); }
+});
+</script>
+{% endblock %}

@@ -19,13 +19,13 @@
 </div>
 
 {% if messages %}
-<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px; max-width:500px;">
+<div
+    style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px; max-width:500px;">
     {% for message in messages %}
     <div class="alert alert-dismissible fade show shadow-sm
         {% if message.tags == 'error' %}alert-danger bg-danger text-white
         {% elif message.tags == 'warning' %}alert-warning bg-warning text-dark
-        {% else %}alert-success bg-success text-white{% endif %}"
-        role="alert" style="border-radius: 8px;">
+        {% else %}alert-success bg-success text-white{% endif %}" role="alert" style="border-radius: 8px;">
 
         <i class="bi
             {% if message.tags == 'error' %}bi-exclamation-triangle-fill
@@ -58,7 +58,8 @@
             <h1 class="class-hero-title">{{ clase.nombre }}</h1>
 
             {% if clase.esta_bloqueada %}
-            <div style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff9999; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-top: 0.5rem; backdrop-filter: blur(10px);">
+            <div
+                style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff9999; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-top: 0.5rem; backdrop-filter: blur(10px);">
                 <i class="bi {{ clase.estado_icon_docente }}"></i>
                 {{ clase.estado_label_docente }} — los estudiantes no pueden acceder
             </div>
@@ -90,6 +91,10 @@
 
         <div class="class-hero-actions">
             <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'ejercicios:reporte_debilidades' clase.id %}" class="btn-stats"
+                    title="Ver reporte de debilidades auditivas">
+                    <i class="bi bi-activity"></i> Debilidades
+                </a>
                 <a href="{% url 'estadisticas_clase' clase.id %}" class="btn-stats" title="Ver estadísticas">
                     <i class="bi bi-graph-up"></i> Calificaciones
                 </a>
@@ -115,7 +120,8 @@
 
                         <!-- Activar / Desactivar clase -->
                         <li>
-                            <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST" style="margin: 0;">
+                            <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST"
+                                style="margin: 0;">
                                 {% csrf_token %}
                                 {% if clase.activa %}
                                 <button type="submit" class="dropdown-item text-warning">
@@ -141,7 +147,8 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modalEliminarClase">
+                            <button class="dropdown-item text-danger" data-bs-toggle="modal"
+                                data-bs-target="#modalEliminarClase">
                                 <i class="bi bi-trash-fill"></i> Eliminar clase
                             </button>
                         </li>
@@ -166,7 +173,8 @@
                         <h3 class="section-title">
                             <i class="bi bi-bell-fill icon-orange"></i>
                             Solicitudes
-                            {% if solicitudes %}<span class="section-badge orange">{{ solicitudes.count }}</span>{% endif %}
+                            {% if solicitudes %}<span class="section-badge orange">{{ solicitudes.count }}</span>
+                            {%endif %}
                         </h3>
                     </div>
 
@@ -175,7 +183,8 @@
                     <div class="solicitud-row">
                         <div class="solicitud-avatar">
                             {% if sol.estudiante.perfil.foto_perfil %}
-                            <img src="{{ sol.estudiante.perfil.foto_perfil.url }}" alt="{{ sol.estudiante.username }}" class="avatar-img">
+                            <img src="{{ sol.estudiante.perfil.foto_perfil.url }}" alt="{{ sol.estudiante.username }}"
+                                class="avatar-img">
                             {% else %}
                             {{ sol.estudiante.username|first|upper }}
                             {% endif %}
@@ -185,8 +194,10 @@
                             <span>{{ sol.fecha|date:"d M Y, H:i" }}</span>
                         </div>
                         <div class="d-flex gap-2">
-                            <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept"><i class="bi bi-check-lg"></i></a>
-                            <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject"><i class="bi bi-x-lg"></i></a>
+                            <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept"><i
+                                    class="bi bi-check-lg"></i></a>
+                            <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject"><i
+                                    class="bi bi-x-lg"></i></a>
                         </div>
                     </div>
                     {% endfor %}
@@ -228,7 +239,8 @@
                     <div class="student-row">
                         <div class="student-avatar">
                             {% if estudiante.perfil.foto_perfil %}
-                            <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}" class="avatar-img">
+                            <img src="{{ estudiante.perfil.foto_perfil.url }}" alt="{{ estudiante.username }}"
+                                class="avatar-img">
                             {% else %}
                             {{ estudiante.username|first|upper }}
                             {% endif %}
@@ -271,13 +283,15 @@
                         <div class="announcement-header">
                             <div class="announcement-avatar">
                                 {% if clase.docente.perfil.foto_perfil %}
-                                <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}" class="avatar-img">
+                                <img src="{{ clase.docente.perfil.foto_perfil.url }}" alt="{{ clase.docente.username }}"
+                                    class="avatar-img">
                                 {% else %}
                                 {{ clase.docente.username|first|upper }}
                                 {% endif %}
                             </div>
                             <div>
-                                <div class="announcement-author">{{ clase.docente.get_full_name|default:clase.docente.username }}</div>
+                                <div class="announcement-author">
+                                    {{clase.docente.get_full_name|default:clase.docente.username }}</div>
                                 <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
                             </div>
                             <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement"
@@ -342,7 +356,8 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">Mensaje <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio..." required></textarea>
+                        <textarea class="form-control" name="texto" rows="4" placeholder="Escribe el anuncio..."
+                            required></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -362,7 +377,8 @@
                 <h5 class="modal-title"><i class="bi bi-pencil-square icon-purple"></i> Editar clase</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{% url 'clase:editar_clase' clase.id %}" method="POST" enctype="multipart/form-data" id="formEditarClase">
+            <form action="{% url 'clase:editar_clase' clase.id %}" method="POST" enctype="multipart/form-data"
+                id="formEditarClase">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -373,9 +389,12 @@
                     <div class="mb-3">
                         <label class="form-label">Categoría del tema <span class="text-danger">*</span></label>
                         <select class="form-select" name="categoria_tema" required>
-                            <option value="armonia" {% if clase.categoria_tema == 'armonia' %}selected{% endif %}>Armonía</option>
-                            <option value="ritmo" {% if clase.categoria_tema == 'ritmo' %}selected{% endif %}>Ritmo</option>
-                            <option value="melodia" {% if clase.categoria_tema == 'melodia' %}selected{% endif %}>Melodía</option>
+                            <option value="armonia" {% if clase.categoria_tema == 'armonia' %}selected{% endif %}>Armonía
+                            </option>
+                            <option value="ritmo" {% if clase.categoria_tema == 'ritmo' %}selected{% endif %}>Ritmo
+                            </option>
+                            <option value="melodia" {% if clase.categoria_tema == 'melodia' %}selected{% endif %}>Melodía
+                            </option>
                         </select>
                     </div>
 
@@ -422,7 +441,8 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-calendar-plus icon-purple"></i> Extender fecha de finalización</h5>
+                <h5 class="modal-title"><i class="bi bi-calendar-plus icon-purple"></i> Extender fecha de finalización
+                </h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <form action="{% url 'clase:extender_fecha_clase' clase.id %}" method="POST" id="formExtenderFecha">
@@ -438,7 +458,8 @@
                     <div class="mb-3">
                         <label class="form-label">Nueva fecha de finalización <span class="text-danger">*</span></label>
                         <input type="date" name="nueva_fecha_fin" class="form-control" id="nuevaFechaFin" required>
-                        <div class="form-text" style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem;">
+                        <div class="form-text"
+                            style="color: var(--text-muted); font-size: 0.75rem; margin-top: 0.3rem;">
                             Debe ser posterior a hoy y a la fecha de inicio.
                         </div>
                     </div>
@@ -480,7 +501,7 @@
 
 <!-- Modal Tipo Ejercicio -->
 <div class="modal fade" id="modalTipoEjercicio" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content tipo-ejercicio-modal">
             <div class="modal-header border-0 pb-0">
                 <h3 class="modal-title w-100 text-center">
@@ -496,22 +517,52 @@
                     <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
-                        <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.</p>
-                        <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C, D</span>
+                        <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.
+                        </p>
+                        <span class="option-badge badge-purple"><i class="bi bi-list-check"></i> Opciones A, B, C,
+                            D</span>
+                    </a>
+
+                    <a href="{% url 'ejercicios:crear_entrenamiento_auditivo' clase.id %}"
+                        class="ejercicio-option-card">
+                        <div class="option-icon audio-icon">
+                            <i class="bi bi-music-note-beamed"></i>
+                        </div>
+                        <h4 class="option-title">Entrenamiento Auditivo</h4>
+                        <p class="option-desc">Intervalos, acordes, notas, ritmo y melodía con audio generado en vivo.
+                        </p>
+                        <span class="option-badge badge-green">
+                            <i class="bi bi-ear-fill"></i> Audio interactivo
+                        </span>
+                    </a>
+
+                    <!-- NUEVA TARJETA: Entrenamiento Avanzado -->
+                    <a href="#" class="ejercicio-option-card card-avanzado" data-bs-toggle="modal"
+                        data-bs-target="#modalEntrenamientoAvanzado" data-bs-dismiss="modal">
+                        <div class="option-icon avanzado-icon">
+                            <i class="bi bi-stars"></i>
+                        </div>
+                        <h4 class="option-title">Entrenamiento Avanzado</h4>
+                        <p class="option-desc">Oído absoluto, relativo, tapping rítmico y dictado melódico.</p>
+                        <span class="option-badge badge-avanzado">
+                            <i class="bi bi-lightning-charge-fill"></i> Nivel avanzado
+                        </span>
                     </a>
 
                     <a href="{% url 'ejercicios:crear_juego' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
                         <h4 class="option-title">Juego Interactivo</h4>
                         <p class="option-desc">Gamificación: emparejar, ordenar, o completar con puntaje.</p>
-                        <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y premios</span>
+                        <span class="option-badge badge-green"><i class="bi bi-trophy-fill"></i> Con puntos y
+                            premios</span>
                     </a>
 
                     <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
                         <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
                         <h4 class="option-title">Texto / Lectura</h4>
                         <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
-                        <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de lectura</span>
+                        <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de
+                            lectura</span>
                     </a>
 
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
@@ -519,6 +570,82 @@
                         <h4 class="option-title">Completar Espacios</h4>
                         <p class="option-desc">Frases con espacios en blanco que el estudiante debe rellenar.</p>
                         <span class="option-badge badge-yellow"><i class="bi bi-pencil-fill"></i> Rellenar huecos</span>
+                    </a>
+
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0 justify-content-center">
+                <button type="button" class="btn-cancelar" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL: ENTRENAMIENTO AVANZADO (sub-selector)        -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalEntrenamientoAvanzado" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content tipo-ejercicio-modal">
+            <div class="modal-header border-0 pb-0">
+                <h3 class="modal-title w-100 text-center">
+                    <i class="bi bi-stars"></i>
+                    ¿Qué entrenamiento avanzado quieres crear?
+                </h3>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body px-4 pb-4">
+                <p class="text-center text-muted mb-4">Modalidades avanzadas de entrenamiento auditivo</p>
+                <div class="ejercicio-options-grid">
+
+                    <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'oido_absoluto' %}"
+                       class="ejercicio-option-card">
+                        <div class="option-icon avanzado-icon-1">
+                            <i class="bi bi-music-note"></i>
+                        </div>
+                        <h4 class="option-title">Oído Absoluto</h4>
+                        <p class="option-desc">Reconoce notas sin referencia previa. El nivel más alto de oído.</p>
+                        <span class="option-badge badge-avanzado">
+                            <i class="bi bi-trophy-fill"></i> Experto
+                        </span>
+                    </a>
+
+                    <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'oido_relativo' %}"
+                       class="ejercicio-option-card">
+                        <div class="option-icon avanzado-icon-2">
+                            <i class="bi bi-music-note-list"></i>
+                        </div>
+                        <h4 class="option-title">Oído Relativo</h4>
+                        <p class="option-desc">Identifica notas tomando una referencia tonal conocida.</p>
+                        <span class="option-badge badge-avanzado">
+                            <i class="bi bi-graph-up-arrow"></i> Intermedio
+                        </span>
+                    </a>
+
+                    <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'tapping_ritmico' %}"
+                       class="ejercicio-option-card">
+                        <div class="option-icon avanzado-icon-3">
+                            <i class="bi bi-hand-index-thumb"></i>
+                        </div>
+                        <h4 class="option-title">Tapping Rítmico</h4>
+                        <p class="option-desc">Reproduce patrones rítmicos con precisión milimétrica.</p>
+                        <span class="option-badge badge-avanzado">
+                            <i class="bi bi-stopwatch-fill"></i> Precisión
+                        </span>
+                    </a>
+
+                    <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'dictado_melodico' %}"
+                       class="ejercicio-option-card">
+                        <div class="option-icon avanzado-icon-4">
+                            <i class="bi bi-file-earmark-music"></i>
+                        </div>
+                        <h4 class="option-title">Dictado Melódico</h4>
+                        <p class="option-desc">Escucha una melodía y escríbela en el pentagrama.</p>
+                        <span class="option-badge badge-avanzado">
+                            <i class="bi bi-pencil-fill"></i> Notación
+                        </span>
                     </a>
 
                 </div>

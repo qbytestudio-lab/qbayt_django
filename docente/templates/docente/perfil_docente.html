@@ -38,15 +38,33 @@
         <div class="banner-overlay"></div>
     </div>
 
-    <!-- Botón para cambiar banner -->
-    <button class="btn-change-banner" onclick="document.getElementById('bannerInput').click()" title="Cambiar banner">
-        <i class="bi bi-image"></i> Cambiar banner
-    </button>
+    <!-- ⚙ MENÚ DE AJUSTES (esquina superior derecha) -->
+    <div class="settings-menu">
+        <button class="settings-btn" onclick="toggleSettingsMenu(event)" title="Ajustes" aria-label="Ajustes">
+            <i class="bi bi-gear-fill"></i>
+        </button>
+
+        <div class="settings-dropdown" id="settingsDropdown">
+            <button class="settings-option" onclick="triggerBannerUpload(event)">
+                <i class="bi bi-image"></i>
+                <span>Cambiar banner</span>
+            </button>
+
+            <div class="settings-divider"></div>
+
+            <button class="settings-option" data-bs-toggle="modal" data-bs-target="#modalEditar">
+                <i class="bi bi-pencil-square"></i>
+                <span>Editar perfil</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Input oculto para subir banner -->
     <input type="file" id="bannerInput" accept="image/*" style="display: none;" onchange="subirBanner(this)">
 
     <!-- Contenido del perfil -->
     <div class="profile-hero-content">
-        <!-- Avatar -->
+        <!-- Avatar con cámara -->
         <div class="avatar-container">
             <div class="avatar-circle">
                 {% if request.user.perfil.foto_perfil %}
@@ -77,11 +95,6 @@
                 <span><i class="bi bi-calendar3"></i> Docente desde {{ request.user.date_joined|date:"M Y" }}</span>
             </div>
         </div>
-
-        <!-- Edit Button -->
-        <a href="#" class="btn-edit-profile docente" data-bs-toggle="modal" data-bs-target="#modalEditar">
-            <i class="bi bi-pencil"></i> Editar perfil
-        </a>
     </div>
 
     <!-- Quick Stats -->
@@ -220,13 +233,11 @@
                         <i class="bi bi-check-circle-fill me-1"></i> Activo
                     </span>
                     <div class="student-actions">
-                        <!-- Mensaje privado -->
                         <a href="{% url 'mensajeria:iniciar' estudiante.id %}" class="btn-action message"
                             title="Enviar mensaje a {{ estudiante.username }}">
                             <i class="bi bi-chat-dots"></i>
                         </a>
 
-                        <!-- Ver progreso del estudiante en esta clase -->
                         <a href="{% url 'notas_estudiante' clase.id estudiante.id %}" class="btn-action view"
                             title="Ver progreso de {{ estudiante.username }}">
                             <i class="bi bi-graph-up"></i>
@@ -327,7 +338,42 @@
 
 {% block extra_js %}
 <script>
-    // Tab switching
+    // ============================================
+    // MENÚ DE AJUSTES ⚙
+    // ============================================
+    function toggleSettingsMenu(e) {
+        if (e) e.stopPropagation();
+        const dropdown = document.getElementById('settingsDropdown');
+        dropdown.classList.toggle('active');
+    }
+
+    function triggerBannerUpload(e) {
+        if (e) e.stopPropagation();
+        document.getElementById('settingsDropdown').classList.remove('active');
+        document.getElementById('bannerInput').click();
+    }
+
+    // Cerrar menú al hacer clic fuera
+    document.addEventListener('click', function (e) {
+        const dropdown = document.getElementById('settingsDropdown');
+        const btn = document.querySelector('.settings-btn');
+        if (dropdown && btn) {
+            if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        }
+    });
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            document.getElementById('settingsDropdown').classList.remove('active');
+        }
+    });
+
+    // ============================================
+    // TABS
+    // ============================================
     document.querySelectorAll('.ptab').forEach(tab => {
         tab.addEventListener('click', function (e) {
             e.preventDefault();
@@ -339,7 +385,9 @@
         });
     });
 
-    // Student search functionality
+    // ============================================
+    // BÚSQUEDA DE ESTUDIANTES
+    // ============================================
     const searchInput = document.getElementById('studentSearch');
     if (searchInput) {
         searchInput.addEventListener('input', function () {
@@ -351,7 +399,9 @@
         });
     }
 
-    // Subir foto de perfil
+    // ============================================
+    // SUBIR FOTO DE PERFIL (desde la cámara)
+    // ============================================
     function subirFotoPerfil(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -389,7 +439,9 @@
         }
     }
 
-    // Subir banner
+    // ============================================
+    // SUBIR BANNER (desde el menú ⚙)
+    // ============================================
     function subirBanner(input) {
         if (input.files && input.files[0]) {
             const file = input.files[0];
@@ -427,7 +479,9 @@
         }
     }
 
-    // Auto-dismiss alerts
+    // ============================================
+    // AUTO-DISMISS ALERTS
+    // ============================================
     setTimeout(() => {
         const alerts = document.querySelectorAll('.alert');
         alerts.forEach(alert => {

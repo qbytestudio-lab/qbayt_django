@@ -38,16 +38,34 @@
     <div class="banner-overlay"></div>
   </div>
 
-  <!-- Botón para cambiar banner  -->
-  <button class="btn-change-banner" onclick="document.getElementById('bannerInput').click()" title="Cambiar banner">
-    <i class="bi bi-image"></i> Cambiar banner
-  </button>
+  <!-- ⚙ MENÚ DE AJUSTES (esquina superior derecha) -->
+  <div class="settings-menu">
+    <button class="settings-btn" onclick="toggleSettingsMenu(event)" title="Ajustes" aria-label="Ajustes">
+      <i class="bi bi-gear-fill"></i>
+    </button>
+
+    <div class="settings-dropdown" id="settingsDropdown">
+      <button class="settings-option" onclick="triggerBannerUpload(event)">
+        <i class="bi bi-image"></i>
+        <span>Cambiar banner</span>
+      </button>
+
+      <div class="settings-divider"></div>
+
+      <button class="settings-option" data-bs-toggle="modal" data-bs-target="#modalEditar">
+        <i class="bi bi-pencil-square"></i>
+        <span>Editar perfil</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Input oculto para subir banner -->
   <input type="file" id="bannerInput" accept="image/*" style="display: none;" onchange="subirBanner(this)">
 
   <!-- Contenido del perfil -->
   <div class="profile-hero-content">
 
-    <!-- Avatar con foto de perfil -->
+    <!-- Avatar con foto de perfil + cámara -->
     <div class="avatar-container">
       <div class="avatar-circle">
         {% if request.user.perfil.foto_perfil %}
@@ -77,11 +95,6 @@
         <span><i class="bi bi-calendar3"></i> Miembro desde {{ request.user.date_joined|date:"M Y" }}</span>
       </div>
     </div>
-
-    <!-- Edit Button -->
-    <a href="#" class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#modalEditar">
-      <i class="bi bi-pencil"></i> Editar perfil
-    </a>
   </div>
 
   <!-- Quick Stats -->
@@ -224,66 +237,66 @@
     </div>
   </div>
 
- <!-- TAB: HISTORIAL -->
-<div class="tab-pane" id="tab-historial">
+  <!-- TAB: HISTORIAL -->
+  <div class="tab-pane" id="tab-historial">
     <div class="section-card">
-        <div class="section-card-header">
-            <h2><i class="bi bi-clock-history"></i> Historial de clases</h2>
-            <span style="color: var(--spotify-subtext); font-size: 0.85rem;">
-                {{ historial|length }} clases
+      <div class="section-card-header">
+        <h2><i class="bi bi-clock-history"></i> Historial de clases</h2>
+        <span style="color: var(--spotify-subtext); font-size: 0.85rem;">
+          {{ historial|length }} clases
+        </span>
+      </div>
+
+      <div class="historial-filters">
+        <button class="filter-btn active" onclick="filtrarHistorial('todas', this)">Todas</button>
+        <button class="filter-btn" onclick="filtrarHistorial('activa', this)">Activas</button>
+        <button class="filter-btn" onclick="filtrarHistorial('completada', this)">Completadas</button>
+        <button class="filter-btn" onclick="filtrarHistorial('eliminada', this)">Eliminadas</button>
+      </div>
+
+      <div class="historial-list">
+        {% for item in historial %}
+        <div class="historial-item estado-{{ item.estado }}">
+          <div class="historial-icon">
+            <i class="bi bi-journal-bookmark-fill"></i>
+          </div>
+          <div class="historial-info">
+            <h3>{{ item.nombre }}</h3>
+            <p>
+              <i class="bi bi-person"></i> {{ item.docente_nombre }} ·
+              <i class="bi bi-people"></i> {{ item.estudiantes_count }} estudiantes
+            </p>
+          </div>
+          <div class="historial-fecha">
+            <span>{{ item.fecha|date:"d M Y" }}</span>
+          </div>
+          <div class="historial-estado">
+            {% if item.estado == 'activa' %}
+            <span class="estado-badge activo">
+              <i class="bi bi-play-circle-fill"></i> Activa
             </span>
+            {% elif item.estado == 'completada' %}
+            <span class="estado-badge completado">
+              <i class="bi bi-check-circle-fill"></i> Completada
+            </span>
+            {% elif item.estado == 'eliminada' %}
+            <span class="estado-badge eliminado">
+              <i class="bi bi-trash-fill"></i> Eliminada
+            </span>
+            {% endif %}
+          </div>
         </div>
-
-        <div class="historial-filters">
-            <button class="filter-btn active" onclick="filtrarHistorial('todas', this)">Todas</button>
-            <button class="filter-btn" onclick="filtrarHistorial('activa', this)">Activas</button>
-            <button class="filter-btn" onclick="filtrarHistorial('completada', this)">Completadas</button>
-            <button class="filter-btn" onclick="filtrarHistorial('eliminada', this)">Eliminadas</button>
+        {% empty %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-clock-history"></i>
+          </div>
+          <p class="empty-text">No tienes clases en tu historial</p>
         </div>
-
-        <div class="historial-list">
-            {% for item in historial %}
-            <div class="historial-item estado-{{ item.estado }}">
-                <div class="historial-icon">
-                    <i class="bi bi-journal-bookmark-fill"></i>
-                </div>
-                <div class="historial-info">
-                    <h3>{{ item.nombre }}</h3>
-                    <p>
-                        <i class="bi bi-person"></i> {{ item.docente_nombre }} ·
-                        <i class="bi bi-people"></i> {{ item.estudiantes_count }} estudiantes
-                    </p>
-                </div>
-                <div class="historial-fecha">
-                    <span>{{ item.fecha|date:"d M Y" }}</span>
-                </div>
-                <div class="historial-estado">
-                    {% if item.estado == 'activa' %}
-                    <span class="estado-badge activo">
-                        <i class="bi bi-play-circle-fill"></i> Activa
-                    </span>
-                    {% elif item.estado == 'completada' %}
-                    <span class="estado-badge completado">
-                        <i class="bi bi-check-circle-fill"></i> Completada
-                    </span>
-                    {% elif item.estado == 'eliminada' %}
-                    <span class="estado-badge eliminado">
-                        <i class="bi bi-trash-fill"></i> Eliminada
-                    </span>
-                    {% endif %}
-                </div>
-            </div>
-            {% empty %}
-            <div class="empty-state">
-                <div class="empty-icon">
-                    <i class="bi bi-clock-history"></i>
-                </div>
-                <p class="empty-text">No tienes clases en tu historial</p>
-            </div>
-            {% endfor %}
-        </div>
+        {% endfor %}
+      </div>
     </div>
-</div>
+  </div>
 
 </main>
 
@@ -358,7 +371,42 @@
 
 {% block extra_js %}
 <script>
-  // Tab switching
+  // ============================================
+  // MENÚ DE AJUSTES ⚙
+  // ============================================
+  function toggleSettingsMenu(e) {
+    if (e) e.stopPropagation();
+    const dropdown = document.getElementById('settingsDropdown');
+    dropdown.classList.toggle('active');
+  }
+
+  function triggerBannerUpload(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('settingsDropdown').classList.remove('active');
+    document.getElementById('bannerInput').click();
+  }
+
+  // Cerrar menú al hacer clic fuera
+  document.addEventListener('click', function (e) {
+    const dropdown = document.getElementById('settingsDropdown');
+    const btn = document.querySelector('.settings-btn');
+    if (dropdown && btn) {
+      if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
+        dropdown.classList.remove('active');
+      }
+    }
+  });
+
+  // Cerrar con ESC
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.getElementById('settingsDropdown').classList.remove('active');
+    }
+  });
+
+  // ============================================
+  // TABS
+  // ============================================
   document.querySelectorAll('.ptab').forEach(tab => {
     tab.addEventListener('click', function (e) {
       e.preventDefault();
@@ -370,7 +418,9 @@
     });
   });
 
-  // Filtro de historial
+  // ============================================
+  // FILTRO HISTORIAL
+  // ============================================
   function filtrarHistorial(estado, btn) {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -384,7 +434,9 @@
     });
   }
 
-  // Subir foto de perfil
+  // ============================================
+  // SUBIR FOTO DE PERFIL (desde la cámara)
+  // ============================================
   function subirFotoPerfil(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -422,7 +474,9 @@
     }
   }
 
-  // Subir banner
+  // ============================================
+  // SUBIR BANNER (desde el menú ⚙)
+  // ============================================
   function subirBanner(input) {
     if (input.files && input.files[0]) {
       const file = input.files[0];
@@ -460,7 +514,9 @@
     }
   }
 
-  // Auto-dismiss alerts
+  // ============================================
+  // AUTO-DISMISS ALERTS
+  // ============================================
   setTimeout(() => {
     document.querySelectorAll('.alert').forEach(alert => {
       const bsAlert = new bootstrap.Alert(alert);

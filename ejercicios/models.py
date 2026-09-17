@@ -7,13 +7,15 @@ from django.utils import timezone
 class Ejercicio(models.Model):
 
     TIPO_CHOICES = [
-        ('quiz', 'Quiz'),
-        ('video_quiz', 'Video + Quiz'),
-        ('juego', 'Juego'),
-        ('texto', 'Texto'),
-        ('verdadero_falso', 'Verdadero o Falso'),
-        ('completar', 'Completar'),
-    ]
+    ('quiz', 'Quiz'),
+    ('video_quiz', 'Video + Quiz'),
+    ('juego', 'Juego'),
+    ('texto', 'Texto'),
+    ('verdadero_falso', 'Verdadero o Falso'),
+    ('completar', 'Completar'),
+    ('entrenamiento_auditivo', 'Entrenamiento Auditivo'),
+    ('entrenamiento_avanzado', 'Entrenamiento Avanzado'), 
+]
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='quiz')
     clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
     titulo = models.CharField(max_length=200)
@@ -168,13 +170,31 @@ class Ejercicio(models.Model):
             'total_segundos': total_segundos,
         }
 
+# ============================================================
+# CAMPOS PARA ENTRENAMIENTO AUDITIVO
+# ============================================================
+    config_auditivo = models.JSONField(
+        blank=True,
+        null=True,
+        verbose_name="Configuración de entrenamiento auditivo",
+        help_text="JSON con tipo, dificultad, número de preguntas, etc."
+    )
+
+    @property
+    def es_entrenamiento_auditivo(self):
+        return self.tipo == 'entrenamiento_auditivo'
+
     @property
     def vence_pronto(self):
         """True si la fecha límite está a menos de 24 horas."""
         if not self.fecha_limite or self.esta_vencido:
             return False
         delta = self.fecha_limite - timezone.now()
-        return delta.total_seconds() < 86400  # menos de 24h
+        return delta.total_seconds() < 86400 
+
+    @property
+    def es_entrenamiento_avanzado(self):
+        return self.tipo == 'entrenamiento_avanzado'
 
     class Meta:
         verbose_name = "Ejercicio"
@@ -287,3 +307,118 @@ class RespuestaEstudiante(models.Model):
             f"{self.intento.estudiante.username} - "
             f"{self.pregunta.enunciado[:30]}"
         )
+    
+class PracticaAuditiva(models.Model):
+    """Registro de cada práctica de entrenamiento auditivo."""
+    
+    TIPO_CHOICES = [
+        # Básico
+        ('intervalos', 'Intervalos'),
+        ('acordes', 'Acordes'),
+        ('notas', 'Notas individuales'),
+        ('ritmo', 'Ritmo'),
+        ('melodia', 'Melodía'),
+        # Avanzado
+        ('oido_absoluto', 'Oído Absoluto'),
+        ('oido_relativo', 'Oído Relativo'),
+        ('tapping_ritmico', 'Tapping Rítmico'),
+        ('dictado_melodico', 'Dictado Melódico'),
+    ]
+
+    intento = models.OneToOneField(
+        IntentoEjercicio,
+        on_delete=models.CASCADE,
+        related_name='practica_auditiva'
+    )
+
+    tipo_practica = models.CharField(max_length=30, choices=TIPO_CHOICES)
+
+    aciertos = models.PositiveIntegerField(default=0)
+    total_preguntas = models.PositiveIntegerField(default=0)
+    tiempo_promedio_seg = models.FloatField(default=0)
+
+    detalle_respuestas = models.JSONField(
+        default=list,
+        help_text="Lista con cada respuesta: {pregunta, respuesta, correcta, tiempo}"
+    )
+
+    def __str__(self):
+        return f"Práctica {self.tipo_practica} - {self.aciertos}/{self.total_preguntas}"
+
+    @property
+    def porcentaje(self):
+        if self.total_preguntas == 0:
+            return 0
+        return round((self.aciertos / self.total_preguntas) * 100, 1)  
+
+    @property
+    def errores(self):
+        return self.total_preguntas - self.aciertos 
+
+class PracticaLibre(models.Model):
+    """
+    Registro de una práctica libre hecha por un estudiante
+    sin necesidad de que el docente cree un ejercicio.
+    """
+    TIPO_CHOICES = [
+        ('intervalos', 'Intervalos'),
+        ('acordes', 'Acordes'),
+        ('notas', 'Notas individuales'),
+        ('ritmo', 'Ritmo'),
+        ('melodia', 'Melodía'),
+    ]
+
+    DIFICULTAD_CHOICES = [
+        ('facil', 'Fácil'),
+        ('medio', 'Medio'),
+        ('dificil', 'Difícil'),
+    ]
+
+    estudiante = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='practicas_libres'
+    )
+
+    tipo_practica = models.CharField(max_length=30, choices=TIPO_CHOICES)
+    dificultad = models.CharField(max_length=20, choices=DIFICULTAD_CHOICES, default='medio')
+    instrumento = models.CharField(max_length=30, default='piano')
+
+    aciertos = models.PositiveIntegerField(default=0)
+    total_preguntas = models.PositiveIntegerField(default=0)
+
+    detalle_respuestas = models.JSONField(default=list)
+
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.estudiante.username} - {self.tipo_practica} - {self.aciertos}/{self.total_preguntas}"
+
+    @property
+    def porcentaje(self):
+        if self.total_preguntas == 0:
+            return 0
+        return round((self.aciertos / self.total_preguntas) * 100, 1)
+
+    @property
+    def errores(self):
+        return self.total_preguntas - self.aciertos
+
+    class Meta:
+        verbose_name = "Práctica libre"
+        verbose_name_plural = "Prácticas libres"
+        ordering = ['-fecha']
+
+    SUBTIPO_CHOICES = [
+        ('basico', 'Básico'),
+        ('inversiones', 'Con inversiones'),
+        ('cifrado', 'Cifrado americano'),
+        ('progresiones', 'Progresiones armónicas'),
+    ]
+
+    subtipo = models.CharField(
+        max_length=30,
+        choices=SUBTIPO_CHOICES,
+        default='basico',
+        help_text="Subtipo para acordes avanzados"
+    )

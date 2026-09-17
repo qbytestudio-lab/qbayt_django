@@ -43,7 +43,15 @@
                     </a>
                 </li>
 
-                <!-- ✅ BIBLIOTECA SOLO PARA DOCENTES -->
+                {% if request.user.perfil.rol == 'docente' %}
+                <li class="{% block nav_debilidades %}{% endblock %}">
+                    <a href="{% url 'ejercicios:debilidades_global' %}">
+                        <i class="bi bi-activity"></i><span>Debilidades</span>
+                    </a>
+                </li>
+                {% endif %}
+
+                <!-- BIBLIOTECA SOLO PARA DOCENTES -->
                 {% if request.user.perfil.rol == 'docente' %}
                 <li class="{% block nav_biblioteca %}{% endblock %}">
                     <a href="{% url 'biblioteca_recursos' %}">
@@ -64,6 +72,13 @@
                 <li class="{% block nav_progreso %}{% endblock %}">
                     <a href="{% url 'progreso' %}">
                         <i class="bi bi-bar-chart"></i><span>Progreso</span>
+                    </a>
+                </li>
+                {% endif %}
+                {% if request.user.perfil.rol == 'estudiante' %}
+                <li class="{% block nav_practicar %}{% endblock %}">
+                    <a href="{% url 'ejercicios:practicar' %}">
+                        <i class="bi bi-ear-fill"></i><span>Practicar</span>
                     </a>
                 </li>
                 {% endif %}
@@ -151,29 +166,28 @@
                 <!-- ✅ USUARIO - MISMO ESTILO QUE SIEMPRE -->
                 {% if request.user.perfil.rol == 'estudiante' %}
                 <a href="{% url 'estudiante:perfil_estudiante' %}" class="topbar-user">
-                {% elif request.user.perfil.rol == 'docente' %}
-                <a href="{% url 'perfil_docente' %}" class="topbar-user">
-                {% elif request.user.perfil.rol == 'administrador' %}
-                <a href="{% url 'perfil_administrador' %}" class="topbar-user">
-                {% else %}
-                <a href="{% url 'inicio' %}" class="topbar-user">
-                {% endif %}
-                    <div class="user-avatar">
-                        {% if request.user.perfil.foto_perfil %}
-                        <img src="{{ request.user.perfil.foto_perfil.url }}" 
-                             alt="Foto de perfil" 
-                             class="user-avatar-img">
-                        {% else %}
-                        {{ request.user.username|first|upper }}
-                        {% endif %}
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">
-                            {{ request.user.get_full_name|default:request.user.username }}
-                        </div>
-                        <div class="user-rol">{{ request.user.perfil.rol }}</div>
-                    </div>
-                </a>
+                    {% elif request.user.perfil.rol == 'docente' %}
+                    <a href="{% url 'perfil_docente' %}" class="topbar-user">
+                        {% elif request.user.perfil.rol == 'administrador' %}
+                        <a href="{% url 'perfil_administrador' %}" class="topbar-user">
+                            {% else %}
+                            <a href="{% url 'inicio' %}" class="topbar-user">
+                                {% endif %}
+                                <div class="user-avatar">
+                                    {% if request.user.perfil.foto_perfil %}
+                                    <img src="{{ request.user.perfil.foto_perfil.url }}" alt="Foto de perfil"
+                                        class="user-avatar-img">
+                                    {% else %}
+                                    {{ request.user.username|first|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="user-info">
+                                    <div class="user-name">
+                                        {{ request.user.get_full_name|default:request.user.username }}
+                                    </div>
+                                    <div class="user-rol">{{ request.user.perfil.rol }}</div>
+                                </div>
+                            </a>
             </div>
 
             <!-- CONTENIDO -->

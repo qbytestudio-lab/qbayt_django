@@ -1,0 +1,310 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Reporte de Debilidades — {{ clase.nombre }}{% endblock %}
+{% block page_title %}Reporte de Debilidades{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/reporte_debilidades.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="reporte-container">
+
+    <!-- Back navigation -->
+    <div class="back-nav">
+        <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn-back">
+            <i class="bi bi-arrow-left"></i> Volver a {{ clase.nombre }}
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="reporte-header">
+        <div>
+            <h1 class="reporte-title">
+                <i class="bi bi-activity"></i> Reporte de Debilidades Auditivas
+            </h1>
+            <p class="reporte-subtitle">
+                {{ clase.nombre }} · Análisis basado en prácticas de entrenamiento auditivo
+            </p>
+        </div>
+    </div>
+
+    <!-- Filtro por tipo -->
+    <div class="filtros-bar">
+        <span class="filtros-label"><i class="bi bi-funnel-fill"></i> Filtrar por tipo:</span>
+        <div class="filtros-chips">
+            <a href="?tipo=todos"
+               class="chip {% if tipo_filtro == 'todos' %}active{% endif %}">
+                <i class="bi bi-grid-fill"></i> Todos
+            </a>
+            {% for value, label in tipos_disponibles %}
+            <a href="?tipo={{ value }}"
+               class="chip {% if tipo_filtro == value %}active{% endif %}">
+                <i class="bi bi-music-note-beamed"></i> {{ label }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-icon purple">
+                <i class="bi bi-clipboard-data-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ practicas_total }}</span>
+                <span class="stat-label">Prácticas realizadas</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon green">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ estudiantes_total }}</span>
+                <span class="stat-label">Estudiantes activos</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon orange">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ a_reforzar|length }}</span>
+                <span class="stat-label">A reforzar</span>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon cyan">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-info">
+                <span class="stat-value">{{ dominadas|length }}</span>
+                <span class="stat-label">Dominadas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sugerencias -->
+    {% if sugerencias %}
+    <div class="sugerencias-section">
+        <h3 class="section-heading">
+            <i class="bi bi-lightbulb-fill"></i> Sugerencias para la próxima clase
+        </h3>
+        <div class="sugerencias-list">
+            {% for s in sugerencias %}
+            <div class="sugerencia sugerencia-{{ s.tipo }}">
+                <i class="bi bi-{{ s.icono }}"></i>
+                <span>{{ s.texto }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sin datos -->
+    {% if practicas_total == 0 %}
+    <div class="empty-state">
+        <i class="bi bi-clipboard-x"></i>
+        <h3>Aún no hay datos</h3>
+        <p>Tus estudiantes todavía no han realizado prácticas de entrenamiento auditivo en esta clase.</p>
+    </div>
+    {% else %}
+
+    <!-- Two columns: Debilidades + Dominadas -->
+    <div class="analisis-grid">
+
+        <!-- A REFORZAR -->
+        <div class="analisis-card">
+            <div class="analisis-header peligro">
+                <div class="analisis-icon">
+                    <i class="bi bi-graph-down-arrow"></i>
+                </div>
+                <div>
+                    <h3 class="analisis-title">A reforzar</h3>
+                    <p class="analisis-desc">Prácticas con mayor % de error</p>
+                </div>
+            </div>
+
+            {% if a_reforzar %}
+            <div class="debilidades-list">
+                {% for d in a_reforzar %}
+                <div class="debilidad-item">
+                    <div class="debilidad-top">
+                        <span class="debilidad-nombre">{{ d.nombre }}</span>
+                        <span class="debilidad-porcentaje danger">
+                            {{ d.porcentaje_error }}% error
+                        </span>
+                    </div>
+
+                    <div class="barra-container">
+                        <div class="barra-error" style="width: {{ d.porcentaje_error }}%;"></div>
+                    </div>
+
+                    <div class="debilidad-meta">
+                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
+                        <span class="meta-divider">·</span>
+                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
+                        <span class="meta-divider">·</span>
+                        <span>{{ d.total }} intentos</span>
+                    </div>
+
+                    {% if d.confusiones %}
+                    <div class="confusiones">
+                        <div class="confusiones-label">
+                            <i class="bi bi-arrow-left-right"></i> Confunden con:
+                        </div>
+                        {% for c in d.confusiones %}
+                        <span class="confusion-chip">
+                            {{ c.respuesta }} <small>({{ c.veces }})</small>
+                        </span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-msg">
+                <i class="bi bi-check-circle"></i> Ninguna práctica tiene errores altos
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- DOMINADAS -->
+        <div class="analisis-card">
+            <div class="analisis-header exito">
+                <div class="analisis-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <div>
+                    <h3 class="analisis-title">Dominadas</h3>
+                    <p class="analisis-desc">Prácticas con mayor % de acierto</p>
+                </div>
+            </div>
+
+            {% if dominadas %}
+            <div class="debilidades-list">
+                {% for d in dominadas %}
+                <div class="debilidad-item">
+                    <div class="debilidad-top">
+                        <span class="debilidad-nombre">{{ d.nombre }}</span>
+                        <span class="debilidad-porcentaje success">
+                            {{ d.porcentaje_acierto }}% acierto
+                        </span>
+                    </div>
+
+                    <div class="barra-container">
+                        <div class="barra-exito" style="width: {{ d.porcentaje_acierto }}%;"></div>
+                    </div>
+
+                    <div class="debilidad-meta">
+                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
+                        <span class="meta-divider">·</span>
+                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
+                        <span class="meta-divider">·</span>
+                        <span>{{ d.total }} intentos</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-msg">
+                <i class="bi bi-hourglass-split"></i> Aún no hay suficientes datos
+            </p>
+            {% endif %}
+        </div>
+
+    </div>
+
+    <!-- Resumen por tipo: BÁSICO + AVANZADO -->
+    {% if resumen_tipos %}
+    <div class="resumen-tipos-section">
+        <h3 class="section-heading">
+            <i class="bi bi-bar-chart-fill"></i> Rendimiento por tipo de práctica
+        </h3>
+
+        <!-- ═══ TIPOS BÁSICOS ═══ -->
+        <h4 class="subtipo-heading">
+            <i class="bi bi-music-note-list"></i> Básico
+        </h4>
+        <div class="resumen-tipos-grid">
+            {% for t in resumen_tipos %}
+                {% if t.tipo == 'intervalos' or t.tipo == 'acordes' or t.tipo == 'notas' or t.tipo == 'ritmo' or t.tipo == 'melodia' %}
+                <div class="tipo-card">
+                    <div class="tipo-header">
+                        <span class="tipo-nombre">{{ t.label }}</span>
+                        <span class="tipo-porcentaje
+                            {% if t.porcentaje >= 70 %}success
+                            {% elif t.porcentaje >= 50 %}warning
+                            {% else %}danger{% endif %}">
+                            {{ t.porcentaje }}%
+                        </span>
+                    </div>
+                    <div class="barra-container">
+                        <div class="barra-tipo"
+                             style="width: {{ t.porcentaje }}%;"
+                             data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
+                        </div>
+                    </div>
+                    <div class="tipo-meta">
+                        <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
+                        <span>·</span>
+                        <span>{{ t.aciertos }}/{{ t.total }} aciertos</span>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <!-- ═══ TIPOS AVANZADOS ═══ -->
+        {% with hay_avanzados=False %}
+            {% for t in resumen_tipos %}
+                {% if t.tipo == 'oido_absoluto' or t.tipo == 'oido_relativo' or t.tipo == 'tapping_ritmico' or t.tipo == 'dictado_melodico' %}
+                    {% if not hay_avanzados %}
+                    <h4 class="subtipo-heading subtipo-heading-advanced mt-4">
+                        <i class="bi bi-stars"></i> Avanzado
+                    </h4>
+                    <div class="resumen-tipos-grid">
+                    {% endif %}
+                    <div class="tipo-card tipo-card-avanzado">
+                        <div class="tipo-header">
+                            <span class="tipo-nombre">{{ t.label }}</span>
+                            <span class="tipo-porcentaje
+                                {% if t.porcentaje >= 70 %}success
+                                {% elif t.porcentaje >= 50 %}warning
+                                {% else %}danger{% endif %}">
+                                {{ t.porcentaje }}%
+                            </span>
+                        </div>
+                        <div class="barra-container">
+                            <div class="barra-tipo"
+                                 style="width: {{ t.porcentaje }}%;"
+                                 data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
+                            </div>
+                        </div>
+                        <div class="tipo-meta">
+                            <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
+                            <span>·</span>
+                            <span>{{ t.aciertos }}/{{ t.total }} aciertos</span>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endwith %}
+        </div>
+
+    </div>
+    {% endif %}
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

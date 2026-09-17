@@ -1,0 +1,488 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
+{% block page_title %}Entrenamiento Avanzado{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/resolver_entrenamiento_auditivo.css' %}">
+<link rel="stylesheet" href="{% static 'ejercicios/css/tapping.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="resolver-container">
+
+    <!-- Header -->
+    <div class="resolver-header">
+        <div class="practicar-badge badge-avanzado">
+            <i class="bi bi-stars"></i> Avanzado
+        </div>
+        <h1 class="resolver-title">{{ ejercicio.titulo }}</h1>
+        <p class="resolver-desc">{{ ejercicio.descripcion|default:"" }}</p>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progress-bar-container">
+        <div class="progress-info">
+            <span>Pregunta <strong id="currentNum">1</strong> de <strong id="totalNum">{{ ejercicio.config_auditivo.num_preguntas }}</strong></span>
+            <span>Aciertos: <strong id="scoreNum">0</strong></span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- Área de OÍDO (absoluto y relativo)              -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="practice-area" id="practiceArea">
+        <button class="btn-play-big" id="btnPlay" onclick="reproducirSonido()">
+            <i class="bi bi-volume-up-fill"></i>
+            <span>Escuchar</span>
+        </button>
+        <p class="hint-text" id="hintText">Presiona para escuchar</p>
+        <div class="opciones-container" id="opcionesContainer"></div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════ -->
+    <!-- Área de TAPPING (solo se muestra si es tapping) -->
+    <!-- ═══════════════════════════════════════════════ -->
+    <div class="tapping-area" id="tappingArea" style="display:none;">
+
+        <p class="tapping-instruction" id="tappingInstruction">
+            Presiona "Escuchar patrón" para oír el ritmo
+        </p>
+
+        <!-- Botón para iniciar el patrón -->
+        <button class="btn-play-big" id="btnPlayTapping" onclick="iniciarTapping()">
+            <i class="bi bi-volume-up-fill"></i>
+            <span>Escuchar patrón</span>
+        </button>
+
+        <!-- Botón TAP (deshabilitado hasta que suene el patrón) -->
+        <button class="btn-tap-big" id="btnTap" onclick="registrarTap()" disabled>
+            <i class="bi bi-hand-index-thumb"></i>
+            <span>TAP</span>
+        </button>
+
+        <div class="tapping-feedback" id="tappingFeedback"></div>
+        <div class="tapping-progress" id="tappingProgress"></div>
+    </div>
+
+    <!-- Botón siguiente -->
+    <button class="btn-next" id="btnNext" onclick="siguientePregunta()" style="display: none;">
+        Siguiente pregunta <i class="bi bi-arrow-right"></i>
+    </button>
+
+</div>
+
+<!-- Modal de resultado -->
+<div class="modal fade" id="modalResultado" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content resultado-modal">
+            <div class="modal-body text-center">
+                <div class="resultado-icon">
+                    <i class="bi bi-trophy-fill"></i>
+                </div>
+                <h2 class="resultado-title">¡Práctica completada!</h2>
+                <p class="resultado-score">
+                    <span id="resultadoAciertos">0</span> / <span id="resultadoTotal">0</span>
+                </p>
+                <p class="resultado-porcentaje"><span id="resultadoPorcentaje">0</span>% de aciertos</p>
+                <div class="resultado-actions">
+                    <a href="{% url 'estudiante:detalle_clase_estudiante' ejercicio.clase.id %}" class="btn-primary-custom">
+                        Volver a la clase
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/tone@14.8.49/build/Tone.js"></script>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONFIGURACIÓN
+// ═══════════════════════════════════════════════════════
+const config = {{ ejercicio.config_auditivo|safe }};
+const TOTAL = config.num_preguntas;
+const SUBTIPO = config.subtipo_avanzado;
+const DIFICULTAD = config.dificultad;
+const INSTRUMENTO = config.instrumento || 'piano';
+const RANGO_NOTAS = config.rango_notas || 'medio';
+const TONALIDAD_BASE = config.tonalidad_base || 'C';
+
+// ═══════════════════════════════════════════════════════
+// NOTAS
+// ═══════════════════════════════════════════════════════
+const NOTAS_COMPLETAS = [
+    { nota: 'C4',  nombre: 'Do' }, { nota: 'C#4', nombre: 'Do#' },
+    { nota: 'D4',  nombre: 'Re' }, { nota: 'D#4', nombre: 'Re#' },
+    { nota: 'E4',  nombre: 'Mi' }, { nota: 'F4',  nombre: 'Fa' },
+    { nota: 'F#4', nombre: 'Fa#' }, { nota: 'G4',  nombre: 'Sol' },
+    { nota: 'G#4', nombre: 'Sol#' }, { nota: 'A4',  nombre: 'La' },
+    { nota: 'A#4', nombre: 'La#' }, { nota: 'B4',  nombre: 'Si' },
+    { nota: 'C5',  nombre: 'Do5' },
+];
+
+const TONICAS = {
+    'C': { nota: 'C4', nombre: 'Do' },
+    'G': { nota: 'G4', nombre: 'Sol' },
+    'F': { nota: 'F4', nombre: 'Fa' },
+    'D': { nota: 'D4', nombre: 'Re' },
+};
+
+let NOTAS_DISPONIBLES = [];
+if (RANGO_NOTAS === 'basico') {
+    NOTAS_DISPONIBLES = NOTAS_COMPLETAS.filter(n => ['Do', 'Mi', 'Sol'].includes(n.nombre));
+} else if (RANGO_NOTAS === 'medio') {
+    NOTAS_DISPONIBLES = NOTAS_COMPLETAS.filter(n => !n.nombre.includes('#') && n.nombre !== 'Do5');
+} else {
+    NOTAS_DISPONIBLES = NOTAS_COMPLETAS.slice(0, 12);
+}
+
+// ═══════════════════════════════════════════════════════
+// PATRONES DE TAPPING
+// ═══════════════════════════════════════════════════════
+const PATRONES_TAPPING = {
+    facil: [
+        { nombre: 'Negras', patron: [1, 0, 1, 0] },
+        { nombre: 'Corcheas', patron: [1, 1, 1, 1] },
+    ],
+    medio: [
+        { nombre: 'Negra + 2 corcheas', patron: [1, 0, 1, 1] },
+        { nombre: 'Síncopa', patron: [1, 0, 1, 1] },
+        { nombre: 'Marcha', patron: [1, 1, 0, 1] },
+    ],
+    dificil: [
+        { nombre: 'Tresillo', patron: [1, 1, 1, 0] },
+        { nombre: 'Síncopa compleja', patron: [1, 0, 1, 1] },
+        { nombre: 'Ritmo africano', patron: [1, 1, 0, 1] },
+    ]
+};
+
+// ═══════════════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════════════
+let synth = null;
+let click = null;
+let preguntaActual = 0;
+let aciertos = 0;
+let respuestaCorrecta = null;
+let respondida = false;
+let datosPreguntaActual = null;
+const detalleRespuestas = [];
+
+let tappingTiemposEsperados = [];
+let tappingTiemposUsuario = [];
+let tappingIndiceActual = 0;
+let tappingBpm = config.bpm || 60;
+
+// ═══════════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+    synth = crearSynth();
+    click = new Tone.MembraneSynth().toDestination();
+
+    // Si es tapping, ocultar el área de oído y mostrar la de tapping
+    if (SUBTIPO === 'tapping_ritmico') {
+        document.getElementById('practiceArea').style.display = 'none';
+        document.getElementById('tappingArea').style.display = 'flex';
+    }
+
+    generarPregunta();
+});
+
+function crearSynth() {
+    const opciones = {
+        piano: { oscillator: { type: 'triangle' }, envelope: { attack: 0.01, decay: 0.3, sustain: 0.2, release: 1 } },
+        guitarra: { oscillator: { type: 'sawtooth' }, envelope: { attack: 0.02, decay: 0.5, sustain: 0.1, release: 0.8 } },
+        sine: { oscillator: { type: 'sine' }, envelope: { attack: 0.05, decay: 0.3, sustain: 0.3, release: 1 } },
+        organ: { oscillator: { type: 'square' }, envelope: { attack: 0.02, decay: 0.1, sustain: 0.9, release: 0.5 } }
+    };
+    return new Tone.Synth(opciones[INSTRUMENTO] || opciones.piano).toDestination();
+}
+
+// ═══════════════════════════════════════════════════════
+// GENERADOR DE PREGUNTAS
+// ═══════════════════════════════════════════════════════
+function generarPregunta() {
+    respondida = false;
+    document.getElementById('btnNext').style.display = 'none';
+    document.getElementById('hintText').textContent = 'Presiona para escuchar';
+
+    if (SUBTIPO === 'oido_absoluto') generarOidoAbsoluto();
+    else if (SUBTIPO === 'oido_relativo') generarOidoRelativo();
+    else if (SUBTIPO === 'tapping_ritmico') generarTapping();
+    else if (SUBTIPO === 'dictado_melodico') generarDictado();
+
+    document.getElementById('currentNum').textContent = preguntaActual + 1;
+}
+
+// ─── OÍDO ABSOLUTO ───
+function generarOidoAbsoluto() {
+    const item = NOTAS_DISPONIBLES[Math.floor(Math.random() * NOTAS_DISPONIBLES.length)];
+    respuestaCorrecta = item.nombre;
+    datosPreguntaActual = { nota: item.nota };
+    renderizarOpcionesNotas();
+}
+
+// ─── OÍDO RELATIVO ───
+function generarOidoRelativo() {
+    const item = NOTAS_DISPONIBLES[Math.floor(Math.random() * NOTAS_DISPONIBLES.length)];
+    respuestaCorrecta = item.nombre;
+    datosPreguntaActual = {
+        nota: item.nota,
+        tonica: TONICAS[TONALIDAD_BASE] || TONICAS['C'],
+    };
+    document.getElementById('hintText').textContent = `Escucha la tónica (${datosPreguntaActual.tonica.nombre}) y luego la nota`;
+    renderizarOpcionesNotas();
+}
+
+function renderizarOpcionesNotas() {
+    const distractores = NOTAS_DISPONIBLES
+        .filter(n => n.nombre !== respuestaCorrecta)
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3)
+        .map(n => n.nombre);
+
+    const opciones = [respuestaCorrecta, ...distractores].sort(() => Math.random() - 0.5);
+
+    const container = document.getElementById('opcionesContainer');
+    container.innerHTML = opciones.map(op => `
+        <button class="opcion-btn" onclick="responder('${op}', this)">${op}</button>
+    `).join('');
+}
+
+// ─── TAPPING RÍTMICO ───
+function generarTapping() {
+    const lista = PATRONES_TAPPING[DIFICULTAD];
+    const item = lista[Math.floor(Math.random() * lista.length)];
+    respuestaCorrecta = item.nombre;
+    datosPreguntaActual = { patron: item.patron };
+
+    tappingTiemposEsperados = [];
+    tappingTiemposUsuario = [];
+    tappingIndiceActual = 0;
+
+    // Resetear botones
+    const btnPlay = document.getElementById('btnPlayTapping');
+    btnPlay.disabled = false;
+    btnPlay.classList.remove('playing');
+    btnPlay.innerHTML = '<i class="bi bi-volume-up-fill"></i><span>Escuchar patrón</span>';
+
+    document.getElementById('btnTap').disabled = true;
+    document.getElementById('tappingFeedback').innerHTML = '';
+    document.getElementById('tappingProgress').innerHTML = '';
+    document.getElementById('tappingInstruction').textContent = 'Presiona "Escuchar patrón" para oír el ritmo';
+}
+
+async function iniciarTapping() {
+    await Tone.start();
+
+    const btn = document.getElementById('btnPlayTapping');
+    btn.classList.add('playing');
+    btn.disabled = true;
+
+    const intervaloMs = 60000 / tappingBpm / 2;
+    const patron = datosPreguntaActual.patron;
+
+    // Reproducir el patrón completo una vez
+    patron.forEach((golpe, i) => {
+        if (golpe === 1) {
+            click.triggerAttackRelease("C2", "32n", Tone.now() + 0.2 + i * (intervaloMs / 1000));
+        }
+    });
+
+    // Después del patrón de escucha, habilitar TAP y empezar guía
+    setTimeout(() => {
+        btn.classList.remove('playing');
+        btn.innerHTML = '<i class="bi bi-check-circle-fill"></i><span>Patrón listo</span>';
+
+        document.getElementById('tappingInstruction').textContent =
+            '¡Ahora tú! Presiona TAP siguiendo el ritmo';
+        document.getElementById('btnTap').disabled = false;
+
+        // Preparar tiempos esperados para el usuario (empezamos 500ms después)
+        const tiempoInicio = performance.now() + 800;
+        tappingTiemposEsperados = patron.map((golpe, i) => {
+            if (golpe === 1) return tiempoInicio + i * intervaloMs;
+            return null;
+        }).filter(t => t !== null);
+
+        // Metrónomo guía (suena para que el usuario siga el ritmo)
+        patron.forEach((golpe, i) => {
+            if (golpe === 1) {
+                click.triggerAttackRelease("C2", "32n", Tone.now() + 0.8 + i * (intervaloMs / 1000));
+            }
+        });
+
+    }, patron.length * intervaloMs + 500);
+}
+
+function registrarTap() {
+    if (tappingIndiceActual >= tappingTiemposEsperados.length) return;
+
+    const tiempoTap = performance.now();
+    const tiempoEsperado = tappingTiemposEsperados[tappingIndiceActual];
+    const diferencia = Math.abs(tiempoTap - tiempoEsperado);
+
+    tappingTiemposUsuario.push(tiempoTap);
+
+    const feedback = document.getElementById('tappingFeedback');
+    let icon, color;
+
+    if (diferencia <= 100) { icon = '✓'; color = '#22c55e'; }
+    else if (diferencia <= 250) { icon = '~'; color = '#f59e0b'; }
+    else { icon = '✗'; color = '#ef4444'; }
+
+    feedback.innerHTML = `<span style="color:${color};font-size:2rem;font-weight:800;">${icon}</span>`;
+
+    tappingIndiceActual++;
+
+    if (tappingIndiceActual >= tappingTiemposEsperados.length) {
+        finalizarTapping();
+    }
+}
+
+function finalizarTapping() {
+    document.getElementById('btnTap').disabled = true;
+
+    let tapsDentro = 0;
+
+    for (let i = 0; i < tappingTiemposUsuario.length; i++) {
+        const diferencia = Math.abs(tappingTiemposUsuario[i] - tappingTiemposEsperados[i]);
+        if (diferencia <= 250) tapsDentro++;
+    }
+
+    const precision = (tapsDentro / tappingTiemposEsperados.length) * 100;
+    const acerto = precision >= 70;
+
+    if (acerto) {
+        aciertos++;
+        document.getElementById('scoreNum').textContent = aciertos;
+    }
+
+    detalleRespuestas.push({
+        pregunta: preguntaActual + 1,
+        respuesta: `${Math.round(precision)}% precisión`,
+        correcta: '≥70% precisión',
+        acerto: acerto
+    });
+
+    const pct = ((preguntaActual + 1) / TOTAL) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    document.getElementById('tappingProgress').innerHTML =
+        `<div style="text-align:center;padding:1rem;background:rgba(34,197,94,0.1);border-radius:12px;margin-top:1rem;">
+            <strong style="font-size:1.4rem;color:${acerto ? '#22c55e' : '#ef4444'};">${Math.round(precision)}% precisión</strong>
+            <p style="margin:0.4rem 0 0;color:#888;font-size:0.85rem;">${acerto ? '✓ ¡Bien!' : 'Sigue practicando'}</p>
+        </div>`;
+
+    if (preguntaActual + 1 < TOTAL) {
+        document.getElementById('btnNext').style.display = 'inline-flex';
+    } else {
+        setTimeout(enviarResultado, 1200);
+    }
+}
+
+// ─── DICTADO MELÓDICO (placeholder) ───
+function generarDictado() {
+    document.getElementById('hintText').textContent = 'Dictado melódico — próximamente';
+}
+
+// ═══════════════════════════════════════════════════════
+// REPRODUCIR SONIDO (OÍDO ABSOLUTO Y RELATIVO)
+// ═══════════════════════════════════════════════════════
+async function reproducirSonido() {
+    if (SUBTIPO === 'tapping_ritmico') return;
+
+    await Tone.start();
+    const btn = document.getElementById('btnPlay');
+    btn.classList.add('playing');
+
+    if (SUBTIPO === 'oido_absoluto') {
+        synth.triggerAttackRelease(datosPreguntaActual.nota, "2n", Tone.now());
+        setTimeout(() => btn.classList.remove('playing'), 1500);
+
+    } else if (SUBTIPO === 'oido_relativo') {
+        synth.triggerAttackRelease(datosPreguntaActual.tonica.nota, "4n", Tone.now());
+        setTimeout(() => {
+            synth.triggerAttackRelease(datosPreguntaActual.nota, "2n", Tone.now());
+        }, 1200);
+        setTimeout(() => btn.classList.remove('playing'), 2400);
+    }
+}
+
+// ═══════════════════════════════════════════════════════
+// RESPONDER
+// ═══════════════════════════════════════════════════════
+function responder(opcion, btn) {
+    if (respondida) return;
+    respondida = true;
+    const esCorrecta = opcion === respuestaCorrecta;
+
+    document.querySelectorAll('.opcion-btn').forEach(b => {
+        b.disabled = true;
+        if (b.textContent.trim() === respuestaCorrecta) b.classList.add('correcta');
+    });
+
+    if (!esCorrecta) btn.classList.add('incorrecta');
+    else { aciertos++; document.getElementById('scoreNum').textContent = aciertos; }
+
+    detalleRespuestas.push({
+        pregunta: preguntaActual + 1,
+        respuesta: opcion,
+        correcta: respuestaCorrecta,
+        acerto: esCorrecta
+    });
+
+    const pct = ((preguntaActual + 1) / TOTAL) * 100;
+    document.getElementById('progressFill').style.width = pct + '%';
+
+    if (preguntaActual + 1 < TOTAL) {
+        document.getElementById('btnNext').style.display = 'inline-flex';
+    } else {
+        setTimeout(enviarResultado, 1200);
+    }
+}
+
+function siguientePregunta() {
+    preguntaActual++;
+    generarPregunta();
+}
+
+// ═══════════════════════════════════════════════════════
+// ENVIAR RESULTADO
+// ═══════════════════════════════════════════════════════
+function enviarResultado() {
+    const formData = new FormData();
+    formData.append('aciertos', aciertos);
+    formData.append('total', TOTAL);
+    formData.append('detalle', JSON.stringify(detalleRespuestas));
+
+    fetch('{% url "ejercicios:guardar_practica_avanzada" ejercicio.id %}', {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': '{{ csrf_token }}' }
+    })
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('resultadoAciertos').textContent = aciertos;
+        document.getElementById('resultadoTotal').textContent = TOTAL;
+        document.getElementById('resultadoPorcentaje').textContent = Math.round((aciertos / TOTAL) * 100);
+        new bootstrap.Modal(document.getElementById('modalResultado')).show();
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Error al guardar el resultado.');
+    });
+}
+</script>
+{% endblock %}

@@ -963,3 +963,143 @@ body {
 .btn-action.message {
     text-decoration: none;
 }
+/* ═══════════════════════════════════════════ */
+/*         MENÚ DE AJUSTES ⚙                  */
+/* ═══════════════════════════════════════════ */
+
+.settings-menu {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  z-index: 20;
+}
+
+.settings-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.settings-btn:hover {
+  background: rgba(0, 0, 0, 0.75);
+  transform: rotate(45deg);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.settings-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px var(--shadow);
+  padding: 0.4rem;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 30;
+}
+
+.settings-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.settings-option {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.settings-option:hover {
+  background: var(--bg-hover);
+  color: var(--docente-accent);
+  transform: translateX(3px);
+}
+
+.settings-option i {
+  font-size: 1rem;
+  width: 20px;
+  text-align: center;
+  color: var(--docente-accent);
+  flex-shrink: 0;
+}
+
+.settings-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0.35rem 0.5rem;
+}
+
+/* ═══════════════════════════════════════════ */
+/*         CÁMARA SOBRE EL AVATAR              */
+/* ═══════════════════════════════════════════ */
+
+.avatar-edit-badge {
+  background: var(--bg-card);
+  border: 2px solid var(--bg-body);
+  z-index: 3;
+}
+
+.avatar-edit-badge:hover {
+  background: var(--docente-accent) !important;
+}
+
+.avatar-edit-badge i {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.avatar-edit-badge:hover i {
+  color: #ffffff;
+}
+
+/* ═══════════════════════════════════════════ */
+/* RESPONSIVE DEL MENÚ DE AJUSTES              */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .settings-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+
+  .settings-dropdown {
+    min-width: 200px;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-menu {
+    top: 10px;
+    right: 10px;
+  }
+}

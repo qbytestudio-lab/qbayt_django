@@ -1,5 +1,5 @@
 /* ============================================ */
-/*  SELECCIONAR TIPO EJERCICIO - CON TEMA CLARO */
+/*  SELECCIONAR TIPO EJERCICIO - MODAL         */
 /* ============================================ */
 
 :root {
@@ -15,9 +15,10 @@
   --accent-cyan: #00d4ff;
   --accent-yellow: #ffc107;
   --accent-pink: #ff6b9d;
+  --accent-audio: #22d3ee;
+  --accent-advanced: #a855f7;
   --danger: #e91429;
-  
-  /* Superficies */
+
   --bg-body: #121212;
   --bg-card: #181818;
   --bg-hover: rgba(255, 255, 255, 0.06);
@@ -29,10 +30,6 @@
   --shadow: rgba(0, 0, 0, 0.6);
 }
 
-/* ═══════════════════════════════════════════ */
-/* MODO CLARO - CREMA + VERDE                  */
-/* ═══════════════════════════════════════════ */
-
 [data-theme="light"] {
   --spotify-black: #fefce8;
   --spotify-dark: #ffffff;
@@ -41,17 +38,18 @@
   --spotify-subtext: #44403c;
   --spotify-muted: #a8a29e;
   --accent-purple: #16a34a;
-  --accent-purple-hover: #15803d;
   --accent-green: #16a34a;
   --accent-orange: #f59e0b;
   --accent-cyan: #06b6d4;
   --accent-yellow: #eab308;
   --accent-pink: #ec4899;
+  --accent-audio: #0891b2;
+  --accent-advanced: #9333ea;
   --danger: #ef4444;
-  
+
   --bg-body: #fefce8;
   --bg-card: #ffffff;
-  --bg-hover: rgba(34, 197, 94, 0.06);
+  --bg-hover: rgba(34, 197, 94, 0.04);
   --text-primary: #1c1917;
   --text-secondary: #44403c;
   --text-muted: #a8a29e;
@@ -67,7 +65,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         MODAL CONTENT                      */
+/*         MODAL CONTENT                       */
 /* ═══════════════════════════════════════════ */
 
 .tipo-ejercicio-modal {
@@ -78,48 +76,63 @@ body {
   box-shadow: 0 20px 60px var(--shadow);
 }
 
+.tipo-ejercicio-modal .modal-header {
+  padding: 1.2rem 1.5rem 0 !important;
+}
+
+.tipo-ejercicio-modal .modal-body {
+  padding: 1rem 1.5rem 1rem !important;
+}
+
 .tipo-ejercicio-modal .modal-title {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.5rem;
+  font-size: 1.35rem;
   color: var(--text-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
 }
 
 .tipo-ejercicio-modal .modal-title i {
   color: var(--accent-purple);
+  font-size: 1.4rem;
+}
+
+.tipo-ejercicio-modal .modal-footer {
+  padding: 0 1.5rem 1.2rem !important;
+  border: none !important;
 }
 
 /* ═══════════════════════════════════════════ */
-/*         GRID DE OPCIONES                   */
+/*         GRID DE OPCIONES                    */
 /* ═══════════════════════════════════════════ */
 
 .ejercicio-options-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.85rem;
 }
 
 /* ═══════════════════════════════════════════ */
-/*         OPTION CARD                        */
+/*         OPTION CARD (más compacta)          */
 /* ═══════════════════════════════════════════ */
 
 .ejercicio-option-card {
   background: var(--bg-hover);
   border: 2px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 1.5rem;
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
   text-decoration: none;
   color: var(--text-primary);
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   display: flex;
   flex-direction: column;
   cursor: pointer;
   position: relative;
   overflow: hidden;
+  min-height: 165px;
 }
 
 .ejercicio-option-card::before {
@@ -136,8 +149,8 @@ body {
 .ejercicio-option-card:hover {
   background: var(--bg-hover);
   border-color: var(--border-color);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 30px var(--shadow);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px var(--shadow);
   color: var(--text-primary);
 }
 
@@ -145,101 +158,184 @@ body {
   opacity: 1;
 }
 
-/* Colores por tipo */
+/* Colores por posición (barra superior) */
 .ejercicio-option-card:nth-child(1)::before { background: var(--accent-purple); }
-.ejercicio-option-card:nth-child(2)::before { background: var(--accent-cyan); }
-.ejercicio-option-card:nth-child(3)::before { background: var(--accent-green); }
-.ejercicio-option-card:nth-child(4)::before { background: var(--accent-orange); }
-.ejercicio-option-card:nth-child(5)::before { background: var(--accent-pink); }
+.ejercicio-option-card:nth-child(2)::before { background: var(--accent-audio); }
+.ejercicio-option-card:nth-child(3)::before { background: var(--accent-advanced); }
+.ejercicio-option-card:nth-child(4)::before { background: var(--accent-cyan); }
+.ejercicio-option-card:nth-child(5)::before { background: var(--accent-orange); }
 .ejercicio-option-card:nth-child(6)::before { background: var(--accent-yellow); }
 
 /* ═══════════════════════════════════════════ */
-/*         ICONOS                             */
+/*         ICONOS                              */
 /* ═══════════════════════════════════════════ */
 
 .option-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 14px;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  margin-bottom: 0.7rem;
   transition: all 0.3s ease;
+  flex-shrink: 0;
 }
 
 .ejercicio-option-card:hover .option-icon {
-  transform: scale(1.1);
+  transform: scale(1.08);
 }
 
-.quiz-icon { background: rgba(22, 163, 74, 0.12); color: var(--accent-purple); }
+.quiz-icon { background: rgba(124, 111, 255, 0.12); color: var(--accent-purple); }
 .imagen-icon { background: rgba(6, 182, 212, 0.12); color: var(--accent-cyan); }
 .juego-icon { background: rgba(22, 163, 74, 0.12); color: var(--accent-green); }
 .texto-icon { background: rgba(245, 158, 11, 0.12); color: var(--accent-orange); }
 .vf-icon { background: rgba(236, 72, 153, 0.12); color: var(--accent-pink); }
 .completar-icon { background: rgba(234, 179, 8, 0.12); color: var(--accent-yellow); }
 
+/* Icono Entrenamiento Auditivo */
+.audio-icon {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.2), rgba(29, 185, 84, 0.2));
+  color: var(--accent-audio);
+  position: relative;
+}
+
+.audio-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  animation: audioPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes audioPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+
+/* Icono Entrenamiento Avanzado */
+.avanzado-icon {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(236, 72, 153, 0.25));
+  color: var(--accent-advanced);
+  position: relative;
+}
+
+.avanzado-icon::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+  animation: advancedPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes advancedPulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
 /* ═══════════════════════════════════════════ */
-/*         TÍTULOS Y DESCRIPCIÓN              */
+/*         TÍTULOS Y DESCRIPCIÓN               */
 /* ═══════════════════════════════════════════ */
 
 .option-title {
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: 0.92rem;
   color: var(--text-primary);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.2;
 }
 
 .option-desc {
   color: var(--text-secondary);
-  font-size: 0.82rem;
-  line-height: 1.5;
-  margin-bottom: 0.75rem;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 0.7rem;
   flex: 1;
 }
 
 /* ═══════════════════════════════════════════ */
-/*         BADGES                             */
+/*         BADGES                              */
 /* ═══════════════════════════════════════════ */
 
 .option-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.7rem;
+  gap: 0.3rem;
+  padding: 0.28rem 0.6rem;
   border-radius: 20px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   align-self: flex-start;
   border: 1px solid transparent;
+  white-space: nowrap;
 }
 
-.badge-purple { background: rgba(22, 163, 74, 0.1); color: var(--accent-purple); border-color: rgba(22, 163, 74, 0.2); }
-.badge-cyan { background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.2); }
-.badge-green { background: rgba(22, 163, 74, 0.1); color: var(--accent-green); border-color: rgba(22, 163, 74, 0.2); }
-.badge-orange { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); border-color: rgba(245, 158, 11, 0.2); }
-.badge-pink { background: rgba(236, 72, 153, 0.1); color: var(--accent-pink); border-color: rgba(236, 72, 153, 0.2); }
-.badge-yellow { background: rgba(234, 179, 8, 0.1); color: var(--accent-yellow); border-color: rgba(234, 179, 8, 0.2); }
+.badge-purple { background: rgba(124, 111, 255, 0.1); color: var(--accent-purple); border-color: rgba(124, 111, 255, 0.25); }
+.badge-cyan { background: rgba(6, 182, 212, 0.1); color: var(--accent-cyan); border-color: rgba(6, 182, 212, 0.25); }
+.badge-green { background: rgba(22, 163, 74, 0.1); color: var(--accent-green); border-color: rgba(22, 163, 74, 0.25); }
+.badge-orange { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); border-color: rgba(245, 158, 11, 0.25); }
+.badge-pink { background: rgba(236, 72, 153, 0.1); color: var(--accent-pink); border-color: rgba(236, 72, 153, 0.25); }
+.badge-yellow { background: rgba(234, 179, 8, 0.1); color: var(--accent-yellow); border-color: rgba(234, 179, 8, 0.25); }
+
+.badge-audio {
+  background: rgba(34, 211, 238, 0.12);
+  color: var(--accent-audio);
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.badge-avanzado {
+  background: rgba(168, 85, 247, 0.15);
+  color: var(--accent-advanced);
+  border-color: rgba(168, 85, 247, 0.35);
+}
 
 /* ═══════════════════════════════════════════ */
-/*         BOTÓN CANCELAR                     */
+/*         TARJETAS ESPECIALES                 */
+/* ═══════════════════════════════════════════ */
+
+/* Card Audio (Entrenamiento Auditivo) */
+.ejercicio-option-card.card-audio {
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.ejercicio-option-card.card-audio:hover {
+  border-color: var(--accent-audio);
+  box-shadow: 0 8px 24px rgba(34, 211, 238, 0.3);
+}
+
+/* Card Avanzado (Entrenamiento Avanzado) */
+.ejercicio-option-card.card-avanzado {
+  border-color: rgba(168, 85, 247, 0.3);
+}
+
+.ejercicio-option-card.card-avanzado:hover {
+  border-color: var(--accent-advanced);
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.35);
+}
+
+/* ═══════════════════════════════════════════ */
+/*         BOTÓN CANCELAR                      */
 /* ═══════════════════════════════════════════ */
 
 .btn-cancelar {
   background: transparent;
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  padding: 0.6rem 2rem;
+  padding: 0.55rem 1.8rem;
   border-radius: 25px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.4rem;
 }
 
 .btn-cancelar:hover {
@@ -249,7 +345,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         SCROLLBAR                          */
+/*         SCROLLBAR                           */
 /* ═══════════════════════════════════════════ */
 
 ::-webkit-scrollbar { width: 6px; }
@@ -257,27 +353,46 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--spotify-muted); border-radius: 3px; }
 
 /* ═══════════════════════════════════════════ */
-/*         RESPONSIVE                         */
+/*         RESPONSIVE                          */
 /* ═══════════════════════════════════════════ */
+
+@media (max-width: 992px) {
+  .ejercicio-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 
 @media (max-width: 768px) {
   .ejercicio-options-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .tipo-ejercicio-modal .modal-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+  }
+
+  .ejercicio-option-card {
+    min-height: auto;
+    padding: 1rem;
   }
 }
 
 @media (max-width: 480px) {
   .ejercicio-option-card {
-    padding: 1.2rem;
+    padding: 0.9rem;
   }
-  
+
   .option-icon {
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+
+  .option-title {
+    font-size: 0.85rem;
+  }
+
+  .option-desc {
+    font-size: 0.72rem;
   }
 }

@@ -1,24 +1,27 @@
 from decimal import Decimal, InvalidOperation
+from multiprocessing import context
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from datetime import datetime
 from django.utils import timezone
-from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante,)
+from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante, PracticaAuditiva, PracticaLibre)
 from clase.models import Clase
 from docente.models import RecursoMusical
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion
+from django.http import JsonResponse, HttpResponse, request
+from django.views.decorators.http import require_POST
+from decimal import Decimal
+import json
 
 
 # ============================================================
 # VISTA GENERAL / ENRUTADOR PARA CREAR EJERCICIO
 # ============================================================
-@login_required
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
-    
     tipo = request.GET.get('tipo', 'quiz')
-    
+
     if tipo == 'quiz':
         return redirect('ejercicios:crear_quiz', clase_id=clase.id)
     elif tipo == 'juego':
@@ -29,7 +32,9 @@ def crear_ejercicio(request, clase_id):
         return redirect('ejercicios:crear_verdadero_falso', clase_id=clase.id)
     elif tipo == 'completar':
         return redirect('ejercicios:crear_completar', clase_id=clase.id)
-        
+    elif tipo == 'entrenamiento_auditivo':                                    
+        return redirect('ejercicios:crear_entrenamiento_auditivo', clase_id=clase.id)
+
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
 
 @login_required
@@ -363,12 +368,28 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
 @login_required
 def calificar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)
+    ejercicio = intento.ejercicio
 
-    respuestas = intento.respuestas.select_related(
-        'pregunta',
-        'opcion_seleccionada'
-    ).all()
+    # ═══════════════════════════════════════════════════
+    # DATOS SEGÚN EL TIPO DE EJERCICIO
+    # ═══════════════════════════════════════════════════
+    respuestas = []
+    practica_auditiva = None
 
+    if ejercicio.tipo == 'entrenamiento_auditivo':
+        try:
+            practica_auditiva = intento.practica_auditiva
+        except PracticaAuditiva.DoesNotExist:
+            practica_auditiva = None
+    else:
+        respuestas = intento.respuestas.select_related(
+            'pregunta',
+            'opcion_seleccionada'
+        ).all()
+
+    # ═══════════════════════════════════════════════════
+    # POST: GUARDAR CALIFICACIÓN
+    # ═══════════════════════════════════════════════════
     if request.method == 'POST':
         nota_str = request.POST.get('calificacion', '').strip()
         retroalimentacion = request.POST.get('retroalimentacion', '').strip()
@@ -394,7 +415,6 @@ def calificar_ejercicio(request, intento_id):
         intento.aprobado = nota >= NOTA_MINIMA
         intento.save()
 
-        ejercicio = intento.ejercicio
         clase = ejercicio.clase
         estudiante = intento.estudiante
 
@@ -421,16 +441,24 @@ def calificar_ejercicio(request, intento_id):
                 if estudiante in clase.estudiantes.all():
                     clase.estudiantes.remove(estudiante)
 
-        return redirect('ejercicios:detalle_ejercicio_docente', clase_id=clase.id, ejercicio_id=ejercicio.id)
+        return redirect(
+            'ejercicios:detalle_ejercicio_docente',
+            clase_id=clase.id,
+            ejercicio_id=ejercicio.id
+        )
 
+    # ═══════════════════════════════════════════════════
+    # GET: RENDERIZAR
+    # ═══════════════════════════════════════════════════
     return render(
         request,
         'ejercicios/calificar_ejercicio.html',
         {
             'intento': intento,
             'respuestas': respuestas,
-            'ejercicio': intento.ejercicio,       
-            'clase': intento.ejercicio.clase,
+            'practica_auditiva': practica_auditiva,
+            'ejercicio': ejercicio,
+            'clase': ejercicio.clase,
         }
     )
 
@@ -498,3 +526,1359 @@ def reenviar_ejercicio(request, intento_id):
     messages.warning(request, "El intento ha sido rechazado. El estudiante ya puede volver a realizar el ejercicio.")
     
     return redirect('ejercicios:detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
+
+# ============================================================
+# CREAR ENTRENAMIENTO AUDITIVO
+# ============================================================
+@login_required
+def crear_entrenamiento_auditivo(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_limite = request.POST.get('fecha_limite')
+
+        tipo_practica = request.POST.get('tipo_practica', 'intervalos')
+        subtipo = request.POST.get('subtipo', 'basico')  # ← NUEVO
+        dificultad = request.POST.get('dificultad', 'facil')
+        num_preguntas = int(request.POST.get('num_preguntas', 10))
+        instrumento = request.POST.get('instrumento', 'piano')
+
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect('ejercicios:crear_entrenamiento_auditivo', clase_id=clase.id)
+
+        if not fecha_limite:
+            messages.error(request, 'La fecha límite es obligatoria.')
+            return redirect('ejercicios:crear_entrenamiento_auditivo', clase_id=clase.id)
+
+        try:
+            fecha_limite_dt = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            messages.error(request, 'Formato de fecha inválido.')
+            return redirect('ejercicios:crear_entrenamiento_auditivo', clase_id=clase.id)
+
+        # Crear el ejercicio con subtipo en config_auditivo
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='entrenamiento_auditivo',
+            fecha_limite=fecha_limite_dt,
+            config_auditivo={
+                'tipo_practica': tipo_practica,
+                'subtipo': subtipo,  # ← NUEVO
+                'dificultad': dificultad,
+                'num_preguntas': num_preguntas,
+                'instrumento': instrumento,
+            }
+        )
+
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
+
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+
+        messages.success(request, f'Entrenamiento auditivo "{titulo}" creado correctamente.')
+        return redirect('clase:detalle_clase', clase_id=clase.id)
+
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_entrenamiento_auditivo.html', {
+        'clase': clase,
+        'recursos_disponibles': recursos_disponibles,
+    })
+@login_required
+@require_POST
+def guardar_practica_auditiva(request, ejercicio_id):
+    """Guarda el resultado de una práctica de entrenamiento auditivo."""
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+
+    if ejercicio.tipo != 'entrenamiento_auditivo':
+        return JsonResponse({'error': 'Tipo inválido'}, status=400)
+
+    try:
+        aciertos = int(request.POST.get('aciertos', 0))
+        total = int(request.POST.get('total', 0))
+        detalle_raw = request.POST.get('detalle', '[]')
+        detalle = json.loads(detalle_raw) if detalle_raw else []
+    except (ValueError, json.JSONDecodeError) as e:
+        return JsonResponse({'error': f'Datos inválidos: {e}'}, status=400)
+
+    # Calificación sobre 5.0 (100% → 5.0, 0% → 1.0)
+    if total > 0:
+        porcentaje = (aciertos / total) * 100
+        nota = round(Decimal(porcentaje) / Decimal(20), 1)
+        nota = max(Decimal('1.0'), min(Decimal('5.0'), nota))
+    else:
+        nota = Decimal('1.0')
+
+    aprobado = nota >= Decimal('3.0')
+
+    try:
+        intento = IntentoEjercicio.objects.create(
+            estudiante=request.user,
+            ejercicio=ejercicio,
+            calificacion=nota,
+            aprobado=aprobado,
+        )
+    except Exception as e:
+        return JsonResponse({'error': f'Error al crear intento: {e}'}, status=500)
+
+    # Guardar detalle de la práctica
+    try:
+        PracticaAuditiva.objects.create(
+            intento=intento,
+            tipo_practica=ejercicio.config_auditivo.get('tipo_practica', 'intervalos'),
+            aciertos=aciertos,
+            total_preguntas=total,
+            detalle_respuestas=detalle,
+        )
+    except Exception as e:
+        # No rompemos todo si falla el detalle, solo lo logueamos
+        import logging
+        logging.getLogger(__name__).warning(f'Error guardando PracticaAuditiva: {e}')
+
+    return JsonResponse({
+        'success': True,
+        'nota': float(nota),
+        'aprobado': aprobado,
+        'aciertos': aciertos,
+        'total': total,
+    })
+
+@login_required
+def resolver_entrenamiento_auditivo(request, clase_id, ejercicio_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(
+        Ejercicio,
+        id=ejercicio_id,
+        clase=clase,
+        tipo='entrenamiento_auditivo'
+    )
+    return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
+        'ejercicio': ejercicio,
+        'clase': clase,
+    })
+
+# ============================================================
+# REPORTE DE DEBILIDADES DE LA CLASE (ENTRENAMIENTO AUDITIVO)
+# ============================================================
+from collections import defaultdict
+
+@login_required
+def reporte_debilidades(request, clase_id):
+    """
+    Muestra qué prácticas auditivas falla más la clase.
+    Filtrable por tipo de práctica.
+    """
+    from docente.models import Clase
+
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+
+    # Filtro por tipo de práctica (opcional)
+    tipo_filtro = request.GET.get('tipo', 'todos')
+
+    # Traer todas las prácticas de esta clase, de los tipos de entrenamiento auditivo y avanzado
+    practicas_qs = PracticaAuditiva.objects.filter(
+        intento__ejercicio__clase=clase,
+        intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado'],
+    ).select_related(
+        'intento',
+        'intento__ejercicio',
+        'intento__estudiante',
+    )
+
+    if tipo_filtro != 'todos':
+        practicas_qs = practicas_qs.filter(tipo_practica=tipo_filtro)
+
+    practicas = list(practicas_qs)
+
+    # ─── Estadísticas por tipo de práctica ───
+    tipos_contador = defaultdict(lambda: {'practicas': 0, 'aciertos': 0, 'total': 0})
+    for p in practicas:
+        tipos_contador[p.tipo_practica]['practicas'] += 1
+        tipos_contador[p.tipo_practica]['aciertos'] += p.aciertos
+        tipos_contador[p.tipo_practica]['total'] += p.total_preguntas
+
+    resumen_tipos = []
+    for tipo, data in tipos_contador.items():
+        pct = round((data['aciertos'] / data['total']) * 100, 1) if data['total'] > 0 else 0
+        resumen_tipos.append({
+            'tipo': tipo,
+            'label': dict(PracticaAuditiva.TIPO_CHOICES).get(tipo, tipo.capitalize()),
+            'practicas': data['practicas'],
+            'aciertos': data['aciertos'],
+            'total': data['total'],
+            'porcentaje': pct,
+        })
+    resumen_tipos.sort(key=lambda x: x['porcentaje'])
+
+    # ─── Análisis de respuestas: qué se falla más ───
+    # Estructura: { "nombre_respuesta_correcta": {"fallos": N, "aciertos": N, "confusiones": {...}} }
+    analisis = defaultdict(lambda: {
+        'fallos': 0,
+        'aciertos': 0,
+        'confusiones': defaultdict(int),   # qué respondió cuando falló
+    })
+
+    for p in practicas:
+        detalle = p.detalle_respuestas or []
+        for r in detalle:
+            correcta = r.get('correcta', '').strip()
+            respuesta = r.get('respuesta', '').strip()
+            acerto = r.get('acerto', False)
+
+            if not correcta:
+                continue
+
+            if acerto:
+                analisis[correcta]['aciertos'] += 1
+            else:
+                analisis[correcta]['fallos'] += 1
+                if respuesta:
+                    analisis[correcta]['confusiones'][respuesta] += 1
+
+    # ─── Construir lista de "más difíciles" ───
+    debilidades = []
+    for nombre, data in analisis.items():
+        total = data['fallos'] + data['aciertos']
+        if total == 0:
+            continue
+        pct_error = round((data['fallos'] / total) * 100, 1)
+
+        # Top 3 confusiones
+        confusiones_top = sorted(
+            data['confusiones'].items(),
+            key=lambda x: -x[1]
+        )[:3]
+
+        debilidades.append({
+            'nombre': nombre,
+            'total': total,
+            'fallos': data['fallos'],
+            'aciertos': data['aciertos'],
+            'porcentaje_error': pct_error,
+            'porcentaje_acierto': round(100 - pct_error, 1),
+            'confusiones': [
+                {'respuesta': c[0], 'veces': c[1]}
+                for c in confusiones_top
+            ],
+        })
+
+    # Ordenar: mayor % de error primero
+    debilidades.sort(key=lambda x: -x['porcentaje_error'])
+
+    # Separar en "a reforzar" (>=50% error) y "dominadas" (<30% error)
+    a_reforzar = [d for d in debilidades if d['porcentaje_error'] >= 50][:8]
+    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
+
+    # ─── Sugerencias automáticas ───
+    sugerencias = []
+    if a_reforzar:
+        nombres = ', '.join(d['nombre'] for d in a_reforzar[:3])
+        sugerencias.append({
+            'icono': 'exclamation-triangle-fill',
+            'tipo': 'danger',
+            'texto': f'Refuerza en clase: {nombres}'
+        })
+
+    if dominadas:
+        nombres = ', '.join(d['nombre'] for d in dominadas[:3])
+        sugerencias.append({
+            'icono': 'check-circle-fill',
+            'tipo': 'success',
+            'texto': f'La clase domina: {nombres}. Puedes avanzar al siguiente nivel.'
+        })
+
+    # Sugerencia por confusión común
+    if a_reforzar and a_reforzar[0]['confusiones']:
+        top = a_reforzar[0]
+        if top['confusiones']:
+            confusion = top['confusiones'][0]
+            sugerencias.append({
+                'icono': 'arrow-left-right',
+                'tipo': 'warning',
+                'texto': f'La clase confunde "{top["nombre"]}" con "{confusion["respuesta"]}" '
+                         f'({confusion["veces"]} veces). Practiquen distinguirlos.'
+            })
+
+    # ─── Total de estudiantes únicos ───
+    estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
+
+    context = {
+        'clase': clase,
+        'practicas_total': len(practicas),
+        'estudiantes_total': len(estudiantes_unicos),
+        'resumen_tipos': resumen_tipos,
+        'a_reforzar': a_reforzar,
+        'dominadas': dominadas,
+        'sugerencias': sugerencias,
+        'tipo_filtro': tipo_filtro,
+        'tipos_disponibles': PracticaAuditiva.TIPO_CHOICES,
+    }
+
+    return render(request, 'ejercicios/reporte_debilidades.html', context)
+
+# ============================================================
+# PANEL GLOBAL DE DEBILIDADES (TODAS LAS CLASES DEL DOCENTE)
+# ============================================================
+@login_required
+def debilidades_global(request):
+    """
+    Panel global que muestra debilidades auditivas sumando TODAS
+    las clases del docente. Filtrable por clase, tipo y rango.
+    """
+    from docente.models import Clase
+    from datetime import timedelta
+
+    # ─── Filtros GET ───
+    clase_filtro = request.GET.get('clase', 'todas')
+    tipo_filtro = request.GET.get('tipo', 'todos')
+    rango_filtro = request.GET.get('rango', '30')
+
+    # ─── Clases del docente ───
+    mis_clases = Clase.objects.filter(docente=request.user)
+
+    # ─── Query base de prácticas ───
+    practicas_qs = PracticaAuditiva.objects.filter(
+        intento__ejercicio__clase__docente=request.user,
+        intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado'],
+    ).select_related(
+        'intento',
+        'intento__ejercicio',
+        'intento__ejercicio__clase',
+        'intento__estudiante',
+    )
+
+    # Filtro por clase
+    if clase_filtro != 'todas':
+        practicas_qs = practicas_qs.filter(intento__ejercicio__clase_id=clase_filtro)
+
+    # Filtro por tipo
+    if tipo_filtro != 'todos':
+        practicas_qs = practicas_qs.filter(tipo_practica=tipo_filtro)
+
+    # Filtro por rango de fechas
+    if rango_filtro != 'todo':
+        try:
+            dias = int(rango_filtro)
+            desde = timezone.now() - timedelta(days=dias)
+            practicas_qs = practicas_qs.filter(intento__fecha_envio__gte=desde)
+        except (ValueError, TypeError):
+            pass
+
+    practicas = list(practicas_qs)
+
+    # ═══════════════════════════════════════════════════
+    # STATS GLOBALES
+    # ═══════════════════════════════════════════════════
+    practicas_total = len(practicas)
+    estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
+    clases_unicas = set(p.intento.ejercicio.clase_id for p in practicas)
+
+    total_aciertos = sum(p.aciertos for p in practicas)
+    total_preguntas = sum(p.total_preguntas for p in practicas)
+    promedio_global = round((total_aciertos / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
+
+    # ═══════════════════════════════════════════════════
+    # ANÁLISIS POR PRÁCTICA (debilidades)
+    # ═══════════════════════════════════════════════════
+    analisis = defaultdict(lambda: {
+        'fallos': 0,
+        'aciertos': 0,
+        'confusiones': defaultdict(int),
+        'clases': set(),
+    })
+
+    for p in practicas:
+        detalle = p.detalle_respuestas or []
+        clase_nombre = p.intento.ejercicio.clase.nombre
+
+        for r in detalle:
+            correcta = r.get('correcta', '').strip()
+            respuesta = r.get('respuesta', '').strip()
+            acerto = r.get('acerto', False)
+
+            if not correcta:
+                continue
+
+            analisis[correcta]['clases'].add(clase_nombre)
+
+            if acerto:
+                analisis[correcta]['aciertos'] += 1
+            else:
+                analisis[correcta]['fallos'] += 1
+                if respuesta:
+                    analisis[correcta]['confusiones'][respuesta] += 1
+
+    debilidades = []
+    for nombre, data in analisis.items():
+        total = data['fallos'] + data['aciertos']
+        if total == 0:
+            continue
+        pct_error = round((data['fallos'] / total) * 100, 1)
+
+        confusiones_top = sorted(
+            data['confusiones'].items(),
+            key=lambda x: -x[1]
+        )[:3]
+
+        debilidades.append({
+            'nombre': nombre,
+            'total': total,
+            'fallos': data['fallos'],
+            'aciertos': data['aciertos'],
+            'porcentaje_error': pct_error,
+            'porcentaje_acierto': round(100 - pct_error, 1),
+            'clases': sorted(list(data['clases'])),
+            'confusiones': [{'respuesta': c[0], 'veces': c[1]} for c in confusiones_top],
+        })
+
+    debilidades.sort(key=lambda x: -x['porcentaje_error'])
+
+    top_debilidades = debilidades[:10]
+    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
+
+    # ═══════════════════════════════════════════════════
+    # COMPARATIVA POR CLASE
+    # ═══════════════════════════════════════════════════
+    por_clase = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0})
+
+    for p in practicas:
+        cid = p.intento.ejercicio.clase_id
+        por_clase[cid]['aciertos'] += p.aciertos
+        por_clase[cid]['total'] += p.total_preguntas
+        por_clase[cid]['practicas'] += 1
+
+    comparativa_clases = []
+    for clase in mis_clases:
+        data = por_clase.get(clase.id)
+        if not data or data['total'] == 0:
+            continue
+        pct = round((data['aciertos'] / data['total']) * 100, 1)
+        comparativa_clases.append({
+            'clase': clase,
+            'porcentaje': pct,
+            'practicas': data['practicas'],
+            'aciertos': data['aciertos'],
+            'total': data['total'],
+        })
+
+    comparativa_clases.sort(key=lambda x: x['porcentaje'])
+
+    # ═══════════════════════════════════════════════════
+    # RENDIMIENTO POR TIPO DE PRÁCTICA
+    # ═══════════════════════════════════════════════════
+    tipos_contador = defaultdict(lambda: {'practicas': 0, 'aciertos': 0, 'total': 0})
+    for p in practicas:
+        tipos_contador[p.tipo_practica]['practicas'] += 1
+        tipos_contador[p.tipo_practica]['aciertos'] += p.aciertos
+        tipos_contador[p.tipo_practica]['total'] += p.total_preguntas
+
+    resumen_tipos = []
+    for tipo, data in tipos_contador.items():
+        pct = round((data['aciertos'] / data['total']) * 100, 1) if data['total'] > 0 else 0
+        resumen_tipos.append({
+            'tipo': tipo,
+            'label': dict(PracticaAuditiva.TIPO_CHOICES).get(tipo, tipo.capitalize()),
+            'practicas': data['practicas'],
+            'aciertos': data['aciertos'],
+            'total': data['total'],
+            'porcentaje': pct,
+        })
+    resumen_tipos.sort(key=lambda x: x['porcentaje'])
+
+    # ═══════════════════════════════════════════════════
+    # TOP ESTUDIANTES
+    # ═══════════════════════════════════════════════════
+    por_estudiante = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0, 'estudiante': None})
+    for p in practicas:
+        eid = p.intento.estudiante_id
+        por_estudiante[eid]['aciertos'] += p.aciertos
+        por_estudiante[eid]['total'] += p.total_preguntas
+        por_estudiante[eid]['practicas'] += 1
+        por_estudiante[eid]['estudiante'] = p.intento.estudiante
+
+    top_estudiantes = []
+    for eid, data in por_estudiante.items():
+        if data['total'] == 0:
+            continue
+        pct = round((data['aciertos'] / data['total']) * 100, 1)
+        top_estudiantes.append({
+            'estudiante': data['estudiante'],
+            'porcentaje': pct,
+            'practicas': data['practicas'],
+        })
+
+    top_estudiantes.sort(key=lambda x: -x['porcentaje'])
+    top_estudiantes = top_estudiantes[:5]
+
+    # ═══════════════════════════════════════════════════
+    # SUGERENCIAS AUTOMÁTICAS
+    # ═══════════════════════════════════════════════════
+    sugerencias = []
+
+    if top_debilidades:
+        peores = [d for d in top_debilidades if d['porcentaje_error'] >= 50][:3]
+        if peores:
+            nombres = ', '.join(d['nombre'] for d in peores)
+            sugerencias.append({
+                'icono': 'exclamation-triangle-fill',
+                'tipo': 'danger',
+                'texto': f'Refuerza a nivel general: {nombres}'
+            })
+
+    if dominadas:
+        nombres = ', '.join(d['nombre'] for d in dominadas[:3])
+        sugerencias.append({
+            'icono': 'check-circle-fill',
+            'tipo': 'success',
+            'texto': f'Dominado en general: {nombres}. Puedes avanzar.'
+        })
+
+    if comparativa_clases:
+        peor_clase = comparativa_clases[0]
+        if peor_clase['porcentaje'] < 60:
+            sugerencias.append({
+                'icono': 'flag-fill',
+                'tipo': 'warning',
+                'texto': f'La clase "{peor_clase["clase"].nombre}" está por debajo del 60%. Revisa su avance.'
+            })
+
+    # ═══════════════════════════════════════════════════
+    # CONTEXTO
+    # ═══════════════════════════════════════════════════
+    context = {
+        'mis_clases': mis_clases,
+        'practicas_total': practicas_total,
+        'estudiantes_total': len(estudiantes_unicos),
+        'clases_total': len(clases_unicas),
+        'promedio_global': promedio_global,
+        'top_debilidades': top_debilidades,
+        'dominadas': dominadas,
+        'comparativa_clases': comparativa_clases,
+        'resumen_tipos': resumen_tipos,
+        'top_estudiantes': top_estudiantes,
+        'sugerencias': sugerencias,
+        # Filtros
+        'clase_filtro': clase_filtro,
+        'tipo_filtro': tipo_filtro,
+        'rango_filtro': rango_filtro,
+        'tipos_disponibles': PracticaAuditiva.TIPO_CHOICES,
+    }
+
+    return render(request, 'ejercicios/debilidades_global.html', context)
+
+# ============================================================
+# EXPORTAR REPORTE DE DEBILIDADES A PDF (DISEÑO MEJORADO)
+# ============================================================
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.colors import HexColor, Color
+from reportlab.lib.units import cm
+
+
+@login_required
+def exportar_debilidades_pdf(request):
+    """Exporta el reporte de debilidades a PDF con diseño profesional."""
+    from docente.models import Clase
+    from datetime import timedelta
+
+    # ─── Filtros GET ───
+    clase_filtro = request.GET.get('clase', 'todas')
+    tipo_filtro = request.GET.get('tipo', 'todos')
+    rango_filtro = request.GET.get('rango', '30')
+
+    # ─── Clases del docente ───
+    mis_clases = Clase.objects.filter(docente=request.user)
+
+    # ─── Query base ───
+    practicas_qs = PracticaAuditiva.objects.filter(
+        intento__ejercicio__clase__docente=request.user,
+        intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado'],
+    ).select_related(
+        'intento',
+        'intento__ejercicio',
+        'intento__ejercicio__clase',
+        'intento__estudiante',
+    )
+
+    if clase_filtro != 'todas':
+        practicas_qs = practicas_qs.filter(intento__ejercicio__clase_id=clase_filtro)
+
+    if tipo_filtro != 'todos':
+        practicas_qs = practicas_qs.filter(tipo_practica=tipo_filtro)
+
+    if rango_filtro != 'todo':
+        try:
+            dias = int(rango_filtro)
+            desde = timezone.now() - timedelta(days=dias)
+            practicas_qs = practicas_qs.filter(intento__fecha_envio__gte=desde)
+        except (ValueError, TypeError):
+            pass
+
+    practicas = list(practicas_qs)
+
+    # ─── Stats ───
+    practicas_total = len(practicas)
+    estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
+    clases_unicas = set(p.intento.ejercicio.clase_id for p in practicas)
+    total_aciertos = sum(p.aciertos for p in practicas)
+    total_preguntas = sum(p.total_preguntas for p in practicas)
+    promedio_global = round((total_aciertos / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
+
+    # ─── Análisis ───
+    analisis = defaultdict(lambda: {
+        'fallos': 0, 'aciertos': 0,
+        'confusiones': defaultdict(int),
+        'clases': set(),
+    })
+
+    for p in practicas:
+        detalle = p.detalle_respuestas or []
+        clase_nombre = p.intento.ejercicio.clase.nombre
+
+        for r in detalle:
+            correcta = r.get('correcta', '').strip()
+            respuesta = r.get('respuesta', '').strip()
+            acerto = r.get('acerto', False)
+
+            if not correcta:
+                continue
+
+            analisis[correcta]['clases'].add(clase_nombre)
+
+            if acerto:
+                analisis[correcta]['aciertos'] += 1
+            else:
+                analisis[correcta]['fallos'] += 1
+                if respuesta:
+                    analisis[correcta]['confusiones'][respuesta] += 1
+
+    debilidades = []
+    for nombre, data in analisis.items():
+        total = data['fallos'] + data['aciertos']
+        if total == 0:
+            continue
+        pct_error = round((data['fallos'] / total) * 100, 1)
+        confusiones_top = sorted(data['confusiones'].items(), key=lambda x: -x[1])[:2]
+        debilidades.append({
+            'nombre': nombre,
+            'total': total,
+            'fallos': data['fallos'],
+            'aciertos': data['aciertos'],
+            'porcentaje_error': pct_error,
+            'porcentaje_acierto': round(100 - pct_error, 1),
+            'clases': sorted(list(data['clases'])),
+            'confusiones': [{'respuesta': c[0], 'veces': c[1]} for c in confusiones_top],
+        })
+
+    debilidades.sort(key=lambda x: -x['porcentaje_error'])
+    top_debilidades = debilidades[:10]
+    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:6]
+
+    # ─── Comparativa por clase ───
+    por_clase = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0})
+    for p in practicas:
+        cid = p.intento.ejercicio.clase_id
+        por_clase[cid]['aciertos'] += p.aciertos
+        por_clase[cid]['total'] += p.total_preguntas
+        por_clase[cid]['practicas'] += 1
+
+    comparativa_clases = []
+    for clase in mis_clases:
+        data = por_clase.get(clase.id)
+        if not data or data['total'] == 0:
+            continue
+        pct = round((data['aciertos'] / data['total']) * 100, 1)
+        comparativa_clases.append({
+            'clase': clase, 'porcentaje': pct,
+            'practicas': data['practicas'],
+            'aciertos': data['aciertos'], 'total': data['total'],
+        })
+    comparativa_clases.sort(key=lambda x: x['porcentaje'])
+
+    # ═══════════════════════════════════════════════════
+    # GENERAR PDF
+    # ═══════════════════════════════════════════════════
+
+    response = HttpResponse(content_type='application/pdf')
+
+    if clase_filtro != 'todas':
+        try:
+            clase_obj = Clase.objects.get(id=clase_filtro, docente=request.user)
+            nombre_archivo = f"debilidades_{clase_obj.nombre.replace(' ', '_')}.pdf"
+            subtitulo = clase_obj.nombre
+        except Clase.DoesNotExist:
+            nombre_archivo = "debilidades_global.pdf"
+            subtitulo = "Todas las clases"
+    else:
+        nombre_archivo = "debilidades_global.pdf"
+        subtitulo = "Todas las clases"
+
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}"'
+
+    p = canvas.Canvas(response, pagesize=A4)
+    width, height = A4
+
+    # ═══════════════════════════════════════════════════
+    # COLORES
+    # ═══════════════════════════════════════════════════
+    C_VERDE = HexColor('#16a34a')
+    C_VERDE_CLARO = HexColor('#dcfce7')
+    C_VERDE_OSCURO = HexColor('#14532d')
+    C_NEGRO = HexColor('#0f172a')
+    C_GRIS = HexColor('#64748b')
+    C_GRIS_CLARO = HexColor('#f1f5f9')
+    C_BLANCO = HexColor('#ffffff')
+    C_ROJO = HexColor('#dc2626')
+    C_ROJO_CLARO = HexColor('#fee2e2')
+    C_AMARILLO = HexColor('#f59e0b')
+    C_AMARILLO_CLARO = HexColor('#fef3c7')
+    C_MORADO = HexColor('#7c6fff')
+    C_CYAN = HexColor('#06b6d4')
+
+    # ═══════════════════════════════════════════════════
+    # HEADER CON BANDA VERDE
+    # ═══════════════════════════════════════════════════
+
+    # Banda verde superior (más alta)
+    p.setFillColor(C_VERDE)
+    p.rect(0, height - 120, width, 120, fill=1, stroke=0)
+
+    # Acento oscuro
+    p.setFillColor(C_VERDE_OSCURO)
+    p.rect(0, height - 120, 8, 120, fill=1, stroke=0)
+
+    # Título
+    p.setFillColor(C_BLANCO)
+    p.setFont("Helvetica-Bold", 26)
+    p.drawString(50, height - 55, "Debilidades Auditivas")
+
+    # Subtítulo
+    p.setFillColor(HexColor('#bbf7d0'))
+    p.setFont("Helvetica", 13)
+    p.drawString(50, height - 80, subtitulo)
+
+    # Fecha
+    p.setFillColor(C_BLANCO)
+    p.setFont("Helvetica", 10)
+    p.drawString(50, height - 100, f"QBYT · Generado el {timezone.now().strftime('%d/%m/%Y a las %H:%M')}")
+
+    # ═══════════════════════════════════════════════════
+    # RESUMEN - 4 TARJETAS
+    # ═══════════════════════════════════════════════════
+
+    y = height - 170
+
+    p.setFillColor(C_NEGRO)
+    p.setFont("Helvetica-Bold", 14)
+    p.drawString(50, y, "Resumen general")
+    y -= 25
+
+    # 4 tarjetas en fila
+    card_width = (width - 120) / 4
+    card_height = 70
+    card_y = y - card_height
+
+    stats = [
+        ('Clases', len(clases_unicas), C_MORADO),
+        ('Prácticas', practicas_total, C_CYAN),
+        ('Estudiantes', len(estudiantes_unicos), C_VERDE),
+        ('Promedio', f"{promedio_global}%", C_VERDE if promedio_global >= 70 else (C_AMARILLO if promedio_global >= 50 else C_ROJO)),
+    ]
+
+    for i, (label, value, color) in enumerate(stats):
+        x = 50 + i * (card_width + 5)
+
+        # Fondo
+        p.setFillColor(C_GRIS_CLARO)
+        p.roundRect(x, card_y, card_width, card_height, 6, fill=1, stroke=0)
+
+        # Barra de color superior
+        p.setFillColor(color)
+        p.roundRect(x, card_y + card_height - 4, card_width, 4, 2, fill=1, stroke=0)
+
+        # Valor
+        p.setFillColor(C_NEGRO)
+        p.setFont("Helvetica-Bold", 20)
+        p.drawString(x + 12, card_y + 35, str(value))
+
+        # Label
+        p.setFillColor(C_GRIS)
+        p.setFont("Helvetica", 9)
+        p.drawString(x + 12, card_y + 15, label.upper())
+
+    y = card_y - 25
+
+    # ═══════════════════════════════════════════════════
+    # TOP DEBILIDADES
+    # ═══════════════════════════════════════════════════
+
+    if top_debilidades:
+        p.setFillColor(C_NEGRO)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Top debilidades")
+        y -= 25
+
+        for i, d in enumerate(top_debilidades, 1):
+            if y < 130:
+                # Guardar pie de página antes de nueva página
+                p.setFillColor(C_GRIS)
+                p.setFont("Helvetica-Oblique", 8)
+                p.drawString(50, 30, "Reporte generado automáticamente por QBYT · qbyt.app")
+                p.showPage()
+                y = height - 60
+
+            # Fondo de la tarjeta
+            p.setFillColor(C_GRIS_CLARO)
+            p.roundRect(45, y - 55, width - 90, 60, 6, fill=1, stroke=0)
+
+            # Color según % error
+            if d['porcentaje_error'] >= 70:
+                color_nivel = C_ROJO
+                color_bg_nivel = C_ROJO_CLARO
+            elif d['porcentaje_error'] >= 50:
+                color_nivel = C_AMARILLO
+                color_bg_nivel = C_AMARILLO_CLARO
+            else:
+                color_nivel = C_VERDE
+                color_bg_nivel = C_VERDE_CLARO
+
+            # Barra izquierda de color
+            p.setFillColor(color_nivel)
+            p.roundRect(45, y - 55, 5, 60, 2, fill=1, stroke=0)
+
+            # Número en círculo
+            p.setFillColor(color_nivel)
+            p.circle(75, y - 25, 12, fill=1, stroke=0)
+            p.setFillColor(C_BLANCO)
+            p.setFont("Helvetica-Bold", 12)
+            num_str = str(i)
+            p.drawCentredString(75, y - 29, num_str)
+
+            # Nombre
+            p.setFillColor(C_NEGRO)
+            p.setFont("Helvetica-Bold", 13)
+            p.drawString(100, y - 15, d['nombre'])
+
+            # Meta info
+            p.setFillColor(C_GRIS)
+            p.setFont("Helvetica", 9)
+            meta = f"{d['fallos']} errores · {d['aciertos']} aciertos · {d['total']} intentos"
+            p.drawString(100, y - 32, meta)
+
+            # Confusiones
+            if d['confusiones']:
+                conf_str = "Confunden con: " + ", ".join(
+                    f"{c['respuesta']} ({c['veces']})" for c in d['confusiones']
+                )
+                p.setFillColor(C_GRIS)
+                p.setFont("Helvetica-Oblique", 8)
+                p.drawString(100, y - 47, conf_str[:80])
+
+            # % error en la derecha (con fondo de color)
+            pct_text = f"{d['porcentaje_error']}%"
+            p.setFillColor(color_bg_nivel)
+            p.roundRect(width - 130, y - 35, 80, 28, 6, fill=1, stroke=0)
+            p.setFillColor(color_nivel)
+            p.setFont("Helvetica-Bold", 14)
+            p.drawCentredString(width - 90, y - 25, pct_text)
+
+            y -= 68
+
+        y -= 10
+
+    # ═══════════════════════════════════════════════════
+    # DOMINADAS
+    # ═══════════════════════════════════════════════════
+
+    if dominadas:
+        if y < 180:
+            p.setFillColor(C_GRIS)
+            p.setFont("Helvetica-Oblique", 8)
+            p.drawString(50, 30, "Reporte generado automáticamente por QBYT · qbyt.app")
+            p.showPage()
+            y = height - 60
+
+        p.setFillColor(C_NEGRO)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Prácticas dominadas")
+        y -= 25
+
+        # Grid de 2 columnas
+        col_width = (width - 110) / 2
+        for idx, d in enumerate(dominadas):
+            col = idx % 2
+            row = idx // 2
+
+            x = 50 + col * (col_width + 10)
+            item_y = y - row * 50
+
+            # Fondo verde claro
+            p.setFillColor(C_VERDE_CLARO)
+            p.roundRect(x, item_y - 40, col_width, 45, 6, fill=1, stroke=0)
+
+            # Barra verde izquierda
+            p.setFillColor(C_VERDE)
+            p.roundRect(x, item_y - 40, 4, 45, 2, fill=1, stroke=0)
+
+            # Check + nombre
+            p.setFillColor(C_VERDE_OSCURO)
+            p.setFont("Helvetica-Bold", 11)
+            p.drawString(x + 15, item_y - 15, f"✓ {d['nombre']}")
+
+            # Meta
+            p.setFillColor(C_GRIS)
+            p.setFont("Helvetica", 8)
+            p.drawString(x + 15, item_y - 32, f"{d['porcentaje_acierto']}% · {d['total']} intentos")
+
+            # % grande a la derecha
+            p.setFillColor(C_VERDE)
+            p.setFont("Helvetica-Bold", 14)
+            p.drawRightString(x + col_width - 15, item_y - 20, f"{d['porcentaje_acierto']}%")
+
+        rows = (len(dominadas) + 1) // 2
+        y -= rows * 50 + 15
+
+    # ═══════════════════════════════════════════════════
+    # COMPARATIVA POR CLASE
+    # ═══════════════════════════════════════════════════
+
+    if comparativa_clases:
+        if y < 180:
+            p.setFillColor(C_GRIS)
+            p.setFont("Helvetica-Oblique", 8)
+            p.drawString(50, 30, "Reporte generado automáticamente por QBYT · qbyt.app")
+            p.showPage()
+            y = height - 60
+
+        p.setFillColor(C_NEGRO)
+        p.setFont("Helvetica-Bold", 14)
+        p.drawString(50, y, "Comparativa por clase")
+        y -= 25
+
+        for c in comparativa_clases:
+            if y < 130:
+                p.setFillColor(C_GRIS)
+                p.setFont("Helvetica-Oblique", 8)
+                p.drawString(50, 30, "Reporte generado automáticamente por QBYT · qbyt.app")
+                p.showPage()
+                y = height - 60
+
+            # Fondo
+            p.setFillColor(C_GRIS_CLARO)
+            p.roundRect(45, y - 50, width - 90, 55, 6, fill=1, stroke=0)
+
+            # Color según nivel
+            if c['porcentaje'] >= 70:
+                color_nivel = C_VERDE
+                color_bg_nivel = C_VERDE_CLARO
+            elif c['porcentaje'] >= 50:
+                color_nivel = C_AMARILLO
+                color_bg_nivel = C_AMARILLO_CLARO
+            else:
+                color_nivel = C_ROJO
+                color_bg_nivel = C_ROJO_CLARO
+
+            # Nombre de clase
+            p.setFillColor(C_NEGRO)
+            p.setFont("Helvetica-Bold", 12)
+            p.drawString(60, y - 18, c['clase'].nombre[:45])
+
+            # Info
+            p.setFillColor(C_GRIS)
+            p.setFont("Helvetica", 9)
+            p.drawString(60, y - 35, f"{c['practicas']} prácticas · {c['aciertos']}/{c['total']} aciertos")
+
+            # Barra de progreso visual
+            bar_x = 60
+            bar_y = y - 48
+            bar_w = width - 260
+            bar_h = 6
+
+            # Fondo de la barra
+            p.setFillColor(C_BLANCO)
+            p.roundRect(bar_x, bar_y, bar_w, bar_h, 3, fill=1, stroke=0)
+
+            # Relleno de la barra según %
+            p.setFillColor(color_nivel)
+            fill_w = (c['porcentaje'] / 100) * bar_w
+            if fill_w > 0:
+                p.roundRect(bar_x, bar_y, fill_w, bar_h, 3, fill=1, stroke=0)
+
+            # % grande a la derecha
+            p.setFillColor(color_bg_nivel)
+            p.roundRect(width - 135, y - 33, 85, 30, 6, fill=1, stroke=0)
+            p.setFillColor(color_nivel)
+            p.setFont("Helvetica-Bold", 14)
+            p.drawCentredString(width - 92.5, y - 22, f"{c['porcentaje']}%")
+
+            y -= 60
+
+    # ═══════════════════════════════════════════════════
+    # PIE DE PÁGINA
+    # ═══════════════════════════════════════════════════
+
+    # Banda inferior
+    p.setFillColor(C_VERDE)
+    p.rect(0, 0, width, 4, fill=1, stroke=0)
+
+    p.setFillColor(C_GRIS)
+    p.setFont("Helvetica-Oblique", 8)
+    p.drawString(50, 20, "Reporte generado automáticamente por QBYT · qbyt.app")
+    p.drawRightString(width - 50, 20, f"{timezone.now().strftime('%d/%m/%Y')}")
+
+    p.showPage()
+    p.save()
+    return response
+
+# ============================================================
+# MODO LIBRE - PANTALLA DE SELECCIÓN
+# ============================================================
+@login_required
+def practicar(request):
+    """Pantalla de selección del modo libre."""
+    if request.user.perfil.rol != 'estudiante':
+        messages.error(request, 'Solo los estudiantes pueden acceder al modo libre.')
+        return redirect('inicio')
+
+    # Estadísticas del estudiante
+    practicas = PracticaLibre.objects.filter(estudiante=request.user)
+
+    total_practicas = practicas.count()
+
+    if total_practicas > 0:
+        total_aciertos = sum(p.aciertos for p in practicas)
+        total_preguntas = sum(p.total_preguntas for p in practicas)
+        promedio = round((total_aciertos / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
+    else:
+        promedio = 0
+        total_aciertos = 0
+        total_preguntas = 0
+
+    # Últimas 5 prácticas
+    ultimas_practicas = practicas.order_by('-fecha')[:5]
+
+    # Estadísticas por tipo
+    stats_por_tipo = []
+    for tipo_value, tipo_label in PracticaLibre.TIPO_CHOICES:
+        tipo_practicas = practicas.filter(tipo_practica=tipo_value)
+        if tipo_practicas.exists():
+            aciertos = sum(p.aciertos for p in tipo_practicas)
+            total = sum(p.total_preguntas for p in tipo_practicas)
+            pct = round((aciertos / total) * 100, 1) if total > 0 else 0
+            stats_por_tipo.append({
+                'tipo': tipo_value,
+                'label': tipo_label,
+                'practicas': tipo_practicas.count(),
+                'porcentaje': pct,
+            })
+
+    context = {
+        'total_practicas': total_practicas,
+        'promedio': promedio,
+        'total_aciertos': total_aciertos,
+        'total_preguntas': total_preguntas,
+        'ultimas_practicas': ultimas_practicas,
+        'stats_por_tipo': stats_por_tipo,
+        'tipos_disponibles': PracticaLibre.TIPO_CHOICES,
+    }
+
+    return render(request, 'ejercicios/practicar.html', context)
+
+
+# ============================================================
+# MODO LIBRE - SESIÓN DE PRÁCTICA
+# ============================================================
+@login_required
+def practicar_sesion(request):
+    """Sesión de práctica libre con la configuración elegida."""
+    if request.user.perfil.rol != 'estudiante':
+        return redirect('inicio')
+
+    tipo = request.GET.get('tipo', 'intervalos')
+    dificultad = request.GET.get('dificultad', 'medio')
+    num_preguntas = int(request.GET.get('preguntas', 10))
+    instrumento = request.GET.get('instrumento', 'piano')
+
+    # Limitar entre 3 y 30
+    num_preguntas = max(3, min(30, num_preguntas))
+
+    config = {
+        'tipo_practica': tipo,
+        'dificultad': dificultad,
+        'num_preguntas': num_preguntas,
+        'instrumento': instrumento,
+    }
+
+    context = {
+        'config': config,
+        'config_json': json.dumps(config),
+    }
+
+    return render(request, 'ejercicios/practicar_sesion.html', context)
+
+
+# ============================================================
+# MODO LIBRE - GUARDAR RESULTADO
+# ============================================================
+@login_required
+@require_POST
+def guardar_practica_libre(request):
+    """Guarda el resultado de una sesión de modo libre."""
+    try:
+        data = json.loads(request.body)
+
+        tipo = data.get('tipo', 'intervalos')
+        dificultad = data.get('dificultad', 'medio')
+        instrumento = data.get('instrumento', 'piano')
+        aciertos = int(data.get('aciertos', 0))
+        total = int(data.get('total', 0))
+        detalle = data.get('detalle', [])
+
+        practica = PracticaLibre.objects.create(
+            estudiante=request.user,
+            tipo_practica=tipo,
+            dificultad=dificultad,
+            instrumento=instrumento,
+            aciertos=aciertos,
+            total_preguntas=total,
+            detalle_respuestas=detalle,
+        )
+
+        return JsonResponse({
+            'success': True,
+            'practica_id': practica.id,
+            'porcentaje': practica.porcentaje,
+        })
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+
+@login_required
+def crear_entrenamiento_avanzado(request, clase_id, subtipo):
+    """
+    Crea un ejercicio de entrenamiento avanzado.
+    subtipo: 'oido_absoluto' | 'oido_relativo' | 'tapping_ritmico' | 'dictado_melodico'
+    """
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+
+    SUBTIPOS_VALIDOS = ['oido_absoluto', 'oido_relativo', 'tapping_ritmico', 'dictado_melodico']
+    if subtipo not in SUBTIPOS_VALIDOS:
+        messages.error(request, 'Tipo de entrenamiento no válido.')
+        return redirect('clase:detalle_clase', clase_id=clase.id)
+
+    SUBTIPO_LABELS = {
+        'oido_absoluto': 'Oído Absoluto',
+        'oido_relativo': 'Oído Relativo',
+        'tapping_ritmico': 'Tapping Rítmico',
+        'dictado_melodico': 'Dictado Melódico',
+    }
+
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_limite = request.POST.get('fecha_limite')
+        dificultad = request.POST.get('dificultad', 'medio')
+        num_preguntas = int(request.POST.get('num_preguntas', 10))
+        instrumento = request.POST.get('instrumento', 'piano')
+
+        # Validaciones
+        if not titulo:
+            messages.error(request, 'El título es obligatorio.')
+            return redirect('ejercicios:crear_entrenamiento_avanzado', clase_id=clase.id, subtipo=subtipo)
+
+        if not fecha_limite:
+            messages.error(request, 'La fecha límite es obligatoria.')
+            return redirect('ejercicios:crear_entrenamiento_avanzado', clase_id=clase.id, subtipo=subtipo)
+
+        try:
+            fecha_limite_dt = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
+        except ValueError:
+            messages.error(request, 'Formato de fecha inválido.')
+            return redirect('ejercicios:crear_entrenamiento_avanzado', clase_id=clase.id, subtipo=subtipo)
+
+        # Config específica por subtipo
+        config = {
+            'subtipo_avanzado': subtipo,
+            'dificultad': dificultad,
+            'num_preguntas': num_preguntas,
+            'instrumento': instrumento,
+        }
+
+        # Extras según el subtipo
+        if subtipo == 'oido_absoluto':
+            config['rango_notas'] = request.POST.get('rango_notas', 'basico')
+
+        elif subtipo == 'oido_relativo':
+            config['tonalidad_base'] = request.POST.get('tonalidad_base', 'C')
+            config['rango_notas'] = request.POST.get('rango_notas', 'basico')
+
+        elif subtipo == 'tapping_ritmico':
+            config['bpm'] = int(request.POST.get('bpm', 60))
+            config['tolerancia_ms'] = int(request.POST.get('tolerancia_ms', 150))
+
+        elif subtipo == 'dictado_melodico':
+            config['tonalidad'] = request.POST.get('tonalidad', 'C')
+            config['notas_min'] = int(request.POST.get('notas_min', 3))
+            config['notas_max'] = int(request.POST.get('notas_max', 5))
+
+        # Crear el ejercicio
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='entrenamiento_avanzado',
+            fecha_limite=fecha_limite_dt,
+            config_auditivo=config,
+        )
+
+        # Recursos
+        recursos_ids = request.POST.getlist('recursos')
+        if recursos_ids:
+            recursos = RecursoMusical.objects.filter(id__in=recursos_ids, docente=request.user)
+            ejercicio.recursos.set(recursos)
+
+        notificar_nuevo_ejercicio(clase.estudiantes.all(), clase, ejercicio)
+
+        messages.success(
+            request,
+            f'Entrenamiento "{titulo}" ({SUBTIPO_LABELS[subtipo]}) creado correctamente.'
+        )
+        return redirect('clase:detalle_clase', clase_id=clase.id)
+
+    recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
+    return render(request, 'ejercicios/crear_entrenamiento_avanzado.html', {
+        'clase': clase,
+        'subtipo': subtipo,
+        'subtipo_label': SUBTIPO_LABELS[subtipo],
+        'recursos_disponibles': recursos_disponibles,
+    })
+
+@login_required
+def resolver_entrenamiento_avanzado(request, clase_id, ejercicio_id):
+    clase = get_object_or_404(Clase, id=clase_id)
+    ejercicio = get_object_or_404(
+        Ejercicio, id=ejercicio_id, clase=clase, tipo='entrenamiento_avanzado'
+    )
+
+    return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {
+        'ejercicio': ejercicio,
+        'clase': clase,
+    })
+
+@login_required
+@require_POST
+def guardar_practica_avanzada(request, ejercicio_id):
+    """
+    Guarda el resultado de una práctica de entrenamiento avanzado.
+    Tipos soportados: oido_absoluto, oido_relativo, tapping_ritmico, dictado_melodico.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
+
+    if ejercicio.tipo != 'entrenamiento_avanzado':
+        return JsonResponse({'error': 'Tipo de ejercicio inválido'}, status=400)
+
+    # ═══════════════════════════════════════════════════
+    # VALIDAR QUE EL ESTUDIANTE ESTÉ INSCRITO EN LA CLASE
+    # ═══════════════════════════════════════════════════
+    if request.user not in ejercicio.clase.estudiantes.all():
+        return JsonResponse({'error': 'No estás inscrito en esta clase'}, status=403)
+
+    # ═══════════════════════════════════════════════════
+    # PARSEAR DATOS
+    # ═══════════════════════════════════════════════════
+    try:
+        aciertos = int(request.POST.get('aciertos', 0))
+        total = int(request.POST.get('total', 0))
+        detalle_raw = request.POST.get('detalle', '[]')
+        detalle = json.loads(detalle_raw) if detalle_raw else []
+    except (ValueError, json.JSONDecodeError) as e:
+        logger.error(f'Error parseando datos: {e}')
+        return JsonResponse({'error': f'Datos inválidos: {e}'}, status=400)
+
+    if total <= 0:
+        return JsonResponse({'error': 'El total de preguntas debe ser mayor a 0'}, status=400)
+
+    # ═══════════════════════════════════════════════════
+    # CALCULAR CALIFICACIÓN (100% → 5.0, 0% → 1.0)
+    # ═══════════════════════════════════════════════════
+    porcentaje = (aciertos / total) * 100
+    nota = round(Decimal(porcentaje) / Decimal(20), 1)
+    nota = max(Decimal('1.0'), min(Decimal('5.0'), nota))
+
+    aprobado = nota >= Decimal('3.0')
+
+    # ═══════════════════════════════════════════════════
+    # CREAR EL INTENTO
+    # ═══════════════════════════════════════════════════
+    try:
+        intento = IntentoEjercicio.objects.create(
+            estudiante=request.user,
+            ejercicio=ejercicio,
+            calificacion=nota,
+            aprobado=aprobado,
+        )
+    except Exception as e:
+        logger.error(f'Error creando IntentoEjercicio: {e}')
+        return JsonResponse({'error': f'Error al guardar intento: {e}'}, status=500)
+
+    # ═══════════════════════════════════════════════════
+    # GUARDAR DETALLE EN PracticaAuditiva
+    # ═══════════════════════════════════════════════════
+    subtipo = ejercicio.config_auditivo.get('subtipo_avanzado', 'oido_absoluto')
+
+    # Validar que el subtipo esté en los TIPO_CHOICES del modelo
+    TIPOS_VALIDOS = [choice[0] for choice in PracticaAuditiva.TIPO_CHOICES]
+    if subtipo not in TIPOS_VALIDOS:
+        logger.warning(
+            f'Subtipo "{subtipo}" no válido para PracticaAuditiva. '
+            f'Tipos válidos: {TIPOS_VALIDOS}'
+        )
+        subtipo = 'oido_absoluto'  # fallback
+
+    try:
+        PracticaAuditiva.objects.create(
+            intento=intento,
+            tipo_practica=subtipo,
+            aciertos=aciertos,
+            total_preguntas=total,
+            detalle_respuestas=detalle,
+        )
+    except Exception as e:
+        # No rompemos la respuesta si falla el detalle; el intento ya está guardado
+        logger.warning(f'Error guardando PracticaAuditiva: {e}')
+
+    # ═══════════════════════════════════════════════════
+    # NOTIFICAR AL ESTUDIANTE (opcional)
+    # ═══════════════════════════════════════════════════
+    try:
+        from notificaciones.services import crear_notificacion
+        crear_notificacion(
+            usuario=request.user,
+            tipo='sistema',
+            titulo='✅ Práctica avanzada completada',
+            mensaje=f'Terminaste "{ejercicio.titulo}" con {aciertos}/{total} aciertos.',
+            url_destino=f'/estudiante/clase/{ejercicio.clase.id}/',
+        )
+    except Exception as e:
+        logger.warning(f'No se pudo enviar notificación: {e}')
+
+    # ═══════════════════════════════════════════════════
+    # RESPUESTA FINAL
+    # ═══════════════════════════════════════════════════
+    return JsonResponse({
+        'success': True,
+        'nota': float(nota),
+        'aprobado': aprobado,
+        'aciertos': aciertos,
+        'total': total,
+        'porcentaje': round(porcentaje, 1),
+    })
