@@ -24,6 +24,8 @@ def crear_ejercicio(request, clase_id):
 
     if tipo == 'quiz':
         return redirect('ejercicios:crear_quiz', clase_id=clase.id)
+    elif tipo == 'acordes': # <-- NUEVO ENRUTAMIENTO
+        return redirect('ejercicios:crear_acordes', clase_id=clase.id)
     elif tipo == 'juego':
         return redirect('ejercicios:crear_juego', clase_id=clase.id)
     elif tipo == 'texto':
@@ -54,7 +56,51 @@ def toggle_estado_ejercicio(request, ejercicio_id):
     messages.success(request, f"El ejercicio ha sido {estado_texto} correctamente.")
     
     return redirect('editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
+# ============================================================
+# Crear_ejercicio_acordes
+# ============================================================
 
+@login_required
+def crear_ejercicio_acordes(request, clase_id):
+    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
+    
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo', '').strip()
+        descripcion = request.POST.get('descripcion', '').strip()
+        fecha_limite = request.POST.get('fecha_limite')
+        
+        # Opciones específicas que el docente seleccionó para los acordes
+        octava = request.POST.get('octava', '4')
+        tipos_acordes = request.POST.getlist('tipos_acordes') # Ej: ['Mayor', 'Menor', 'maj7']
+        
+        if not titulo:
+            messages.error(request, "El título del ejercicio es obligatorio.")
+            return redirect('ejercicios:crear_acordes', clase_id=clase.id)
+            
+        # Empaquetamos la configuración musical en un JSON para guardarla en el campo 'contenido'
+        configuracion_musical = {
+            'modulo': 'acordes',
+            'octava': octava,
+            'tipos': tipos_acordes
+        }
+        
+        # Creamos el ejercicio en la base de datos
+        ejercicio = Ejercicio.objects.create(
+            clase=clase,
+            tipo='entrenamiento_auditivo', # O un tipo específico si prefieres agregarlo a los choices
+            titulo=titulo,
+            descripcion=descripcion,
+            contenido=json.dumps(configuracion_musical),
+            fecha_limite=fecha_limite if fecha_limite else None
+        )
+        
+        messages.success(request, f"¡Ejercicio de acordes '{titulo}' creado con éxito!")
+        return redirect('clase:detalle_clase', clase_id=clase.id)
+        
+    context = {
+        'clase': clase,
+    }
+    return render(request, 'ejercicios/crear_acordes.html', context)
 # ============================================================
 # CREAR EJERCICIO (QUIZ O VIDEO-QUIZ UNIFICADO)
 # ============================================================
