@@ -62,45 +62,56 @@ def toggle_estado_ejercicio(request, ejercicio_id):
 
 @login_required
 def crear_ejercicio_acordes(request, clase_id):
-    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio
+    from django.utils.dateparse import parse_datetime
+
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    # Validar que el usuario sea el docente de la clase
+    if clase.docente != request.user:
+        messages.error(request, 'No tienes permiso para crear ejercicios en esta clase.')
+        return redirect('docente:detalle_clase', clase_id=clase.id)
+
     if request.method == 'POST':
-        titulo = request.POST.get('titulo', '').strip()
-        descripcion = request.POST.get('descripcion', '').strip()
-        fecha_limite = request.POST.get('fecha_limite')
-        
-        # Opciones específicas que el docente seleccionó para los acordes
+        titulo = request.POST.get('titulo')
+        descripcion = request.POST.get('descripcion', '')
         octava = request.POST.get('octava', '4')
-        tipos_acordes = request.POST.getlist('tipos_acordes') # Ej: ['Mayor', 'Menor', 'maj7']
+        fecha_limite_str = request.POST.get('fecha_limite')
         
-        if not titulo:
-            messages.error(request, "El título del ejercicio es obligatorio.")
-            return redirect('ejercicios:crear_acordes', clase_id=clase.id)
-            
-        # Empaquetamos la configuración musical en un JSON para guardarla en el campo 'contenido'
-        configuracion_musical = {
-            'modulo': 'acordes',
-            'octava': octava,
-            'tipos': tipos_acordes
-        }
-        
-        # Creamos el ejercicio en la base de datos
-        ejercicio = Ejercicio.objects.create(
+        # AQUÍ ESTÁ LA CLAVE: Capturar el JSON generado por el diseñador
+        contenido_json = request.POST.get('contenido_preguntas')
+
+        fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
+
+        # Creamos el ejercicio con tipo 'acordes' y el JSON
+        ejercicio = Ejercicio(
             clase=clase,
-            tipo='entrenamiento_auditivo', # O un tipo específico si prefieres agregarlo a los choices
             titulo=titulo,
             descripcion=descripcion,
-            contenido=json.dumps(configuracion_musical),
-            fecha_limite=fecha_limite if fecha_limite else None
+            tipo='acordes',
+            fecha_limite=fecha_limite,
+            activo=True
         )
-        
-        messages.success(request, f"¡Ejercicio de acordes '{titulo}' creado con éxito!")
+
+        # Si el modelo tiene campo 'contenido', guardamos allí el JSON
+        if hasattr(ejercicio, 'contenido'):
+            ejercicio.contenido = contenido_json
+        elif hasattr(ejercicio, 'contenido_preguntas'):
+            ejercicio.contenido_preguntas = contenido_json
+
+        # Si el modelo tiene campo octava
+        if hasattr(ejercicio, 'octava'):
+            ejercicio.octava = int(octava)
+
+        ejercicio.save()
+
+        messages.success(request, '¡Ejercicio de acordes creado con éxito!')
         return redirect('clase:detalle_clase', clase_id=clase.id)
-        
-    context = {
+
+    return render(request, 'ejercicios/crear_acordes.html', {
         'clase': clase,
-    }
-    return render(request, 'ejercicios/crear_acordes.html', context)
+    })
 # ============================================================
 # CREAR EJERCICIO (QUIZ O VIDEO-QUIZ UNIFICADO)
 # ============================================================

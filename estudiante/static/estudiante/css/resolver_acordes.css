@@ -1,0 +1,301 @@
+/* ============================================ */
+/*    RESOLVER ACORDES - PALETA QBYT STUDIO     */
+/* ============================================ */
+
+:root {
+  --bg-body: #0b0b0b;
+  --bg-card: #13131a;
+  --bg-hover: #1a1a24;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --border-color: #242432;
+  
+  /* Colores Oficiales QBYT */
+  --qbyt-blue: #334de5;
+  --qbyt-cyan: #5cb6f9;
+  --qbyt-purple: #7c6fff;
+  --qbyt-emerald: #10b981;
+  
+  --shadow: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+  --bg-body: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --border-color: #e2e8f0;
+}
+
+body {
+  background: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.resolver-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.resolver-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.3rem;
+  color: var(--text-primary);
+}
+
+.text-neon {
+  color: var(--qbyt-cyan) !important;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        BARRA DE PROGRESO                    */
+/* ═══════════════════════════════════════════ */
+
+.progress-bar-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.2rem 1.5rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.6rem;
+  color: var(--text-secondary);
+}
+
+.progress-info strong {
+  color: var(--qbyt-cyan);
+}
+
+.custom-progress-track {
+  height: 10px;
+  background: var(--bg-hover);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.custom-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--qbyt-blue), var(--qbyt-cyan));
+  transition: width 0.35s ease;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        ÁREA CENTRAL DE AUDIO (HERO)         */
+/* ═══════════════════════════════════════════ */
+
+.practice-area-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.btn-play-hero {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(92, 182, 249, 0.3);
+  background: linear-gradient(135deg, var(--qbyt-blue), #2334a6);
+  color: #fff;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 35px rgba(51, 77, 229, 0.45);
+  transition: all 0.25s ease;
+}
+
+.btn-play-hero i {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.btn-play-hero span {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.btn-play-hero:hover {
+  transform: scale(1.06);
+  box-shadow: 0 0 45px rgba(92, 182, 249, 0.6);
+  border-color: var(--qbyt-cyan);
+}
+
+.btn-play-hero:active {
+  transform: scale(0.96);
+}
+
+.hint-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        CUADRÍCULA DE OPCIONES QBYT (2x2)    */
+/* ═══════════════════════════════════════════ */
+
+.qbyt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.qbyt-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 2rem 1.6rem;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 6px 20px var(--shadow);
+  text-align: left;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+/* Colores de Tarjetas integrados a QBYT */
+.qbyt-theme-blue {
+  background: linear-gradient(135deg, rgba(51, 77, 229, 0.25), #161a33);
+  border-color: rgba(51, 77, 229, 0.4);
+}
+
+.qbyt-theme-purple {
+  background: linear-gradient(135deg, rgba(124, 111, 255, 0.25), #1d1833);
+  border-color: rgba(124, 111, 255, 0.4);
+}
+
+.qbyt-theme-cyan {
+  background: linear-gradient(135deg, rgba(92, 182, 249, 0.22), #142333);
+  border-color: rgba(92, 182, 249, 0.4);
+}
+
+.qbyt-theme-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22), #142823);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Íconos Temáticos de cada Card */
+.qbyt-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qbyt-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  line-height: 1.2;
+  flex: 1;
+}
+
+/* Indicador de check en la esquina */
+.qbyt-check-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+/* Estado Hover */
+.qbyt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Estado Seleccionado (Marcado por el alumno) */
+.qbyt-card.is-selected {
+  border-color: var(--qbyt-cyan) !important;
+  box-shadow: 0 0 28px rgba(92, 182, 249, 0.45);
+  transform: translateY(-2px) scale(1.02);
+  background: linear-gradient(135deg, rgba(92, 182, 249, 0.35), #162438);
+}
+
+.qbyt-card.is-selected .qbyt-check-marker {
+  background: var(--qbyt-cyan);
+  border-color: var(--qbyt-cyan);
+  color: #0b0b0b;
+  opacity: 1;
+}
+
+.qbyt-card.is-selected .qbyt-icon-badge {
+  background: rgba(92, 182, 249, 0.25);
+  border-color: var(--qbyt-cyan);
+  color: var(--qbyt-cyan);
+}
+
+/* ═══════════════════════════════════════════ */
+/*        BOTÓN SIGUIENTE PREGUNTA             */
+/* ═══════════════════════════════════════════ */
+
+.btn-next-step {
+  background: linear-gradient(135deg, var(--qbyt-blue), #253be0);
+  color: #fff;
+  border: none;
+  padding: 0.95rem 3rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(51, 77, 229, 0.45);
+  transition: all 0.2s ease;
+}
+
+.btn-next-step:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(92, 182, 249, 0.5);
+}
+
+.btn-next-step:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        RESPONSIVE                           */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .qbyt-grid { grid-template-columns: 1fr; }
+  .btn-play-hero { width: 115px; height: 115px; }
+  .btn-play-hero i { font-size: 2.5rem; }
+  .qbyt-text { font-size: 1.15rem; }
+}

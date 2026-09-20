@@ -1,64 +1,61 @@
 /* ============================================ */
-/*    CREAR ACORDES - CON TEMA CLARO/OSCURO     */
+/*    CREAR ACORDES - MORADO & VERDE (DARK/LIGHT) */
 /* ============================================ */
 
 :root {
-  --spotify-black: #121212;
-  --spotify-dark: #181818;
-  --spotify-gray: #282828;
-  --spotify-light-gray: #535353;
-  --spotify-green: #1db954;
-  --spotify-green-hover: #1ed760;
+  --spotify-black: #0e0e11;
+  --spotify-dark: #141419;
+  --spotify-gray: #1e1e26;
+  --spotify-light-gray: #343444;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
   --spotify-text: #ffffff;
-  --spotify-subtext: #b3b3b3;
-  --spotify-muted: #6a6a6a;
+  --spotify-subtext: #a1a1aa;
+  --spotify-muted: #71717a;
   --accent-purple: #7c6fff;
-  --accent-purple-hover: #9b8fff;
-  --accent-blue: #40a9ff;
-  --danger: #e91429;
-
-  /* Superficies */
-  --bg-body: #121212;
-  --bg-card: #181818;
-  --bg-hover: rgba(255, 255, 255, 0.05);
-  --text-primary: #ffffff;
-  --text-secondary: #b3b3b3;
-  --text-muted: #6a6a6a;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --border-subtle: rgba(255, 255, 255, 0.05);
-  --shadow: rgba(0, 0, 0, 0.4);
-}
-
-/* ═══════════════════════════════════════════ */
-/* MODO CLARO - CREMA + VERDE                  */
-/* ═══════════════════════════════════════════ */
-
-[data-theme="light"] {
-  --spotify-black: #fefce8;
-  --spotify-dark: #ffffff;
-  --spotify-gray: #fef9c3;
-  --spotify-light-gray: #ecfccb;
-  --spotify-green: #16a34a;
-  --spotify-green-hover: #15803d;
-  --spotify-text: #1c1917;
-  --spotify-subtext: #44403c;
-  --spotify-muted: #a8a29e;
-  --accent-purple: #16a34a;
-  --accent-purple-hover: #15803d;
-  --accent-pink: #ec4899;
-  --accent-orange: #f59e0b;
-  --accent-blue: #06b6d4;
+  --accent-purple-hover: #9387ff;
+  --accent-purple-bg: rgba(124, 111, 255, 0.1);
+  --accent-green: #10b981;
   --danger: #ef4444;
 
-  --bg-body: #fefce8;
+  /* Superficies */
+  --bg-body: #0b0b0e;
+  --bg-card: #131318;
+  --bg-hover: #1a1a22;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --border-color: #272732;
+  --border-subtle: #1e1e28;
+  --shadow: rgba(0, 0, 0, 0.5);
+}
+
+/* Modo Claro - Manteniendo acentos morado y verde */
+[data-theme="light"] {
+  --spotify-black: #f8fafc;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f1f5f9;
+  --spotify-light-gray: #e2e8f0;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
+  --spotify-text: #0f172a;
+  --spotify-subtext: #475569;
+  --spotify-muted: #94a3b8;
+  --accent-purple: #6366f1;
+  --accent-purple-hover: #4f46e5;
+  --accent-purple-bg: rgba(99, 102, 241, 0.1);
+  --accent-green: #10b981;
+  --danger: #ef4444;
+
+  --bg-body: #f8fafc;
   --bg-card: #ffffff;
-  --bg-hover: rgba(34, 197, 94, 0.06);
-  --text-primary: #1c1917;
-  --text-secondary: #44403c;
-  --text-muted: #a8a29e;
-  --border-color: rgba(34, 197, 94, 0.18);
-  --border-subtle: rgba(34, 197, 94, 0.1);
-  --shadow: rgba(34, 197, 94, 0.12);
+  --bg-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --shadow: rgba(0, 0, 0, 0.08);
 }
 
 * {
@@ -75,27 +72,30 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*        CARD CONTAINER                       */
+/*        CONTENEDOR PRINCIPAL                 */
 /* ═══════════════════════════════════════════ */
 
 .card-form-container {
   background: var(--bg-card);
   border: 1px solid var(--border-subtle);
-  border-radius: 16px;
-  padding: 2.5rem;
-  box-shadow: 0 10px 30px var(--shadow);
-  transition: background 0.3s ease, border-color 0.3s ease;
+  border-radius: 20px;
+  padding: 2.2rem;
+  box-shadow: 0 12px 36px var(--shadow);
 }
 
 .form-header h2 {
   font-family: 'Syne', sans-serif;
   font-weight: 800;
-  font-size: 1.75rem;
+  font-size: 2.1rem;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
 }
 
 .form-header h2 i {
-  color: var(--spotify-green);
+  color: var(--accent-purple);
 }
 
 .form-header p {
@@ -103,8 +103,36 @@ body {
   font-size: 0.95rem;
 }
 
+/* Títulos de sección con ícono de borde redondeado */
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.section-title i {
+  color: var(--accent-purple);
+}
+
+/* Estado de audio / alerta */
+#audioStatus {
+  background: var(--bg-hover) !important;
+  border: 1px solid var(--border-color) !important;
+  border-left: 4px solid var(--accent-purple) !important;
+  border-radius: 12px;
+  color: var(--text-primary);
+}
+
+#audioStatus small {
+  color: var(--text-secondary);
+}
+
 /* ═══════════════════════════════════════════ */
-/*        FORM INPUTS & SELECTS                */
+/*        CAMPOS Y SELECTORES DEL FORM        */
 /* ═══════════════════════════════════════════ */
 
 .form-label {
@@ -112,27 +140,26 @@ body {
   font-weight: 600;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
+  display: block;
 }
 
 .form-control,
 .form-select {
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
+  background: var(--bg-hover) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
   padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 0.9rem;
   width: 100%;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   outline: none;
 }
 
 .form-control:focus,
 .form-select:focus {
-  background: var(--bg-hover);
-  border-color: var(--spotify-green);
-  color: var(--text-primary);
-  box-shadow: 0 0 0 3px rgba(29, 185, 84, 0.15);
+  border-color: var(--accent-purple) !important;
+  box-shadow: 0 0 0 3px rgba(124, 111, 255, 0.15) !important;
 }
 
 .form-control::placeholder {
@@ -141,7 +168,7 @@ body {
 
 textarea.form-control {
   resize: vertical;
-  min-height: 80px;
+  min-height: 85px;
 }
 
 .form-select option {
@@ -151,84 +178,409 @@ textarea.form-control {
 
 hr.border-secondary {
   border-color: var(--border-color) !important;
+  opacity: 0.6;
 }
 
 /* ═══════════════════════════════════════════ */
-/*        CATEGORÍAS DE ACORDES (CARDS)       */
+/*        CATÁLOGO DE ACORDEONES UNIFICADO     */
 /* ═══════════════════════════════════════════ */
 
-.acorde-category-card {
+.accordion-item {
   background: var(--bg-hover) !important;
   border: 1px solid var(--border-color) !important;
-  border-radius: 12px !important;
-  padding: 1.25rem !important;
-  height: 100%;
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+  border-radius: 14px !important;
+  margin-bottom: 0.85rem;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.acorde-category-card:hover {
-  border-color: var(--spotify-green) !important;
-  background: rgba(29, 185, 84, 0.05) !important;
+.accordion-item:hover {
+  border-color: var(--accent-purple) !important;
+}
+
+.accordion-button {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 1.1rem 1.4rem;
+  border: none;
+  box-shadow: none !important;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.accordion-button:not(.collapsed) {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Indicador circular de color a la izquierda de cada familia */
+.family-indicator-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.dot-purple { color: #8b5cf6; background-color: #8b5cf6; }
+.dot-green { color: #10b981; background-color: #10b981; }
+.dot-indigo { color: #6366f1; background-color: #6366f1; }
+.dot-emerald { color: #34d399; background-color: #34d399; }
+
+.accordion-button::after {
+  filter: invert(1);
+  opacity: 0.6;
+}
+
+[data-theme="light"] .accordion-button::after {
+  filter: none;
+}
+
+.accordion-body {
+  background: var(--bg-card);
+  padding: 1.25rem;
+}
+
+/* Tarjeta individual de cada acorde dentro del catálogo */
+.catalog-chord-item {
+  border: 1px solid var(--border-color) !important;
+  background: var(--bg-hover) !important;
+  border-radius: 12px;
+  padding: 0.85rem 1rem !important;
+  transition: all 0.2s ease;
+}
+
+.catalog-chord-item:hover {
+  border-color: var(--accent-purple) !important;
+  background: rgba(124, 111, 255, 0.05) !important;
   transform: translateY(-2px);
 }
 
-.acorde-category-card .form-check-input {
-  background-color: var(--spotify-gray);
-  border-color: var(--border-color);
-  width: 1.25em;
-  height: 1.25em;
-  cursor: pointer;
+.catalog-chord-item strong {
+  font-size: 0.92rem;
 }
 
-.acorde-category-card .form-check-input:checked {
-  background-color: var(--spotify-green);
-  border-color: var(--spotify-green);
+/* Botón preescucha en catálogo */
+.btn-chord-listen {
+  background: rgba(124, 111, 255, 0.1);
+  border: 1px solid rgba(124, 111, 255, 0.3);
+  color: var(--accent-purple);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-.acorde-category-card .form-check-label {
-  cursor: pointer;
-  color: var(--text-primary);
-  font-size: 0.95rem;
+.btn-chord-listen:hover {
+  background: var(--accent-purple);
+  color: #fff;
 }
 
-.acorde-category-card p {
-  color: var(--text-muted) !important;
-  font-size: 0.8rem;
-  margin-top: 0.35rem;
+/* Botón agregar acorde al ejercicio */
+.btn-chord-add {
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--spotify-green);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
-/* ═══════════════════════════════════════════ */
-/*        BOTONES                              */
-/* ═══════════════════════════════════════════ */
-
-.btn-success {
+.btn-chord-add:hover {
   background: var(--spotify-green);
-  border: none;
+  color: #fff;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        PREGUNTA BUILDER (QUIZ STYLE)        */
+/* ═══════════════════════════════════════════ */
+
+.pregunta-builder-card {
+  position: relative;
+  margin-top: 1.5rem;
+}
+
+.card-inner-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--accent-purple);
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.pregunta-index-badge {
+  position: absolute;
+  top: -12px;
+  left: -12px;
+  width: 34px;
+  height: 34px;
+  background: var(--accent-purple);
   color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.95rem;
+  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.4);
+  z-index: 2;
+}
+
+.btn-delete-card {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--danger);
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-delete-card:hover {
+  background: var(--danger);
+  color: #ffffff;
+}
+
+.tipo-pill-badge {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.8rem;
   font-weight: 700;
   border-radius: 8px;
-  padding: 0.65rem 1.25rem;
-  transition: background 0.2s ease, transform 0.15s ease;
+  background: var(--accent-purple-bg);
+  border: 1px solid var(--accent-purple);
+  color: var(--accent-purple);
 }
 
-.btn-success:hover {
-  background: var(--spotify-green-hover);
+/* Reproductor circular central hero */
+.audio-hero-player {
+  background: var(--bg-hover);
+  border: 1px dashed var(--accent-purple);
+  border-radius: 14px;
+}
+
+.btn-audio-hero {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: none;
+  background: linear-gradient(135deg, var(--spotify-green), #059669);
   color: #ffffff;
-  transform: scale(1.02);
+  font-size: 1.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-audio-hero:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.45);
+}
+
+.btn-audio-hero:active {
+  transform: scale(0.96);
+}
+
+.audio-hero-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* Filas de opciones de respuesta */
+.btn-add-option-pill {
+  background: transparent;
+  border: 1px dashed var(--accent-purple);
+  color: var(--accent-purple);
+  font-size: 0.8rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.4rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-add-option-pill:hover {
+  background: var(--accent-purple-bg);
+}
+
+.opcion-row-card {
+  background: var(--bg-hover);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  min-height: 60px;
+  transition: all 0.2s ease;
+}
+
+.opcion-row-card:hover {
+  border-color: rgba(124, 111, 255, 0.4);
+}
+
+.opcion-row-card.is-correct {
+  border-color: rgba(16, 185, 129, 0.6);
+  background: rgba(16, 185, 129, 0.08);
+}
+
+.opcion-radio-target {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.custom-radio-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  background: transparent;
+  transition: all 0.2s ease;
+}
+
+.custom-radio-circle.selected {
+  border-color: var(--spotify-green);
+  background: var(--spotify-green);
+  box-shadow: inset 0 0 0 3.5px var(--bg-card);
+}
+
+.opcion-input-text {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.correct-badge-pill {
+  color: var(--spotify-green);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.btn-remove-option {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  opacity: 0.6;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: opacity 0.2s ease;
+}
+
+.btn-remove-option:hover {
+  opacity: 1;
+}
+
+#emptyPreguntasHint {
+  border-color: var(--border-color) !important;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+/* ═══════════════════════════════════════════ */
+/*        BOTONES INFERIORES DE ACCIÓN         */
+/* ═══════════════════════════════════════════ */
+
+.btn-success,
+#btnGuardar {
+  background: var(--spotify-green);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 2.2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-success:hover,
+#btnGuardar:hover {
+  background: var(--spotify-green-hover);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
+  color: #fff;
 }
 
 .btn-outline-light {
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  border-radius: 8px;
+  border-radius: 12px;
+  padding: 0.75rem 1.8rem;
+  font-weight: 600;
   background: transparent;
-  padding: 0.65rem 1.25rem;
   transition: all 0.2s ease;
 }
 
 .btn-outline-light:hover {
   background: var(--bg-hover);
-  border-color: var(--border-color);
+  border-color: var(--text-primary);
   color: var(--text-primary);
+}
+/* ═══════════════════════════════════════════ */
+/*        CORRECCIÓN DE CONTRASTE Y TEXTOS     */
+/* ═══════════════════════════════════════════ */
+
+/* Contador de preguntas en el título */
+#contadorPreguntas {
+  color: var(--accent-purple) !important;
+  font-weight: 800;
+}
+
+/* Subtítulo guía superior a la derecha */
+.section-title + .text-muted,
+.d-flex > .text-muted.small {
+  color: #a1a1aa !important; /* Gris claro legible */
+  font-weight: 500;
+  opacity: 1 !important;
+}
+
+/* Tarjeta vacía de preguntas (Aún no has agregado ningún acorde...) */
+#emptyPreguntasHint {
+  border: 1px dashed var(--border-color) !important;
+  background: var(--bg-hover) !important;
+  color: #d4d4d8 !important; /* Blanco hueso de alto contraste */
+  padding: 2.5rem 1rem !important;
+}
+
+#emptyPreguntasHint i {
+  color: var(--accent-purple) !important;
+  opacity: 0.8;
+}
+
+/* Placeholder de campos de texto e indicaciones */
+.form-control::placeholder,
+textarea.form-control::placeholder {
+  color: #71717a !important;
+  opacity: 0.9;
+}
+
+/* Sobrescribir text-muted genérico dentro del contenedor */
+.card-form-container .text-muted {
+  color: #a1a1aa !important;
 }

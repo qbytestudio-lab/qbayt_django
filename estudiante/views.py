@@ -1,5 +1,4 @@
 from datetime import timedelta
-
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -412,14 +411,12 @@ def subir_banner(request):
 def resolver_ejercicio(request, clase_id, ejercicio_id):
     from docente.models import Clase
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
-    from django.utils import timezone
-    import re
 
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
 
     # ═══════════════════════════════════════════════════
-    # VALIDACIONES COMUNES (aplican a TODOS los tipos)
+    # VALIDACIONES COMUNES
     # ═══════════════════════════════════════════════════
 
     # Verificar inscripción
@@ -452,17 +449,100 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
     # ═══════════════════════════════════════════════════
-    # 🆕 ENRUTADOR POR TIPO (después de validaciones)
+    # 🆕 ENRUTADOR POR TIPO
     # ═══════════════════════════════════════════════════
 
-    # ─── Entrenamiento Auditivo ───
+    # ─── 1. Módulo de Acordes (Tone.js + Kahoot Grid) ───
+    if ejercicio.tipo == 'acordes':
+        preguntas_data = []
+
+        # 1. Explorar todos los campos posibles donde pudo guardarse el contenido
+        campos_posibles = [
+            'contenido', 'contenido_preguntas', 'preguntas_json', 
+            'config_auditivo', 'datos', 'descripcion_detallada'
+        ]
+        
+        raw_contenido = None
+        for campo in campos_posibles:
+            if hasattr(ejercicio, campo):
+                val = getattr(ejercicio, campo)
+                if val:
+                    raw_contenido = val
+                    break
+
+        # 2. Deserializar con seguridad garantizando una LISTA nativa de Python
+        if raw_contenido is not None:
+            try:
+                temp = raw_contenido
+                # Si viene con doble o triple stringificación JSON
+                while isinstance(temp, str):
+                    temp = json.loads(temp)
+                
+                if isinstance(temp, list):
+                    preguntas_data = temp
+                elif isinstance(temp, dict):
+                    # En caso de que se haya guardado dentro de una clave como 'preguntas'
+                    preguntas_data = temp.get('preguntas', [])
+            except Exception as err:
+                print(f"[ERROR JSON]: No se pudo parsear el contenido: {err}")
+                preguntas_data = []
+
+        # 3. Fallback: Si no había JSON, buscar si se guardaron en la tabla Pregunta
+        if not preguntas_data:
+            from ejercicios.models import Pregunta
+            preguntas_rel = Pregunta.objects.filter(ejercicio=ejercicio).prefetch_related('opciones')
+            if preguntas_rel.exists():
+                for p in preguntas_rel:
+                    opts = [{'texto': o.texto, 'correcta': o.es_correcta} for o in p.opciones.all()]
+                    preguntas_data.append({
+                        'id': p.id,
+                        'enunciado': p.texto,
+                        'acorde': p.texto,
+                        'semitonos': [0, 4, 7],
+                        'rootIdx': 0,
+                        'opciones': opts
+                    })
+
+        # 4. Formatear y verificar que cada pregunta tenga opciones estructuradas
+        for idx, item in enumerate(preguntas_data):
+            if not isinstance(item, dict):
+                continue
+            if 'id' not in item:
+                item['id'] = idx + 1
+            if 'semitonos' not in item or not item['semitonos']:
+                item['semitonos'] = [0, 4, 7]
+            if 'rootIdx' not in item:
+                item['rootIdx'] = 0
+
+        octava_val = getattr(ejercicio, 'octava', 4) or 4
+        try:
+            octava_val = int(octava_val)
+        except (ValueError, TypeError):
+            octava_val = 4
+
+        return render(request, 'estudiante/resolver_acordes.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+            'preguntas_json': preguntas_data,  # Pasa la lista pura de Python
+            'total_preguntas': len(preguntas_data),
+            'octava_base': octava_val,
+        })
+
+    # ─── 2. Entrenamiento Auditivo Convencional ───
     if ejercicio.tipo == 'entrenamiento_auditivo':
         return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
             'ejercicio': ejercicio,
             'clase': clase,
         })
 
-    # ─── Juego ───
+    # ─── 3. Entrenamiento Avanzado ───
+    if ejercicio.tipo == 'entrenamiento_avanzado':
+        return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+        })
+
+    # ─── 4. Juego ───
     if ejercicio.tipo == 'juego':
         if request.method == 'POST':
             IntentoEjercicio.objects.create(
@@ -477,21 +557,6 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
             'clase_id': clase_id,
             'clase': clase,
         })
-    # ═══════════════════════════════════════════════════
-    # ENRUTADOR POR TIPO
-    # ═══════════════════════════════════════════════════
-    if ejercicio.tipo == 'entrenamiento_auditivo':
-        return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
-            'ejercicio': ejercicio,
-            'clase': clase,
-        })
-
-    if ejercicio.tipo == 'entrenamiento_avanzado':   # ← NUEVO
-        return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {
-            'ejercicio': ejercicio,
-            'clase': clase,
-        })
-# ═══════════════════════════════════════════════════
 
     # ═══════════════════════════════════════════════════
     # RESTO DE TIPOS (quiz, video_quiz, texto, verdadero_falso, completar)
@@ -514,7 +579,6 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
 
     return render(request, 'estudiante/resolver_ejercicio.html', context)
 
-
 @login_required
 def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     """
@@ -526,6 +590,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
         RespuestaEstudiante, Opcion
     )
     from django.utils import timezone
+    import json
 
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
@@ -570,6 +635,74 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             messages.error(request, 'Has agotado tus 2 intentos.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
+        # ─── 1. Procesamiento para Módulo de Acordes (Pendiente de Calificación Docente) ───
+        if ejercicio.tipo == 'acordes':
+            # Crear el intento sin nota para que quede pendiente de revisión
+            intento = IntentoEjercicio(
+                estudiante=request.user,
+                ejercicio=ejercicio,
+                fecha_envio=timezone.now(),
+            )
+
+            campos_intento = [f.name for f in IntentoEjercicio._meta.fields]
+            
+            # Dejar la nota vacía explícitamente
+            if 'calificacion' in campos_intento:
+                intento.calificacion = None
+            if 'nota' in campos_intento:
+                intento.nota = None
+            if 'puntaje' in campos_intento:
+                intento.puntaje = None
+            if 'revisado' in campos_intento:
+                intento.revisado = False
+            if 'estado' in campos_intento:
+                intento.estado = 'pendiente'
+
+            intento.save()
+
+            # Extraer preguntas del JSON del ejercicio
+            raw_contenido = getattr(ejercicio, 'contenido', None) or getattr(ejercicio, 'contenido_preguntas', None)
+            preguntas_data = []
+
+            if raw_contenido:
+                try:
+                    temp = raw_contenido
+                    while isinstance(temp, str):
+                        temp = json.loads(temp)
+                    if isinstance(temp, list):
+                        preguntas_data = temp
+                    elif isinstance(temp, dict):
+                        preguntas_data = temp.get('preguntas', [])
+                except Exception:
+                    preguntas_data = []
+
+            # Si existen preguntas relacionales en la base de datos, guardar registros de respuesta
+            preguntas_bd = Pregunta.objects.filter(ejercicio=ejercicio).prefetch_related('opciones')
+            if preguntas_bd.exists():
+                for pregunta in preguntas_bd:
+                    opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
+                    if opcion_id:
+                        try:
+                            # Puede enviarse por ID o por texto según el input
+                            if str(opcion_id).isdigit():
+                                opcion = Opcion.objects.get(id=int(opcion_id), pregunta=pregunta)
+                            else:
+                                opcion = Opcion.objects.get(texto=opcion_id, pregunta=pregunta)
+                            RespuestaEstudiante.objects.create(
+                                intento=intento,
+                                pregunta=pregunta,
+                                opcion_seleccionada=opcion
+                            )
+                        except (Opcion.DoesNotExist, Opcion.MultipleObjectsReturned):
+                            pass
+
+            messages.success(
+                request,
+                'Tus respuestas han sido enviadas. Espera la calificación del docente.'
+            )
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+
+        # ─── 2. Procesamiento tradicional (Quizzes estándar, V/F, etc.) ───
         intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
             ejercicio=ejercicio,
