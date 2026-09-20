@@ -1,0 +1,363 @@
+/* ========================================================= */
+/*      QBYT STUDIO - RESOLVER ESCALAS (ESTUDIANTE)          */
+/*      PALETA OFICIAL: MORADO, VERDE & GRISES               */
+/* ========================================================= */
+
+:root {
+  --spotify-black: #0e0e11;
+  --spotify-dark: #141419;
+  --spotify-gray: #1e1e26;
+  --spotify-light-gray: #343444;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
+  --spotify-text: #ffffff;
+  --spotify-subtext: #a1a1aa;
+  --spotify-muted: #71717a;
+  --accent-purple: #7c6fff;
+  --accent-purple-hover: #9387ff;
+  --accent-purple-bg: rgba(124, 111, 255, 0.1);
+  --accent-green: #10b981;
+  --danger: #ef4444;
+
+  /* Superficies */
+  --bg-body: #0b0b0e;
+  --bg-card: #131318;
+  --bg-hover: #1a1a22;
+  --text-primary: #ffffff;
+  --text-secondary: #a1a1aa;
+  --text-muted: #71717a;
+  --border-color: #272732;
+  --border-subtle: #1e1e28;
+  --shadow: rgba(0, 0, 0, 0.6);
+
+  /* Variantes de Cards QBYT */
+  --card-blue-bg: rgba(51, 77, 229, 0.16);
+  --card-blue-border: rgba(51, 77, 229, 0.45);
+  --card-purple-bg: rgba(124, 111, 255, 0.16);
+  --card-purple-border: rgba(124, 111, 255, 0.45);
+  --card-cyan-bg: rgba(92, 182, 249, 0.15);
+  --card-cyan-border: rgba(92, 182, 249, 0.45);
+  --card-emerald-bg: rgba(16, 185, 129, 0.15);
+  --card-emerald-border: rgba(16, 185, 129, 0.45);
+}
+
+/* Modo Claro */
+[data-theme="light"] {
+  --spotify-black: #f8fafc;
+  --spotify-dark: #ffffff;
+  --spotify-gray: #f1f5f9;
+  --spotify-light-gray: #e2e8f0;
+  --spotify-green: #10b981;
+  --spotify-green-hover: #059669;
+  --spotify-text: #0f172a;
+  --spotify-subtext: #475569;
+  --spotify-muted: #94a3b8;
+  --accent-purple: #6366f1;
+  --accent-purple-hover: #4f46e5;
+  --accent-purple-bg: rgba(99, 102, 241, 0.1);
+  --accent-green: #10b981;
+  --danger: #ef4444;
+
+  --bg-body: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --border-color: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --shadow: rgba(0, 0, 0, 0.08);
+
+  --card-blue-bg: #eef2ff;
+  --card-blue-border: #c7d2fe;
+  --card-purple-bg: #f5f3ff;
+  --card-purple-border: #ddd6fe;
+  --card-cyan-bg: #f0f9ff;
+  --card-cyan-border: #bae6fd;
+  --card-emerald-bg: #ecfdf5;
+  --card-emerald-border: #a7f3d0;
+}
+
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+}
+
+.resolver-container {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 2.2rem 1.2rem;
+}
+
+.resolver-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 2.3rem;
+  color: var(--text-primary);
+}
+
+.text-neon {
+  color: var(--accent-purple) !important;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        BARRA DE PROGRESO                    */
+/* ═══════════════════════════════════════════ */
+
+.progress-bar-container {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.2rem 1.6rem;
+  box-shadow: 0 8px 24px var(--shadow);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.progress-info strong {
+  color: var(--text-primary);
+}
+
+.custom-progress-track {
+  height: 9px;
+  background: var(--spotify-gray);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.custom-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-purple), var(--spotify-green));
+  transition: width 0.35s ease;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        ÁREA CENTRAL HERO (AUDIO)            */
+/* ═══════════════════════════════════════════ */
+
+.practice-area-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px var(--shadow);
+}
+
+.btn-play-hero {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 2px solid rgba(124, 111, 255, 0.4);
+  background: linear-gradient(135deg, var(--accent-purple), #4f46e5);
+  color: #ffffff;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 0 35px rgba(124, 111, 255, 0.45);
+  transition: all 0.25s ease;
+}
+
+.btn-play-hero i {
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: 4px;
+  color: #ffffff;
+}
+
+.btn-play-hero span {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.btn-play-hero:hover {
+  transform: scale(1.06);
+  border-color: var(--accent-purple-hover);
+  box-shadow: 0 0 45px rgba(124, 111, 255, 0.65);
+}
+
+.btn-play-hero:active {
+  transform: scale(0.96);
+}
+
+.hint-text {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.hint-text strong {
+  color: var(--accent-purple);
+}
+
+/* ═══════════════════════════════════════════ */
+/*        GRID DE OPCIONES (2x2)               */
+/* ═══════════════════════════════════════════ */
+
+.qbyt-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.qbyt-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 1.8rem 1.6rem;
+  min-height: 115px;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.22s ease;
+  box-shadow: 0 6px 20px var(--shadow);
+  text-align: left;
+  overflow: hidden;
+  border: 2px solid transparent;
+}
+
+/* Temas de las Tarjetas */
+.qbyt-theme-purple {
+  background: var(--card-purple-bg);
+  border-color: var(--card-purple-border);
+}
+
+.qbyt-theme-blue {
+  background: var(--card-blue-bg);
+  border-color: var(--card-blue-border);
+}
+
+.qbyt-theme-cyan {
+  background: var(--card-cyan-bg);
+  border-color: var(--card-cyan-border);
+}
+
+.qbyt-theme-emerald {
+  background: var(--card-emerald-bg);
+  border-color: var(--card-emerald-border);
+}
+
+.qbyt-icon-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.45rem;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.qbyt-text {
+  font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.25;
+  flex: 1;
+}
+
+.qbyt-check-marker {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  opacity: 0.3;
+  transition: all 0.2s ease;
+}
+
+.qbyt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Estado Seleccionado */
+.qbyt-card.is-selected {
+  border-color: var(--spotify-green) !important;
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.45);
+  transform: translateY(-2px) scale(1.02);
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+.qbyt-card.is-selected .qbyt-check-marker {
+  background: var(--spotify-green);
+  border-color: var(--spotify-green);
+  color: #0b0b0e;
+  opacity: 1;
+}
+
+.qbyt-card.is-selected .qbyt-icon-badge {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: var(--spotify-green);
+  color: var(--spotify-green);
+}
+
+/* ═══════════════════════════════════════════ */
+/*        BOTÓN SIGUIENTE                      */
+/* ═══════════════════════════════════════════ */
+
+.btn-next-step {
+  background: var(--spotify-green);
+  color: #ffffff;
+  border: none;
+  padding: 0.95rem 3rem;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+  transition: all 0.2s ease;
+}
+
+.btn-next-step:hover:not(:disabled) {
+  background: var(--spotify-green-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(16, 185, 129, 0.6);
+}
+
+.btn-next-step:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ═══════════════════════════════════════════ */
+/*        RESPONSIVE                           */
+/* ═══════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .qbyt-grid {
+    grid-template-columns: 1fr;
+  }
+  .btn-play-hero {
+    width: 115px;
+    height: 115px;
+  }
+  .btn-play-hero i {
+    font-size: 2.5rem;
+  }
+  .qbyt-text {
+    font-size: 1.1rem;
+  }
+}

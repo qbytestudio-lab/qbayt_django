@@ -452,7 +452,27 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     # 🆕 ENRUTADOR POR TIPO
     # ═══════════════════════════════════════════════════
 
-# ─── Módulo de Intervalos (Tone.js + Melódico/Armónico) ───
+    # ─── Módulo de Escalas (Tone.js + Secuencia Melódica) ───
+    if ejercicio.tipo == 'escalas':
+        preguntas_data = []
+        raw_contenido = getattr(ejercicio, 'contenido', None)
+        if raw_contenido:
+            try:
+                temp = raw_contenido
+                while isinstance(temp, str):
+                    temp = json.loads(temp)
+                preguntas_data = temp if isinstance(temp, list) else []
+            except Exception:
+                preguntas_data = []
+
+        return render(request, 'estudiante/resolver_escalas.html', {
+            'ejercicio': ejercicio,
+            'clase': clase,
+            'preguntas_json': preguntas_data,
+            'total_preguntas': len(preguntas_data),
+        })
+
+    # ─── Módulo de Intervalos (Tone.js + Melódico/Armónico) ───
     if ejercicio.tipo == 'intervalos':
         preguntas_data = []
         raw_contenido = getattr(ejercicio, 'contenido', None)
@@ -653,6 +673,22 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
 
         if intentos_count >= 2:
             messages.error(request, 'Has agotado tus 2 intentos.')
+            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
+
+        # ─── Envío de Acordes, Intervalos y Escalas (Revisión Docente) ───
+        if ejercicio.tipo in ['acorde', 'acordes', 'intervalos', 'escalas']:
+            intento = IntentoEjercicio(
+                estudiante=request.user,
+                ejercicio=ejercicio,
+                fecha_envio=timezone.now(),
+            )
+            intento.calificacion = None
+            intento.save()
+
+            messages.success(
+                request,
+                'Tus respuestas han sido enviadas. Espera la calificación del docente.'
+            )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
         # ─── Envío de Intervalos (Pendiente de Calificación Docente) ───

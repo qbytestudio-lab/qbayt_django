@@ -154,6 +154,48 @@ def crear_ejercicio_intervalos(request, clase_id):
         'clase': clase,
     })
 # ============================================================
+# CREAR EJERCICIO Escalas
+# ============================================================
+
+
+@login_required
+def crear_ejercicio_escalas(request, clase_id):
+    from docente.models import Clase
+    from ejercicios.models import Ejercicio
+    from django.utils.dateparse import parse_datetime
+
+    clase = get_object_or_404(Clase, id=clase_id)
+
+    # Validar que el usuario sea el docente titular de la clase
+    if clase.docente != request.user:
+        messages.error(request, 'No tienes permiso para crear ejercicios en esta clase.')
+        return redirect('docente:detalle_clase', clase_id=clase.id)
+
+    if request.method == 'POST':
+        titulo = request.POST.get('titulo')
+        descripcion = request.POST.get('descripcion', '')
+        fecha_limite_str = request.POST.get('fecha_limite')
+        contenido_preguntas = request.POST.get('contenido_preguntas')
+
+        fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
+
+        Ejercicio.objects.create(
+            clase=clase,
+            titulo=titulo,
+            descripcion=descripcion,
+            tipo='escalas',
+            contenido=contenido_preguntas,
+            fecha_limite=fecha_limite,
+            activo=True
+        )
+
+        messages.success(request, '¡Ejercicio de escalas creado con éxito!')
+        return redirect('clase:detalle_clase', clase.id)
+
+    return render(request, 'ejercicios/crear_escalas.html', {
+        'clase': clase,
+    })
+# ============================================================
 # CREAR EJERCICIO (QUIZ O VIDEO-QUIZ UNIFICADO)
 # ============================================================
 @login_required

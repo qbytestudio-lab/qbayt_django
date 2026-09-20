@@ -11,7 +11,8 @@ class Ejercicio(models.Model):
         ('video_quiz', 'Video + Quiz'),
         ('acorde', 'Acordes'),
         ('acordes', 'Acordes (Módulo)'),
-        ('intervalos', 'Intervalos'),      # <-- NUEVO MÓDULO
+        ('intervalos', 'Intervalos'),
+        ('escalas', 'Escalas'),            # <-- NUEVO MÓDULO DE ESCALAS
         ('texto', 'Texto'),
         ('verdadero_falso', 'Verdadero o Falso'),
         ('completar', 'Completar'),
