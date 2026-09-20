@@ -7,15 +7,17 @@ from django.utils import timezone
 class Ejercicio(models.Model):
 
     TIPO_CHOICES = [
-    ('quiz', 'Quiz'),
-    ('video_quiz', 'Video + Quiz'),
-    ('juego', 'Juego'),
-    ('texto', 'Texto'),
-    ('verdadero_falso', 'Verdadero o Falso'),
-    ('completar', 'Completar'),
-    ('entrenamiento_auditivo', 'Entrenamiento Auditivo'),
-    ('entrenamiento_avanzado', 'Entrenamiento Avanzado'), 
-]
+        ('quiz', 'Quiz'),
+        ('video_quiz', 'Video + Quiz'),
+        ('acorde', 'Acordes'),
+        ('acordes', 'Acordes (Módulo)'),
+        ('intervalos', 'Intervalos'),      # <-- NUEVO MÓDULO
+        ('texto', 'Texto'),
+        ('verdadero_falso', 'Verdadero o Falso'),
+        ('completar', 'Completar'),
+        ('entrenamiento_auditivo', 'Entrenamiento Auditivo'),
+        ('entrenamiento_avanzado', 'Entrenamiento Avanzado'), 
+    ]
     tipo = models.CharField(max_length=30, choices=TIPO_CHOICES, default='quiz')
     clase = models.ForeignKey('clase.Clase', on_delete=models.CASCADE, related_name='ejercicios')
     titulo = models.CharField(max_length=200)

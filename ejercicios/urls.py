@@ -8,8 +8,8 @@ app_name = 'ejercicios'
 
 urlpatterns = [
     path('crear/quiz/<int:clase_id>/', views.crear_quiz, name='crear_quiz'),
-    path('crear/juego/<int:clase_id>/', views.crear_juego, name='crear_juego'),
-    path('crear/texto/<int:clase_id>/', views.crear_texto, name='crear_texto'),
+    path('crear/juego/<int:clase_id>/', views.crear_ejercicio_acordes, name='crear_ejercicio_acordes'),
+    path('crear/texto/<int:clase_id>/', views.crear_ejercicio_intervalos, name='crear_ejercicio_intervalos'),
     path('crear/completar/<int:clase_id>/', views.crear_completar, name='crear_completar'),
     path('calificar/<int:intento_id>/', views.calificar_ejercicio, name='calificar_ejercicio'),
     path('clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),

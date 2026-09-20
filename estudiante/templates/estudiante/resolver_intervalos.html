@@ -1,0 +1,288 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}{{ ejercicio.titulo }} — QBYT{% endblock %}
+{% block page_title %}Entrenamiento de Intervalos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'estudiante/css/resolver_intervalos.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="resolver-container">
+
+    <!-- Encabezado del ejercicio -->
+    <div class="text-center mb-4">
+        <h1 class="resolver-title mb-1">{{ ejercicio.titulo }}</h1>
+        <p class="text-muted mb-0">{{ ejercicio.descripcion|default:"Escucha atentamente el intervalo musical y selecciona la distancia correspondiente." }}</p>
+    </div>
+
+    <!-- Barra de progreso superior -->
+    <div class="progress-bar-container mb-4">
+        <div class="progress-info">
+            <span>Pregunta <strong id="currentNum">1</strong> de <strong id="totalNum">0</strong></span>
+            <span>Completado: <strong id="progresoPorcentaje" class="text-neon">0%</strong></span>
+        </div>
+        <div class="custom-progress-track">
+            <div class="custom-progress-fill" id="progressFill" style="width: 0%;"></div>
+        </div>
+    </div>
+
+    <!-- Botón central grande para reproducir el intervalo -->
+    <div class="practice-area-card mb-4 text-center py-4" id="practiceArea">
+        <button type="button" class="btn-play-hero" id="btnPlay" onclick="reproducirSonido()" title="Reproducir intervalo">
+            <i class="bi bi-volume-up-fill" id="playIcon"></i>
+            <span>Escuchar</span>
+        </button>
+        <p class="hint-text mt-3 mb-0" id="hintText">Haz clic para escuchar el intervalo</p>
+    </div>
+
+    <!-- Cuadrícula de opciones con identidad QBYT -->
+    <div class="qbyt-grid" id="opcionesContainer"></div>
+
+    <!-- Botón para avanzar a la siguiente pregunta -->
+    <div class="d-flex justify-content-center mt-4">
+        <button type="button" class="btn-next-step" id="btnNext" onclick="siguientePregunta()" disabled>
+            <span>Siguiente pregunta</span> <i class="bi bi-arrow-right"></i>
+        </button>
+    </div>
+
+    <!-- Formulario invisible para enviar respuestas a Django -->
+    <form method="POST" action="{% url 'estudiante:enviar_respuesta_ejercicio' clase.id ejercicio.id %}" id="formEnvioRespuestas" style="display: none;">
+        {% csrf_token %}
+        <div id="inputsRespuestasOcultas"></div>
+    </form>
+
+</div>
+
+<!-- Inyección segura de las preguntas generadas -->
+{{ preguntas_json|json_script:"preguntas-data" }}
+
+<script>
+    const NOTAS = [
+        { c: 'C', es: 'Do' }, { c: 'C#', es: 'Do#' },
+        { c: 'D', es: 'Re' }, { c: 'D#', es: 'Re#' },
+        { c: 'E', es: 'Mi' }, { c: 'F', es: 'Fa' },
+        { c: 'F#', es: 'Fa#' }, { c: 'G', es: 'Sol' },
+        { c: 'G#', es: 'Sol#' }, { c: 'A', es: 'La' },
+        { c: 'A#', es: 'La#' }, { c: 'B', es: 'Si' }
+    ];
+
+    const QBYT_THEMES = [
+        { class: 'qbyt-theme-purple', icon: 'bi-soundwave' },
+        { class: 'qbyt-theme-blue', icon: 'bi-music-note-beamed' },
+        { class: 'qbyt-theme-cyan', icon: 'bi-disc-fill' },
+        { class: 'qbyt-theme-emerald', icon: 'bi-sliders' }
+    ];
+
+    let PREGUNTAS = [];
+    try {
+        const rawElement = document.getElementById('preguntas-data');
+        if (rawElement && rawElement.textContent) {
+            let parsed = JSON.parse(rawElement.textContent);
+            while (typeof parsed === 'string') {
+                parsed = JSON.parse(parsed);
+            }
+            PREGUNTAS = Array.isArray(parsed) ? parsed : [];
+        }
+    } catch (e) {
+        console.error("Error parseando PREGUNTAS:", e);
+        PREGUNTAS = [];
+    }
+
+    let indiceActual = 0;
+    let respuestasGuardadas = {};
+    let samplerPiano = null;
+
+    function getPiano() {
+        if (!samplerPiano) {
+            samplerPiano = new Tone.Sampler({
+                urls: {
+                    A0: "A0.mp3", C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3",
+                    A1: "A1.mp3", C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3",
+                    A2: "A2.mp3", C3: "C3.mp3", "D#3": "Ds3.mp3", "F#3": "Fs3.mp3",
+                    A3: "A3.mp3", C4: "C4.mp3", "D#4": "Ds4.mp3", "F#4": "Fs4.mp3",
+                    A4: "A4.mp3", C5: "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
+                    A5: "A5.mp3", C6: "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3",
+                    A6: "A6.mp3", C7: "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
+                    A7: "A7.mp3", C8: "C8.mp3"
+                },
+                baseUrl: "https://tonejs.github.io/audio/salamander/",
+                onload: () => {
+                    const hint = document.getElementById('hintText');
+                    if (hint) hint.textContent = "Piano acústico listo. Haz clic para escuchar.";
+                }
+            }).toDestination();
+        }
+        return samplerPiano;
+    }
+
+    function obtenerNotaTone(rootIdx, semitonosRelativos, octava) {
+        let total = (rootIdx || 0) + semitonosRelativos;
+        let oct = (octava || 4) + Math.floor(total / 12);
+        let notaIdx = total % 12;
+        return `${NOTAS[notaIdx].c}${oct}`;
+    }
+
+    async function reproducirSonido() {
+        try {
+            await Tone.start();
+            if (Tone.context.state !== 'running') {
+                await Tone.context.resume();
+            }
+
+            const p = PREGUNTAS[indiceActual];
+            if (!p) return;
+
+            const piano = getPiano();
+            const hint = document.getElementById('hintText');
+
+            if (!piano.loaded) {
+                hint.innerHTML = '<span class="text-neon"><i class="bi bi-hourglass-split"></i> Cargando muestras de piano...</span>';
+                await Tone.loaded();
+            }
+
+            const octava = p.octava ? parseInt(p.octava) : 4;
+            const rootIdx = p.rootIdx !== undefined ? parseInt(p.rootIdx) : 0;
+            const semitonos = p.semitonos !== undefined ? parseInt(p.semitonos) : 0;
+            const modo = p.modo || 'ascendente';
+
+            const nota1 = obtenerNotaTone(rootIdx, 0, octava);
+            const nota2 = obtenerNotaTone(rootIdx, semitonos, octava);
+
+            hint.textContent = `Reproduciendo intervalo (${modo})...`;
+            const now = Tone.now();
+
+            if (modo === 'ascendente') {
+                piano.triggerAttackRelease(nota1, 1.2, now);
+                piano.triggerAttackRelease(nota2, 1.6, now + 0.75);
+            } else if (modo === 'descendente') {
+                piano.triggerAttackRelease(nota2, 1.2, now);
+                piano.triggerAttackRelease(nota1, 1.6, now + 0.75);
+            } else {
+                // Armónico (simultáneo)
+                piano.triggerAttackRelease([nota1, nota2], 2.2, now);
+            }
+
+            setTimeout(() => {
+                if (hint) hint.textContent = "Haz clic para volver a escuchar";
+            }, 2500);
+
+        } catch (err) {
+            console.error("Error al reproducir audio:", err);
+        }
+    }
+
+    function cargarPregunta(idx) {
+        if (!PREGUNTAS || PREGUNTAS.length === 0) return;
+
+        const p = PREGUNTAS[idx];
+        if (!p) return;
+
+        document.getElementById('currentNum').textContent = idx + 1;
+        document.getElementById('totalNum').textContent = PREGUNTAS.length;
+
+        const porcentaje = Math.round((idx / PREGUNTAS.length) * 100);
+        const progressFill = document.getElementById('progressFill');
+        if (progressFill) progressFill.style.width = `${porcentaje}%`;
+        document.getElementById('progresoPorcentaje').textContent = `${porcentaje}%`;
+
+        // Detalle pedagógico visible para el alumno
+        const octava = p.octava || 4;
+        const modoNombre = (p.modo === 'armonico') ? 'Armónico' : (p.modo === 'descendente' ? 'Melódico Descendente' : 'Melódico Ascendente');
+        const notacionNombre = (p.nomenclatura === 'americano') ? 'Cifrado' : 'Latino';
+
+        const hint = document.getElementById('hintText');
+        if (hint) {
+            hint.innerHTML = `Modo: <strong class="text-neon">${modoNombre}</strong> | Octava: <strong class="text-neon">${octava}</strong> | Notación: <strong class="text-neon">${notacionNombre}</strong>`;
+        }
+
+        const btnNext = document.getElementById('btnNext');
+        btnNext.disabled = true;
+        btnNext.innerHTML = (idx === PREGUNTAS.length - 1)
+            ? '<span>Finalizar y Enviar Ejercicio</span> <i class="bi bi-check-lg"></i>'
+            : '<span>Siguiente pregunta</span> <i class="bi bi-arrow-right"></i>';
+
+        const contenedor = document.getElementById('opcionesContainer');
+        if (!contenedor) return;
+        contenedor.innerHTML = '';
+
+        let listaOpciones = Array.isArray(p.opciones) ? p.opciones : [];
+
+        listaOpciones.forEach((opt, oIdx) => {
+            const tema = QBYT_THEMES[oIdx % QBYT_THEMES.length];
+            const textoOpcion = (typeof opt === 'string') ? opt : (opt.texto || `Opción ${oIdx + 1}`);
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = `qbyt-card ${tema.class}`;
+            btn.innerHTML = `
+                <div class="qbyt-icon-badge"><i class="bi ${tema.icon}"></i></div>
+                <div class="qbyt-text">${textoOpcion}</div>
+                <div class="qbyt-check-marker"><i class="bi bi-check2"></i></div>
+            `;
+            btn.onclick = () => seleccionarOpcion(btn, textoOpcion, p.id || idx);
+            contenedor.appendChild(btn);
+        });
+
+        // Si ya había seleccionado opción previamente
+        const seleccionPrevia = respuestasGuardadas[p.id || idx];
+        if (seleccionPrevia) {
+            document.querySelectorAll('.qbyt-card').forEach(card => {
+                if (card.querySelector('.qbyt-text').textContent.trim() === seleccionPrevia.trim()) {
+                    card.classList.add('is-selected');
+                    btnNext.disabled = false;
+                }
+            });
+        }
+    }
+
+    function seleccionarOpcion(botonSeleccionado, textoOpcion, preguntaId) {
+        document.querySelectorAll('.qbyt-card').forEach(btn => {
+            btn.classList.remove('is-selected');
+        });
+
+        botonSeleccionado.classList.add('is-selected');
+        respuestasGuardadas[preguntaId] = textoOpcion;
+        document.getElementById('btnNext').disabled = false;
+    }
+
+    function siguientePregunta() {
+        if (indiceActual < PREGUNTAS.length - 1) {
+            indiceActual++;
+            cargarPregunta(indiceActual);
+            setTimeout(reproducirSonido, 300);
+        } else {
+            const inputsContainer = document.getElementById('inputsRespuestasOcultas');
+            inputsContainer.innerHTML = '';
+
+            Object.keys(respuestasGuardadas).forEach(pId => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = `pregunta_${pId}`;
+                input.value = respuestasGuardadas[pId];
+                inputsContainer.appendChild(input);
+            });
+
+            document.getElementById('formEnvioRespuestas').submit();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (Array.isArray(PREGUNTAS) && PREGUNTAS.length > 0) {
+            cargarPregunta(0);
+        } else {
+            const area = document.getElementById('practiceArea');
+            if (area) {
+                area.innerHTML = `
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-exclamation-circle fs-1 text-warning mb-2 d-block"></i>
+                        No se encontraron intervalos configurados para este ejercicio.
+                    </div>
+                `;
+            }
+        }
+    });
+</script>
+{% endblock %}

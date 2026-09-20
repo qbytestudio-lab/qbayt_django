@@ -1,0 +1,548 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Crear Ejercicio de Intervalos — QBYT{% endblock %}
+{% block page_title %}Configurar Ejercicio de Intervalos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'ejercicios/css/crear_intervalos.css' %}">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card-form-container">
+                <div class="form-header mb-4">
+                    <h2><i class="bi bi-soundwave me-2"></i> Diseñador de Ejercicios de Intervalos</h2>
+                    <p class="text-muted">Configura intervalos simples, selecciona el tipo de reproducción (melódica o armónica) y crea preguntas auditivas interactivas.</p>
+                </div>
+
+                <!-- Estado del audio / carga del sampler -->
+                <div id="audioStatus" class="alert alert-dark border-secondary d-flex align-items-center py-2 px-3 mb-4" role="alert">
+                    <div class="spinner-border spinner-border-sm text-success me-2" id="audioSpinner" role="status"></div>
+                    <small id="audioStatusText" class="text-muted">Preparando muestras de piano acústico...</small>
+                </div>
+
+                <form method="POST" id="formIntervalos">
+                    {% csrf_token %}
+                    <input type="hidden" name="contenido_preguntas" id="inputContenidoPreguntas">
+
+                    <!-- Metadatos del ejercicio -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Título del ejercicio <span class="text-danger">*</span></label>
+                            <input type="text" name="titulo" class="form-control" placeholder="Ej: Reconocimiento de 3ras y 5tas justas" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Octava de trabajo</label>
+                            <select name="octava" id="octavaSelect" class="form-select">
+                                <option value="3">Octava 3 (Grave)</option>
+                                <option value="4" selected>Octava 4 (Central)</option>
+                                <option value="5">Octava 5 (Aguda)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Fecha límite</label>
+                            <input type="datetime-local" name="fecha_limite" id="fechaLimiteInput" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Descripción o consigna pedagógica</label>
+                            <textarea name="descripcion" class="form-control" rows="2" placeholder="Indicaciones para el estudiante..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de reproducción: Melódico vs Armónico -->
+                    <div class="row g-3 mb-4 p-3 border border-secondary rounded bg-dark">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-light mb-1"><i class="bi bi-play-circle me-1"></i> Modo de Reproducción por Defecto</label>
+                            <select id="modoReproduccionSelect" class="form-select">
+                                <option value="ascendente" selected>Melódico Ascendente (Baja ➔ Alta)</option>
+                                <option value="descendente">Melódico Descendente (Alta ➔ Baja)</option>
+                                <option value="armonico">Armónico (Simultáneo)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end justify-content-end">
+                            <button type="button" class="btn btn-sm btn-outline-light d-inline-flex align-items-center gap-2" id="btnToggleNomenclatura" onclick="toggleNomenclatura()">
+                                <i class="bi bi-arrow-left-right"></i>
+                                <span>Sistema: <strong id="lblNomenclatura" class="text-success">Latino (Do, Re, Mi)</strong></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <!-- Catálogo desplegable de Familias de Intervalos -->
+                    <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                        <h5 class="section-title mb-0">
+                            <i class="bi bi-collection-play"></i> Catálogo de Intervalos
+                        </h5>
+                        <span class="text-muted small">Escucha o presiona "+" para agregar a la evaluación</span>
+                    </div>
+
+                    <div class="accordion mb-4" id="accordionIntervalos">
+                        <!-- Segundas y Terceras -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSegundasTerceras">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSegundasTerceras">
+                                    <span class="family-indicator-dot dot-green"></span>
+                                    Segundas y Terceras (Pasos y saltos cortos)
+                                </button>
+                            </h2>
+                            <div id="collapseSegundasTerceras" class="accordion-collapse collapse" data-bs-parent="#accordionIntervalos">
+                                <div class="accordion-body" id="gridSegundasTerceras"></div>
+                            </div>
+                        </div>
+
+                        <!-- Cuartas, Quintas y Tritono -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingCuartasQuintas">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCuartasQuintas">
+                                    <span class="family-indicator-dot dot-purple"></span>
+                                    Cuartas, Quintas y Tritono (Consonancias y tensión)
+                                </button>
+                            </h2>
+                            <div id="collapseCuartasQuintas" class="accordion-collapse collapse" data-bs-parent="#accordionIntervalos">
+                                <div class="accordion-body" id="gridCuartasQuintas"></div>
+                            </div>
+                        </div>
+
+                        <!-- Sextas y Séptimas -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingSextasSeptimas">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSextasSeptimas">
+                                    <span class="family-indicator-dot dot-indigo"></span>
+                                    Sextas y Séptimas (Saltos amplios)
+                                </button>
+                            </h2>
+                            <div id="collapseSextasSeptimas" class="accordion-collapse collapse" data-bs-parent="#accordionIntervalos">
+                                <div class="accordion-body" id="gridSextasSeptimas"></div>
+                            </div>
+                        </div>
+
+                        <!-- Octavas y Unísonos -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingOctavas">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOctavas">
+                                    <span class="family-indicator-dot dot-emerald"></span>
+                                    Octava Justa y Unísono
+                                </button>
+                            </h2>
+                            <div id="collapseOctavas" class="accordion-collapse collapse" data-bs-parent="#accordionIntervalos">
+                                <div class="accordion-body" id="gridOctavas"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-secondary my-4">
+
+                    <!-- Preguntas del ejercicio -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="section-title mb-0">
+                            <i class="bi bi-ui-checks-grid"></i> Preguntas del Ejercicio (<span id="contadorPreguntas">0</span>)
+                        </h5>
+                        <span class="text-muted small">Haz clic en "+" desde el catálogo de arriba para agregar</span>
+                    </div>
+
+                    <div id="contenedorPreguntas" class="d-flex flex-column gap-3 mb-4">
+                        <div id="emptyPreguntasHint" class="text-center py-4 border border-dashed rounded text-muted">
+                            <i class="bi bi-music-note fs-2 mb-2 d-block"></i>
+                            Aún no has agregado ningún intervalo. Despliega una familia arriba y presiona "+".
+                        </div>
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <a href="{% url 'clase:detalle_clase' clase.id %}" class="btn btn-outline-light">
+                            <i class="bi bi-arrow-left me-1"></i> Volver a la clase
+                        </a>
+                        <button type="submit" class="btn btn-success px-4 py-2" id="btnGuardar">
+                            Crear Ejercicio de Intervalos <i class="bi bi-check-lg ms-1"></i>
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const NOTAS = [
+        { c: 'C', es: 'Do' }, { c: 'C#', es: 'Do#' },
+        { c: 'D', es: 'Re' }, { c: 'D#', es: 'Re#' },
+        { c: 'E', es: 'Mi' }, { c: 'F', es: 'Fa' },
+        { c: 'F#', es: 'Fa#' }, { c: 'G', es: 'Sol' },
+        { c: 'G#', es: 'Sol#' }, { c: 'A', es: 'La' },
+        { c: 'A#', es: 'La#' }, { c: 'B', es: 'Si' }
+    ];
+
+    const FAMILIAS_INTERVALOS = {
+        gridSegundasTerceras: [
+            { nombreLatino: '2da Menor', nombreAmericano: 'm2', semitonos: 1 },
+            { nombreLatino: '2da Mayor', nombreAmericano: 'M2', semitonos: 2 },
+            { nombreLatino: '3ra Menor', nombreAmericano: 'm3', semitonos: 3 },
+            { nombreLatino: '3ra Mayor', nombreAmericano: 'M3', semitonos: 4 }
+        ],
+        gridCuartasQuintas: [
+            { nombreLatino: '4ta Justa', nombreAmericano: 'P4', semitonos: 5 },
+            { nombreLatino: 'Tritono (4ta Aum / 5ta Dis)', nombreAmericano: 'TT', semitonos: 6 },
+            { nombreLatino: '5ta Justa', nombreAmericano: 'P5', semitonos: 7 }
+        ],
+        gridSextasSeptimas: [
+            { nombreLatino: '6ta Menor', nombreAmericano: 'm6', semitonos: 8 },
+            { nombreLatino: '6ta Mayor', nombreAmericano: 'M6', semitonos: 9 },
+            { nombreLatino: '7ma Menor', nombreAmericano: 'm7', semitonos: 10 },
+            { nombreLatino: '7ma Mayor', nombreAmericano: 'M7', semitonos: 11 }
+        ],
+        gridOctavas: [
+            { nombreLatino: 'Unísono Justo', nombreAmericano: 'P1', semitonos: 0 },
+            { nombreLatino: '8va Justa', nombreAmericano: 'P8', semitonos: 12 }
+        ]
+    };
+
+    let preguntas = [];
+    let samplerPiano = null;
+    let modoCifradoAmericano = false;
+
+    function initPiano() {
+        if (samplerPiano) return samplerPiano;
+
+        samplerPiano = new Tone.Sampler({
+            urls: {
+                A0: "A0.mp3", C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3",
+                A1: "A1.mp3", C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3",
+                A2: "A2.mp3", C3: "C3.mp3", "D#3": "Ds3.mp3", "F#3": "Fs3.mp3",
+                A3: "A3.mp3", C4: "C4.mp3", "D#4": "Ds4.mp3", "F#4": "Fs4.mp3",
+                A4: "A4.mp3", C5: "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
+                A5: "A5.mp3", C6: "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3",
+                A6: "A6.mp3", C7: "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
+                A7: "A7.mp3", C8: "C8.mp3"
+            },
+            baseUrl: "https://tonejs.github.io/audio/salamander/",
+            onload: () => {
+                const spinner = document.getElementById('audioSpinner');
+                const statusText = document.getElementById('audioStatusText');
+                if (spinner) spinner.remove();
+                if (statusText) {
+                    statusText.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i> Piano acústico listo para reproducir';
+                }
+            }
+        }).toDestination();
+
+        return samplerPiano;
+    }
+
+    function obtenerNotaTone(rootIdx, semitonosRelativos, octava) {
+        let total = rootIdx + semitonosRelativos;
+        let oct = octava + Math.floor(total / 12);
+        let notaIdx = total % 12;
+        return `${NOTAS[notaIdx].c}${oct}`;
+    }
+
+    async function reproducirIntervalo(semitonoDistancia, rootIdx = 0, octava = null, modo = null) {
+        await Tone.start();
+        if (Tone.context.state !== 'running') {
+            await Tone.context.resume();
+        }
+
+        const piano = initPiano();
+        const oct = octava || parseInt(document.getElementById('octavaSelect').value) || 4;
+        const modoRep = modo || document.getElementById('modoReproduccionSelect').value;
+
+        const nota1 = obtenerNotaTone(rootIdx, 0, oct);
+        const nota2 = obtenerNotaTone(rootIdx, semitonoDistancia, oct);
+
+        if (!piano.loaded) {
+            await Tone.loaded();
+        }
+
+        const now = Tone.now();
+
+        if (modoRep === 'ascendente') {
+            piano.triggerAttackRelease(nota1, 1.2, now);
+            piano.triggerAttackRelease(nota2, 1.6, now + 0.75);
+        } else if (modoRep === 'descendente') {
+            piano.triggerAttackRelease(nota2, 1.2, now);
+            piano.triggerAttackRelease(nota1, 1.6, now + 0.75);
+        } else {
+            // Armónico (simultáneo)
+            piano.triggerAttackRelease([nota1, nota2], 2.2, now);
+        }
+    }
+
+    function toggleNomenclatura() {
+        modoCifradoAmericano = !modoCifradoAmericano;
+        const lbl = document.getElementById('lblNomenclatura');
+        if (lbl) {
+            lbl.textContent = modoCifradoAmericano ? 'Americano (m2, P5, M7)' : 'Latino (2da Menor, 5ta Justa)';
+            lbl.className = modoCifradoAmericano ? 'text-info' : 'text-success';
+        }
+        renderCatalogo();
+    }
+
+    function renderCatalogo() {
+        Object.keys(FAMILIAS_INTERVALOS).forEach(containerId => {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            let html = '<div class="row g-2">';
+
+            FAMILIAS_INTERVALOS[containerId].forEach(inter => {
+                const nombrePrincipal = modoCifradoAmericano ? inter.nombreAmericano : inter.nombreLatino;
+                const nombreSecundario = modoCifradoAmericano ? inter.nombreLatino : inter.nombreAmericano;
+
+                html += `
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center justify-content-between catalog-chord-item">
+                            <div>
+                                <strong class="d-block text-light">${nombrePrincipal}</strong>
+                                <small class="text-muted">${nombreSecundario} (${inter.semitonos} st)</small>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn-chord-listen" onclick="reproducirIntervalo(${inter.semitonos}, 0)" title="Escuchar">
+                                    <i class="bi bi-volume-up"></i>
+                                </button>
+                                <button type="button" class="btn-chord-add" onclick="agregarPreguntaIntervalo('${nombrePrincipal}', ${inter.semitonos})" title="Agregar al ejercicio">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        });
+    }
+
+    function generarDistractoresIntervalos(correcta, esAmericano) {
+        const poolLatino = [
+            '2da Menor', '2da Mayor', '3ra Menor', '3ra Mayor',
+            '4ta Justa', 'Tritono (4ta Aum / 5ta Dis)', '5ta Justa',
+            '6ta Menor', '6ta Mayor', '7ma Menor', '7ma Mayor', '8va Justa'
+        ];
+        const poolAmericano = [
+            'm2', 'M2', 'm3', 'M3',
+            'P4', 'TT', 'P5',
+            'm6', 'M6', 'm7', 'M7', 'P8'
+        ];
+
+        const pool = esAmericano ? poolAmericano : poolLatino;
+        const filtrado = pool.filter(item => item !== correcta);
+        filtrado.sort(() => 0.5 - Math.random());
+        return filtrado.slice(0, 3);
+    }
+
+    function agregarPreguntaIntervalo(nombreIntervalo, semitonos) {
+        const octavaSeleccionada = parseInt(document.getElementById('octavaSelect').value) || 4;
+        const modoSeleccionado = document.getElementById('modoReproduccionSelect').value;
+        const esAmericano = modoCifradoAmericano;
+
+        // Raíz aleatoria para que el estudiante aprenda a reconocer la distancia y no una nota fija
+        const rootRandom = Math.floor(Math.random() * 12);
+        const distractores = generarDistractoresIntervalos(nombreIntervalo, esAmericano);
+
+        const opciones = [
+            { texto: nombreIntervalo, correcta: true },
+            { texto: distractores[0], correcta: false },
+            { texto: distractores[1], correcta: false },
+            { texto: distractores[2], correcta: false }
+        ];
+
+        const idPregunta = Date.now();
+        preguntas.push({
+            id: idPregunta,
+            enunciado: 'Identifica el intervalo auditivo reproducido',
+            intervalo: nombreIntervalo,
+            semitonos: semitonos,
+            rootIdx: rootRandom,
+            octava: octavaSeleccionada,
+            modo: modoSeleccionado,
+            nomenclatura: esAmericano ? 'americano' : 'latino',
+            opciones: opciones
+        });
+
+        actualizarListaPreguntas();
+    }
+
+    function marcarOpcionCorrecta(idPregunta, indiceCorrecto) {
+        const preg = preguntas.find(p => p.id === idPregunta);
+        if (!preg) return;
+        preg.opciones.forEach((opt, idx) => {
+            opt.correcta = (idx === indiceCorrecto);
+        });
+        actualizarListaPreguntas();
+    }
+
+    function agregarOpcionManual(idPregunta) {
+        const preg = preguntas.find(p => p.id === idPregunta);
+        if (!preg) return;
+        preg.opciones.push({
+            texto: `Opción ${preg.opciones.length + 1}`,
+            correcta: false
+        });
+        actualizarListaPreguntas();
+    }
+
+    function eliminarOpcion(idPregunta, indiceOpcion) {
+        const preg = preguntas.find(p => p.id === idPregunta);
+        if (!preg || preg.opciones.length <= 2) {
+            alert("Una pregunta debe tener al menos 2 opciones.");
+            return;
+        }
+        const eraCorrecta = preg.opciones[indiceOpcion].correcta;
+        preg.opciones.splice(indiceOpcion, 1);
+        if (eraCorrecta && preg.opciones.length > 0) {
+            preg.opciones[0].correcta = true;
+        }
+        actualizarListaPreguntas();
+    }
+
+    function actualizarTextoPregunta(idPregunta, nuevoTexto) {
+        const preg = preguntas.find(p => p.id === idPregunta);
+        if (preg) preg.enunciado = nuevoTexto;
+    }
+
+    function actualizarTextoOpcion(idPregunta, opcionIdx, nuevoTexto) {
+        const preg = preguntas.find(p => p.id === idPregunta);
+        if (preg && preg.opciones[opcionIdx]) {
+            preg.opciones[opcionIdx].texto = nuevoTexto;
+        }
+    }
+
+    function eliminarPregunta(id) {
+        preguntas = preguntas.filter(p => p.id !== id);
+        actualizarListaPreguntas();
+    }
+
+    function actualizarListaPreguntas() {
+        const container = document.getElementById('contenedorPreguntas');
+        const emptyHint = document.getElementById('emptyPreguntasHint');
+        const contador = document.getElementById('contadorPreguntas');
+
+        contador.textContent = preguntas.length;
+
+        if (preguntas.length === 0) {
+            container.innerHTML = '';
+            container.appendChild(emptyHint);
+            emptyHint.style.display = 'block';
+            return;
+        }
+
+        container.innerHTML = '';
+        preguntas.forEach((p, idx) => {
+            const card = document.createElement('div');
+            card.className = 'pregunta-builder-card position-relative mb-4';
+            card.innerHTML = `
+                <div class="pregunta-index-badge">${idx + 1}</div>
+
+                <div class="card-inner-box">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                        <div class="d-flex gap-2 align-items-center flex-wrap">
+                            <span class="tipo-pill-badge active">Intervalo</span>
+                            <span class="badge bg-dark text-info border border-secondary px-2 py-1">
+                                <i class="bi bi-soundwave me-1"></i> Octava ${p.octava}
+                            </span>
+                            <span class="badge bg-dark text-warning border border-secondary px-2 py-1">
+                                <i class="bi bi-play-circle me-1"></i> ${p.modo}
+                            </span>
+                            <span class="badge bg-dark text-success border border-secondary px-2 py-1">
+                                <i class="bi bi-translate me-1"></i> ${p.nomenclatura === 'americano' ? 'Americano' : 'Latino'}
+                            </span>
+                        </div>
+                        <button type="button" class="btn-delete-card" onclick="eliminarPregunta(${p.id})" title="Eliminar pregunta">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Pregunta ${idx + 1} <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" value="${p.enunciado}" 
+                               placeholder="Escribe el enunciado de la pregunta..." 
+                               onchange="actualizarTextoPregunta(${p.id}, this.value)">
+                    </div>
+
+                    <div class="audio-hero-player text-center py-3 my-3">
+                        <button type="button" class="btn-audio-hero shadow" onclick="reproducirIntervalo(${p.semitonos}, ${p.rootIdx}, ${p.octava}, '${p.modo}')" title="Reproducir intervalo">
+                            <i class="bi bi-volume-up-fill"></i>
+                        </button>
+                        <span class="d-block mt-2 audio-hero-label">
+                            Reproducir <strong>${p.intervalo}</strong> (${p.modo}, Octava ${p.octava})
+                        </span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2 mt-3">
+                        <label class="form-label mb-0">Opciones (marca la correcta)</label>
+                        <button type="button" class="btn-add-option-pill" onclick="agregarOpcionManual(${p.id})">
+                            <i class="bi bi-plus"></i> Añadir opción
+                        </button>
+                    </div>
+
+                    <div class="d-flex flex-column gap-2 mt-2">
+                        ${p.opciones.map((opt, oIdx) => `
+                            <div class="opcion-row-card ${opt.correcta ? 'is-correct' : ''}">
+                                <div class="opcion-radio-target" onclick="marcarOpcionCorrecta(${p.id},${oIdx})">
+                                    <div class="custom-radio-circle ${opt.correcta ? 'selected' : ''}"></div>
+                                </div>
+                                
+                                <input type="text" class="opcion-input-text" value="${opt.texto}" 
+                                       placeholder="Opción ${oIdx + 1}"
+                                       onchange="actualizarTextoOpcion(${p.id},${oIdx}, this.value)">
+
+                                ${opt.correcta ? '<span class="correct-badge-pill">CORRECTA</span>' : ''}
+                                
+                                <button type="button" class="btn-remove-option" onclick="eliminarOpcion(${p.id},${oIdx})" title="Quitar opción">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function configurarRestriccionFechaMinima() {
+        const inputFecha = document.getElementById('fechaLimiteInput');
+        if (!inputFecha) return;
+
+        const ahora = new Date();
+        const offset = ahora.getTimezoneOffset() * 60000;
+        const horaLocal = new Date(ahora.getTime() - offset);
+        inputFecha.min = horaLocal.toISOString().slice(0, 16);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        renderCatalogo();
+        initPiano();
+        configurarRestriccionFechaMinima();
+
+        document.getElementById('formIntervalos').addEventListener('submit', function(e) {
+            const inputFecha = document.getElementById('fechaLimiteInput');
+            
+            if (inputFecha && inputFecha.value) {
+                const fechaSeleccionada = new Date(inputFecha.value);
+                const ahora = new Date();
+
+                if (fechaSeleccionada < ahora) {
+                    e.preventDefault();
+                    alert('La fecha límite no puede ser anterior al momento actual.');
+                    inputFecha.focus();
+                    return;
+                }
+            }
+
+            if (preguntas.length === 0) {
+                e.preventDefault();
+                alert('Debes agregar al menos un intervalo al ejercicio antes de crearlo.');
+                return;
+            }
+
+            document.getElementById('inputContenidoPreguntas').value = JSON.stringify(preguntas);
+        });
+    });
+</script>
+{% endblock %}

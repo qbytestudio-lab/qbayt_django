@@ -549,18 +549,18 @@
                         </span>
                     </a>
 
-                    <a href="{% url 'ejercicios:crear_acordes' clase.id %}" class="ejercicio-option-card">
-                        <div class="option-icon juego-icon"><i class="bi bi-controller"></i></div>
+                    <a href="{% url 'ejercicios:crear_ejercicio_acordes' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon acordes-icon"><i class="bi bi-music-note-beamed"></i></div>
                         <h4 class="option-title">Acordes</h4>
-                        <p class="option-desc">Crea un ejercicio auditivo de reconocimiento de acordes mayores, menores, séptimas y más.</p>
+                        <p class="option-desc">Reconocimiento auditivo de tríadas y acordes con séptima.</p>
+                        <span class="option-badge badge-purple"><i class="bi bi-soundwave"></i> Armonía</span>
                     </a>
 
-                    <a href="{% url 'ejercicios:crear_texto' clase.id %}" class="ejercicio-option-card">
-                        <div class="option-icon texto-icon"><i class="bi bi-file-text-fill"></i></div>
-                        <h4 class="option-title">Texto / Lectura</h4>
-                        <p class="option-desc">Contenido teórico con texto y opcionalmente imágenes.</p>
-                        <span class="option-badge badge-orange"><i class="bi bi-journal-text"></i> Material de
-                            lectura</span>
+                   <a href="{% url 'ejercicios:crear_ejercicio_intervalos' clase.id %}" class="ejercicio-option-card">
+                        <div class="option-icon intervalos-icon"><i class="bi bi-soundwave"></i></div>
+                        <h4 class="option-title">Intervalos</h4>
+                        <p class="option-desc">Entrenamiento auditivo melódico y armónico de distancias tonales.</p>
+                        <span class="option-badge badge-blue"><i class="bi bi-music-note-beamed"></i> Percepción auditiva</span>
                     </a>
 
                     <a href="{% url 'ejercicios:crear_completar' clase.id %}" class="ejercicio-option-card">
