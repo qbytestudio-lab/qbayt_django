@@ -265,14 +265,18 @@ body {
 }
 
 .btn-limite {
-  background: linear-gradient(135deg, #f59e0b, #dc2626);
-  color: #fff;
-  box-shadow: 0 8px 24px rgba(245, 158, 11, 0.35);
+    /* Gradiente con tonos morados/azulados más sobrios */
+    background: linear-gradient(135deg, #334DE5, #6333e5); 
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    box-shadow: 0 4px 20px rgba(51, 77, 229, 0.25); /* Sombra difuminada acorde al tono */
+    transition: all 0.3s ease;
 }
 
 .btn-limite:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 14px 36px rgba(245, 158, 11, 0.5);
+    background: linear-gradient(135deg, #273cb4, #5228c2);
+    box-shadow: 0 6px 24px rgba(99, 51, 229, 0.35);
+}
 }
 
 .btn-counter {
