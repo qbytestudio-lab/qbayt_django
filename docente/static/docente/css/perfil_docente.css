@@ -1,5 +1,10 @@
-/* ========== PERFIL DOCENTE - CON TEMA CLARO ========== */
+/* ============================================ */
+/*   PERFIL DOCENTE - QBYT (MEJORADO)           */
+/*   Mantiene tu diseño + mejoras puntuales     */
+/* ============================================ */
+
 :root {
+  /* Colores base */
   --spotify-black: #121212;
   --spotify-dark-gray: #181818;
   --spotify-gray: #282828;
@@ -12,7 +17,8 @@
   --spotify-danger: #e91429;
   --docente-accent: #7c6fff;
   --docente-accent-hover: #9b8fff;
-  
+  --docente-pink: #ec4899;
+
   /* Superficies */
   --bg-body: #121212;
   --bg-card: #181818;
@@ -24,10 +30,6 @@
   --border-subtle: rgba(255, 255, 255, 0.05);
   --shadow: rgba(0, 0, 0, 0.4);
 }
-
-/* ═══════════════════════════════════════════ */
-/* MODO CLARO - CREMA + VERDE                  */
-/* ═══════════════════════════════════════════ */
 
 [data-theme="light"] {
   --spotify-black: #fefce8;
@@ -42,11 +44,12 @@
   --spotify-danger: #ef4444;
   --docente-accent: #16a34a;
   --docente-accent-hover: #15803d;
+  --docente-pink: #ec4899;
   --accent-purple: #16a34a;
   --accent-pink: #ec4899;
   --accent-orange: #f59e0b;
   --accent-blue: #06b6d4;
-  
+
   --bg-body: #fefce8;
   --bg-card: #ffffff;
   --bg-hover: rgba(34, 197, 94, 0.06);
@@ -73,10 +76,13 @@ body {
   margin: 0 auto;
 }
 
-/* ========== HERO SECTION - DOCENTE ========== */
+/* ============================================ */
+/* PROFILE HERO CON BANNER - DOCENTE            */
+/* ============================================ */
+
 .profile-hero.docente {
   position: relative;
-  min-height: 350px;
+  min-height: 380px;
   overflow: hidden;
   padding: 0;
 }
@@ -102,19 +108,30 @@ body {
 .banner-placeholder.docente {
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #16a34a 0%, #15803d 50%, #166534 100%);
+  background: linear-gradient(135deg, #7c6fff 0%, #a855f7 40%, #ec4899 100%);
+  position: relative;
+}
+
+/* Sutil brillo en el banner */
+.banner-placeholder.docente::after {
+  content: '';
+  position: absolute;
+  top: -30%;
+  right: -10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
 .banner-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.3) 0%,
-    rgba(0, 0, 0, 0.5) 50%,
+    rgba(0, 0, 0, 0.25) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
     rgba(18, 18, 18, 0.95) 100%
   );
   pointer-events: none;
@@ -123,864 +140,30 @@ body {
 [data-theme="light"] .banner-overlay {
   background: linear-gradient(
     180deg,
-    rgba(0, 0, 0, 0.25) 0%,
-    rgba(0, 0, 0, 0.45) 50%,
-    rgba(20, 20, 20, 0.85) 100%
+    rgba(0, 0, 0, 0.2) 0%,
+    rgba(0, 0, 0, 0.4) 50%,
+    rgba(18, 18, 18, 0.85) 100%
   );
 }
 
-/* Botón cambiar banner */
-.btn-change-banner {
-  position: absolute;
-  top: 15px;
-  right: 15px;
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  backdrop-filter: blur(10px);
-  z-index: 10;
-  pointer-events: auto;
-}
-
-.btn-change-banner:hover {
-  background: rgba(0, 0, 0, 0.7);
-  transform: scale(1.05);
-}
-
-.profile-hero-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-  padding: 60px 2rem 0;
-}
-
-/* Avatar */
-.avatar-container {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.avatar-circle {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #333, #1a1a1a);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 3.5rem;
-  color: var(--docente-accent);
-  border: 4px solid rgba(22, 163, 74, 0.2);
-  box-shadow: 0 8px 32px rgba(22, 163, 74, 0.2);
-  position: relative;
-  transition: transform 0.3s ease;
-  overflow: hidden;
-}
-
-.avatar-circle:hover {
-  transform: scale(1.05);
-}
-
-.avatar-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-}
-
-.avatar-edit-badge {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 38px;
-  height: 38px;
-  background: var(--bg-card);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  border: 2px solid var(--bg-body);
-  transition: all 0.2s;
-}
-
-.avatar-edit-badge:hover {
-  background: var(--spotify-light-gray);
-  transform: scale(1.1);
-}
-
-.avatar-edit-badge i {
-  color: #fff;
-  font-size: 0.9rem;
-}
-
-/* Profile Info */
-.profile-info {
-  flex: 1;
-  min-width: 200px;
-}
-
-.role-badge.docente {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: rgba(22, 163, 74, 0.15);
-  border: 1px solid rgba(22, 163, 74, 0.3);
-  color: var(--docente-accent);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  backdrop-filter: blur(10px);
-}
-
-.profile-username {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800;
-  font-size: 2rem;
-  color: #fff !important;
-  margin: 0.3rem 0;
-  letter-spacing: -0.5px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-.profile-meta {
-  color: rgba(255, 255, 255, 0.7) !important;
-  font-size: 0.85rem;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-
-.meta-separator {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-/* Edit Button */
-.btn-edit-profile.docente {
-  background: rgba(22, 163, 74, 0.15);
-  border: 1px solid rgba(22, 163, 74, 0.3);
-  color: #fff;
-  padding: 0.6rem 1.5rem;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
-  text-decoration: none;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  backdrop-filter: blur(10px);
-  flex-shrink: 0;
-}
-
-.btn-edit-profile.docente:hover {
-  background: rgba(22, 163, 74, 0.3);
-  transform: scale(1.05);
-  color: #fff;
-}
-
-/* Quick Stats */
-.quick-stats {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  padding: 1.5rem 2rem;
-  margin-top: 1rem;
-}
-
-.stat-pill.docente {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(22, 163, 74, 0.15);
-  border-radius: 12px;
-  padding: 0.6rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s;
-  cursor: pointer;
-  flex: 1;
-  min-width: 110px;
-  justify-content: center;
-}
-
-.stat-pill.docente:hover {
-  background: rgba(22, 163, 74, 0.15);
-  transform: translateY(-2px);
-  border-color: rgba(22, 163, 74, 0.3);
-}
-
-.stat-pill.docente i {
-  font-size: 1rem;
-  color: var(--docente-accent);
-}
-
-.stat-value {
-  font-weight: 800;
-  color: #fff;
-  font-size: 0.95rem;
-  font-family: 'Syne', sans-serif;
-}
-
-.stat-label {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 0.7rem;
-  font-weight: 500;
-}
-
-/* Star Rating */
-.star-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-}
-
-.star-rating i {
-  color: #ffd700;
-  font-size: 0.8rem;
-}
-
-/* ========== TABS ========== */
-.profile-tabs-bar {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-subtle);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  backdrop-filter: blur(20px);
-}
-
-.profile-tabs {
-  display: flex;
-  gap: 0;
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.ptab {
-  padding: 0.85rem 1.2rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.8rem;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.ptab:hover {
-  color: var(--text-primary);
-}
-
-.ptab.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--docente-accent);
-}
-
-/* ========== MAIN CONTENT ========== */
-.profile-body {
-  padding: 1.5rem 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.tab-pane {
-  display: none;
-  animation: fadeIn 0.3s ease;
-}
-
-.tab-pane.active {
-  display: block;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ========== SECTION CARDS ========== */
-.section-card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-subtle);
-  margin-bottom: 1.5rem;
-}
-
-.section-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 0.8rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.section-card-header h2 {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 1.1rem;
-  color: var(--text-primary);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.section-card-header h2 i {
-  color: var(--docente-accent);
-}
-
-.btn-link-accent.docente {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.8rem;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.btn-link-accent.docente:hover {
-  color: var(--docente-accent);
-}
-
-.count-badge {
-  background: rgba(22, 163, 74, 0.12);
-  color: var(--docente-accent);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid rgba(22, 163, 74, 0.2);
-}
-
-/* ========== INFO GRID ========== */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-.info-field {
-  padding: 0.9rem 1rem;
-  background: var(--bg-hover);
-  border-radius: 8px;
-  border: 1px solid var(--border-subtle);
-  transition: all 0.2s;
-}
-
-.info-field:hover {
-  background: var(--bg-hover);
-  border-color: rgba(22, 163, 74, 0.15);
-}
-
-.info-label {
-  display: block;
-  color: var(--text-muted);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 0.3rem;
-  font-weight: 600;
-}
-
-.info-value {
-  color: var(--text-primary);
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.badge-role.docente {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.2rem 0.7rem;
-  border-radius: 20px;
-  font-size: 0.72rem;
-  font-weight: 700;
-  background: rgba(22, 163, 74, 0.12);
-  color: var(--docente-accent);
-  border: 1px solid rgba(22, 163, 74, 0.3);
-}
-
-/* ========== DANGER ZONE ========== */
-.danger-zone {
-  margin-top: 1.5rem;
-  padding-top: 1.2rem;
-  border-top: 1px solid var(--border-subtle);
-}
-
-.danger-title {
-  color: var(--spotify-danger);
-  font-size: 0.85rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-bottom: 0.4rem;
-}
-
-.danger-text {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  margin-bottom: 0.8rem;
-}
-
-.btn-danger-spotify {
-  background: transparent;
-  color: var(--spotify-danger);
-  border: 1px solid var(--spotify-danger);
-  padding: 0.5rem 1rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.btn-danger-spotify:hover {
-  background: rgba(239, 68, 68, 0.1);
-  transform: scale(1.05);
-}
-
-/* ========== SEARCH BAR ========== */
-.search-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: var(--bg-hover);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.6rem 1rem;
-  margin-bottom: 1.2rem;
-  transition: all 0.2s;
-}
-
-.search-bar:focus-within {
-  border-color: var(--docente-accent);
-}
-
-.search-bar i {
-  color: var(--text-muted);
-  font-size: 1rem;
-}
-
-.search-bar input {
-  background: none;
-  border: none;
-  outline: none;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  width: 100%;
-}
-
-.search-bar input::placeholder {
-  color: var(--text-muted);
-}
-
-/* ========== STUDENT LIST ========== */
-.student-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-.student-row {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.8rem;
-  background: var(--bg-hover);
-  border-radius: 8px;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-}
-
-.student-row:hover {
-  background: var(--bg-hover);
-  border-color: rgba(22, 163, 74, 0.15);
-  transform: translateX(4px);
-}
-
-.student-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--docente-accent), var(--docente-accent-hover));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 1rem;
-  flex-shrink: 0;
-}
-
-.student-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.student-info h3 {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.85rem;
-  margin: 0 0 0.15rem 0;
-}
-
-.student-info p {
-  color: var(--text-secondary);
-  font-size: 0.72rem;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-}
-
-.class-badge {
-  padding: 0.2rem 0.6rem;
-  border-radius: 20px;
-  font-size: 0.65rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.class-badge.upcoming {
-  background: rgba(22, 163, 74, 0.12);
-  color: var(--spotify-green);
-  border: 1px solid rgba(22, 163, 74, 0.25);
-}
-
-.student-actions {
-  display: flex;
-  gap: 0.4rem;
-  flex-shrink: 0;
-}
-
-.btn-action {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid var(--border-color);
-  background: transparent;
-  color: var(--text-secondary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.8rem;
-}
-
-.btn-action:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-}
-
-.btn-action.message:hover {
-  color: var(--docente-accent);
-  border-color: var(--docente-accent);
-}
-
-.btn-action.view:hover {
-  color: var(--spotify-green);
-  border-color: var(--spotify-green);
-}
-
-/* ========== MODALS ========== */
-.modal-content {
-  background: var(--bg-card) !important;
-  border: 1px solid var(--border-color) !important;
-  border-radius: 16px !important;
-  color: var(--text-primary) !important;
-}
-
-.modal-header {
-  border-bottom: 1px solid var(--border-subtle) !important;
-  padding: 1.2rem !important;
-}
-
-.modal-title {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.modal-body {
-  padding: 1.2rem !important;
-}
-
-.modal-footer {
-  border-top: 1px solid var(--border-subtle) !important;
-  padding: 1.2rem !important;
-}
-
-.modal-header.bg-danger {
-  background: var(--spotify-danger) !important;
-  border-radius: 16px 16px 0 0 !important;
-}
-
-.form-label {
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-size: 0.8rem;
-  margin-bottom: 0.4rem;
-}
-
-.form-control {
-  background: var(--bg-hover) !important;
-  border: 1px solid var(--border-color) !important;
-  color: var(--text-primary) !important;
-  border-radius: 8px !important;
-  padding: 0.6rem 0.9rem !important;
-  transition: all 0.2s;
-}
-
-.form-control:focus {
-  border-color: var(--docente-accent) !important;
-  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2) !important;
-}
-
-.btn-spotify-primary {
-  background: var(--docente-accent);
-  color: #fff;
-  border: none;
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.btn-spotify-primary:hover {
-  background: var(--docente-accent-hover);
-  transform: scale(1.05);
-}
-
-.btn-spotify-secondary {
-  background: transparent;
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  padding: 0.5rem 1.2rem;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.8rem;
-  transition: all 0.2s;
-  cursor: pointer;
-}
-
-.btn-spotify-secondary:hover {
-  border-color: var(--text-primary);
-}
-
-.btn-close-white {
-  filter: brightness(0) invert(1);
-}
-
-[data-theme="light"] .btn-close-white {
-  filter: none;
-}
-
-/* ========== EMPTY STATE ========== */
-.empty-state {
-  text-align: center;
-  padding: 2rem 1rem;
-}
-
-.empty-icon {
-  font-size: 2.5rem;
-  color: var(--docente-accent);
-  opacity: 0.3;
-  margin-bottom: 0.8rem;
-}
-
-.empty-text {
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-/* ========== SCROLLBAR ========== */
-::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg-body);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--spotify-light-gray);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted);
-}
-
-/* ========== RESPONSIVE ========== */
-@media (max-width: 768px) {
-  .profile-hero.docente {
-    min-height: auto;
-  }
-
-  .profile-hero-content {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 40px 1rem 0;
-    gap: 0.8rem;
-  }
-
-  .avatar-circle {
-    width: 100px;
-    height: 100px;
-    font-size: 2.5rem;
-    margin: 0 auto;
-  }
-
-  .profile-username {
-    font-size: 1.5rem;
-  }
-
-  .quick-stats {
-    padding: 1rem;
-    justify-content: center;
-  }
-
-  .stat-pill.docente {
-    flex: 0 1 auto;
-    min-width: 90px;
-  }
-
-  .profile-body {
-    padding: 1rem;
-  }
-
-  .info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .student-row {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 480px) {
-  .profile-username {
-    font-size: 1.2rem;
-  }
-
-  .avatar-circle {
-    width: 80px;
-    height: 80px;
-    font-size: 2rem;
-  }
-
-  .btn-edit-profile.docente {
-    padding: 0.4rem 0.9rem;
-    font-size: 0.75rem;
-  }
-}
-
-/* ========== BOTONES DE ACCIÓN (student actions) ========== */
-
-.student-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-.btn-action {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-    background: var(--bg-hover, rgba(255, 255, 255, 0.05));
-    color: var(--text-secondary, #b3b3b3);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
-}
-
-.btn-action:hover {
-    transform: translateY(-2px);
-}
-
-.btn-action.message:hover {
-    background: rgba(22, 163, 74, 0.15);
-    color: var(--accent-purple, #16a34a);
-    border-color: rgba(22, 163, 74, 0.35);
-}
-
-.btn-action.view:hover {
-    background: rgba(22, 163, 74, 0.15);
-    color: var(--spotify-green, #16a34a);
-    border-color: rgba(22, 163, 74, 0.35);
-}
-
-/* Botón del chat de mensajería */
-.btn-action.message {
-    text-decoration: none;
-}
 /* ═══════════════════════════════════════════ */
-/*         MENÚ DE AJUSTES ⚙                  */
+/* MENÚ DE AJUSTES ⚙                          */
 /* ═══════════════════════════════════════════ */
 
 .settings-menu {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: 20px;
+  right: 20px;
   z-index: 20;
 }
 
 .settings-btn {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
   font-size: 1.1rem;
   display: flex;
   align-items: center;
@@ -988,25 +171,24 @@ body {
   cursor: pointer;
   transition: all 0.3s ease;
   backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .settings-btn:hover {
   background: rgba(0, 0, 0, 0.75);
-  transform: rotate(45deg);
-  border-color: rgba(255, 255, 255, 0.5);
+  transform: rotate(90deg);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .settings-dropdown {
   position: absolute;
   top: calc(100% + 10px);
   right: 0;
-  min-width: 220px;
+  min-width: 230px;
   background: var(--bg-card);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
-  box-shadow: 0 12px 32px var(--shadow);
-  padding: 0.4rem;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 0.5rem;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -1023,14 +205,14 @@ body {
 .settings-option {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
+  gap: 0.75rem;
   width: 100%;
   padding: 0.7rem 0.9rem;
   background: transparent;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text-primary);
-  font-size: 0.85rem;
+  font-size: 0.87rem;
   font-weight: 600;
   cursor: pointer;
   text-align: left;
@@ -1059,33 +241,743 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/*         CÁMARA SOBRE EL AVATAR              */
+/* AVATAR + INFO                               */
 /* ═══════════════════════════════════════════ */
 
+.profile-hero-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+  padding: 60px 2.5rem 0;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.avatar-container {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatar-circle {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #333, #1a1a1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3.2rem;
+  color: var(--docente-accent);
+  border: 4px solid rgba(124, 111, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(124, 111, 255, 0.25);
+  transition: transform 0.3s ease;
+  overflow: hidden;
+}
+
+.avatar-circle:hover {
+  transform: scale(1.05);
+  border-color: rgba(124, 111, 255, 0.5);
+  box-shadow: 0 12px 40px rgba(124, 111, 255, 0.4);
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* 📷 Cámara sobre el avatar */
 .avatar-edit-badge {
-  background: var(--bg-card);
-  border: 2px solid var(--bg-body);
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 38px;
+  height: 38px;
+  background: var(--docente-accent);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 3px solid var(--bg-body);
+  transition: all 0.2s;
   z-index: 3;
+  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.4);
 }
 
 .avatar-edit-badge:hover {
-  background: var(--docente-accent) !important;
+  background: var(--docente-accent-hover);
+  transform: scale(1.12);
+  box-shadow: 0 6px 20px rgba(124, 111, 255, 0.6);
 }
 
 .avatar-edit-badge i {
-  color: var(--text-primary);
+  color: #ffffff;
   font-size: 0.9rem;
 }
 
-.avatar-edit-badge:hover i {
-  color: #ffffff;
+[data-theme="light"] .avatar-edit-badge {
+  border-color: #ffffff;
 }
 
-/* ═══════════════════════════════════════════ */
-/* RESPONSIVE DEL MENÚ DE AJUSTES              */
-/* ═══════════════════════════════════════════ */
+/* ═══ INFO DEL DOCENTE ═══ */
+
+.profile-info {
+  flex: 1;
+  min-width: 200px;
+}
+
+.role-badge.docente {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(124, 111, 255, 0.25);
+  border: 1px solid rgba(124, 111, 255, 0.5);
+  color: #c4baff;
+  padding: 0.3rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  backdrop-filter: blur(10px);
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.profile-username {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.9rem;
+  color: #ffffff !important;
+  margin: 0.2rem 0 0.5rem;
+  letter-spacing: -0.5px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  line-height: 1.15;
+}
+
+.profile-meta {
+  color: rgba(255, 255, 255, 0.85) !important;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+}
+
+.meta-separator {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* ═══ QUICK STATS ═══ */
+
+.quick-stats {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1.75rem 2.5rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stat-pill.docente {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 14px;
+  padding: 0.75rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  transition: all 0.25s ease;
+  cursor: pointer;
+  flex: 1;
+  min-width: 130px;
+  justify-content: center;
+}
+
+.stat-pill.docente:hover {
+  background: rgba(0, 0, 0, 0.7);
+  transform: translateY(-3px);
+  border-color: rgba(124, 111, 255, 0.6);
+  box-shadow: 0 8px 24px rgba(124, 111, 255, 0.3);
+}
+
+.stat-pill.docente i {
+  font-size: 1.05rem;
+  color: #c4baff;
+  filter: drop-shadow(0 0 6px rgba(124, 111, 255, 0.6));
+}
+
+.stat-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.stat-label {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+/* ============================================ */
+/* TABS                                        */
+/* ============================================ */
+
+.profile-tabs-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 68px;
+  z-index: 100;
+  backdrop-filter: blur(20px);
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 1200px;
+}
+
+.ptab {
+  padding: 1rem 1.4rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.83rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ptab:hover {
+  color: var(--docente-accent);
+}
+
+.ptab.active {
+  color: var(--docente-accent);
+  border-bottom-color: var(--docente-accent);
+}
+
+/* ============================================ */
+/* MAIN CONTENT                                */
+/* ============================================ */
+
+.profile-body {
+  padding: 1.75rem 2.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.tab-pane {
+  display: none;
+  animation: fadeIn 0.3s ease;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================ */
+/* SECTION CARDS                               */
+/* ============================================ */
+
+.section-card {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 1.6rem;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 1.5rem;
+  transition: all 0.25s ease;
+}
+
+.section-card:hover {
+  border-color: var(--border-color);
+}
+
+.section-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.section-card-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.section-card-header h2 i {
+  color: var(--docente-accent);
+}
+
+.btn-link-accent.docente {
+  color: var(--docente-accent);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.78rem;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 10px;
+  background: rgba(124, 111, 255, 0.08);
+  border: 1px solid rgba(124, 111, 255, 0.2);
+}
+
+.btn-link-accent.docente:hover {
+  background: rgba(124, 111, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* ============================================ */
+/* INFO GRID                                   */
+/* ============================================ */
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.info-field {
+  padding: 0.9rem 1rem;
+  background: var(--bg-hover);
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s;
+}
+
+.info-field:hover {
+  background: var(--bg-hover);
+  border-color: rgba(124, 111, 255, 0.3);
+  transform: translateX(3px);
+}
+
+.info-label {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.info-value {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.badge-role.docente {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: rgba(124, 111, 255, 0.12);
+  color: var(--docente-accent);
+  border: 1px solid rgba(124, 111, 255, 0.3);
+}
+
+/* ============================================ */
+/* DANGER ZONE                                 */
+/* ============================================ */
+
+.danger-zone {
+  margin-top: 1.5rem;
+  padding: 1.2rem;
+  border-top: 1px solid var(--border-subtle);
+  border: 1px dashed rgba(239, 68, 68, 0.35);
+  border-radius: 12px;
+  background: rgba(239, 68, 68, 0.04);
+}
+
+.danger-title {
+  color: var(--spotify-danger);
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.5rem;
+  font-family: 'Syne', sans-serif;
+}
+
+.danger-text {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.btn-danger-spotify {
+  background: transparent;
+  color: var(--spotify-danger);
+  border: 1.5px solid var(--spotify-danger);
+  padding: 0.6rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: inherit;
+}
+
+.btn-danger-spotify:hover {
+  background: var(--spotify-danger);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+}
+
+/* ============================================ */
+/* SEARCH BAR + STUDENT LIST                   */
+/* ============================================ */
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--bg-hover);
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+  margin-bottom: 1.2rem;
+  transition: all 0.2s;
+}
+
+.search-bar:focus-within {
+  border-color: var(--docente-accent);
+  box-shadow: 0 0 0 4px rgba(124, 111, 255, 0.15);
+}
+
+.search-bar i {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  transition: color 0.2s;
+}
+
+.search-bar:focus-within i {
+  color: var(--docente-accent);
+}
+
+.search-bar input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 0.88rem;
+  width: 100%;
+  font-family: inherit;
+}
+
+.search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.student-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem;
+  background: var(--bg-hover);
+  border-radius: 12px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+
+.student-row:hover {
+  background: var(--bg-hover);
+  border-color: rgba(124, 111, 255, 0.25);
+  transform: translateX(4px);
+}
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--docente-accent), var(--docente-accent-hover));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(124, 111, 255, 0.3);
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-info h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  margin: 0 0 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-info p {
+  color: var(--text-secondary);
+  font-size: 0.72rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.student-info p i {
+  font-size: 0.68rem;
+  color: var(--docente-accent);
+}
+
+.class-badge.upcoming {
+  background: rgba(34, 197, 94, 0.12);
+  color: var(--spotify-green);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.student-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.btn-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-action.message:hover {
+  background: linear-gradient(135deg, var(--docente-accent), var(--docente-pink));
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(124, 111, 255, 0.4);
+}
+
+.btn-action.view:hover {
+  background: linear-gradient(135deg, #06b6d4, #22c55e);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+}
+
+/* ============================================ */
+/* EMPTY STATE                                 */
+/* ============================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  color: var(--docente-accent);
+  opacity: 0.3;
+  margin-bottom: 0.8rem;
+  display: block;
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.empty-text {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ============================================ */
+/* MODALES                                     */
+/* ============================================ */
+
+.modal-content {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  color: var(--text-primary) !important;
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-subtle) !important;
+  padding: 1.2rem !important;
+}
+
+.modal-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.2rem !important;
+}
+
+.modal-footer {
+  border-top: 1px solid var(--border-subtle) !important;
+  padding: 1.2rem !important;
+}
+
+.modal-header.bg-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.form-label {
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.78rem;
+  margin-bottom: 0.4rem;
+}
+
+.form-control {
+  background: var(--bg-hover) !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  border-radius: 10px !important;
+  padding: 0.65rem 0.9rem !important;
+  transition: all 0.2s;
+}
+
+.form-control:focus {
+  border-color: var(--docente-accent) !important;
+  box-shadow: 0 0 0 4px rgba(124, 111, 255, 0.15) !important;
+  background: var(--bg-hover) !important;
+}
+
+.btn-spotify-primary {
+  background: linear-gradient(135deg, var(--docente-accent), var(--docente-accent-hover));
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.4rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  transition: all 0.25s;
+  cursor: pointer;
+}
+
+.btn-spotify-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(124, 111, 255, 0.5);
+}
+
+.btn-spotify-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1.5px solid var(--border-color);
+  padding: 0.6rem 1.3rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.btn-spotify-secondary:hover {
+  border-color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+.btn-close-white {
+  filter: brightness(0) invert(1);
+}
+
+[data-theme="light"] .btn-close-white {
+  filter: none;
+}
+
+/* ============================================ */
+/* SCROLLBAR                                   */
+/* ============================================ */
+
+::-webkit-scrollbar { height: 6px; width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-body); }
+::-webkit-scrollbar-thumb { background: var(--spotify-light-gray); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* ============================================ */
+/* RESPONSIVE                                  */
+/* ============================================ */
 
 @media (max-width: 768px) {
+  .profile-hero.docente {
+    min-height: auto;
+  }
+
   .settings-btn {
     width: 38px;
     height: 38px;
@@ -1095,11 +987,128 @@ body {
   .settings-dropdown {
     min-width: 200px;
   }
+
+  .profile-hero-content {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 40px 1rem 0;
+    gap: 1rem;
+  }
+
+  .avatar-circle {
+    width: 100px;
+    height: 100px;
+    font-size: 2.5rem;
+    margin: 0 auto;
+  }
+
+  .avatar-edit-badge {
+    width: 32px;
+    height: 32px;
+    bottom: 3px;
+    right: 3px;
+  }
+
+  .avatar-edit-badge i {
+    font-size: 0.78rem;
+  }
+
+  .profile-username {
+    font-size: 1.4rem;
+  }
+
+  .quick-stats {
+    padding: 1rem;
+    justify-content: center;
+  }
+
+  .stat-pill.docente {
+    flex: 0 1 auto;
+    min-width: 100px;
+  }
+
+  .profile-body {
+    padding: 1rem;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .student-row {
+    flex-wrap: wrap;
+  }
+
+  .student-actions {
+    margin-left: auto;
+  }
 }
 
 @media (max-width: 480px) {
-  .settings-menu {
-    top: 10px;
-    right: 10px;
+  .profile-username {
+    font-size: 1.2rem;
   }
+
+  .avatar-circle {
+    width: 85px;
+    height: 85px;
+    font-size: 2rem;
+  }
+
+  .section-card {
+    padding: 1.1rem;
+  }
+
+  .settings-menu {
+    top: 12px;
+    right: 12px;
+  }
+}
+
+/* ============================================ */
+/* BOTONES DE ACCIÓN (student actions)         */
+/* ============================================ */
+
+.student-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-action {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.1));
+  background: var(--bg-hover, rgba(255, 255, 255, 0.05));
+  color: var(--text-secondary, #b3b3b3);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-action:hover {
+  transform: translateY(-2px);
+}
+
+.btn-action.message:hover {
+  background: rgba(124, 111, 255, 0.15);
+  color: var(--docente-accent, #7c6fff);
+  border-color: rgba(124, 111, 255, 0.35);
+}
+
+.btn-action.view:hover {
+  background: rgba(34, 197, 94, 0.15);
+  color: var(--spotify-green, #16a34a);
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.btn-action.message {
+  text-decoration: none;
 }

@@ -30,46 +30,44 @@
   </div>
 
   {% if clases %}
-  <div class="classes-grid animate-in" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+  <div class="classes-grid animate-in">
     {% for clase in clases %}
-    
-    <!-- CADA TARJETA ES UN ACCESO DIRECTO AL DETALLE DE LA CLASE -->
-    <a href="{% url 'progreso_detalle_clase' clase.id %}" class="class-card-link text-decoration-none">
-      <div class="class-card-container" style="background: #181818; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 1.75rem; transition: all 0.3s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;">
-        
-        <div>
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div style="background: rgba(29, 185, 84, 0.1); color: #1db954; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: 700; font-size: 1.2rem;">
-              <i class="bi bi-music-note-beamed"></i>
-            </div>
-            <div>
-              <h3 class="text-white m-0" style="font-size: 1.2rem; font-weight: 700;">{{ clase.nombre }}</h3>
-              <span class="text-muted" style="font-size: 0.85rem;">
-                <i class="bi bi-person"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
-              </span>
-            </div>
+    <a href="{% url 'progreso_detalle_clase' clase.id %}" class="class-card-link">
+      <div class="class-card-container">
+
+        <div class="class-card-top">
+          <div class="class-card-icon">
+            <i class="bi bi-music-note-beamed"></i>
           </div>
-          <p class="text-muted" style="font-size: 0.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-            {{ clase.descripcion|default:"Explora el contenido y actividades de esta clase." }}
-          </p>
+          <div class="class-card-info">
+            <h3 class="class-card-name">{{ clase.nombre }}</h3>
+            <span class="class-card-teacher">
+              <i class="bi bi-person"></i> {{ clase.docente.get_full_name|default:clase.docente.username }}
+            </span>
+          </div>
         </div>
 
-        <div class="mt-4 pt-3 d-flex justify-content-between align-items-center" style="border-top: 1px solid rgba(255, 255, 255, 0.05);">
-          <span class="text-success fw-bold" style="font-size: 0.9rem;">Ver estadísticas y avance</span>
-          <i class="bi bi-arrow-right text-success fs-5"></i>
+        <p class="class-card-desc">
+          {{ clase.descripcion|default:"Explora el contenido y actividades de esta clase." }}
+        </p>
+
+        <div class="class-card-cta">
+          <span class="cta-text">Ver estadísticas y avance</span>
+          <i class="bi bi-arrow-right cta-icon"></i>
         </div>
 
       </div>
     </a>
-
     {% endfor %}
   </div>
   {% else %}
-  <div class="empty-state animate-in text-center p-5">
-    <div class="empty-icon fs-1 text-muted"><i class="bi bi-music-note"></i></div>
-    <h3 class="empty-title text-white">Aún no estás inscrito en clases</h3>
-    <p class="empty-text text-muted">Explora y únete a clases para comenzar.</p>
-    <a href="{% url 'estudiante:explorar_clases' %}" class="btn btn-success mt-2">Explorar clases</a>
+  <div class="empty-state animate-in">
+    <div class="empty-icon"><i class="bi bi-music-note"></i></div>
+    <h3 class="empty-title">Aún no estás inscrito en clases</h3>
+    <p class="empty-text">Explora y únete a clases para comenzar.</p>
+    <a href="{% url 'estudiante:explorar_clases' %}" class="btn-explorar">
+      <i class="bi bi-compass"></i> Explorar clases
+    </a>
   </div>
   {% endif %}
 

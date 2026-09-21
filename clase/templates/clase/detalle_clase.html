@@ -89,6 +89,55 @@
             </div>
         </div>
 
+<!-- ⚙️ SOLO EL ENGRANAJE ARRIBA A LA DERECHA -->
+<div class="hero-settings-top">
+    <div class="dropdown">
+        <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
+            <i class="bi bi-gear-fill"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
+                    <i class="bi bi-pencil-square"></i> Editar clase
+                </button>
+            </li>
+            <li>
+                <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST" style="margin: 0;">
+                    {% csrf_token %}
+                    {% if clase.activa %}
+                    <button type="submit" class="dropdown-item text-warning">
+                        <i class="bi bi-pause-circle"></i> Desactivar clase
+                    </button>
+                    {% else %}
+                    <button type="submit" class="dropdown-item text-success">
+                        <i class="bi bi-play-circle"></i> Reactivar clase
+                    </button>
+                    {% endif %}
+                </form>
+            </li>
+            <li>
+                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalExtenderFecha">
+                    <i class="bi bi-calendar-plus"></i> Extender fecha de fin
+                </button>
+            </li>
+
+            <li>
+                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="dropdown-item">
+                    <i class="bi bi-file-earmark-pdf-fill"></i> Descargar reporte PDF
+                </a>
+            </li>
+
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <button class="dropdown-item text-danger" data-bs-toggle="modal"
+                    data-bs-target="#modalEliminarClase">
+                    <i class="bi bi-trash-fill"></i> Eliminar clase
+                </button>
+            </li>
+        </ul>
+    </div>
+</div>
+
         <div class="class-hero-actions">
             <div class="d-flex gap-2 flex-wrap">
                 <a href="{% url 'ejercicios:reporte_debilidades' clase.id %}" class="btn-stats"
@@ -101,58 +150,6 @@
 
                 <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
                     <i class="bi bi-key-fill"></i> {{ clase.codigo }}
-                </div>
-
-                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="btn-settings btn-pdf" title="Descargar PDF">
-                    <i class="bi bi-file-earmark-pdf-fill"></i>
-                </a>
-
-                <div class="dropdown">
-                    <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
-                        <i class="bi bi-gear-fill"></i>
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
-                                <i class="bi bi-pencil-square"></i> Editar clase
-                            </button>
-                        </li>
-
-                        <!-- Activar / Desactivar clase -->
-                        <li>
-                            <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST"
-                                style="margin: 0;">
-                                {% csrf_token %}
-                                {% if clase.activa %}
-                                <button type="submit" class="dropdown-item text-warning">
-                                    <i class="bi bi-pause-circle"></i> Desactivar clase
-                                </button>
-                                {% else %}
-                                <button type="submit" class="dropdown-item text-success">
-                                    <i class="bi bi-play-circle"></i> Reactivar clase
-                                </button>
-                                {% endif %}
-                            </form>
-                        </li>
-
-                        <!-- Extender fecha de fin -->
-                        <li>
-                            <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalExtenderFecha">
-                                <i class="bi bi-calendar-plus"></i> Extender fecha de fin
-                            </button>
-                        </li>
-                        <!-- FIN -->
-
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li>
-                            <button class="dropdown-item text-danger" data-bs-toggle="modal"
-                                data-bs-target="#modalEliminarClase">
-                                <i class="bi bi-trash-fill"></i> Eliminar clase
-                            </button>
-                        </li>
-                    </ul>
                 </div>
             </div>
         </div>
@@ -514,7 +511,8 @@
                 <p class="text-center text-muted mb-4">Elige el formato que mejor se adapte a tu contenido</p>
                 <div class="ejercicio-options-grid">
 
-                    <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card">
+                    <!-- 1. QUIZ -->
+                    <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card card-quiz">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
                         <p class="option-desc">Preguntas con opciones donde el estudiante elige la respuesta correcta.
@@ -523,20 +521,21 @@
                             D</span>
                     </a>
 
+                    <!-- 2. ENTRENAMIENTO AUDITIVO -->
                     <a href="{% url 'ejercicios:crear_entrenamiento_auditivo' clase.id %}"
-                        class="ejercicio-option-card">
+                        class="ejercicio-option-card card-auditivo">
                         <div class="option-icon audio-icon">
                             <i class="bi bi-music-note-beamed"></i>
                         </div>
                         <h4 class="option-title">Entrenamiento Auditivo</h4>
                         <p class="option-desc">Intervalos, acordes, notas, ritmo y melodía con audio generado en vivo.
                         </p>
-                        <span class="option-badge badge-green">
+                        <span class="option-badge badge-audio">
                             <i class="bi bi-ear-fill"></i> Audio interactivo
                         </span>
                     </a>
 
-                    <!-- NUEVA TARJETA: Entrenamiento Avanzado -->
+                    <!-- 3. ENTRENAMIENTO AVANZADO -->
                     <a href="#" class="ejercicio-option-card card-avanzado" data-bs-toggle="modal"
                         data-bs-target="#modalEntrenamientoAvanzado" data-bs-dismiss="modal">
                         <div class="option-icon avanzado-icon">
@@ -549,25 +548,34 @@
                         </span>
                     </a>
 
-                    <a href="{% url 'ejercicios:crear_ejercicio_acordes' clase.id %}" class="ejercicio-option-card">
+                    <!-- 4. ACORDES -->
+                    <a href="{% url 'ejercicios:crear_ejercicio_acordes' clase.id %}"
+                        class="ejercicio-option-card card-acordes">
                         <div class="option-icon acordes-icon"><i class="bi bi-music-note-beamed"></i></div>
                         <h4 class="option-title">Acordes</h4>
                         <p class="option-desc">Reconocimiento auditivo de tríadas y acordes con séptima.</p>
                         <span class="option-badge badge-purple"><i class="bi bi-soundwave"></i> Armonía</span>
                     </a>
 
-                   <a href="{% url 'ejercicios:crear_ejercicio_intervalos' clase.id %}" class="ejercicio-option-card">
+                    <!-- 5. INTERVALOS -->
+                    <a href="{% url 'ejercicios:crear_ejercicio_intervalos' clase.id %}"
+                        class="ejercicio-option-card card-intervalos">
                         <div class="option-icon intervalos-icon"><i class="bi bi-soundwave"></i></div>
                         <h4 class="option-title">Intervalos</h4>
                         <p class="option-desc">Entrenamiento auditivo melódico y armónico de distancias tonales.</p>
-                        <span class="option-badge badge-blue"><i class="bi bi-music-note-beamed"></i> Percepción auditiva</span>
+                        <span class="option-badge badge-blue"><i class="bi bi-music-note-beamed"></i> Percepción
+                            auditiva</span>
                     </a>
 
-                    <a href="{% url 'ejercicios:crear_ejercicio_escalas' clase.id %}" class="ejercicio-option-card">
+                    <!-- 6. ESCALAS -->
+                    <a href="{% url 'ejercicios:crear_ejercicio_escalas' clase.id %}"
+                        class="ejercicio-option-card card-escalas">
                         <div class="option-icon escalas-icon"><i class="bi bi-music-note-list"></i></div>
                         <h4 class="option-title">Escalas</h4>
-                        <p class="option-desc">Entrenamiento auditivo de escalas mayores, menores y modos diatónicos.</p>
-                        <span class="option-badge badge-purple"><i class="bi bi-soundwave"></i> Sistema tonal y modal</span>
+                        <p class="option-desc">Entrenamiento auditivo de escalas mayores, menores y modos diatónicos.
+                        </p>
+                        <span class="option-badge badge-pink"><i class="bi bi-soundwave"></i> Sistema tonal y
+                            modal</span>
                     </a>
 
                 </div>
@@ -599,7 +607,7 @@
                 <div class="ejercicio-options-grid">
 
                     <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'oido_absoluto' %}"
-                       class="ejercicio-option-card">
+                        class="ejercicio-option-card">
                         <div class="option-icon avanzado-icon-1">
                             <i class="bi bi-music-note"></i>
                         </div>
@@ -611,7 +619,7 @@
                     </a>
 
                     <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'oido_relativo' %}"
-                       class="ejercicio-option-card">
+                        class="ejercicio-option-card">
                         <div class="option-icon avanzado-icon-2">
                             <i class="bi bi-music-note-list"></i>
                         </div>
@@ -623,7 +631,7 @@
                     </a>
 
                     <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'tapping_ritmico' %}"
-                       class="ejercicio-option-card">
+                        class="ejercicio-option-card">
                         <div class="option-icon avanzado-icon-3">
                             <i class="bi bi-hand-index-thumb"></i>
                         </div>
@@ -635,7 +643,7 @@
                     </a>
 
                     <a href="{% url 'ejercicios:crear_entrenamiento_avanzado' clase.id 'dictado_melodico' %}"
-                       class="ejercicio-option-card">
+                        class="ejercicio-option-card">
                         <div class="option-icon avanzado-icon-4">
                             <i class="bi bi-file-earmark-music"></i>
                         </div>
