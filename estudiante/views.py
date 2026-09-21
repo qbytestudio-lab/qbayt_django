@@ -622,7 +622,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
 @login_required
 def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     """
-    Vista unificada para enviar respuestas de cualquier tipo de ejercicio.
+    Vista unificada para enviar respuestas de cualquier tipo de ejercicio por parte del estudiante.
     """
     from docente.models import Clase
     from ejercicios.models import (
@@ -634,6 +634,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
 
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
+    
 
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
@@ -675,99 +676,47 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             messages.error(request, 'Has agotado tus 2 intentos.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # ─── Envío de Acordes, Intervalos y Escalas (Revisión Docente) ───
-        if ejercicio.tipo in ['acorde', 'acordes', 'intervalos', 'escalas']:
-            intento = IntentoEjercicio(
+        # ─── MÓDULOS INTERACTIVOS (Acordes, Intervalos, Escalas) ───
+        if ejercicio.tipo in ['acordes', 'intervalos', 'escalas']:
+            intento = IntentoEjercicio.objects.create(
                 estudiante=request.user,
                 ejercicio=ejercicio,
                 fecha_envio=timezone.now(),
+                calificacion=None
             )
-            intento.calificacion = None
-            intento.save()
-
-            messages.success(
-                request,
-                'Tus respuestas han sido enviadas. Espera la calificación del docente.'
-            )
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-
-        # ─── Envío de Intervalos (Pendiente de Calificación Docente) ───
-        if ejercicio.tipo in ['acorde', 'acordes', 'intervalos']:
-            intento = IntentoEjercicio(
-                estudiante=request.user,
-                ejercicio=ejercicio,
-                fecha_envio=timezone.now(),
-            )
-            # Dejar calificación vacía para revisión docente
-            intento.calificacion = None
-            intento.save()
-
-            messages.success(
-                request,
-                'Tus respuestas han sido enviadas. Espera la calificación del docente.'
-            )
-            return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
-
-        # ─── 1. Procesamiento para Módulo de Acordes (Pendiente de Calificación Docente) ───
-        if ejercicio.tipo == 'acordes':
-            # Crear el intento sin nota para que quede pendiente de revisión
-            intento = IntentoEjercicio(
-                estudiante=request.user,
-                ejercicio=ejercicio,
-                fecha_envio=timezone.now(),
-            )
-
-            campos_intento = [f.name for f in IntentoEjercicio._meta.fields]
             
-            # Dejar la nota vacía explícitamente
-            if 'calificacion' in campos_intento:
-                intento.calificacion = None
-            if 'nota' in campos_intento:
-                intento.nota = None
-            if 'puntaje' in campos_intento:
-                intento.puntaje = None
-            if 'revisado' in campos_intento:
-                intento.revisado = False
-            if 'estado' in campos_intento:
-                intento.estado = 'pendiente'
-
-            intento.save()
-
-            # Extraer preguntas del JSON del ejercicio
-            raw_contenido = getattr(ejercicio, 'contenido', None) or getattr(ejercicio, 'contenido_preguntas', None)
-            preguntas_data = []
-
+            raw_contenido = getattr(ejercicio, 'contenido', None)
             if raw_contenido:
                 try:
                     temp = raw_contenido
                     while isinstance(temp, str):
                         temp = json.loads(temp)
+                    
                     if isinstance(temp, list):
-                        preguntas_data = temp
-                    elif isinstance(temp, dict):
-                        preguntas_data = temp.get('preguntas', [])
-                except Exception:
-                    preguntas_data = []
-
-            # Si existen preguntas relacionales en la base de datos, guardar registros de respuesta
-            preguntas_bd = Pregunta.objects.filter(ejercicio=ejercicio).prefetch_related('opciones')
-            if preguntas_bd.exists():
-                for pregunta in preguntas_bd:
-                    opcion_id = request.POST.get(f'pregunta_{pregunta.id}')
-                    if opcion_id:
-                        try:
-                            # Puede enviarse por ID o por texto según el input
-                            if str(opcion_id).isdigit():
-                                opcion = Opcion.objects.get(id=int(opcion_id), pregunta=pregunta)
-                            else:
-                                opcion = Opcion.objects.get(texto=opcion_id, pregunta=pregunta)
-                            RespuestaEstudiante.objects.create(
-                                intento=intento,
-                                pregunta=pregunta,
-                                opcion_seleccionada=opcion
-                            )
-                        except (Opcion.DoesNotExist, Opcion.MultipleObjectsReturned):
-                            pass
+                        for idx, item in enumerate(temp):
+                            p_id = str(item.get('id', idx))
+                            respuesta_dada = request.POST.get(f'pregunta_{p_id}') or request.POST.get(f'pregunta_{idx}')
+                            
+                            if respuesta_dada:
+                                # Creamos una pregunta virtual asociada al ejercicio para el desglose del docente
+                                pregunta_virtual, _ = Pregunta.objects.get_or_create(
+                                    ejercicio=ejercicio,
+                                    enunciado=item.get('enunciado', f'Pregunta interactiva {idx + 1}')
+                                )
+                                # Creamos o vinculamos la opción seleccionada
+                                opcion_virtual, _ = Opcion.objects.get_or_create(
+                                    pregunta=pregunta_virtual,
+                                    texto_opcion=respuesta_dada,
+                                    defaults={'es_correcta': True}
+                                )
+                                # Guardamos el registro en RespuestaEstudiante para que lo lea la vista de calificar
+                                RespuestaEstudiante.objects.create(
+                                    intento=intento,
+                                    pregunta=pregunta_virtual,
+                                    opcion_seleccionada=opcion_virtual
+                                )
+                except Exception as e:
+                    print(f"[ERROR MODULOS INTERACTIVOS]: {e}")
 
             messages.success(
                 request,
@@ -775,7 +724,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # ─── 2. Procesamiento tradicional (Quizzes estándar, V/F, etc.) ───
+        # ─── Procesamiento tradicional (Quizzes estándar, V/F, etc.) ───
         intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
             ejercicio=ejercicio,

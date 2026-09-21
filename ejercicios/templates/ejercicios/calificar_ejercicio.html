@@ -142,6 +142,97 @@
     </div>
     {% endif %}
 
+ {% elif ejercicio.tipo == 'acordes' or ejercicio.tipo == 'intervalos' or ejercicio.tipo == 'escalas' %}
+    <!-- 🎵 MÓDULOS INTERACTIVOS (Acordes, Intervalos, Escalas con Acordeón) -->
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="bi bi-music-note-list"></i>
+        Respuestas del estudiante ({{ ejercicio.get_tipo_display|default:ejercicio.tipo|title }})
+      </h3>
+      <span class="section-badge">
+        {{ respuestas|length }} respuesta{{ respuestas|length|pluralize:"s" }}
+      </span>
+    </div>
+
+    {% if respuestas %}
+    <div class="accordion responses-accordion" id="accordionRespuestasInteractivos">
+      {% for item in respuestas %}
+      <div class="accordion-item response-card mb-3">
+        <h2 class="accordion-header" id="headingResp{{ forloop.counter }}">
+          <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResp{{ forloop.counter }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapseResp{{ forloop.counter }}">
+            <div class="d-flex align-items-center gap-3 w-100 pe-3">
+              <span class="response-number">{{ forloop.counter }}</span>
+              <div class="flex-grow-1 text-truncate">
+                <span class="text-light fw-bold">{{ item.pregunta.enunciado }}</span>
+                {% for opt in item.todas_opciones %}
+                  {% if opt.correcta %}
+                    <span class="d-block text-warning small fw-semibold mt-1">
+                      <i class="bi bi-music-note-beamed me-1"></i> Configurado: {{ opt.texto }}
+                    </span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <span class="badge bg-dark text-info border border-secondary px-2 py-1">
+                <i class="bi bi-music-note me-1"></i> Ver detalles
+              </span>
+            </div>
+          </button>
+        </h2>
+        
+        <div id="collapseResp{{ forloop.counter }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="headingResp{{ forloop.counter }}" data-bs-parent="#accordionRespuestasInteractivos">
+          <div class="accordion-body response-content">
+            
+            <!-- Respuesta dada por el estudiante -->
+            <div class="response-block block-correct mb-3">
+              <div class="block-label text-light">
+                <i class="bi bi-person-fill text-info"></i>
+                Respuesta seleccionada por el estudiante
+              </div>
+              <div class="block-value text-white fw-bold">
+                <i class="bi bi-check2-circle text-success me-1"></i>
+                {{ item.opcion_seleccionada.texto_opcion }}
+              </div>
+            </div>
+
+            <!-- Listado de todas las opciones configuradas en la pregunta -->
+            {% if item.todas_opciones %}
+            <div class="mt-3">
+              <label class="block-label mb-2 text-light fw-semibold">
+                <i class="bi bi-list-check text-info"></i> Desglose de opciones del ejercicio:
+              </label>
+              <div class="d-flex flex-column gap-2">
+                {% for opt in item.todas_opciones %}
+                <div class="p-3 rounded border {% if opt.texto == item.opcion_seleccionada.texto_opcion %}border-success bg-success bg-opacity-10{% else %}border-secondary bg-dark{% endif %}" style="font-size: 0.95rem;">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-light fw-medium">
+                      {% if opt.texto == item.opcion_seleccionada.texto_opcion %}
+                        <i class="bi bi-dot text-success fs-4"></i> <strong class="text-success">(Selección del alumno)</strong>
+                      {% endif %}
+                      {{ opt.texto }}
+                    </span>
+                    {% if opt.correcta %}
+                    <span class="badge bg-success text-white px-2 py-1 fw-bold" style="font-size: 0.75rem;">CORRECTA</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <i class="bi bi-inbox"></i>
+      <p class="text-light">No hay respuestas registradas para este intento interactivo.</p>
+    </div>
+    {% endif %}
+  
+
   {% else %}
     <!-- 📝 RESPUESTAS TRADICIONALES (quiz, video_quiz, etc.) -->
     <div class="section-header">

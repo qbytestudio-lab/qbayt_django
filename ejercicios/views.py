@@ -57,7 +57,7 @@ def toggle_estado_ejercicio(request, ejercicio_id):
     
     return redirect('editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
 # ============================================================
-# Crear_ejercicio_acordes
+# CREAR EJERCICIO ACORDES
 # ============================================================
 
 @login_required
@@ -65,10 +65,10 @@ def crear_ejercicio_acordes(request, clase_id):
     from docente.models import Clase
     from ejercicios.models import Ejercicio
     from django.utils.dateparse import parse_datetime
+    import json
 
     clase = get_object_or_404(Clase, id=clase_id)
 
-    # Validar que el usuario sea el docente de la clase
     if clase.docente != request.user:
         messages.error(request, 'No tienes permiso para crear ejercicios en esta clase.')
         return redirect('docente:detalle_clase', clase_id=clase.id)
@@ -78,13 +78,20 @@ def crear_ejercicio_acordes(request, clase_id):
         descripcion = request.POST.get('descripcion', '')
         octava = request.POST.get('octava', '4')
         fecha_limite_str = request.POST.get('fecha_limite')
-        
-        # AQUÍ ESTÁ LA CLAVE: Capturar el JSON generado por el diseñador
         contenido_json = request.POST.get('contenido_preguntas')
+
+        # ─── SANEAMIENTO PARA EL ESTUDIANTE ───
+        if contenido_json:
+            try:
+                preguntas_list = json.loads(contenido_json)
+                for p in preguntas_list:
+                    p['enunciado'] = "Identifica el acorde reproducido"
+                contenido_json = json.dumps(preguntas_list)
+            except Exception:
+                pass
 
         fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
 
-        # Creamos el ejercicio con tipo 'acordes' y el JSON
         ejercicio = Ejercicio(
             clase=clase,
             titulo=titulo,
@@ -94,13 +101,11 @@ def crear_ejercicio_acordes(request, clase_id):
             activo=True
         )
 
-        # Si el modelo tiene campo 'contenido', guardamos allí el JSON
         if hasattr(ejercicio, 'contenido'):
             ejercicio.contenido = contenido_json
         elif hasattr(ejercicio, 'contenido_preguntas'):
             ejercicio.contenido_preguntas = contenido_json
 
-        # Si el modelo tiene campo octava
         if hasattr(ejercicio, 'octava'):
             ejercicio.octava = int(octava)
 
@@ -112,8 +117,10 @@ def crear_ejercicio_acordes(request, clase_id):
     return render(request, 'ejercicios/crear_acordes.html', {
         'clase': clase,
     })
+
+
 # ============================================================
-# CREAR Ejercicio Intervalos
+# CREAR EJERCICIO INTERVALOS
 # ============================================================
 
 @login_required
@@ -121,10 +128,10 @@ def crear_ejercicio_intervalos(request, clase_id):
     from docente.models import Clase
     from ejercicios.models import Ejercicio
     from django.utils.dateparse import parse_datetime
+    import json
 
     clase = get_object_or_404(Clase, id=clase_id)
 
-    # Validar que el usuario sea el docente de la clase
     if clase.docente != request.user:
         messages.error(request, 'No tienes permiso para crear ejercicios en esta clase.')
         return redirect('docente:detalle_clase', clase_id=clase.id)
@@ -133,16 +140,26 @@ def crear_ejercicio_intervalos(request, clase_id):
         titulo = request.POST.get('titulo')
         descripcion = request.POST.get('descripcion', '')
         fecha_limite_str = request.POST.get('fecha_limite')
-        contenido_preguntas = request.POST.get('contenido_preguntas')
+        contenido_json = request.POST.get('contenido_preguntas')
+
+        # ─── SANEAMIENTO PARA EL ESTUDIANTE ───
+        if contenido_json:
+            try:
+                preguntas_list = json.loads(contenido_json)
+                for p in preguntas_list:
+                    p['enunciado'] = "Identifica el intervalo auditivo reproducido"
+                contenido_json = json.dumps(preguntas_list)
+            except Exception:
+                pass
 
         fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
 
-        ejercicio = Ejercicio.objects.create(
+        Ejercicio.objects.create(
             clase=clase,
             titulo=titulo,
             descripcion=descripcion,
             tipo='intervalos',
-            contenido=contenido_preguntas,
+            contenido=contenido_json,
             fecha_limite=fecha_limite,
             activo=True
         )
@@ -153,20 +170,21 @@ def crear_ejercicio_intervalos(request, clase_id):
     return render(request, 'ejercicios/crear_intervalos.html', {
         'clase': clase,
     })
-# ============================================================
-# CREAR EJERCICIO Escalas
-# ============================================================
 
+
+# ============================================================
+# CREAR EJERCICIO ESCALAS
+# ============================================================
 
 @login_required
 def crear_ejercicio_escalas(request, clase_id):
     from docente.models import Clase
     from ejercicios.models import Ejercicio
     from django.utils.dateparse import parse_datetime
+    import json
 
     clase = get_object_or_404(Clase, id=clase_id)
 
-    # Validar que el usuario sea el docente titular de la clase
     if clase.docente != request.user:
         messages.error(request, 'No tienes permiso para crear ejercicios en esta clase.')
         return redirect('docente:detalle_clase', clase_id=clase.id)
@@ -175,7 +193,17 @@ def crear_ejercicio_escalas(request, clase_id):
         titulo = request.POST.get('titulo')
         descripcion = request.POST.get('descripcion', '')
         fecha_limite_str = request.POST.get('fecha_limite')
-        contenido_preguntas = request.POST.get('contenido_preguntas')
+        contenido_json = request.POST.get('contenido_preguntas')
+
+        # ─── SANEAMIENTO PARA EL ESTUDIANTE ───
+        if contenido_json:
+            try:
+                preguntas_list = json.loads(contenido_json)
+                for p in preguntas_list:
+                    p['enunciado'] = "Identifica la escala reproducida"
+                contenido_json = json.dumps(preguntas_list)
+            except Exception:
+                pass
 
         fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
 
@@ -184,13 +212,13 @@ def crear_ejercicio_escalas(request, clase_id):
             titulo=titulo,
             descripcion=descripcion,
             tipo='escalas',
-            contenido=contenido_preguntas,
+            contenido=contenido_json,
             fecha_limite=fecha_limite,
             activo=True
         )
 
         messages.success(request, '¡Ejercicio de escalas creado con éxito!')
-        return redirect('clase:detalle_clase', clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     return render(request, 'ejercicios/crear_escalas.html', {
         'clase': clase,
@@ -522,10 +550,36 @@ def calificar_ejercicio(request, intento_id):
         except PracticaAuditiva.DoesNotExist:
             practica_auditiva = None
     else:
-        respuestas = intento.respuestas.select_related(
+        respuestas_qs = intento.respuestas.select_related(
             'pregunta',
             'opcion_seleccionada'
         ).all()
+        
+        # Procesar y enriquecer respuestas para módulos interactivos (Acordes, Intervalos, Escalas)
+        contenido_json = None
+        if ejercicio.tipo in ['acordes', 'intervalos', 'escalas'] and ejercicio.contenido:
+            try:
+                import json
+                temp = ejercicio.contenido
+                while isinstance(temp, str):
+                    temp = json.loads(temp)
+                contenido_json = temp if isinstance(temp, list) else temp.get('preguntas', [])
+            except Exception:
+                contenido_json = []
+
+        for idx, r in enumerate(respuestas_qs):
+            item_data = {
+                'pregunta': r.pregunta,
+                'opcion_seleccionada': r.opcion_seleccionada,
+                'todas_opciones': []
+            }
+            
+            # Si el ejercicio tiene contenido JSON, extraemos las opciones de esta pregunta
+            if contenido_json and idx < len(contenido_json):
+                preg_json = contenido_json[idx]
+                item_data['todas_opciones'] = preg_json.get('opciones', [])
+            
+            respuestas.append(item_data)
 
     # ═══════════════════════════════════════════════════
     # POST: GUARDAR CALIFICACIÓN
