@@ -13,6 +13,7 @@ from django.http import JsonResponse, HttpResponse, request
 from django.views.decorators.http import require_POST
 from decimal import Decimal
 import json
+from collections import defaultdict
 
 
 # ============================================================
@@ -860,22 +861,15 @@ def resolver_entrenamiento_auditivo(request, clase_id, ejercicio_id):
 # ============================================================
 # REPORTE DE DEBILIDADES DE LA CLASE (ENTRENAMIENTO AUDITIVO)
 # ============================================================
-from collections import defaultdict
-
 @login_required
 def reporte_debilidades(request, clase_id):
-    """
-    Muestra qué prácticas auditivas falla más la clase.
-    Filtrable por tipo de práctica.
-    """
     from docente.models import Clase
+    from ejercicios.models import IntentoEjercicio
 
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-
-    # Filtro por tipo de práctica (opcional)
     tipo_filtro = request.GET.get('tipo', 'todos')
 
-    # Traer todas las prácticas de esta clase, de los tipos de entrenamiento auditivo y avanzado
+    # 1. Prácticas tradicionales
     practicas_qs = PracticaAuditiva.objects.filter(
         intento__ejercicio__clase=clase,
         intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado'],
@@ -890,12 +884,34 @@ def reporte_debilidades(request, clase_id):
 
     practicas = list(practicas_qs)
 
-    # ─── Estadísticas por tipo de práctica ───
+    # 2. Intentos interactivos de la clase (quitamos el filtro de calificación obligatoria)
+    intentos_interactivos_qs = IntentoEjercicio.objects.filter(
+        ejercicio__clase=clase,
+        ejercicio__tipo__in=['acordes', 'intervalos', 'escalas']
+    ).select_related(
+        'ejercicio',
+        'estudiante'
+    ).prefetch_related('respuestas__pregunta', 'respuestas__opcion_seleccionada')
+
+    if tipo_filtro != 'todos' and tipo_filtro not in ['acordes', 'intervalos', 'escalas']:
+        intentos_interactivos_qs = intentos_interactivos_qs.none()
+
+    intentos_interactivos = list(intentos_interactivos_qs)
+
+    # ─── Estadísticas por tipo ───
     tipos_contador = defaultdict(lambda: {'practicas': 0, 'aciertos': 0, 'total': 0})
     for p in practicas:
         tipos_contador[p.tipo_practica]['practicas'] += 1
         tipos_contador[p.tipo_practica]['aciertos'] += p.aciertos
         tipos_contador[p.tipo_practica]['total'] += p.total_preguntas
+
+    for intento in intentos_interactivos:
+        tipo_ej = intento.ejercicio.tipo
+        tipos_contador[tipo_ej]['practicas'] += 1
+        for resp in intento.respuestas.all():
+            tipos_contador[tipo_ej]['total'] += 1
+            if resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False):
+                tipos_contador[tipo_ej]['aciertos'] += 1
 
     resumen_tipos = []
     for tipo, data in tipos_contador.items():
@@ -910,12 +926,11 @@ def reporte_debilidades(request, clase_id):
         })
     resumen_tipos.sort(key=lambda x: x['porcentaje'])
 
-    # ─── Análisis de respuestas: qué se falla más ───
-    # Estructura: { "nombre_respuesta_correcta": {"fallos": N, "aciertos": N, "confusiones": {...}} }
+    # ─── Análisis de respuestas ───
     analisis = defaultdict(lambda: {
         'fallos': 0,
         'aciertos': 0,
-        'confusiones': defaultdict(int),   # qué respondió cuando falló
+        'confusiones': defaultdict(int),
     })
 
     for p in practicas:
@@ -924,10 +939,8 @@ def reporte_debilidades(request, clase_id):
             correcta = r.get('correcta', '').strip()
             respuesta = r.get('respuesta', '').strip()
             acerto = r.get('acerto', False)
-
             if not correcta:
                 continue
-
             if acerto:
                 analisis[correcta]['aciertos'] += 1
             else:
@@ -935,20 +948,25 @@ def reporte_debilidades(request, clase_id):
                 if respuesta:
                     analisis[correcta]['confusiones'][respuesta] += 1
 
-    # ─── Construir lista de "más difíciles" ───
+    for intento in intentos_interactivos:
+        for resp in intento.respuestas.all():
+            if resp.pregunta:
+                target_nombre = resp.pregunta.enunciado
+                es_correcta = resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False)
+                if es_correcta:
+                    analisis[target_nombre]['aciertos'] += 1
+                else:
+                    analisis[target_nombre]['fallos'] += 1
+                    if resp.opcion_seleccionada:
+                        analisis[target_nombre]['confusiones'][resp.opcion_seleccionada.texto_opcion] += 1
+
     debilidades = []
     for nombre, data in analisis.items():
         total = data['fallos'] + data['aciertos']
         if total == 0:
             continue
         pct_error = round((data['fallos'] / total) * 100, 1)
-
-        # Top 3 confusiones
-        confusiones_top = sorted(
-            data['confusiones'].items(),
-            key=lambda x: -x[1]
-        )[:3]
-
+        confusiones_top = sorted(data['confusiones'].items(), key=lambda x: -x[1])[:3]
         debilidades.append({
             'nombre': nombre,
             'total': total,
@@ -956,20 +974,14 @@ def reporte_debilidades(request, clase_id):
             'aciertos': data['aciertos'],
             'porcentaje_error': pct_error,
             'porcentaje_acierto': round(100 - pct_error, 1),
-            'confusiones': [
-                {'respuesta': c[0], 'veces': c[1]}
-                for c in confusiones_top
-            ],
+            'confusiones': [{'respuesta': c[0], 'veces': c[1]} for c in confusiones_top],
         })
 
-    # Ordenar: mayor % de error primero
     debilidades.sort(key=lambda x: -x['porcentaje_error'])
 
-    # Separar en "a reforzar" (>=50% error) y "dominadas" (<30% error)
     a_reforzar = [d for d in debilidades if d['porcentaje_error'] >= 50][:8]
     dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
 
-    # ─── Sugerencias automáticas ───
     sugerencias = []
     if a_reforzar:
         nombres = ', '.join(d['nombre'] for d in a_reforzar[:3])
@@ -987,24 +999,13 @@ def reporte_debilidades(request, clase_id):
             'texto': f'La clase domina: {nombres}. Puedes avanzar al siguiente nivel.'
         })
 
-    # Sugerencia por confusión común
-    if a_reforzar and a_reforzar[0]['confusiones']:
-        top = a_reforzar[0]
-        if top['confusiones']:
-            confusion = top['confusiones'][0]
-            sugerencias.append({
-                'icono': 'arrow-left-right',
-                'tipo': 'warning',
-                'texto': f'La clase confunde "{top["nombre"]}" con "{confusion["respuesta"]}" '
-                         f'({confusion["veces"]} veces). Practiquen distinguirlos.'
-            })
-
-    # ─── Total de estudiantes únicos ───
     estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
+    for intento in intentos_interactivos:
+        estudiantes_unicos.add(intento.estudiante_id)
 
     context = {
         'clase': clase,
-        'practicas_total': len(practicas),
+        'practicas_total': len(practicas) + len(intentos_interactivos),
         'estudiantes_total': len(estudiantes_unicos),
         'resumen_tipos': resumen_tipos,
         'a_reforzar': a_reforzar,
@@ -1015,7 +1016,7 @@ def reporte_debilidades(request, clase_id):
     }
 
     return render(request, 'ejercicios/reporte_debilidades.html', context)
-
+    
 # ============================================================
 # PANEL GLOBAL DE DEBILIDADES (TODAS LAS CLASES DEL DOCENTE)
 # ============================================================
@@ -1023,9 +1024,10 @@ def reporte_debilidades(request, clase_id):
 def debilidades_global(request):
     """
     Panel global que muestra debilidades auditivas sumando TODAS
-    las clases del docente. Filtrable por clase, tipo y rango.
+    las clases del docente, integrando prácticas tradicionales y módulos interactivos.
     """
     from docente.models import Clase
+    from ejercicios.models import IntentoEjercicio, RespuestaEstudiante
     from datetime import timedelta
 
     # ─── Filtros GET ───
@@ -1036,10 +1038,10 @@ def debilidades_global(request):
     # ─── Clases del docente ───
     mis_clases = Clase.objects.filter(docente=request.user)
 
-    # ─── Query base de prácticas ───
+    # ─── Query base de prácticas tradicionales ───
     practicas_qs = PracticaAuditiva.objects.filter(
         intento__ejercicio__clase__docente=request.user,
-        intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado'],
+        intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado', 'acordes', 'intervalos', 'escalas'],
     ).select_related(
         'intento',
         'intento__ejercicio',
@@ -1067,14 +1069,50 @@ def debilidades_global(request):
     practicas = list(practicas_qs)
 
     # ═══════════════════════════════════════════════════
-    # STATS GLOBALES
+    # INTEGRACIÓN DE MÓDULOS INTERACTIVOS (Acordes, Intervalos, Escalas)
     # ═══════════════════════════════════════════════════
-    practicas_total = len(practicas)
+    intentos_interactivos_qs = IntentoEjercicio.objects.filter(
+        ejercicio__clase__docente=request.user,
+        ejercicio__tipo__in=['acordes', 'intervalos', 'escalas'],
+        calificacion__isnull=False
+    ).select_related(
+        'ejercicio',
+        'ejercicio__clase',
+        'estudiante'
+    ).prefetch_related('respuestas__pregunta', 'respuestas__opcion_seleccionada')
+
+    if clase_filtro != 'todas':
+        intentos_interactivos_qs = intentos_interactivos_qs.filter(ejercicio__clase_id=clase_filtro)
+
+    if rango_filtro != 'todo':
+        try:
+            dias = int(rango_filtro)
+            desde = timezone.now() - timedelta(days=dias)
+            intentos_interactivos_qs = intentos_interactivos_qs.filter(fecha_envio__gte=desde)
+        except (ValueError, TypeError):
+            pass
+
+    # ═══════════════════════════════════════════════════
+    # STATS GLOBALES Y ANÁLISIS DE DEBILIDADES
+    # ═══════════════════════════════════════════════════
     estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
     clases_unicas = set(p.intento.ejercicio.clase_id for p in practicas)
 
     total_aciertos = sum(p.aciertos for p in practicas)
     total_preguntas = sum(p.total_preguntas for p in practicas)
+
+    # Sumamos también los intentos interactivos calificados
+    for intento in intentos_interactivos_qs:
+        estudiantes_unicos.add(intento.estudiante_id)
+        clases_unicas.add(intento.ejercicio.clase_id)
+        # Evaluamos las respuestas interactivas registradas
+        for resp in intento.respuestas.all():
+            total_preguntas += 1
+            # Verificamos si la opción seleccionada era correcta
+            if resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False):
+                total_aciertos += 1
+
+    practicas_total = len(practicas) + intentos_interactivos_qs.count()
     promedio_global = round((total_aciertos / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
 
     # ═══════════════════════════════════════════════════
@@ -1108,6 +1146,21 @@ def debilidades_global(request):
                 if respuesta:
                     analisis[correcta]['confusiones'][respuesta] += 1
 
+    # Procesamos también los errores de los módulos interactivos
+    for intento in intentos_interactivos_qs:
+        clase_nombre = intento.ejercicio.clase.nombre
+        for resp in intento.respuestas.all():
+            if resp.pregunta:
+                target_nombre = resp.pregunta.enunciado
+                analisis[target_nombre]['clases'].add(clase_nombre)
+                es_correcta = resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False)
+                if es_correcta:
+                    analisis[target_nombre]['aciertos'] += 1
+                else:
+                    analisis[target_nombre]['fallos'] += 1
+                    if resp.opcion_seleccionada:
+                        analisis[target_nombre]['confusiones'][resp.opcion_seleccionada.texto_opcion] += 1
+
     debilidades = []
     for nombre, data in analisis.items():
         total = data['fallos'] + data['aciertos']
@@ -1137,64 +1190,25 @@ def debilidades_global(request):
     dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
 
     # ═══════════════════════════════════════════════════
-    # COMPARATIVA POR CLASE
-    # ═══════════════════════════════════════════════════
-    por_clase = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0})
-
-    for p in practicas:
-        cid = p.intento.ejercicio.clase_id
-        por_clase[cid]['aciertos'] += p.aciertos
-        por_clase[cid]['total'] += p.total_preguntas
-        por_clase[cid]['practicas'] += 1
-
-    comparativa_clases = []
-    for clase in mis_clases:
-        data = por_clase.get(clase.id)
-        if not data or data['total'] == 0:
-            continue
-        pct = round((data['aciertos'] / data['total']) * 100, 1)
-        comparativa_clases.append({
-            'clase': clase,
-            'porcentaje': pct,
-            'practicas': data['practicas'],
-            'aciertos': data['aciertos'],
-            'total': data['total'],
-        })
-
-    comparativa_clases.sort(key=lambda x: x['porcentaje'])
-
-    # ═══════════════════════════════════════════════════
-    # RENDIMIENTO POR TIPO DE PRÁCTICA
-    # ═══════════════════════════════════════════════════
-    tipos_contador = defaultdict(lambda: {'practicas': 0, 'aciertos': 0, 'total': 0})
-    for p in practicas:
-        tipos_contador[p.tipo_practica]['practicas'] += 1
-        tipos_contador[p.tipo_practica]['aciertos'] += p.aciertos
-        tipos_contador[p.tipo_practica]['total'] += p.total_preguntas
-
-    resumen_tipos = []
-    for tipo, data in tipos_contador.items():
-        pct = round((data['aciertos'] / data['total']) * 100, 1) if data['total'] > 0 else 0
-        resumen_tipos.append({
-            'tipo': tipo,
-            'label': dict(PracticaAuditiva.TIPO_CHOICES).get(tipo, tipo.capitalize()),
-            'practicas': data['practicas'],
-            'aciertos': data['aciertos'],
-            'total': data['total'],
-            'porcentaje': pct,
-        })
-    resumen_tipos.sort(key=lambda x: x['porcentaje'])
-
-    # ═══════════════════════════════════════════════════
-    # TOP ESTUDIANTES
+    # TOP ESTUDIANTES (Integrando tradicionales e interactivos)
     # ═══════════════════════════════════════════════════
     por_estudiante = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0, 'estudiante': None})
+    
     for p in practicas:
         eid = p.intento.estudiante_id
         por_estudiante[eid]['aciertos'] += p.aciertos
         por_estudiante[eid]['total'] += p.total_preguntas
         por_estudiante[eid]['practicas'] += 1
         por_estudiante[eid]['estudiante'] = p.intento.estudiante
+
+    for intento in intentos_interactivos_qs:
+        eid = intento.estudiante_id
+        por_estudiante[eid]['practicas'] += 1
+        por_estudiante[eid]['estudiante'] = intento.estudiante
+        for resp in intento.respuestas.all():
+            por_estudiante[eid]['total'] += 1
+            if resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False):
+                por_estudiante[eid]['aciertos'] += 1
 
     top_estudiantes = []
     for eid, data in por_estudiante.items():
@@ -1211,38 +1225,6 @@ def debilidades_global(request):
     top_estudiantes = top_estudiantes[:5]
 
     # ═══════════════════════════════════════════════════
-    # SUGERENCIAS AUTOMÁTICAS
-    # ═══════════════════════════════════════════════════
-    sugerencias = []
-
-    if top_debilidades:
-        peores = [d for d in top_debilidades if d['porcentaje_error'] >= 50][:3]
-        if peores:
-            nombres = ', '.join(d['nombre'] for d in peores)
-            sugerencias.append({
-                'icono': 'exclamation-triangle-fill',
-                'tipo': 'danger',
-                'texto': f'Refuerza a nivel general: {nombres}'
-            })
-
-    if dominadas:
-        nombres = ', '.join(d['nombre'] for d in dominadas[:3])
-        sugerencias.append({
-            'icono': 'check-circle-fill',
-            'tipo': 'success',
-            'texto': f'Dominado en general: {nombres}. Puedes avanzar.'
-        })
-
-    if comparativa_clases:
-        peor_clase = comparativa_clases[0]
-        if peor_clase['porcentaje'] < 60:
-            sugerencias.append({
-                'icono': 'flag-fill',
-                'tipo': 'warning',
-                'texto': f'La clase "{peor_clase["clase"].nombre}" está por debajo del 60%. Revisa su avance.'
-            })
-
-    # ═══════════════════════════════════════════════════
     # CONTEXTO
     # ═══════════════════════════════════════════════════
     context = {
@@ -1253,11 +1235,7 @@ def debilidades_global(request):
         'promedio_global': promedio_global,
         'top_debilidades': top_debilidades,
         'dominadas': dominadas,
-        'comparativa_clases': comparativa_clases,
-        'resumen_tipos': resumen_tipos,
         'top_estudiantes': top_estudiantes,
-        'sugerencias': sugerencias,
-        # Filtros
         'clase_filtro': clase_filtro,
         'tipo_filtro': tipo_filtro,
         'rango_filtro': rango_filtro,
@@ -1265,7 +1243,6 @@ def debilidades_global(request):
     }
 
     return render(request, 'ejercicios/debilidades_global.html', context)
-
 # ============================================================
 # EXPORTAR REPORTE DE DEBILIDADES A PDF (DISEÑO MEJORADO)
 # ============================================================
