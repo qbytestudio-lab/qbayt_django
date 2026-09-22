@@ -70,10 +70,20 @@ body {
   transition: background 0.3s ease, color 0.3s ease;
 }
 
+/* ============================================ */
+/* REDONDEAR EL CONTENEDOR PRINCIPAL            */
+/* ============================================ */
+
 .profile-container {
-  padding: 0;
-  max-width: 1200px;
-  margin: 0 auto;
+  border-radius: 24px !important;              
+  overflow: hidden !important;                 
+  background: var(--bg-card) !important;       
+  margin: 1.5rem auto !important;              
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="light"] .profile-container {
+  box-shadow: 0 12px 40px rgba(34, 197, 94, 0.15) !important;
 }
 
 /* ============================================ */
@@ -85,6 +95,9 @@ body {
   min-height: 380px;
   overflow: hidden;
   padding: 0;
+  border-radius: 24px;             
+  margin: 1.5rem auto;
+  max-width: 1200px;
 }
 
 /* Banner de fondo */
@@ -430,39 +443,185 @@ body {
 }
 
 /* ============================================ */
-/* TABS                                        */
+/* TABS — FLOTANTES CON INDICADOR DESLIZANTE    */
 /* ============================================ */
 
 .profile-tabs-bar {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-subtle);
+  /* Flotante y separada */
   position: sticky;
-  top: 68px;
+  top: 90px;
   z-index: 100;
-  backdrop-filter: blur(20px);
+  margin: 2rem auto 1.75rem;
+  width: fit-content;
+  max-width: calc(100% - 3rem);
+
+  /* Contenedor glass con padding interno */
+  padding: 0.4rem;
+  border-radius: 16px;
+
+  /* Fondo glass — se adapta a cada tema */
+  background: rgba(28, 20, 52, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+
+  border: 1px solid rgba(124, 111, 255, 0.25);
+  box-shadow:
+    0 10px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(124, 111, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+
+  transition: box-shadow 0.3s ease;
 }
 
+[data-theme="light"] .profile-tabs-bar {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow:
+    0 10px 40px rgba(34, 197, 94, 0.18),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+/* Contenedor de los tabs */
 .profile-tabs {
   display: flex;
   gap: 0;
   list-style: none;
   padding: 0;
-  margin: 0 auto;
-  max-width: 1200px;
+  margin: 0;
+  justify-content: center;
+  position: relative;
 }
 
+/* Cada tab */
 .ptab {
-  padding: 1rem 1.4rem;
-  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1.35rem;
+  color: var(--text-secondary);              /* texto tenue cuando NO está activo */
   text-decoration: none;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
-  font-size: 0.83rem;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-  display: flex;
+  font-size: 0.88rem;
+  letter-spacing: -0.01em;
+  border-radius: 12px;
+  border: none;
+  transition: color 0.3s ease, transform 0.2s ease;
+  white-space: nowrap;
+}
+
+/* Hover suave (solo cambia el color, no el fondo) */
+.ptab:hover {
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+/* ⭐ TAB ACTIVO — Con fondo gradiente */
+.ptab.active {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    #7c6fff 0%,
+    #b06fff 50%,
+    #ec4899 100%
+  );
+  background-size: 200% 200%;
+  box-shadow:
+    0 4px 16px rgba(124, 111, 255, 0.45),
+    0 0 0 1px rgba(176, 111, 255, 0.4) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: tabGradientShift 4s ease infinite;
+}
+
+@keyframes tabGradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+[data-theme="light"] .ptab.active {
+  color: #ffffff;
+  background: linear-gradient(
+    135deg,
+    #16a34a 0%,
+    #22c55e 100%
+  );
+  box-shadow:
+    0 4px 16px rgba(34, 197, 94, 0.4),
+    0 0 0 1px rgba(34, 197, 94, 0.3) inset,
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+/* Badge dentro de la tab (el "2") */
+.ptab .badge-count,
+.ptab span.badge {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 0.4rem;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.25);
+  color: inherit;
+  font-size: 0.7rem;
+  font-weight: 800;
+  margin-left: 0.15rem;
+}
+
+/* Ícono de la tab */
+.ptab i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.ptab.active i {
+  transform: scale(1.1);
+}
+
+/* ============================================ */
+/* RESPONSIVE                                   */
+/* ============================================ */
+
+@media (max-width: 768px) {
+  .profile-tabs-bar {
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    margin: 1.5rem 1rem;
+    padding: 0.35rem;
+    border-radius: 14px;
+  }
+
+  .profile-tabs {
+    justify-content: stretch;
+  }
+
+  .ptab {
+    flex: 1;
+    justify-content: center;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.78rem;
+    gap: 0.35rem;
+  }
+
+  .ptab i {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ptab {
+    padding: 0.6rem 0.5rem;
+    font-size: 0.72rem;
+  }
+
+  .ptab .badge-count,
+  .ptab span.badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.65rem;
+  }
 }
 
 .ptab:hover {
@@ -483,6 +642,8 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  border-radius: 0 0 24px 24px;   
+  background: var(--bg-card);      
 }
 
 .tab-pane {
@@ -1111,4 +1272,24 @@ body {
 
 .btn-action.message {
   text-decoration: none;
+}
+/* ═══════════════════════════════════════════ */
+/* FORZAR 4 ESQUINAS REDONDEADAS AL WRAPPER     */
+/* ═══════════════════════════════════════════ */
+
+/* Opción 1: si el fondo gris está en .profile-hero */
+.profile-hero,
+.profile-hero.estudiante,
+.profile-hero.docente {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+}
+
+/* Opción 2: si el fondo gris está en un wrapper mayor */
+.profile-container,
+.profile-wrapper,
+.content,
+main {
+  border-radius: 24px !important;
+  overflow: hidden !important;
 }

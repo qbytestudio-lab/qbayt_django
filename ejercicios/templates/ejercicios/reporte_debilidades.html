@@ -26,7 +26,7 @@
                 <i class="bi bi-activity"></i> Reporte de Debilidades Auditivas
             </h1>
             <p class="reporte-subtitle">
-                {{ clase.nombre }} · Análisis basado en prácticas de entrenamiento auditivo
+                {{ clase.nombre }} · Análisis basado en prácticas e ítems interactivos
             </p>
         </div>
     </div>
@@ -113,7 +113,7 @@
     <div class="empty-state">
         <i class="bi bi-clipboard-x"></i>
         <h3>Aún no hay datos</h3>
-        <p>Tus estudiantes todavía no han realizado prácticas de entrenamiento auditivo en esta clase.</p>
+        <p>Tus estudiantes todavía no han realizado prácticas ni ejercicios interactivos en esta clase.</p>
     </div>
     {% else %}
 
@@ -158,7 +158,7 @@
                     {% if d.confusiones %}
                     <div class="confusiones">
                         <div class="confusiones-label">
-                            <i class="bi bi-arrow-left-right"></i> Confunden con:
+                            <i class="bi bi-arrow-left-right"></i> Estudiantes marcaron erróneamente:
                         </div>
                         {% for c in d.confusiones %}
                         <span class="confusion-chip">
@@ -236,7 +236,7 @@
         </h4>
         <div class="resumen-tipos-grid">
             {% for t in resumen_tipos %}
-                {% if t.tipo == 'intervalos' or t.tipo == 'acordes' or t.tipo == 'notas' or t.tipo == 'ritmo' or t.tipo == 'melodia' %}
+                {% if t.tipo == 'intervalos' or t.tipo == 'acordes' or t.tipo == 'escalas' or t.tipo == 'notas' or t.tipo == 'ritmo' or t.tipo == 'melodia' %}
                 <div class="tipo-card">
                     <div class="tipo-header">
                         <span class="tipo-nombre">{{ t.label }}</span>
@@ -264,40 +264,36 @@
         </div>
 
         <!-- ═══ TIPOS AVANZADOS ═══ -->
-        {% with hay_avanzados=False %}
+        <h4 class="subtipo-heading subtipo-heading-advanced mt-4">
+            <i class="bi bi-stars"></i> Avanzado
+        </h4>
+        <div class="resumen-tipos-grid">
             {% for t in resumen_tipos %}
                 {% if t.tipo == 'oido_absoluto' or t.tipo == 'oido_relativo' or t.tipo == 'tapping_ritmico' or t.tipo == 'dictado_melodico' %}
-                    {% if not hay_avanzados %}
-                    <h4 class="subtipo-heading subtipo-heading-advanced mt-4">
-                        <i class="bi bi-stars"></i> Avanzado
-                    </h4>
-                    <div class="resumen-tipos-grid">
-                    {% endif %}
-                    <div class="tipo-card tipo-card-avanzado">
-                        <div class="tipo-header">
-                            <span class="tipo-nombre">{{ t.label }}</span>
-                            <span class="tipo-porcentaje
-                                {% if t.porcentaje >= 70 %}success
-                                {% elif t.porcentaje >= 50 %}warning
-                                {% else %}danger{% endif %}">
-                                {{ t.porcentaje }}%
-                            </span>
-                        </div>
-                        <div class="barra-container">
-                            <div class="barra-tipo"
-                                 style="width: {{ t.porcentaje }}%;"
-                                 data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
-                            </div>
-                        </div>
-                        <div class="tipo-meta">
-                            <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
-                            <span>·</span>
-                            <span>{{ t.aciertos }}/{{ t.total }} aciertos</span>
+                <div class="tipo-card tipo-card-avanzado">
+                    <div class="tipo-header">
+                        <span class="tipo-nombre">{{ t.label }}</span>
+                        <span class="tipo-porcentaje
+                            {% if t.porcentaje >= 70 %}success
+                            {% elif t.porcentaje >= 50 %}warning
+                            {% else %}danger{% endif %}">
+                            {{ t.porcentaje }}%
+                        </span>
+                    </div>
+                    <div class="barra-container">
+                        <div class="barra-tipo"
+                             style="width: {{ t.porcentaje }}%;"
+                             data-nivel="{% if t.porcentaje >= 70 %}high{% elif t.porcentaje >= 50 %}mid{% else %}low{% endif %}">
                         </div>
                     </div>
+                    <div class="tipo-meta">
+                        <span>{{ t.practicas }} práctica{{ t.practicas|pluralize:"s" }}</span>
+                        <span>·</span>
+                        <span>{{ t.aciertos }}/{{ t.total }} aciertos</span>
+                    </div>
+                </div>
                 {% endif %}
             {% endfor %}
-        {% endwith %}
         </div>
 
     </div>

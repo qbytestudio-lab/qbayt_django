@@ -4,51 +4,44 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from django.template import context
 from django.utils import timezone
+from django.http import JsonResponse, request
+from django.views.decorators.http import require_POST
+from django.db.models import Q
+import json
+import re
+
 from ejercicios.models import Ejercicio, IntentoEjercicio, RespuestaEstudiante
 from clase.models import Clase
 from docente.models import SolicitudClase
 from web.models import Perfil
-from django.http import JsonResponse, request
-from django.views.decorators.http import require_POST
-import json
 from notificaciones.services import notificar_solicitud_clase
 
+from estudiante.utils import (
+    clases_visibles_estudiante,
+    calcular_progreso_clase,
+    calcular_promedio_clase,
+    estudiante_reprobo_clase,
+    puede_unirse_a_clase,
+    esta_inscrito_en_otra_igual,
+    clases_bloqueadas_para_estudiante,
+    DIAS_GRACIA_VENCIDA,
+    DIAS_BLOQUEO_REPROBADA,
+    DIAS_CLASE_NUEVA,
+    NOTA_APROBACION,
+)
+
 
 # ═══════════════════════════════════════════════════════════
-# HELPER DE EXPIRACIÓN
+# PERFIL DEL ESTUDIANTE
 # ═══════════════════════════════════════════════════════════
-
-DIAS_GRACIA = 5
-
-
-def _clases_visibles_estudiante(user):
-    """Clases del estudiante que NO han expirado (≤ 5 días vencidas)."""
-    limite = timezone.now().date() - timedelta(days=DIAS_GRACIA)
-    return user.clases_estudiante.all().exclude(fecha_fin__lt=limite)
-
-
-def calcular_progreso_clase(estudiante, clase):
-    """Devuelve el % de ejercicios completados en una clase."""
-    total_ejercicios = Ejercicio.objects.filter(clase=clase).count()
-    if total_ejercicios == 0:
-        return 0
-    
-    completados = IntentoEjercicio.objects.filter(
-        estudiante=estudiante,
-        ejercicio__clase=clase
-    ).values('ejercicio').distinct().count()
-    
-    return round((completados / total_ejercicios) * 100)
-
 
 @login_required
 def perfil_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
 
-    clases = _clases_visibles_estudiante(request.user)
+    clases = clases_visibles_estudiante(request.user)
     solicitudes = SolicitudClase.objects.filter(estudiante=request.user)
 
     progreso_clases = []
@@ -59,7 +52,9 @@ def perfil_estudiante(request):
         })
 
     if progreso_clases:
-        progreso_general = round(sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases))
+        progreso_general = round(
+            sum(p['porcentaje'] for p in progreso_clases) / len(progreso_clases)
+        )
     else:
         progreso_general = 0
 
@@ -68,23 +63,22 @@ def perfil_estudiante(request):
     ).values('ejercicio').distinct().count()
 
     ahora = timezone.now()
-    
+
     ejercicios_completados = IntentoEjercicio.objects.filter(
         estudiante=request.user
     ).values_list('ejercicio_id', flat=True).distinct()
-    
+
     pendientes = Ejercicio.objects.filter(
         clase__in=clases,
         fecha_limite__isnull=False,
         fecha_limite__gte=ahora
     ).exclude(id__in=ejercicios_completados).select_related('clase')
-    
+
     pendientes_count = pendientes.count()
 
-    # Construir historial SOLO con clases activas y eliminadas
+    # Construir historial
     historial = []
-    
-    # Agregar clases activas (todas las clases donde está inscrito y NO expiradas)
+
     for clase in clases:
         historial.append({
             'nombre': clase.nombre,
@@ -94,15 +88,13 @@ def perfil_estudiante(request):
             'fecha': clase.fecha_creacion,
             'estudiantes_count': clase.estudiantes.count(),
         })
-    
-    # Agregar solicitudes rechazadas como clases eliminadas
+
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=request.user,
         estado='rechazada'
     ).select_related('clase', 'clase__docente')
-    
+
     for solicitud in solicitudes_rechazadas:
-        # 🚫 Ocultar también si la clase está expirada
         if solicitud.clase.esta_expirada:
             continue
         historial.append({
@@ -113,8 +105,7 @@ def perfil_estudiante(request):
             'fecha': solicitud.fecha,
             'estudiantes_count': solicitud.clase.estudiantes.count(),
         })
-    
-    # Ordenar historial por fecha (más recientes primero)
+
     historial.sort(key=lambda x: x['fecha'], reverse=True)
 
     return render(request, 'estudiante/perfil_estudiante.html', {
@@ -131,40 +122,42 @@ def perfil_estudiante(request):
     })
 
 
+# ═══════════════════════════════════════════════════════════
+# UNIRSE / SOLICITAR / SALIR
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 def unirse_clase(request):
     if request.method == 'POST':
         codigo = request.POST.get('codigo', '').strip()
-        
+
         try:
             clase = Clase.objects.get(codigo=codigo)
-            
-            # 1. RESTRICCIÓN POR TÍTULO
-            clase_mismo_titulo = Clase.objects.filter(
-                nombre__iexact=clase.nombre,
-                estudiantes=request.user
-            ).exclude(id=clase.id).exists()
-
-            if clase_mismo_titulo:
-                messages.error(request, f"No puedes unirte. Ya estás inscrito en otro curso con el título '{clase.nombre}'.")
-                return redirect('estudiante:explorar_clases')
-
-            # 2. Verificar si ya está inscrito
-            if request.user in clase.estudiantes.all():
-                messages.warning(request, "Ya estás inscrito en esta clase.")
-            else:
-                # 3. Inscribir
-                clase.estudiantes.add(request.user)
-                
-                SolicitudClase.objects.filter(
-                    clase=clase, estudiante=request.user
-                ).update(estado='aceptada')
-                
-                messages.success(request, f"¡Te has inscrito correctamente a la clase '{clase.nombre}'!")
-                
         except Clase.DoesNotExist:
             messages.error(request, "El código de acceso es inválido.")
-            
+            return redirect('estudiante:explorar_clases')
+
+        if request.user in clase.estudiantes.all():
+            messages.warning(request, "Ya estás inscrito en esta clase.")
+            return redirect('estudiante:explorar_clases')
+
+        # Validación centralizada
+        puede, motivo = puede_unirse_a_clase(request.user, clase)
+        if not puede:
+            messages.error(request, motivo)
+            return redirect('estudiante:explorar_clases')
+
+        clase.estudiantes.add(request.user)
+
+        SolicitudClase.objects.filter(
+            clase=clase, estudiante=request.user
+        ).update(estado='aceptada')
+
+        messages.success(
+            request,
+            f"¡Te has inscrito correctamente a la clase '{clase.nombre}'!"
+        )
+
     return redirect('estudiante:explorar_clases')
 
 
@@ -173,33 +166,37 @@ def solicitar_clase(request):
     if request.method == 'POST':
         clase_id = request.POST.get('clase_id')
         clase = get_object_or_404(Clase, id=clase_id)
-        
-        clase_mismo_titulo = Clase.objects.filter(
-            nombre__iexact=clase.nombre,
-            estudiantes=request.user
-        ).exists()
 
-        if clase_mismo_titulo:
-            messages.error(request, f"No puedes solicitar acceso. Ya estás inscrito en otro curso con el título '{clase.nombre}'.")
-            return redirect('estudiante:explorar_clases')
-        
         if request.user in clase.estudiantes.all():
             messages.warning(request, "Ya estás inscrito en esta clase.")
             return redirect('estudiante:explorar_clases')
-            
+
+        # Validación centralizada
+        puede, motivo = puede_unirse_a_clase(request.user, clase)
+        if not puede:
+            messages.error(request, motivo)
+            return redirect('estudiante:explorar_clases')
+
         solicitud, creado = SolicitudClase.objects.get_or_create(
             estudiante=request.user,
             clase=clase,
             defaults={'estado': 'pendiente'}
         )
-        
+
         if not creado:
             solicitud.estado = 'pendiente'
             solicitud.save()
-            messages.success(request, f"Se ha vuelto a enviar la solicitud para la clase '{clase.nombre}'.")
+            messages.success(
+                request,
+                f"Se ha vuelto a enviar la solicitud para la clase '{clase.nombre}'."
+            )
         else:
-            messages.success(request, f"Solicitud enviada para la clase '{clase.nombre}'. Espera la aprobación del docente.")
-            
+            messages.success(
+                request,
+                f"Solicitud enviada para la clase '{clase.nombre}'. "
+                f"Espera la aprobación del docente."
+            )
+
     return redirect('estudiante:explorar_clases')
 
 
@@ -207,11 +204,16 @@ def solicitar_clase(request):
 def salir_clase(request, clase_id):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
+
     clase = get_object_or_404(Clase, id=clase_id)
     clase.estudiantes.remove(request.user)
     messages.success(request, f'Saliste de "{clase.nombre}".')
     return redirect('estudiante:perfil_estudiante')
 
+
+# ═══════════════════════════════════════════════════════════
+# EXPLORAR CLASES
+# ═══════════════════════════════════════════════════════════
 
 @login_required
 def explorar_clases(request):
@@ -219,47 +221,49 @@ def explorar_clases(request):
     Vista unificada para explorar clases disponibles.
     No muestra clases expiradas (> 5 días vencidas).
     """
-    from docente.models import SolicitudClase, Clase
-    
     usuario = request.user
-    
-    # Clases donde el usuario NO está inscrito, NO es docente y NO están expiradas
+
+    # Clases donde NO está inscrito, NO es docente, NO expiradas
+    limite = timezone.now().date() - timedelta(days=DIAS_GRACIA_VENCIDA)
     clases = Clase.objects.exclude(
         estudiantes=usuario
     ).exclude(
         docente=usuario
     ).exclude(
-        fecha_fin__lt=timezone.now().date() - timedelta(days=DIAS_GRACIA)
+        fecha_fin__lt=limite
     )
-    
+
     # Filtros por categoría
     categoria = request.GET.get('categoria')
     if categoria:
         clases = clases.filter(categoria_tema=categoria)
-    
+
     # Búsqueda
     query = request.GET.get('q')
     if query:
         clases = clases.filter(
-            Q(nombre__icontains=query) | 
+            Q(nombre__icontains=query) |
             Q(descripcion__icontains=query)
         )
-    
+
     # IDs de clases donde el usuario ya está inscrito
     clases_inscritas_ids = usuario.clases_estudiante.values_list('id', flat=True)
 
-    # SOLO solicitudes PENDIENTES
+    # Solicitudes pendientes
     solicitudes_enviadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='pendiente'
     ).values_list('clase_id', flat=True)
-    
-    # Solicitudes RECHAZADAS
+
+    # Solicitudes rechazadas
     solicitudes_rechazadas = SolicitudClase.objects.filter(
         estudiante=usuario,
         estado='rechazada'
     ).values_list('clase_id', flat=True)
-    
+
+    # Clases bloqueadas por reglas de negocio
+    bloqueos = clases_bloqueadas_para_estudiante(usuario)
+
     context = {
         'clases': clases,
         'categorias': getattr(Clase, 'TEMA_CATEGORIAS', []),
@@ -267,10 +271,15 @@ def explorar_clases(request):
         'clases_inscritas_ids': clases_inscritas_ids,
         'solicitudes_enviadas': solicitudes_enviadas,
         'solicitudes_rechazadas': solicitudes_rechazadas,
+        'bloqueos': bloqueos,
     }
-    
+
     return render(request, 'estudiante/explorar_clases.html', context)
 
+
+# ═══════════════════════════════════════════════════════════
+# DETALLE DE CLASE
+# ═══════════════════════════════════════════════════════════
 
 @login_required
 def detalle_clase_estudiante(request, clase_id):
@@ -301,17 +310,21 @@ def detalle_clase_estudiante(request, clase_id):
     })
 
 
+# ═══════════════════════════════════════════════════════════
+# MIS CALIFICACIONES
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 def mis_calificaciones_estudiante(request):
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
-    
-    clases = _clases_visibles_estudiante(request.user)
-    
+
+    clases = clases_visibles_estudiante(request.user)
+
     reporte_clases = []
     for clase in clases:
         ejercicios = clase.ejercicios.all().order_by('id')
-        
+
         ejercicios_con_intentos = []
         for ejercicio in ejercicios:
             intento = ejercicio.intentos.filter(estudiante=request.user).first()
@@ -319,7 +332,7 @@ def mis_calificaciones_estudiante(request):
                 'ejercicio': ejercicio,
                 'intento': intento
             })
-            
+
         reporte_clases.append({
             'clase': clase,
             'ejercicios': ejercicios_con_intentos
@@ -330,13 +343,17 @@ def mis_calificaciones_estudiante(request):
     })
 
 
+# ═══════════════════════════════════════════════════════════
+# MIS CLASES
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 def mis_clases(request):
     """Lista de clases del estudiante."""
     if request.user.perfil.rol != 'estudiante':
         return redirect('inicio')
 
-    clases = _clases_visibles_estudiante(request.user)
+    clases = clases_visibles_estudiante(request.user)
 
     progreso_clases = []
     for clase in clases:
@@ -351,6 +368,10 @@ def mis_clases(request):
     })
 
 
+# ═══════════════════════════════════════════════════════════
+# SUBIR FOTO DE PERFIL / BANNER
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 @require_POST
 def subir_foto_perfil(request):
@@ -363,15 +384,9 @@ def subir_foto_perfil(request):
                 'error': 'No se recibió imagen'
             })
 
-        perfil, created = Perfil.objects.get_or_create(
-            user=request.user
-        )
+        perfil, created = Perfil.objects.get_or_create(user=request.user)
 
-        perfil.foto_perfil.save(
-            foto.name,
-            foto,
-            save=True
-        )
+        perfil.foto_perfil.save(foto.name, foto, save=True)
 
         return JsonResponse({
             'success': True,
@@ -390,26 +405,36 @@ def subir_banner(request):
     if request.method == 'POST' and request.FILES.get('banner'):
         try:
             banner = request.FILES['banner']
-            
+
             if not banner.content_type.startswith('image/'):
-                return JsonResponse({'success': False, 'error': 'El archivo debe ser una imagen.'})
-            
+                return JsonResponse({
+                    'success': False,
+                    'error': 'El archivo debe ser una imagen.'
+                })
+
             if banner.size > 10 * 1024 * 1024:
-                return JsonResponse({'success': False, 'error': 'La imagen no debe superar los 10MB.'})
-            
+                return JsonResponse({
+                    'success': False,
+                    'error': 'La imagen no debe superar los 10MB.'
+                })
+
             request.user.perfil.banner = banner
             request.user.perfil.save()
-            
+
             return JsonResponse({'success': True})
+
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
-    
+
     return JsonResponse({'success': False, 'error': 'No se recibió imagen.'})
 
 
+# ═══════════════════════════════════════════════════════════
+# RESOLVER EJERCICIO
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 def resolver_ejercicio(request, clase_id, ejercicio_id):
-    from docente.models import Clase
     from ejercicios.models import Ejercicio, Pregunta, IntentoEjercicio
 
     clase = get_object_or_404(Clase, id=clase_id)
@@ -419,17 +444,14 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     # VALIDACIONES COMUNES
     # ═══════════════════════════════════════════════════
 
-    # Verificar inscripción
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
         return redirect('inicio')
 
-    # VALIDACIÓN 1: Ejercicio desactivado
     if not ejercicio.activo:
         messages.error(request, 'Este ejercicio está desactivado por el docente.')
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-    # VALIDACIÓN 2: Fecha límite vencida
     if ejercicio.esta_vencido:
         messages.error(
             request,
@@ -438,7 +460,6 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         )
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-    # VALIDACIÓN 3: Ya envió el ejercicio
     intento_existente = IntentoEjercicio.objects.filter(
         estudiante=request.user,
         ejercicio=ejercicio
@@ -449,10 +470,10 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
     # ═══════════════════════════════════════════════════
-    # 🆕 ENRUTADOR POR TIPO
+    # ENRUTADOR POR TIPO
     # ═══════════════════════════════════════════════════
 
-    # ─── Módulo de Escalas (Tone.js + Secuencia Melódica) ───
+    # ─── Módulo de Escalas ───
     if ejercicio.tipo == 'escalas':
         preguntas_data = []
         raw_contenido = getattr(ejercicio, 'contenido', None)
@@ -472,7 +493,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
             'total_preguntas': len(preguntas_data),
         })
 
-    # ─── Módulo de Intervalos (Tone.js + Melódico/Armónico) ───
+    # ─── Módulo de Intervalos ───
     if ejercicio.tipo == 'intervalos':
         preguntas_data = []
         raw_contenido = getattr(ejercicio, 'contenido', None)
@@ -492,16 +513,15 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
             'total_preguntas': len(preguntas_data),
         })
 
-    # ─── 1. Módulo de Acordes (Tone.js + Kahoot Grid) ───
+    # ─── Módulo de Acordes ───
     if ejercicio.tipo == 'acordes':
         preguntas_data = []
 
-        # 1. Explorar todos los campos posibles donde pudo guardarse el contenido
         campos_posibles = [
-            'contenido', 'contenido_preguntas', 'preguntas_json', 
+            'contenido', 'contenido_preguntas', 'preguntas_json',
             'config_auditivo', 'datos', 'descripcion_detallada'
         ]
-        
+
         raw_contenido = None
         for campo in campos_posibles:
             if hasattr(ejercicio, campo):
@@ -510,24 +530,21 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
                     raw_contenido = val
                     break
 
-        # 2. Deserializar con seguridad garantizando una LISTA nativa de Python
         if raw_contenido is not None:
             try:
                 temp = raw_contenido
-                # Si viene con doble o triple stringificación JSON
                 while isinstance(temp, str):
                     temp = json.loads(temp)
-                
+
                 if isinstance(temp, list):
                     preguntas_data = temp
                 elif isinstance(temp, dict):
-                    # En caso de que se haya guardado dentro de una clave como 'preguntas'
                     preguntas_data = temp.get('preguntas', [])
             except Exception as err:
                 print(f"[ERROR JSON]: No se pudo parsear el contenido: {err}")
                 preguntas_data = []
 
-        # 3. Fallback: Si no había JSON, buscar si se guardaron en la tabla Pregunta
+        # Fallback: buscar en tabla Pregunta
         if not preguntas_data:
             from ejercicios.models import Pregunta
             preguntas_rel = Pregunta.objects.filter(ejercicio=ejercicio).prefetch_related('opciones')
@@ -543,7 +560,6 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
                         'opciones': opts
                     })
 
-        # 4. Formatear y verificar que cada pregunta tenga opciones estructuradas
         for idx, item in enumerate(preguntas_data):
             if not isinstance(item, dict):
                 continue
@@ -563,26 +579,26 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
         return render(request, 'estudiante/resolver_acordes.html', {
             'ejercicio': ejercicio,
             'clase': clase,
-            'preguntas_json': preguntas_data,  # Pasa la lista pura de Python
+            'preguntas_json': preguntas_data,
             'total_preguntas': len(preguntas_data),
             'octava_base': octava_val,
         })
 
-    # ─── 2. Entrenamiento Auditivo Convencional ───
+    # ─── Entrenamiento Auditivo ───
     if ejercicio.tipo == 'entrenamiento_auditivo':
         return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {
             'ejercicio': ejercicio,
             'clase': clase,
         })
 
-    # ─── 3. Entrenamiento Avanzado ───
+    # ─── Entrenamiento Avanzado ───
     if ejercicio.tipo == 'entrenamiento_avanzado':
         return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {
             'ejercicio': ejercicio,
             'clase': clase,
         })
 
-    # ─── 4. Juego ───
+    # ─── Juego ───
     if ejercicio.tipo == 'juego':
         if request.method == 'POST':
             IntentoEjercicio.objects.create(
@@ -619,22 +635,23 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
 
     return render(request, 'estudiante/resolver_ejercicio.html', context)
 
+
+# ═══════════════════════════════════════════════════════════
+# ENVIAR RESPUESTAS DE EJERCICIO
+# ═══════════════════════════════════════════════════════════
+
 @login_required
 def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
     """
-    Vista unificada para enviar respuestas de cualquier tipo de ejercicio por parte del estudiante.
+    Vista unificada para enviar respuestas de cualquier tipo de ejercicio.
     """
-    from docente.models import Clase
     from ejercicios.models import (
         Ejercicio, Pregunta, IntentoEjercicio,
         RespuestaEstudiante, Opcion
     )
-    from django.utils import timezone
-    import json
 
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
 
     if request.user not in clase.estudiantes.all():
         messages.error(request, 'No estás inscrito en esta clase.')
@@ -676,7 +693,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             messages.error(request, 'Has agotado tus 2 intentos.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # ─── MÓDULOS INTERACTIVOS (Acordes, Intervalos, Escalas) ───
+        # ─── Módulos interactivos (Acordes, Intervalos, Escalas) ───
         if ejercicio.tipo in ['acordes', 'intervalos', 'escalas']:
             intento = IntentoEjercicio.objects.create(
                 estudiante=request.user,
@@ -684,32 +701,35 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
                 fecha_envio=timezone.now(),
                 calificacion=None
             )
-            
+
             raw_contenido = getattr(ejercicio, 'contenido', None)
             if raw_contenido:
                 try:
                     temp = raw_contenido
                     while isinstance(temp, str):
                         temp = json.loads(temp)
-                    
+
                     if isinstance(temp, list):
                         for idx, item in enumerate(temp):
                             p_id = str(item.get('id', idx))
-                            respuesta_dada = request.POST.get(f'pregunta_{p_id}') or request.POST.get(f'pregunta_{idx}')
-                            
+                            respuesta_dada = (
+                                request.POST.get(f'pregunta_{p_id}') or
+                                request.POST.get(f'pregunta_{idx}')
+                            )
+
                             if respuesta_dada:
-                                # Creamos una pregunta virtual asociada al ejercicio para el desglose del docente
                                 pregunta_virtual, _ = Pregunta.objects.get_or_create(
                                     ejercicio=ejercicio,
-                                    enunciado=item.get('enunciado', f'Pregunta interactiva {idx + 1}')
+                                    enunciado=item.get(
+                                        'enunciado',
+                                        f'Pregunta interactiva {idx + 1}'
+                                    )
                                 )
-                                # Creamos o vinculamos la opción seleccionada
                                 opcion_virtual, _ = Opcion.objects.get_or_create(
                                     pregunta=pregunta_virtual,
                                     texto_opcion=respuesta_dada,
                                     defaults={'es_correcta': True}
                                 )
-                                # Guardamos el registro en RespuestaEstudiante para que lo lea la vista de calificar
                                 RespuestaEstudiante.objects.create(
                                     intento=intento,
                                     pregunta=pregunta_virtual,
@@ -724,7 +744,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # ─── Procesamiento tradicional (Quizzes estándar, V/F, etc.) ───
+        # ─── Procesamiento tradicional ───
         intento = IntentoEjercicio.objects.create(
             estudiante=request.user,
             ejercicio=ejercicio,

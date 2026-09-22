@@ -861,6 +861,8 @@ def resolver_entrenamiento_auditivo(request, clase_id, ejercicio_id):
 # ============================================================
 # REPORTE DE DEBILIDADES DE LA CLASE (ENTRENAMIENTO AUDITIVO)
 # ============================================================
+from collections import defaultdict
+
 @login_required
 def reporte_debilidades(request, clase_id):
     from docente.models import Clase
@@ -884,7 +886,7 @@ def reporte_debilidades(request, clase_id):
 
     practicas = list(practicas_qs)
 
-    # 2. Intentos interactivos de la clase (quitamos el filtro de calificación obligatoria)
+    # 2. Intentos interactivos de la clase
     intentos_interactivos_qs = IntentoEjercicio.objects.filter(
         ejercicio__clase=clase,
         ejercicio__tipo__in=['acordes', 'intervalos', 'escalas']
@@ -893,8 +895,11 @@ def reporte_debilidades(request, clase_id):
         'estudiante'
     ).prefetch_related('respuestas__pregunta', 'respuestas__opcion_seleccionada')
 
-    if tipo_filtro != 'todos' and tipo_filtro not in ['acordes', 'intervalos', 'escalas']:
-        intentos_interactivos_qs = intentos_interactivos_qs.none()
+    if tipo_filtro != 'todos':
+        if tipo_filtro in ['acordes', 'intervalos', 'escalas']:
+            intentos_interactivos_qs = intentos_interactivos_qs.filter(ejercicio__tipo=tipo_filtro)
+        else:
+            intentos_interactivos_qs = intentos_interactivos_qs.none()
 
     intentos_interactivos = list(intentos_interactivos_qs)
 
@@ -980,7 +985,8 @@ def reporte_debilidades(request, clase_id):
     debilidades.sort(key=lambda x: -x['porcentaje_error'])
 
     a_reforzar = [d for d in debilidades if d['porcentaje_error'] >= 50][:8]
-    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
+    # Actualizado a total >= 1 para reflejar los aciertos inmediatamente
+    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 1][:8]
 
     sugerencias = []
     if a_reforzar:
