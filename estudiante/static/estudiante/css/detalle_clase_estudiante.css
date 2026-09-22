@@ -88,11 +88,16 @@
     --dc-text-soft: #4c3f7a;
     --dc-text-muted: #7a6fa3;
 
+    --dc-grad-primary: linear-gradient(135deg, #6a5bff 0%, #9d55ff 100%);
+    --dc-grad-accent: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    --dc-grad-hero: linear-gradient(135deg, #6a5bff 0%, #9d55ff 50%, #16a34a 100%);
+    --dc-grad-danger: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+
     --dc-shadow-sm: 0 2px 8px rgba(124, 111, 255, 0.1);
     --dc-shadow: 0 8px 24px rgba(124, 111, 255, 0.14);
     --dc-shadow-lg: 0 20px 50px rgba(124, 111, 255, 0.2);
     --dc-glow-primary: 0 0 28px rgba(124, 111, 255, 0.35);
-    --dc-glow-accent: 0 0 28px rgba(29, 185, 84, 0.35);
+    --dc-glow-accent: 0 0 28px rgba(34, 197, 94, 0.35);
 
     --dc-body-bg:
         radial-gradient(1200px 600px at 10% -10%, rgba(124, 111, 255, 0.16), transparent 60%),
@@ -117,11 +122,28 @@ body {
 
 body.clase-bloqueada-activa { overflow: hidden; }
 
+/* ✅ FIX: Sin blur en el body — el modal de "Clase finalizada" debe verse nítido.
+   Solo se bloquea la interacción con el contenido de fondo y se atenúa ligeramente. */
+/* Bloquea la interacción del fondo PERO deja que el modal funcione */
 body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada-backdrop) {
-    filter: blur(6px) brightness(0.5);
     pointer-events: none;
     user-select: none;
-    transition: filter 0.4s var(--dc-transition);
+}
+
+/* ✅ Reactiva los clicks DENTRO del modal y del backdrop */
+body.clase-bloqueada-activa .clase-bloqueada-modal,
+body.clase-bloqueada-activa .clase-bloqueada-modal *,
+body.clase-bloqueada-activa .clase-bloqueada-backdrop {
+    pointer-events: auto !important;
+    user-select: auto !important;
+}
+
+/* El botón debe poder recibir clicks */
+.clase-bloqueada-btn {
+    pointer-events: auto !important;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
 }
 
 /* ============================================================
@@ -521,7 +543,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
 
 /* ============================================================
    ⭐ FIX GLOBAL — AVATARES CON FOTO DE PERFIL
-   Todas las clases de avatar (anuncio, docente, compañero)
    ============================================================ */
 .avatar-img,
 .announcement-avatar img,
@@ -535,7 +556,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
     display: block !important;
 }
 
-/* Contenedores de avatar — overflow hidden asegurado */
 .announcement-avatar,
 .teacher-avatar,
 .classmate-avatar {
@@ -734,19 +754,14 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
 
 /* ============================================================
    ⭐ FIX DEFINITIVO — ESPACIO ENTRE BADGES
-   El problema: al hacer flex-wrap, las badges se apilan sin gap vertical.
-   Solución: forzar display:flex + row-gap explícito en el contenedor
-   y neutralizar márgenes en los hijos.
    ============================================================ */
-
-/* Contenedor principal de badges */
 .ej-card-badges,
 .ej-card-footer {
     display: flex !important;
     flex-wrap: wrap !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 0.5rem 0.6rem !important;   /* row column */
+    gap: 0.5rem 0.6rem !important;
     row-gap: 0.6rem !important;
     column-gap: 0.5rem !important;
     margin-top: auto;
@@ -755,7 +770,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
     width: 100%;
 }
 
-/* Cualquier div/flex dentro de la card recibe el gap correcto */
 .ej-card > div,
 .ej-card > .d-flex,
 .ej-card .ej-card-footer,
@@ -771,7 +785,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
     align-items: center !important;
 }
 
-/* Neutralizar márgenes en hijos para que no se sumen al gap */
 .ej-card-badges > *,
 .ej-card-footer > *,
 .ej-card .d-flex > *,
@@ -779,7 +792,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
     margin: 0 !important;
 }
 
-/* Fallback: si están apiladas como bloques hermanos sin flex */
 .ej-card > .ej-card-tipo + .ej-card-estado,
 .ej-card > .ej-card-estado + .ej-card-tipo,
 .ej-card > .ej-card-tipo + .ej-card-tipo,
@@ -787,7 +799,6 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
     margin-top: 0.6rem !important;
 }
 
-/* Badges individuales */
 .ej-card-tipo,
 .ej-card-estado {
     display: inline-flex !important;
@@ -1515,14 +1526,18 @@ body.clase-bloqueada-activa > *:not(.clase-bloqueada-modal):not(.clase-bloqueada
 .clase-bloqueada-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(5, 3, 10, 0.85);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(5, 3, 10, 0.75);   /* o más oscuro: 0.85 */
     z-index: 1998;
+    animation: dcBackdropIn 0.3s var(--dc-transition);
 }
 
 [data-theme="light"] .clase-bloqueada-backdrop {
     background: rgba(40, 20, 80, 0.55);
+}
+
+@keyframes dcBackdropIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 .clase-bloqueada-modal {
