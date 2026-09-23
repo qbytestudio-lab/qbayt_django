@@ -11,6 +11,25 @@
 
 {% block content %}
 
+<!-- 🟢 ALERTAS FLOTANTES DE MENSAJES (EJ: "Tus respuestas han sido enviadas...") -->
+{% if messages %}
+<div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
+  {% for message in messages %}
+  <div class="alert-floating {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %} alert-dismissible fade show" role="alert" style="background: #181818; color: #fff; border: 1px solid rgba(255,255,255,0.1); padding: 1rem; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.5rem;">
+      {% if message.tags == 'success' %}
+      <i class="bi bi-check-circle-fill text-success"></i>
+      {% else %}
+      <i class="bi bi-exclamation-circle-fill text-danger"></i>
+      {% endif %}
+      <span>{{ message }}</span>
+    </div>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <!-- BOTÓN VOLVER -->
 <div class="back-nav">
     <a href="{% url 'mis_clases' %}" class="btn-back">
