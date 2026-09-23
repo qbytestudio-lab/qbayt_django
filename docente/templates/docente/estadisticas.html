@@ -73,16 +73,36 @@
         <table class="grades-matrix-table">
             <thead>
                 <tr>
-                    <th class="col-student sticky-col">Estudiante</th>
-                    <th class="col-average text-center">Progreso Global</th>
+                    <th class="col-student sticky-col">
+                        <div class="th-content">
+                            <div class="th-icon">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                            <span class="th-text">Estudiante</span>
+                        </div>
+                    </th>
+
+                    <th class="col-average">
+                        <div class="th-content">
+                            <div class="th-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <span class="th-text">Global</span>
+                        </div>
+                    </th>
 
                     {% for item_ej in data_ejercicios %}
-                    <th class="col-exercise text-center" title="{{ item_ej.ejercicio.titulo }}">
-                        <span class="exercise-date">{{ item_ej.ejercicio.get_tipo_display|default:"Ejercicio" }}</span>
-                        <span class="exercise-name">{{ item_ej.ejercicio.titulo }}</span>
+                    <th class="col-exercise"
+                        title="{{ item_ej.ejercicio.titulo }} — {{ item_ej.ejercicio.get_tipo_display }}">
+                        <div class="th-exercise-inner">
+                            <span class="exercise-type-chip">{{ item_ej.ejercicio.get_tipo_display|default:"Ejercicio"}}</span>
+                            <span class="exercise-name-text">{{ item_ej.ejercicio.titulo|truncatechars:12 }}</span>
+                        </div>
                     </th>
                     {% empty %}
-                    <th class="text-center text-muted">Sin ejercicios creados</th>
+                    <th class="text-center text-muted">
+                        <span class="th-text">Sin ejercicios</span>
+                    </th>
                     {% endfor %}
                 </tr>
             </thead>
@@ -101,7 +121,8 @@
                                 {% endif %}
                             </div>
                             <div class="student-text-data">
-                                <span class="s-name">{{ item.estudiante.get_full_name|default:item.estudiante.username}}</span>
+                                <span
+                                    class="s-name">{{item.estudiante.get_full_name|default:item.estudiante.username}}</span>
                                 <span class="s-username">@{{ item.estudiante.username }}</span>
                             </div>
                         </div>
@@ -113,7 +134,8 @@
                             class="score-value {% if item.progreso >= 70 %}high{% elif item.progreso >= 40 %}medium{% else %}low{% endif %}">
                             {{ item.progreso }}%
                         </span>
-                        <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completadas }}/{{ item.total}}</div>
+                        <div style="font-size: 0.72rem; color: var(--text-muted);">{{ item.completadas }}/{{item.total}}
+                        </div>
                     </td>
 
                     <!-- Columnas Dinámicas de Ejercicios -->
