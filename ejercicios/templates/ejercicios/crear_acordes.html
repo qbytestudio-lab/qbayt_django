@@ -25,7 +25,7 @@
                     <small id="audioStatusText" class="text-muted">Preparando muestras de piano acústico...</small>
                 </div>
 
-                <form method="POST" id="formEscalas">
+                <form method="POST" id="formAcordes">
                     {% csrf_token %}
                     <input type="hidden" name="contenido_preguntas" id="inputContenidoPreguntas">
 
@@ -163,46 +163,63 @@
         { c: 'A#', es: 'La#' }, { c: 'B', es: 'Si' }
     ];
 
-    const FAMILIAS_ESCALAS = {
-        gridBasicas: [
-            { nombreLatino: 'Mayor Natural', nombreAmericano: 'Major (Ionian)', formula: [0, 2, 4, 5, 7, 9, 11, 12] },
-            { nombreLatino: 'Menor Natural', nombreAmericano: 'Natural Minor (Aeolian)', formula: [0, 2, 3, 5, 7, 8, 10, 12] }
+    const FAMILIAS = {
+        gridMayor: [
+            { sufijo: 'Mayor', label: '', semitonos: [0, 4, 7] }
         ],
-        gridMenoresVar: [
-            { nombreLatino: 'Menor Armónica', nombreAmericano: 'Harmonic Minor', formula: [0, 2, 3, 5, 7, 8, 11, 12] },
-            { nombreLatino: 'Menor Melódica', nombreAmericano: 'Melodic Minor', formula: [0, 2, 3, 5, 7, 9, 11, 12] }
+        gridMenor: [
+            { sufijo: 'Menor', label: 'm', semitonos: [0, 3, 7] }
         ],
-        gridModos: [
-            { nombreLatino: 'Modo Dórico', nombreAmericano: 'Dorian Mode', formula: [0, 2, 3, 5, 7, 9, 10, 12] },
-            { nombreLatino: 'Modo Frigio', nombreAmericano: 'Phrygian Mode', formula: [0, 1, 3, 5, 7, 8, 10, 12] },
-            { nombreLatino: 'Modo Lidio', nombreAmericano: 'Lydian Mode', formula: [0, 2, 4, 6, 7, 9, 11, 12] },
-            { nombreLatino: 'Modo Mixolidio', nombreAmericano: 'Mixolydian Mode', formula: [0, 2, 4, 5, 7, 9, 10, 12] },
-            { nombreLatino: 'Modo Lócrio', nombreAmericano: 'Locrian Mode', formula: [0, 1, 3, 5, 6, 8, 10, 12] }
+        gridAlterados: [
+            { sufijo: 'Disminuido', label: 'dim', semitonos: [0, 3, 6] },
+            { sufijo: 'Aumentado', label: 'aug', semitonos: [0, 4, 8] }
         ],
-        gridPentatonicas: [
-            { nombreLatino: 'Pentatónica Mayor', nombreAmericano: 'Major Pentatonic', formula: [0, 2, 4, 7, 9, 12] },
-            { nombreLatino: 'Pentatónica Menor', nombreAmericano: 'Minor Pentatonic', formula: [0, 3, 5, 7, 10, 12] },
-            { nombreLatino: 'Escala de Blues', nombreAmericano: 'Blues Scale', formula: [0, 3, 5, 6, 7, 10, 12] }
+        gridSeptimas: [
+            { sufijo: 'Séptima Mayor', label: 'maj7', semitonos: [0, 4, 7, 11] },
+            { sufijo: 'Séptima Dominante', label: '7', semitonos: [0, 4, 7, 10] },
+            { sufijo: 'Séptima Menor', label: 'm7', semitonos: [0, 3, 7, 10] }
         ]
     };
 
     let preguntas = [];
     let samplerPiano = null;
-    let modoCifradoAmericano = false;
+    let modoCifradoAmericano = false; // false = Latino (Do, Re, Mi), true = Americano (C, D, E)
 
     function initPiano() {
         if (samplerPiano) return samplerPiano;
 
         samplerPiano = new Tone.Sampler({
             urls: {
-                A0: "A0.mp3", C1: "C1.mp3", "D#1": "Ds1.mp3", "F#1": "Fs1.mp3",
-                A1: "A1.mp3", C2: "C2.mp3", "D#2": "Ds2.mp3", "F#2": "Fs2.mp3",
-                A2: "A2.mp3", C3: "C3.mp3", "D#3": "Ds3.mp3", "F#3": "Fs3.mp3",
-                A3: "A3.mp3", C4: "C4.mp3", "D#4": "Ds4.mp3", "F#4": "Fs4.mp3",
-                A4: "A4.mp3", C5: "C5.mp3", "D#5": "Ds5.mp3", "F#5": "Fs5.mp3",
-                A5: "A5.mp3", C6: "C6.mp3", "D#6": "Ds6.mp3", "F#6": "Fs6.mp3",
-                A6: "A6.mp3", C7: "C7.mp3", "D#7": "Ds7.mp3", "F#7": "Fs7.mp3",
-                A7: "A7.mp3", C8: "C8.mp3"
+                A0: "A0.mp3",
+                C1: "C1.mp3",
+                "D#1": "Ds1.mp3",
+                "F#1": "Fs1.mp3",
+                A1: "A1.mp3",
+                C2: "C2.mp3",
+                "D#2": "Ds2.mp3",
+                "F#2": "Fs2.mp3",
+                A2: "A2.mp3",
+                C3: "C3.mp3",
+                "D#3": "Ds3.mp3",
+                "F#3": "Fs3.mp3",
+                A3: "A3.mp3",
+                C4: "C4.mp3",
+                "D#4": "Ds4.mp3",
+                "F#4": "Fs4.mp3",
+                A4: "A4.mp3",
+                C5: "C5.mp3",
+                "D#5": "Ds5.mp3",
+                "F#5": "Fs5.mp3",
+                A5: "A5.mp3",
+                C6: "C6.mp3",
+                "D#6": "Ds6.mp3",
+                "F#6": "Fs6.mp3",
+                A6: "A6.mp3",
+                C7: "C7.mp3",
+                "D#7": "Ds7.mp3",
+                "F#7": "Fs7.mp3",
+                A7: "A7.mp3",
+                C8: "C8.mp3"
             },
             baseUrl: "https://tonejs.github.io/audio/salamander/",
             onload: () => {
@@ -218,15 +235,7 @@
         return samplerPiano;
     }
 
-    function construirSecuenciaNotas(rootIdx, formula, octava, direccion) {
-        let semitonos = [...formula];
-        if (direccion === 'descendente') {
-            semitonos.reverse();
-        } else if (direccion === 'completa') {
-            const bajada = [...formula].slice(0, -1).reverse();
-            semitonos = semitonos.concat(bajada);
-        }
-
+    function calcularNotasTone(semitonos, rootIdx, octava) {
         return semitonos.map(s => {
             let total = rootIdx + s;
             let oct = octava + Math.floor(total / 12);
@@ -235,86 +244,102 @@
         });
     }
 
-    async function reproducirEscala(formula, rootIdxParam = null, octavaParam = null, direccionParam = null) {
+    // Reproducción para la preescucha del catálogo usando la octava seleccionada arriba
+    async function reproducirAcorde(semitonos, rootIdx) {
         await Tone.start();
         if (Tone.context.state !== 'running') {
             await Tone.context.resume();
         }
 
         const piano = initPiano();
-        const root = (rootIdxParam !== null) ? parseInt(rootIdxParam) : (parseInt(document.getElementById('tonicaSelect').value) || 0);
-        const oct = (octavaParam !== null) ? parseInt(octavaParam) : (parseInt(document.getElementById('octavaSelect').value) || 4);
-        const dir = direccionParam || document.getElementById('direccionSelect').value;
+        const octava = parseInt(document.getElementById('octavaSelect').value) || 4;
+        const notas = calcularNotasTone(semitonos, rootIdx, octava);
 
-        const notas = construirSecuenciaNotas(root, formula, oct, dir);
+        if (!piano.loaded) {
+            const statusText = document.getElementById('audioStatusText');
+            if (statusText) {
+                statusText.innerHTML = '<span class="text-warning"><i class="bi bi-hourglass-split"></i> Cargando notas, espera un momento...</span>';
+            }
+            await Tone.loaded();
+        }
+
+        piano.triggerAttackRelease(notas, 2.5);
+    }
+
+    // Reproducción para preguntas individuales según su octava guardada fija
+    async function reproducirAcordeIndividual(semitonos, rootIdx, octavaPregunta) {
+        await Tone.start();
+        if (Tone.context.state !== 'running') {
+            await Tone.context.resume();
+        }
+
+        const piano = initPiano();
+        const oct = parseInt(octavaPregunta) || 4;
+        const notas = calcularNotasTone(semitonos, rootIdx, oct);
 
         if (!piano.loaded) {
             await Tone.loaded();
         }
-
-        const now = Tone.now();
-        const pasoTiempo = 0.38;
-
-        notas.forEach((nota, i) => {
-            piano.triggerAttackRelease(nota, 0.45, now + (i * pasoTiempo));
-        });
+        piano.triggerAttackRelease(notas, 2.5);
     }
 
     function toggleNomenclatura() {
         modoCifradoAmericano = !modoCifradoAmericano;
         const lbl = document.getElementById('lblNomenclatura');
         if (lbl) {
-            lbl.textContent = modoCifradoAmericano ? 'Americano (Major, Dorian, Blues)' : 'Latino (Mayor Natural, Modo Dórico)';
+            lbl.textContent = modoCifradoAmericano ? 'Americano (C, D, E)' : 'Latino (Do, Re, Mi)';
             lbl.className = modoCifradoAmericano ? 'text-info' : 'text-success';
         }
         renderCatalogo();
     }
 
     function renderCatalogo() {
-        Object.keys(FAMILIAS_ESCALAS).forEach(containerId => {
+        Object.keys(FAMILIAS).forEach(containerId => {
             const container = document.getElementById(containerId);
             if (!container) return;
             let html = '<div class="row g-2">';
+            
+            FAMILIAS[containerId].forEach(tipo => {
+                NOTAS.forEach((nota, idx) => {
+                    const nombreLatino = `${nota.es} ${tipo.sufijo}`;
+                    const cifradoAmericano = `${nota.c}${tipo.label}`;
 
-            FAMILIAS_ESCALAS[containerId].forEach(esc => {
-                const nombrePrincipal = modoCifradoAmericano ? esc.nombreAmericano : esc.nombreLatino;
-                const nombreSecundario = modoCifradoAmericano ? esc.nombreLatino : esc.nombreAmericano;
+                    const nombrePrincipal = modoCifradoAmericano ? cifradoAmericano : nombreLatino;
+                    const nombreSecundario = modoCifradoAmericano ? nombreLatino : cifradoAmericano;
 
-                html += `
-                    <div class="col-md-6">
-                        <div class="d-flex align-items-center justify-content-between catalog-chord-item">
-                            <div>
-                                <strong class="d-block text-light">${nombrePrincipal}</strong>
-                                <small class="text-muted">${nombreSecundario}</small>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn-chord-listen" onclick='reproducirEscala(${JSON.stringify(esc.formula)})' title="Escuchar">
-                                    <i class="bi bi-volume-up"></i>
-                                </button>
-                                <button type="button" class="btn-chord-add" onclick='agregarPreguntaEscala("${nombrePrincipal}", ${JSON.stringify(esc.formula)})' title="Agregar al ejercicio">
-                                    <i class="bi bi-plus-lg"></i>
-                                </button>
+                    html += `
+                        <div class="col-md-4 col-sm-6">
+                            <div class="d-flex align-items-center justify-content-between catalog-chord-item">
+                                <div>
+                                    <strong class="d-block text-light">${nombrePrincipal}</strong>
+                                    <small class="text-muted">${nombreSecundario}</small>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn-chord-listen" onclick="reproducirAcorde([${tipo.semitonos}], ${idx})" title="Escuchar">
+                                        <i class="bi bi-volume-up"></i>
+                                    </button>
+                                    <button type="button" class="btn-chord-add" onclick="agregarPregunta('${nombrePrincipal}', [${tipo.semitonos}], ${idx})" title="Agregar al ejercicio">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                });
             });
-
             html += '</div>';
             container.innerHTML = html;
         });
     }
 
-    function generarDistractoresEscalas(correcta, esAmericano) {
+    function generarDistractores(correcta, esAmericano) {
         const poolLatino = [
-            'Mayor Natural', 'Menor Natural', 'Menor Armónica', 'Menor Melódica',
-            'Modo Dórico', 'Modo Frigio', 'Modo Lidio', 'Modo Mixolidio', 'Modo Lócrio',
-            'Pentatónica Mayor', 'Pentatónica Menor', 'Escala de Blues'
+            'Do Mayor', 'Re Menor', 'Mi Menor', 'Fa Mayor', 'Sol Mayor', 'La Menor', 'Si Disminuido',
+            'Do Séptima Mayor', 'Sol Séptima Dominante', 'La Séptima Menor', 'Do Disminuido', 'Mi Aumentado'
         ];
         const poolAmericano = [
-            'Major (Ionian)', 'Natural Minor (Aeolian)', 'Harmonic Minor', 'Melodic Minor',
-            'Dorian Mode', 'Phrygian Mode', 'Lydian Mode', 'Mixolydian Mode', 'Locrian Mode',
-            'Major Pentatonic', 'Minor Pentatonic', 'Blues Scale'
+            'C', 'Dm', 'Em', 'F', 'G', 'Am', 'Bdim',
+            'Cmaj7', 'G7', 'Am7', 'Cdim', 'Eaug'
         ];
 
         const pool = esAmericano ? poolAmericano : poolLatino;
@@ -323,31 +348,28 @@
         return filtrado.slice(0, 3);
     }
 
-    function agregarPreguntaEscala(nombreEscala, formula) {
+    function agregarPregunta(nombreAcorde, semitonos, rootIdx) {
+        // Captura exacta de la octava y la nomenclatura en el instante de hacer clic
         const octavaSeleccionada = parseInt(document.getElementById('octavaSelect').value) || 4;
-        const direccionSeleccionada = document.getElementById('direccionSelect').value || 'ascendente';
-        const tonicaSeleccionada = parseInt(document.getElementById('tonicaSelect')?.value) || 0;
         const esAmericano = modoCifradoAmericano;
 
-        const distractores = generarDistractoresEscalas(nombreEscala, esAmericano);
-        
+        const distractores = generarDistractores(nombreAcorde, esAmericano);
         const opciones = [
-            { texto: nombreEscala, correcta: true },
-            { texto: distractores[0], correcta: false },
-            { texto: distractores[1], correcta: false },
-            { texto: distractores[2], correcta: false }
+            { texto: nombreAcorde, correcta: true },
+            { texto: distractores[0] || (esAmericano ? 'D' : 'Re Mayor'), correcta: false },
+            { texto: distractores[1] || (esAmericano ? 'Em' : 'Mi Menor'), correcta: false },
+            { texto: distractores[2] || (esAmericano ? 'G7' : 'Sol 7'), correcta: false }
         ];
 
         const idPregunta = Date.now();
         preguntas.push({
             id: idPregunta,
-            enunciado: `¿Qué tipo de escala corresponde al estímulo auditivo?`, // Texto inicial limpio o editable
-            escala: nombreEscala,
-            formula: formula,
-            rootIdx: tonicaSeleccionada,
-            octava: octavaSeleccionada,
-            direccion: direccionSeleccionada,
-            nomenclatura: esAmericano ? 'americano' : 'latino',
+            enunciado: 'Identifica el acorde reproducido',
+            acorde: nombreAcorde,
+            semitonos: semitonos,
+            rootIdx: rootIdx,
+            octava: octavaSeleccionada,                         // Octava propia
+            nomenclatura: esAmericano ? 'americano' : 'latino', // Notación propia
             opciones: opciones
         });
 
@@ -420,7 +442,6 @@
 
         container.innerHTML = '';
         preguntas.forEach((p, idx) => {
-            const notaTonica = NOTAS[p.rootIdx] ? NOTAS[p.rootIdx].es : 'Do';
             const card = document.createElement('div');
             card.className = 'pregunta-builder-card position-relative mb-4';
             card.innerHTML = `
@@ -429,15 +450,12 @@
                 <div class="card-inner-box">
                     <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                         <div class="d-flex gap-2 align-items-center flex-wrap">
-                            <span class="tipo-pill-badge active">Escala</span>
-                            <span class="badge bg-dark text-info border border-secondary px-2 py-1">
-                                <i class="bi bi-disc me-1"></i> Tónica: ${notaTonica}
-                            </span>
+                            <span class="tipo-pill-badge active">Selección Múltiple</span>
                             <span class="badge bg-dark text-info border border-secondary px-2 py-1">
                                 <i class="bi bi-soundwave me-1"></i> Octava ${p.octava}
                             </span>
                             <span class="badge bg-dark text-warning border border-secondary px-2 py-1">
-                                <i class="bi bi-arrow-down-up me-1"></i> ${p.direccion}
+                                <i class="bi bi-translate me-1"></i> ${p.nomenclatura === 'americano' ? 'Americano (C, D, E)' : 'Latino (Do, Re, Mi)'}
                             </span>
                         </div>
                         <button type="button" class="btn-delete-card" onclick="eliminarPregunta(${p.id})" title="Eliminar pregunta">
@@ -447,18 +465,17 @@
 
                     <div class="mb-3">
                         <label class="form-label">Pregunta ${idx + 1} <span class="text-danger">*</span></label>
-                        <!-- GUARDADO EN TIEMPO REAL CON oninput -->
                         <input type="text" class="form-control" value="${p.enunciado}" 
                                placeholder="Escribe el enunciado de la pregunta..." 
-                               oninput="actualizarTextoPregunta(${p.id}, this.value)">
+                               onchange="actualizarTextoPregunta(${p.id}, this.value)">
                     </div>
 
                     <div class="audio-hero-player text-center py-3 my-3">
-                        <button type="button" class="btn-audio-hero shadow" onclick='reproducirEscala(${JSON.stringify(p.formula)}, ${p.rootIdx}, ${p.octava}, "${p.direccion}")' title="Reproducir escala">
+                        <button type="button" class="btn-audio-hero shadow" onclick="reproducirAcordeIndividual([${p.semitonos}], ${p.rootIdx}, ${p.octava})" title="Reproducir acorde en su octava">
                             <i class="bi bi-volume-up-fill"></i>
                         </button>
                         <span class="d-block mt-2 audio-hero-label">
-                            Reproducir <strong>${p.escala}</strong> (${p.direccion}, Tónica: ${notaTonica}${p.octava})
+                            Reproducir acorde en <strong>Octava ${p.octava}</strong> (${p.acorde})
                         </span>
                     </div>
 
@@ -509,7 +526,7 @@
         initPiano();
         configurarRestriccionFechaMinima();
 
-        document.getElementById('formEscalas').addEventListener('submit', function(e) {
+        document.getElementById('formAcordes').addEventListener('submit', function(e) {
             const inputFecha = document.getElementById('fechaLimiteInput');
             
             if (inputFecha && inputFecha.value) {
@@ -526,7 +543,7 @@
 
             if (preguntas.length === 0) {
                 e.preventDefault();
-                alert('Debes agregar al menos una escala al ejercicio antes de crearlo.');
+                alert('Debes agregar al menos un acorde al ejercicio antes de crearlo.');
                 return;
             }
 
