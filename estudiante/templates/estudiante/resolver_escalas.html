@@ -29,6 +29,11 @@
         </div>
     </div>
 
+    <!-- ENUNCIADO DE LA PREGUNTA -->
+    <div class="pregunta-enunciado-container mb-3 text-center">
+        <h4 id="enunciadoPregunta" class="text-light fw-bold" style="font-size: 1.15rem;">Cargando pregunta...</h4>
+    </div>
+
     <!-- Botón central de reproducción (Hero Player) -->
     <div class="practice-area-card mb-4 text-center py-4" id="practiceArea">
         <button type="button" class="btn-play-hero" id="btnPlay" onclick="reproducirSonido()" title="Escuchar escala">
@@ -93,7 +98,7 @@
 
     let indiceActual = 0;
     let respuestasGuardadas = {};
-    let opcionesMezcladasPorPregunta = {}; // Guarda el orden aleatorio por pregunta
+    let opcionesMezcladasPorPregunta = {}; 
     let samplerPiano = null;
 
     function getPiano() {
@@ -192,13 +197,19 @@
         if (progressFill) progressFill.style.width = `${porcentaje}%`;
         document.getElementById('progresoPorcentaje').textContent = `${porcentaje}%`;
 
-        const notaTonica = NOTAS[p.rootIdx] ? NOTAS[p.rootIdx].es : 'Do';
-        const octava = p.octava || 4;
-        const direccion = p.direccion || 'ascendente';
+        // ENUNCIADO DINÁMICO: Toma lo que puso el docente o muestra una pregunta limpia por defecto
+        const enunciadoEl = document.getElementById('enunciadoPregunta');
+        if (enunciadoEl) {
+            let textoEnunciado = p.enunciado;
+            if (!textoEnunciado || textoEnunciado.trim() === '' || textoEnunciado === 'Identifica la escala o modo reproducido') {
+                textoEnunciado = `¿Qué tipo de escala o patrón corresponde al audio #${idx + 1}?`;
+            }
+            enunciadoEl.textContent = textoEnunciado;
+        }
 
         const hint = document.getElementById('hintText');
         if (hint) {
-            hint.innerHTML = `Tónica: <strong class="text-neon">${notaTonica}${octava}</strong> | Dirección: <strong class="text-neon">${direccion}</strong>`;
+            hint.textContent = "Haz clic para escuchar la escala";
         }
 
         const btnNext = document.getElementById('btnNext');
@@ -213,7 +224,6 @@
 
         const preguntaId = p.id || idx;
 
-        // Mezclamos las opciones aleatoriamente solo la primera vez que se carga la pregunta
         if (!opcionesMezcladasPorPregunta[preguntaId]) {
             let opcionesCopia = Array.isArray(p.opciones) ? [...p.opciones] : [];
             opcionesCopia.sort(() => 0.5 - Math.random());

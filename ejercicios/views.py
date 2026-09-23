@@ -196,16 +196,6 @@ def crear_ejercicio_escalas(request, clase_id):
         fecha_limite_str = request.POST.get('fecha_limite')
         contenido_json = request.POST.get('contenido_preguntas')
 
-        # ─── SANEAMIENTO PARA EL ESTUDIANTE ───
-        if contenido_json:
-            try:
-                preguntas_list = json.loads(contenido_json)
-                for p in preguntas_list:
-                    p['enunciado'] = "Identifica la escala reproducida"
-                contenido_json = json.dumps(preguntas_list)
-            except Exception:
-                pass
-
         fecha_limite = parse_datetime(fecha_limite_str) if fecha_limite_str else None
 
         Ejercicio.objects.create(
@@ -931,78 +921,103 @@ def reporte_debilidades(request, clase_id):
         })
     resumen_tipos.sort(key=lambda x: x['porcentaje'])
 
-    # ─── Análisis de respuestas ───
-    analisis = defaultdict(lambda: {
-        'fallos': 0,
-        'aciertos': 0,
-        'confusiones': defaultdict(int),
-    })
+    # ─── Análisis global de respuestas (para sugerencias) ───
+    analisis_global = defaultdict(lambda: {'fallos': 0, 'aciertos': 0})
 
     for p in practicas:
-        detalle = p.detalle_respuestas or []
-        for r in detalle:
+        for r in (p.detalle_respuestas or []):
             correcta = r.get('correcta', '').strip()
-            respuesta = r.get('respuesta', '').strip()
-            acerto = r.get('acerto', False)
-            if not correcta:
-                continue
-            if acerto:
-                analisis[correcta]['aciertos'] += 1
-            else:
-                analisis[correcta]['fallos'] += 1
-                if respuesta:
-                    analisis[correcta]['confusiones'][respuesta] += 1
+            if not correcta: continue
+            if r.get('acerto', False): analisis_global[correcta]['aciertos'] += 1
+            else: analisis_global[correcta]['fallos'] += 1
 
     for intento in intentos_interactivos:
         for resp in intento.respuestas.all():
             if resp.pregunta:
-                target_nombre = resp.pregunta.enunciado
-                es_correcta = resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False)
-                if es_correcta:
-                    analisis[target_nombre]['aciertos'] += 1
+                target = resp.pregunta.enunciado
+                if resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False):
+                    analisis_global[target]['aciertos'] += 1
                 else:
-                    analisis[target_nombre]['fallos'] += 1
-                    if resp.opcion_seleccionada:
-                        analisis[target_nombre]['confusiones'][resp.opcion_seleccionada.texto_opcion] += 1
+                    analisis_global[target]['fallos'] += 1
 
-    debilidades = []
-    for nombre, data in analisis.items():
-        total = data['fallos'] + data['aciertos']
-        if total == 0:
-            continue
-        pct_error = round((data['fallos'] / total) * 100, 1)
-        confusiones_top = sorted(data['confusiones'].items(), key=lambda x: -x[1])[:3]
-        debilidades.append({
-            'nombre': nombre,
-            'total': total,
-            'fallos': data['fallos'],
-            'aciertos': data['aciertos'],
-            'porcentaje_error': pct_error,
-            'porcentaje_acierto': round(100 - pct_error, 1),
-            'confusiones': [{'respuesta': c[0], 'veces': c[1]} for c in confusiones_top],
+    debilidades_globales = []
+    for nombre, data in analisis_global.items():
+        tot = data['fallos'] + data['aciertos']
+        if tot == 0: continue
+        pct_err = round((data['fallos'] / tot) * 100, 1)
+        debilidades_globales.append({
+            'nombre': nombre, 'fallos': data['fallos'], 'aciertos': data['aciertos'],
+            'porcentaje_error': pct_err, 'porcentaje_acierto': round(100 - pct_err, 1)
         })
 
-    debilidades.sort(key=lambda x: -x['porcentaje_error'])
-
-    a_reforzar = [d for d in debilidades if d['porcentaje_error'] >= 50][:8]
-    # Actualizado a total >= 1 para reflejar los aciertos inmediatamente
-    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 1][:8]
+    a_reforzar = [d for d in debilidades_globales if d['porcentaje_error'] >= 50][:8]
+    dominadas = [d for d in debilidades_globales if d['porcentaje_error'] < 30 and (d['fallos'] + d['aciertos']) >= 1][:8]
 
     sugerencias = []
     if a_reforzar:
         nombres = ', '.join(d['nombre'] for d in a_reforzar[:3])
-        sugerencias.append({
-            'icono': 'exclamation-triangle-fill',
-            'tipo': 'danger',
-            'texto': f'Refuerza en clase: {nombres}'
-        })
-
+        sugerencias.append({'icono': 'exclamation-triangle-fill', 'tipo': 'danger', 'texto': f'Refuerza en clase: {nombres}'})
     if dominadas:
         nombres = ', '.join(d['nombre'] for d in dominadas[:3])
-        sugerencias.append({
-            'icono': 'check-circle-fill',
-            'tipo': 'success',
-            'texto': f'La clase domina: {nombres}. Puedes avanzar al siguiente nivel.'
+        sugerencias.append({'icono': 'check-circle-fill', 'tipo': 'success', 'texto': f'La clase domina: {nombres}. Puedes avanzar al siguiente nivel.'})
+
+    # ─── ANÁLISIS INDIVIDUAL POR ESTUDIANTE ───
+    estudiantes_map = defaultdict(lambda: {'nombre': '', 'analisis': defaultdict(lambda: {'fallos': 0, 'aciertos': 0}), 'total_aciertos': 0, 'total_preguntas': 0})
+
+    for p in practicas:
+        est = p.intento.estudiante
+        eid = est.id
+        estudiantes_map[eid]['nombre'] = est.get_full_name() or est.username
+        for r in (p.detalle_respuestas or []):
+            correcta = r.get('correcta', '').strip()
+            if not correcta: continue
+            estudiantes_map[eid]['total_preguntas'] += 1
+            if r.get('acerto', False):
+                estudiantes_map[eid]['analisis'][correcta]['aciertos'] += 1
+                estudiantes_map[eid]['total_aciertos'] += 1
+            else:
+                estudiantes_map[eid]['analisis'][correcta]['fallos'] += 1
+
+    for intento in intentos_interactivos:
+        est = intento.estudiante
+        eid = est.id
+        estudiantes_map[eid]['nombre'] = est.get_full_name() or est.username
+        for resp in intento.respuestas.all():
+            if resp.pregunta:
+                target = resp.pregunta.enunciado
+                estudiantes_map[eid]['total_preguntas'] += 1
+                es_corr = resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False)
+                if es_corr:
+                    estudiantes_map[eid]['analisis'][target]['aciertos'] += 1
+                    estudiantes_map[eid]['total_aciertos'] += 1
+                else:
+                    estudiantes_map[eid]['analisis'][target]['fallos'] += 1
+
+    estudiantes_detalle = []
+    for eid, data in estudiantes_map.items():
+        prom = round((data['total_aciertos'] / data['total_preguntas']) * 100, 1) if data['total_preguntas'] > 0 else 0
+        
+        est_debilidades = []
+        for nombre, counts in data['analisis'].items():
+            tot = counts['fallos'] + counts['aciertos']
+            if tot == 0: continue
+            pct_err = round((counts['fallos'] / tot) * 100, 1)
+            est_debilidades.append({
+                'nombre': nombre,
+                'fallos': counts['fallos'],
+                'aciertos': counts['aciertos'],
+                'porcentaje_error': pct_err,
+                'porcentaje_acierto': round(100 - pct_err, 1)
+            })
+        
+        est_a_reforzar = [d for d in est_debilidades if d['porcentaje_error'] >= 50]
+        est_dominadas = [d for d in est_debilidades if d['porcentaje_error'] < 30]
+
+        estudiantes_detalle.append({
+            'nombre': data['nombre'],
+            'promedio': prom,
+            'a_reforzar': est_a_reforzar,
+            'dominadas': est_dominadas
         })
 
     estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
@@ -1019,6 +1034,7 @@ def reporte_debilidades(request, clase_id):
         'sugerencias': sugerencias,
         'tipo_filtro': tipo_filtro,
         'tipos_disponibles': PracticaAuditiva.TIPO_CHOICES,
+        'estudiantes_detalle': estudiantes_detalle, # <--- ¡Variable clave para la lista interactiva!
     }
 
     return render(request, 'ejercicios/reporte_debilidades.html', context)
@@ -1028,23 +1044,16 @@ def reporte_debilidades(request, clase_id):
 # ============================================================
 @login_required
 def debilidades_global(request):
-    """
-    Panel global que muestra debilidades auditivas sumando TODAS
-    las clases del docente, integrando prácticas tradicionales y módulos interactivos.
-    """
     from docente.models import Clase
     from ejercicios.models import IntentoEjercicio, RespuestaEstudiante
     from datetime import timedelta
 
-    # ─── Filtros GET ───
     clase_filtro = request.GET.get('clase', 'todas')
     tipo_filtro = request.GET.get('tipo', 'todos')
     rango_filtro = request.GET.get('rango', '30')
 
-    # ─── Clases del docente ───
     mis_clases = Clase.objects.filter(docente=request.user)
 
-    # ─── Query base de prácticas tradicionales ───
     practicas_qs = PracticaAuditiva.objects.filter(
         intento__ejercicio__clase__docente=request.user,
         intento__ejercicio__tipo__in=['entrenamiento_auditivo', 'entrenamiento_avanzado', 'acordes', 'intervalos', 'escalas'],
@@ -1055,15 +1064,12 @@ def debilidades_global(request):
         'intento__estudiante',
     )
 
-    # Filtro por clase
     if clase_filtro != 'todas':
         practicas_qs = practicas_qs.filter(intento__ejercicio__clase_id=clase_filtro)
 
-    # Filtro por tipo
     if tipo_filtro != 'todos':
         practicas_qs = practicas_qs.filter(tipo_practica=tipo_filtro)
 
-    # Filtro por rango de fechas
     if rango_filtro != 'todo':
         try:
             dias = int(rango_filtro)
@@ -1074,13 +1080,10 @@ def debilidades_global(request):
 
     practicas = list(practicas_qs)
 
-    # ═══════════════════════════════════════════════════
-    # INTEGRACIÓN DE MÓDULOS INTERACTIVOS (Acordes, Intervalos, Escalas)
-    # ═══════════════════════════════════════════════════
     intentos_interactivos_qs = IntentoEjercicio.objects.filter(
         ejercicio__clase__docente=request.user,
         ejercicio__tipo__in=['acordes', 'intervalos', 'escalas'],
-        calificacion__isnull=False
+        calificacion__isnull=True  # Permite tomar en cuenta los intentos interactivos sin importar si la calificación fue nula
     ).select_related(
         'ejercicio',
         'ejercicio__clase',
@@ -1098,32 +1101,23 @@ def debilidades_global(request):
         except (ValueError, TypeError):
             pass
 
-    # ═══════════════════════════════════════════════════
-    # STATS GLOBALES Y ANÁLISIS DE DEBILIDADES
-    # ═══════════════════════════════════════════════════
     estudiantes_unicos = set(p.intento.estudiante_id for p in practicas)
     clases_unicas = set(p.intento.ejercicio.clase_id for p in practicas)
 
     total_aciertos = sum(p.aciertos for p in practicas)
     total_preguntas = sum(p.total_preguntas for p in practicas)
 
-    # Sumamos también los intentos interactivos calificados
     for intento in intentos_interactivos_qs:
         estudiantes_unicos.add(intento.estudiante_id)
         clases_unicas.add(intento.ejercicio.clase_id)
-        # Evaluamos las respuestas interactivas registradas
         for resp in intento.respuestas.all():
             total_preguntas += 1
-            # Verificamos si la opción seleccionada era correcta
             if resp.opcion_seleccionada and getattr(resp.opcion_seleccionada, 'es_correcta', False):
                 total_aciertos += 1
 
     practicas_total = len(practicas) + intentos_interactivos_qs.count()
     promedio_global = round((total_aciertos / total_preguntas) * 100, 1) if total_preguntas > 0 else 0
 
-    # ═══════════════════════════════════════════════════
-    # ANÁLISIS POR PRÁCTICA (debilidades)
-    # ═══════════════════════════════════════════════════
     analisis = defaultdict(lambda: {
         'fallos': 0,
         'aciertos': 0,
@@ -1152,7 +1146,6 @@ def debilidades_global(request):
                 if respuesta:
                     analisis[correcta]['confusiones'][respuesta] += 1
 
-    # Procesamos también los errores de los módulos interactivos
     for intento in intentos_interactivos_qs:
         clase_nombre = intento.ejercicio.clase.nombre
         for resp in intento.respuestas.all():
@@ -1193,11 +1186,8 @@ def debilidades_global(request):
     debilidades.sort(key=lambda x: -x['porcentaje_error'])
 
     top_debilidades = debilidades[:10]
-    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 3][:8]
+    dominadas = [d for d in debilidades if d['porcentaje_error'] < 30 and d['total'] >= 1][:8]
 
-    # ═══════════════════════════════════════════════════
-    # TOP ESTUDIANTES (Integrando tradicionales e interactivos)
-    # ═══════════════════════════════════════════════════
     por_estudiante = defaultdict(lambda: {'aciertos': 0, 'total': 0, 'practicas': 0, 'estudiante': None})
     
     for p in practicas:
@@ -1230,12 +1220,9 @@ def debilidades_global(request):
     top_estudiantes.sort(key=lambda x: -x['porcentaje'])
     top_estudiantes = top_estudiantes[:5]
 
-    # ═══════════════════════════════════════════════════
-    # CONTEXTO
-    # ═══════════════════════════════════════════════════
     context = {
         'mis_clases': mis_clases,
-        'practicas_total': practicas_total,
+        'practicas_total': len(practicas) + intentos_interactivos_qs.count(),
         'estudiantes_total': len(estudiantes_unicos),
         'clases_total': len(clases_unicas),
         'promedio_global': promedio_global,

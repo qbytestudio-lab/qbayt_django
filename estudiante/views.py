@@ -622,7 +622,13 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
 
     embed_url = None
     if ejercicio.video_url:
-        match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', ejercicio.video_url)
+        # Regex robusto para capturar ID de YouTube (watch, youtu.be, shorts, embed)
+        youtube_regex = (
+            r'(?:https?://)?(?:www\.)?'
+            r'(?:youtube\.com/(?:watch\?(?:.*&)?v=|embed/|shorts/)|youtu\.be/)'
+            r'([a-zA-Z0-9_-]{11})'
+        )
+        match = re.search(youtube_regex, ejercicio.video_url)
         if match:
             embed_url = f"https://www.youtube.com/embed/{match.group(1)}"
 
@@ -634,8 +640,7 @@ def resolver_ejercicio(request, clase_id, ejercicio_id):
     }
 
     return render(request, 'estudiante/resolver_ejercicio.html', context)
-
-
+    
 # ═══════════════════════════════════════════════════════════
 # ENVIAR RESPUESTAS DE EJERCICIO
 # ═══════════════════════════════════════════════════════════
@@ -693,13 +698,13 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
             messages.error(request, 'Has agotado tus 2 intentos.')
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 
-        # ─── Módulos interactivos (Acordes, Intervalos, Escalas) ───
+       # ─── Módulos interactivos (Acordes, Intervalos, Escalas) ───
         if ejercicio.tipo in ['acordes', 'intervalos', 'escalas']:
             intento = IntentoEjercicio.objects.create(
                 estudiante=request.user,
                 ejercicio=ejercicio,
                 fecha_envio=timezone.now(),
-                calificacion=None
+                calificacion=None  # <--- ASEGÚRATE DE QUE ESTÉ EN NONE PARA QUE SALGA "PENDIENTE"
             )
 
             raw_contenido = getattr(ejercicio, 'contenido', None)
@@ -718,18 +723,34 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
                             )
 
                             if respuesta_dada:
+                                # Buscamos si la respuesta dada coincide con la opción marcada como correcta
+                                es_realmente_correcta = False
+                                opciones_lista = item.get('opciones', [])
+                                for opt in opciones_lista:
+                                    texto_opt = opt.get('texto') if isinstance(opt, dict) else str(opt)
+                                    if texto_opt.strip() == respuesta_dada.strip():
+                                        if isinstance(opt, dict) and (opt.get('correcta') or opt.get('es_correcta')):
+                                            es_realmente_correcta = True
+                                        break
+
+                                enunciado_texto = (
+                                    item.get('enunciado') or 
+                                    item.get('titulo') or 
+                                    item.get('pregunta') or 
+                                    f'Pregunta interactiva {idx + 1}'
+                                )
+
                                 pregunta_virtual, _ = Pregunta.objects.get_or_create(
                                     ejercicio=ejercicio,
-                                    enunciado=item.get(
-                                        'enunciado',
-                                        f'Pregunta interactiva {idx + 1}'
-                                    )
+                                    enunciado=enunciado_texto
                                 )
+                                
                                 opcion_virtual, _ = Opcion.objects.get_or_create(
                                     pregunta=pregunta_virtual,
                                     texto_opcion=respuesta_dada,
-                                    defaults={'es_correcta': True}
+                                    defaults={'es_correcta': es_realmente_correcta}
                                 )
+                                
                                 RespuestaEstudiante.objects.create(
                                     intento=intento,
                                     pregunta=pregunta_virtual,
@@ -740,7 +761,7 @@ def enviar_respuesta_ejercicio(request, clase_id, ejercicio_id):
 
             messages.success(
                 request,
-                'Tus respuestas han sido enviadas. Espera la calificación del docente.'
+                'Tus respuestas han sido enviadas. Está pendiente de revisión por el docente.'
             )
             return redirect('estudiante:detalle_clase_estudiante', clase_id=clase.id)
 

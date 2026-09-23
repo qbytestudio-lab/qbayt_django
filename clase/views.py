@@ -340,23 +340,23 @@ def extender_fecha_clase(request, clase_id):
 
     if not nueva_fecha_str:
         messages.error(request, "Debes indicar una nueva fecha de finalización.")
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     try:
         nueva_fecha = datetime.strptime(nueva_fecha_str, '%Y-%m-%d').date()
     except ValueError:
         messages.error(request, "Formato de fecha inválido.")
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     # Validación: no puede ser una fecha pasada
     if nueva_fecha <= timezone.now().date():
         messages.error(request, "La nueva fecha debe ser posterior a hoy.")
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect('clase:detalle_clase', clase_id=clase.id)
 
     # Validación: no puede ser anterior o igual a la fecha de inicio
     if clase.fecha_inicio and nueva_fecha <= clase.fecha_inicio:
         messages.error(request, "La nueva fecha debe ser posterior a la fecha de inicio de la clase.")
-        return redirect('detalle_clase', clase_id=clase.id)
+        return redirect(':clasedetalle_clase', clase_id=clase.id)
 
     clase.fecha_fin = nueva_fecha
     clase.save()
@@ -365,4 +365,4 @@ def extender_fecha_clase(request, clase_id):
         request,
         f'La fecha de finalización fue actualizada al {nueva_fecha.strftime("%d/%m/%Y")}.'
     )
-    return redirect('detalle_clase', clase_id=clase.id)
+    return redirect('clase:detalle_clase', clase_id=clase.id)

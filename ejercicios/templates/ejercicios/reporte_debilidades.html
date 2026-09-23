@@ -6,6 +6,49 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'ejercicios/css/reporte_debilidades.css' %}">
+<style>
+    /* Estilos específicos para el desplegable de estudiantes */
+    .estudiante-card-item {
+        background: var(--bg-card);
+        border: 1px solid var(--border-subtle);
+        border-radius: 14px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+    .estudiante-card-item:hover {
+        border-color: var(--border-color);
+        box-shadow: 0 4px 16px var(--shadow);
+    }
+    .estudiante-header-row {
+        padding: 1.1rem 1.4rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        user-select: none;
+        background: var(--bg-card);
+        transition: background 0.2s;
+    }
+    .estudiante-header-row:hover {
+        background: var(--bg-hover);
+    }
+    .estudiante-detalles-content {
+        padding: 0 1.4rem 1.4rem 1.4rem;
+        border-top: 1px solid var(--border-subtle);
+        background: rgba(0, 0, 0, 0.15);
+        display: none;
+    }
+    .estudiante-card-item.active .estudiante-detalles-content {
+        display: block;
+    }
+    .estudiante-card-item.active .badge i {
+        transform: rotate(180deg);
+    }
+    .badge i {
+        transition: transform 0.2s ease;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -117,115 +160,132 @@
     </div>
     {% else %}
 
-    <!-- Two columns: Debilidades + Dominadas -->
-    <div class="analisis-grid">
 
-        <!-- A REFORZAR -->
-        <div class="analisis-card">
-            <div class="analisis-header peligro">
-                <div class="analisis-icon">
-                    <i class="bi bi-graph-down-arrow"></i>
-                </div>
-                <div>
-                    <h3 class="analisis-title">A reforzar</h3>
-                    <p class="analisis-desc">Prácticas con mayor % de error</p>
-                </div>
-            </div>
+    <!-- LISTADO DE ESTUDIANTES CON DESPLIEGUE INDIVIDUAL -->
+    <div class="estudiantes-seccion mt-5">
+        <h3 class="section-heading mb-4">
+            <i class="bi bi-person-lines-fill"></i> Desglose Individual por Estudiante
+        </h3>
 
-            {% if a_reforzar %}
-            <div class="debilidades-list">
-                {% for d in a_reforzar %}
-                <div class="debilidad-item">
-                    <div class="debilidad-top">
-                        <span class="debilidad-nombre">{{ d.nombre }}</span>
-                        <span class="debilidad-porcentaje danger">
-                            {{ d.porcentaje_error }}% error
-                        </span>
-                    </div>
-
-                    <div class="barra-container">
-                        <div class="barra-error" style="width: {{ d.porcentaje_error }}%;"></div>
-                    </div>
-
-                    <div class="debilidad-meta">
-                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
-                        <span class="meta-divider">·</span>
-                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
-                        <span class="meta-divider">·</span>
-                        <span>{{ d.total }} intentos</span>
-                    </div>
-
-                    {% if d.confusiones %}
-                    <div class="confusiones">
-                        <div class="confusiones-label">
-                            <i class="bi bi-arrow-left-right"></i> Estudiantes marcaron erróneamente:
+        <div class="estudiantes-lista">
+            {% for est in estudiantes_detalle %}
+            <div class="estudiante-card-item" id="est-card-{{ forloop.counter }}">
+                <div class="estudiante-header-row" onclick="toggleEstudiante('est-card-{{ forloop.counter }}')">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="stat-icon purple" style="width: 40px; height: 40px; font-size: 1.1rem;">
+                            <i class="bi bi-person-fill"></i>
                         </div>
-                        {% for c in d.confusiones %}
-                        <span class="confusion-chip">
-                            {{ c.respuesta }} <small>({{ c.veces }})</small>
-                        </span>
-                        {% endfor %}
+                        <div>
+                            <h5 class="text-light mb-0 fw-bold">{{ est.nombre }}</h5>
+                            <small class="text-muted">Promedio general: <span class="text-neon">{{ est.promedio }}%</span></small>
+                        </div>
                     </div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-            <p class="empty-msg">
-                <i class="bi bi-check-circle"></i> Ninguna práctica tiene errores altos
-            </p>
-            {% endif %}
-        </div>
-
-        <!-- DOMINADAS -->
-        <div class="analisis-card">
-            <div class="analisis-header exito">
-                <div class="analisis-icon">
-                    <i class="bi bi-graph-up-arrow"></i>
-                </div>
-                <div>
-                    <h3 class="analisis-title">Dominadas</h3>
-                    <p class="analisis-desc">Prácticas con mayor % de acierto</p>
-                </div>
-            </div>
-
-            {% if dominadas %}
-            <div class="debilidades-list">
-                {% for d in dominadas %}
-                <div class="debilidad-item">
-                    <div class="debilidad-top">
-                        <span class="debilidad-nombre">{{ d.nombre }}</span>
-                        <span class="debilidad-porcentaje success">
-                            {{ d.porcentaje_acierto }}% acierto
+                    <div>
+                        <span class="badge bg-dark border border-secondary text-info px-3 py-2">
+                            Ver detalle <i class="bi bi-chevron-down ms-1"></i>
                         </span>
                     </div>
+                </div>
 
-                    <div class="barra-container">
-                        <div class="barra-exito" style="width: {{ d.porcentaje_acierto }}%;"></div>
-                    </div>
+                <!-- CONTENIDO DESPLEGABLE CON LAS CARDS DE REFORZAR Y DOMINADAS -->
+                <div class="estudiante-detalles-content pt-4">
+                    <div class="analisis-grid">
 
-                    <div class="debilidad-meta">
-                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
-                        <span class="meta-divider">·</span>
-                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
-                        <span class="meta-divider">·</span>
-                        <span>{{ d.total }} intentos</span>
+                        <!-- A REFORZAR INDIVIDUAL -->
+                        <div class="analisis-card">
+                            <div class="analisis-header peligro">
+                                <div class="analisis-icon">
+                                    <i class="bi bi-graph-down-arrow"></i>
+                                </div>
+                                <div>
+                                    <h4 class="analisis-title">A reforzar</h4>
+                                    <p class="analisis-desc">Áreas con mayor % de error</p>
+                                </div>
+                            </div>
+
+                            {% if est.a_reforzar %}
+                            <div class="debilidades-list">
+                                {% for d in est.a_reforzar %}
+                                <div class="debilidad-item">
+                                    <div class="debilidad-top">
+                                        <span class="debilidad-nombre">{{ d.nombre }}</span>
+                                        <span class="debilidad-porcentaje danger">{{ d.porcentaje_error }}% error</span>
+                                    </div>
+                                    <div class="barra-container">
+                                        <div class="barra-error" style="width: {{ d.porcentaje_error }}%;"></div>
+                                    </div>
+                                    <div class="debilidad-meta">
+                                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
+                                        <span class="meta-divider">·</span>
+                                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
+                                    </div>
+
+                                    {% if d.confusiones %}
+                                    <div class="confusiones">
+                                        <div class="confusiones-label">
+                                            <i class="bi bi-arrow-left-right"></i> Marcó erróneamente:
+                                        </div>
+                                        {% for c in d.confusiones %}
+                                        <span class="confusion-chip">
+                                            {{ c.respuesta }} <small>({{ c.veces }})</small>
+                                        </span>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="empty-msg mt-3"><i class="bi bi-check-circle"></i> Este estudiante no registra errores altos</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- DOMINADAS INDIVIDUAL -->
+                        <div class="analisis-card">
+                            <div class="analisis-header exito">
+                                <div class="analisis-icon">
+                                    <i class="bi bi-graph-up-arrow"></i>
+                                </div>
+                                <div>
+                                    <h4 class="analisis-title">Dominadas</h4>
+                                    <p class="analisis-desc">Áreas con mayor % de acierto</p>
+                                </div>
+                            </div>
+
+                            {% if est.dominadas %}
+                            <div class="debilidades-list">
+                                {% for d in est.dominadas %}
+                                <div class="debilidad-item">
+                                    <div class="debilidad-top">
+                                        <span class="debilidad-nombre">{{ d.nombre }}</span>
+                                        <span class="debilidad-porcentaje success">{{ d.porcentaje_acierto }}% acierto</span>
+                                    </div>
+                                    <div class="barra-container">
+                                        <div class="barra-exito" style="width: {{ d.porcentaje_acierto }}%;"></div>
+                                    </div>
+                                    <div class="debilidad-meta">
+                                        <span><i class="bi bi-check-circle-fill"></i> {{ d.aciertos }} aciertos</span>
+                                        <span class="meta-divider">·</span>
+                                        <span><i class="bi bi-x-circle-fill"></i> {{ d.fallos }} errores</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="empty-msg mt-3"><i class="bi bi-hourglass-split"></i> Sin suficientes datos registrados</p>
+                            {% endif %}
+                        </div>
+
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <p class="empty-msg">
-                <i class="bi bi-hourglass-split"></i> Aún no hay suficientes datos
-            </p>
-            {% endif %}
+            {% endfor %}
         </div>
-
     </div>
 
     <!-- Resumen por tipo: BÁSICO + AVANZADO -->
     {% if resumen_tipos %}
-    <div class="resumen-tipos-section">
+    <div class="resumen-tipos-section mt-5">
         <h3 class="section-heading">
             <i class="bi bi-bar-chart-fill"></i> Rendimiento por tipo de práctica
         </h3>
@@ -302,5 +362,14 @@
     {% endif %}
 
 </div>
+
+<script>
+    function toggleEstudiante(cardId) {
+        const card = document.getElementById(cardId);
+        if (card) {
+            card.classList.toggle('active');
+        }
+    }
+</script>
 
 {% endblock %}

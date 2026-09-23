@@ -312,6 +312,68 @@
 }
 
 /* ═══════════════════════════════════════════ */
+/* LISTADO INTERACTIVO DE ESTUDIANTES          */
+/* ═══════════════════════════════════════════ */
+
+.estudiantes-seccion {
+  margin-top: 2rem;
+}
+
+.estudiantes-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.estudiante-card-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.estudiante-card-item:hover {
+  border-color: var(--border-color);
+  box-shadow: 0 4px 16px var(--shadow);
+}
+
+.estudiante-header-row {
+  padding: 1.1rem 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-card);
+  transition: background 0.2s;
+}
+
+.estudiante-header-row:hover {
+  background: var(--bg-hover);
+}
+
+.estudiante-detalles-content {
+  padding: 0 1.4rem 1.4rem 1.4rem;
+  border-top: 1px solid var(--border-subtle);
+  background: rgba(0, 0, 0, 0.15);
+  display: none;
+}
+
+.estudiante-card-item.active .estudiante-detalles-content {
+  display: block;
+}
+
+.estudiante-card-item.active .badge i {
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.badge i {
+  transition: transform 0.2s ease;
+}
+
+/* ═══════════════════════════════════════════ */
 /* ANALISIS GRID (2 columnas)                  */
 /* ═══════════════════════════════════════════ */
 
@@ -319,7 +381,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.2rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
 }
 
 .analisis-card {
@@ -517,7 +579,7 @@
 /* ═══════════════════════════════════════════ */
 
 .resumen-tipos-section {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
 }
 
 .resumen-tipos-grid {
@@ -637,6 +699,48 @@
 }
 
 /* ═══════════════════════════════════════════ */
+/* SUBTIPO HEADING (Básico / Avanzado)         */
+/* ═══════════════════════════════════════════ */
+
+.subtipo-heading {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 1rem 0 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-left: 3px solid var(--spotify-green, #1db954);
+  padding-left: 0.7rem;
+}
+
+.subtipo-heading i {
+  font-size: 0.95rem;
+  color: var(--spotify-green, #1db954);
+}
+
+.subtipo-heading-advanced {
+  border-left-color: #a855f7;
+}
+
+.subtipo-heading-advanced i {
+  color: #a855f7;
+}
+
+.tipo-card-avanzado {
+  border-color: rgba(168, 85, 247, 0.25) !important;
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(236, 72, 153, 0.03)) !important;
+}
+
+.tipo-card-avanzado:hover {
+  border-color: rgba(168, 85, 247, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15) !important;
+}
+
+/* ═══════════════════════════════════════════ */
 /* RESPONSIVE                                  */
 /* ═══════════════════════════════════════════ */
 
@@ -677,47 +781,4 @@
   .stat-value {
     font-size: 1.3rem;
   }
-}
-/* ═══════════════════════════════════════════ */
-/* SUBTIPO HEADING (Básico / Avanzado)         */
-/* ═══════════════════════════════════════════ */
-
-.subtipo-heading {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin: 1rem 0 0.8rem;
-  padding-left: 0.3rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-left: 3px solid var(--spotify-green, #1db954);
-  padding-left: 0.7rem;
-}
-
-.subtipo-heading i {
-  font-size: 0.95rem;
-  color: var(--spotify-green, #1db954);
-}
-
-.subtipo-heading-advanced {
-  border-left-color: #a855f7;
-}
-
-.subtipo-heading-advanced i {
-  color: #a855f7;
-}
-
-/* Tarjeta de tipo avanzado con borde morado */
-.tipo-card-avanzado {
-  border-color: rgba(168, 85, 247, 0.25) !important;
-  background: linear-gradient(135deg, rgba(168, 85, 247, 0.03), rgba(236, 72, 153, 0.03)) !important;
-}
-
-.tipo-card-avanzado:hover {
-  border-color: rgba(168, 85, 247, 0.5) !important;
-  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.15) !important;
 }
