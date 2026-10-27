@@ -250,7 +250,7 @@ def editar_perfil(request):
         if usuario.perfil.rol == 'estudiante':
             return redirect('perfil_estudiante')
         elif usuario.perfil.rol == 'docente':
-            return redirect('perfil_docente')
+            return redirect('docente:perfil_docente')
         else:
             return redirect('perfil_administrador')
         

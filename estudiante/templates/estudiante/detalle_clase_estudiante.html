@@ -11,7 +11,7 @@
 
 {% block content %}
 
-<!-- 🟢 ALERTAS FLOTANTES DE MENSAJES (EJ: "Tus respuestas han sido enviadas...") -->
+<!-- 🟢 ALERTAS FLOTANTES DE MENSAJES -->
 {% if messages %}
 <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
   {% for message in messages %}
@@ -32,7 +32,7 @@
 
 <!-- BOTÓN VOLVER -->
 <div class="back-nav">
-    <a href="{% url 'mis_clases' %}" class="btn-back">
+    <a href="{% url 'docente:mis_clases' %}" class="btn-back">
         <i class="bi bi-arrow-left"></i> Volver a Mis clases
     </a>
 </div>
@@ -52,7 +52,17 @@
       <h1 class="class-hero-title">{{ clase.nombre }}</h1>
 
       {% if clase.descripcion %}
-      <p class="class-hero-description">{{ clase.descripcion }}</p>
+      <div class="class-hero-description-box" onclick="abrirModalDescripcion()" role="button" tabindex="0"
+           onkeydown="if(event.key==='Enter'){abrirModalDescripcion()}"
+           title="Click para ver la descripción completa">
+          <i class="bi bi-info-circle-fill class-hero-desc-icon"></i>
+          <p class="class-hero-description">{{ clase.descripcion|truncatechars:110 }}</p>
+          {% if clase.descripcion|length > 110 %}
+          <span class="class-hero-desc-more">
+              Ver más <i class="bi bi-arrow-right-short"></i>
+          </span>
+          {% endif %}
+      </div>
       {% endif %}
 
       <div class="class-hero-meta">
@@ -79,11 +89,11 @@
       </div>
     </div>
 
+    <!-- 🔽 BOTONES ANCLADOS ABAJO A LA DERECHA 🔽 -->
     <div class="class-hero-actions">
       <a href="{% url 'estudiante:mis_calificaciones_estudiante' %}" class="btn-calificaciones">
         <i class="bi bi-star-fill"></i> Mis Calificaciones
       </a>
-      <!-- 👇 Ahora abre el modal en lugar de redirigir directo -->
       <button type="button" class="btn-leave-class" onclick="abrirModalSalir()">
         <i class="bi bi-box-arrow-right"></i> Eliminar clase
       </button>
@@ -258,9 +268,56 @@
 </div>
 
 <!-- ═══════════════════════════════════════════ -->
+<!-- MODAL: DESCRIPCIÓN COMPLETA DE LA CLASE     -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="desc-modal-backdrop" id="descModalBackdrop" onclick="cerrarModalDescripcion()"></div>
+
+<div class="desc-modal" id="descModal" role="dialog" aria-modal="true" aria-labelledby="descModalTitle">
+    <div class="desc-modal-header">
+        <div class="desc-modal-header-icon">
+            <i class="bi bi-info-circle-fill"></i>
+        </div>
+        <div class="desc-modal-header-text">
+            <h3 class="desc-modal-title" id="descModalTitle">Sobre esta clase</h3>
+            <p class="desc-modal-subtitle">{{ clase.nombre }}</p>
+        </div>
+        <button class="desc-modal-close" onclick="cerrarModalDescripcion()" aria-label="Cerrar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="desc-modal-body">
+        <div class="desc-modal-meta">
+            <span class="desc-modal-chip">
+                <i class="bi bi-mortarboard-fill"></i>
+                {{ clase.docente.get_full_name|default:clase.docente.username }}
+            </span>
+            <span class="desc-modal-chip">
+                <i class="bi bi-people-fill"></i>
+                {{ clase.estudiantes.count }} compañeros
+            </span>
+            {% if clase.categoria_tema %}
+            <span class="desc-modal-chip">
+                <i class="bi bi-tag-fill"></i>
+                {{ clase.get_categoria_tema_display }}
+            </span>
+            {% endif %}
+        </div>
+
+        <p class="desc-modal-text">{{ clase.descripcion|default:"Sin descripción." }}</p>
+    </div>
+
+    <div class="desc-modal-footer">
+        <button class="desc-modal-btn" onclick="cerrarModalDescripcion()">
+            <i class="bi bi-check-lg"></i> Entendido
+        </button>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
 <!-- MODAL: CONFIRMAR SALIR DE CLASE            -->
 <!-- ═══════════════════════════════════════════ -->
-<div class="ej-modal-backdrop" id="salirModalBackdrop" onclick="cerrarModalSalir()"></div>
+<div class="salir-modal-backdrop" id="salirModalBackdrop" onclick="cerrarModalSalir()"></div>
 
 <div class="salir-modal" id="salirModal" role="dialog" aria-modal="true">
     <div class="salir-modal-header">
@@ -313,7 +370,6 @@
 
 <!-- ═══════════════════════════════════════════ -->
 <!-- MODAL: CLASE BLOQUEADA / FINALIZADA        -->
-<!-- Solo se muestra si clase_bloqueada = True  -->
 <!-- ═══════════════════════════════════════════ -->
 {% if clase_bloqueada %}
 <div class="clase-bloqueada-backdrop" id="claseBloqueadaBackdrop"></div>
@@ -434,6 +490,21 @@ function cerrarModalEjercicio() {
 }
 
 /* =====================================================
+   MODAL DE DESCRIPCIÓN COMPLETA
+   ===================================================== */
+function abrirModalDescripcion() {
+    document.getElementById('descModal').classList.add('show');
+    document.getElementById('descModalBackdrop').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModalDescripcion() {
+    document.getElementById('descModal').classList.remove('show');
+    document.getElementById('descModalBackdrop').classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+/* =====================================================
    MODAL DE SALIR DE CLASE
    ===================================================== */
 
@@ -454,6 +525,7 @@ document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
         cerrarModalEjercicio();
         cerrarModalSalir();
+        cerrarModalDescripcion();
     }
 });
 

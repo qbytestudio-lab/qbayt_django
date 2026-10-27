@@ -28,11 +28,11 @@
         <i class="bi bi-compass"></i> Explorar
       </a>
       {% elif request.user.perfil.rol == 'docente' %}
-      <a href="{% url 'perfil_docente' %}" class="btn-hero btn-hero-primary">
+      <a href="{% url 'docente:perfil_docente' %}" class="btn-hero btn-hero-primary">
         <i class="bi bi-mortarboard-fill"></i> Mi perfil
       </a>
       {% elif request.user.perfil.rol == 'administrador' %}
-      <a href="{% url 'perfil_administrador' %}" class="btn-hero btn-hero-primary">
+      <a href="{% url 'administrador:perfil_administrador' %}" class="btn-hero btn-hero-primary">
         <i class="bi bi-shield-check"></i> Panel admin
       </a>
       {% endif %}

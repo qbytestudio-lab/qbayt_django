@@ -193,7 +193,7 @@ def eliminar_clase(request, clase_id):
             request,
             f'No se encontró la clase con ID {clase_id} o no tienes permisos para eliminarla.'
         )
-        return redirect('mis_clases')
+        return redirect('docente:mis_clases')
     
     if request.method == 'POST':
         nombre = clase.nombre

@@ -54,7 +54,7 @@
     </div>
     {% endif %}
 
-    <form method="POST" action="{% url 'editar_ejercicio' clase.id ejercicio.id %}" enctype="multipart/form-data" id="formEditarEjercicio">
+    <form method="POST" action="{% url 'docente:editar_ejercicio' clase.id ejercicio.id %}" enctype="multipart/form-data" id="formEditarEjercicio">
       {% csrf_token %}
 
       <!-- Título -->
@@ -166,7 +166,7 @@
         </p>
         <div class="d-flex gap-3 justify-content-center">
           <button type="button" class="btn-cancelar" data-bs-dismiss="modal">Cancelar</button>
-          <form action="{% url 'eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin:0;">
+          <form action="{% url 'docente:eliminar_ejercicio' clase.id ejercicio.id %}" method="POST" style="margin:0;">
             {% csrf_token %}
             <button type="submit" class="btn-eliminar-confirmar">Sí, eliminar</button>
           </form>

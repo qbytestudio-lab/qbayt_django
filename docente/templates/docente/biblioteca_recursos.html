@@ -13,7 +13,7 @@
 
   <!-- BACK NAVIGATION -->
   <div class="back-nav">
-    <a href="{% url 'mis_clases' %}" class="btn-back">
+    <a href="{% url 'docente:mis_clases' %}" class="btn-back">
       <i class="bi bi-arrow-left"></i> Volver a Mis clases
     </a>
   </div>
@@ -26,7 +26,7 @@
     <p class="biblioteca-subtitle">
       Gestiona audios, partituras, videos y documentos para tus clases
     </p>
-    <button class="btn-crear-recurso" data-bs-toggle="modal" data-bs-target="#modalCrearRecurso">
+    <button class="btn-crear-recurso" onclick="abrirModalCrear()">
       <i class="bi bi-plus-lg"></i> Nuevo recurso
     </button>
   </div>
@@ -42,109 +42,197 @@
   </div>
   {% endif %}
 
-  <!-- FILTROS -->
+  <!-- FILTROS + ORDEN + VISTA -->
   <div class="filtros-biblioteca">
-    <form method="GET" class="filtros-form">
-      <input type="text" name="q" placeholder="Buscar recurso..." value="{{ busqueda }}" class="input-busqueda">
-      
-      <select name="categoria" class="select-filtro" onchange="this.form.submit()">
+    <div class="filtros-top">
+      <div class="filtros-search">
+        <i class="bi bi-search"></i>
+        <input type="text" id="searchInput" placeholder="Buscar por título, descripción, tag...">
+      </div>
+      <div class="view-toggle" role="group">
+        <button type="button" id="viewGrid" class="active" data-tip="Vista cuadrícula">
+          <i class="bi bi-grid-3x3-gap-fill"></i>
+        </button>
+        <button type="button" id="viewList" data-tip="Vista lista">
+          <i class="bi bi-list-ul"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="filtros-bottom">
+      <select id="filtroCategoria" class="select-filtro">
         <option value="">Todas las categorías</option>
-        {% for valor, nombre in categorias %}
-        <option value="{{ valor }}" {% if categoria_actual == valor %}selected{% endif %}>{{ nombre }}</option>
-        {% endfor %}
+        <option value="intervalos">Intervalos</option>
+        <option value="acordes">Acordes</option>
+        <option value="escalas">Escalas</option>
+        <option value="ritmo">Ritmo</option>
+        <option value="melodia">Melodía</option>
+        <option value="armonia">Armonía</option>
+        <option value="teoria">Teoría Musical</option>
+        <option value="otro">Otro</option>
       </select>
-      
-      <select name="tipo" class="select-filtro" onchange="this.form.submit()">
+
+      <select id="filtroTipo" class="select-filtro">
         <option value="">Todos los tipos</option>
-        {% for valor, nombre in tipos %}
-        <option value="{{ valor }}" {% if tipo_actual == valor %}selected{% endif %}>{{ nombre }}</option>
-        {% endfor %}
+        <option value="audio">Audio</option>
+        <option value="partitura">Partitura</option>
+        <option value="video">Video</option>
+        <option value="documento">Documento</option>
+        <option value="imagen">Imagen</option>
       </select>
-      
-      <button type="submit" class="btn-filtrar">
-        <i class="bi bi-search"></i> Filtrar
+
+      <select id="filtroOrden" class="select-filtro">
+        <option value="recent">Más reciente primero</option>
+        <option value="old">Más antiguo primero</option>
+        <option value="az">Título A-Z</option>
+        <option value="za">Título Z-A</option>
+        <option value="tipo">Por tipo</option>
+        <option value="favoritos">Solo favoritos ⭐</option>
+      </select>
+
+      <button type="button" class="btn-filtrar" onclick="limpiarFiltros()">
+        <i class="bi bi-arrow-clockwise"></i> Limpiar
       </button>
-    </form>
+    </div>
   </div>
 
   <!-- CONTADOR -->
-  <div class="contador-recursos">
-    <span>{{ total_recursos }} recurso{{ total_recursos|pluralize }}</span>
+  <div class="contador-bar">
+    <div class="contador-recursos">
+      <span id="contadorTexto">{{ recursos|length }} recurso{{ recursos|length|pluralize }}</span>
+    </div>
+    <div class="filtro-activo-info" id="filtroActivoInfo">
+      <i class="bi bi-funnel-fill"></i>
+      <span id="filtroActivoTexto">Filtros aplicados</span>
+      <button type="button" onclick="limpiarFiltros()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
   </div>
 
   <!-- GRID DE RECURSOS -->
   {% if recursos %}
-  <div class="recursos-grid">
+  <div class="recursos-grid" id="recursosGrid">
     {% for recurso in recursos %}
-    <div class="recurso-card">
-      <div class="recurso-icon tipo-{{ recurso.tipo }}">
-        {% if recurso.tipo == 'audio' %}
-        <i class="bi bi-music-note-beamed"></i>
-        {% elif recurso.tipo == 'partitura' %}
-        <i class="bi bi-file-earmark-music"></i>
-        {% elif recurso.tipo == 'video' %}
-        <i class="bi bi-camera-video"></i>
-        {% elif recurso.tipo == 'imagen' %}
-        <i class="bi bi-image"></i>
-        {% else %}
-        <i class="bi bi-file-text"></i>
-        {% endif %}
+    <div class="recurso-card" data-id="{{ recurso.id }}" data-titulo="{{ recurso.titulo|lower }}"
+      data-descripcion="{{ recurso.descripcion|lower|truncatechars:200 }}" data-categoria="{{ recurso.categoria }}"
+      data-tipo="{{ recurso.tipo }}" data-fecha="{{ recurso.fecha_creacion|date:'U' }}"
+      data-tags="{{ recurso.tags|default:''|lower }}"
+      data-tiene-archivo="{% if recurso.tiene_archivo %}1{% else %}0{% endif %}"
+      data-archivo-url="{{ recurso.archivo_url }}"
+      data-tiene-url="{% if recurso.tiene_url %}1{% else %}0{% endif %}"
+      data-url-externa="{{ recurso.url_externa|default:'' }}" data-vistas="{{ recurso.vistas|default:0 }}">
+
+      <!-- HEADER FLOTANTE: favorito + vistas -->
+      <div class="recurso-card-header">
+        <button type="button" class="recurso-fav-btn" data-id="{{ recurso.id }}" data-tip="Marcar como favorito">
+          <i class="bi bi-star"></i>
+        </button>
+        <span class="recurso-vistas" data-tip="Visualizaciones">
+          <i class="bi bi-eye-fill"></i> <span class="vistas-num">{{ recurso.vistas|default:0 }}</span>
+        </span>
       </div>
-      
-      <div class="recurso-body">
-        <h3 class="recurso-titulo">{{ recurso.titulo }}</h3>
-        
-        {% if recurso.descripcion %}
-        <p class="recurso-descripcion">{{ recurso.descripcion|truncatechars:100 }}</p>
-        {% endif %}
-        
-        <div class="recurso-meta">
-          <span class="recurso-categoria">
-            <i class="bi bi-tag"></i> {{ recurso.get_categoria_display }}
-          </span>
-          <span class="recurso-tipo">
-            {{ recurso.get_tipo_display }}
-          </span>
-          <span class="recurso-fecha">
-            {{ recurso.fecha_creacion|date:"d M Y" }}
-          </span>
-        </div>
-        
-        <div class="recurso-actions">
-          {% if recurso.tiene_archivo %}
-          <a href="{{ recurso.archivo.url }}" target="_blank" class="btn-ver-recurso">
-            <i class="bi bi-download"></i> Descargar
-          </a>
-          {% elif recurso.tiene_url %}
-          <a href="{{ recurso.url_externa }}" target="_blank" class="btn-ver-recurso">
-            <i class="bi bi-box-arrow-up-right"></i> Abrir
-          </a>
+
+      <!-- FILA: icono + body -->
+      <div class="recurso-card-main">
+        <div class="recurso-icon tipo-{{ recurso.tipo }}">
+          {% if recurso.tipo == 'audio' %}
+          <i class="bi bi-music-note-beamed"></i>
+          {% elif recurso.tipo == 'partitura' %}
+          <i class="bi bi-file-earmark-music"></i>
+          {% elif recurso.tipo == 'video' %}
+          <i class="bi bi-camera-video"></i>
+          {% elif recurso.tipo == 'imagen' %}
+          <i class="bi bi-image"></i>
+          {% else %}
+          <i class="bi bi-file-text"></i>
           {% endif %}
-          
-          <button type="button" class="btn-eliminar-recurso" 
-                  data-bs-toggle="modal" data-bs-target="#modalEliminar{{ recurso.id }}">
-            <i class="bi bi-trash"></i>
-          </button>
         </div>
+
+        <div class="recurso-body">
+          <h3 class="recurso-titulo">{{ recurso.titulo }}</h3>
+
+          {% if recurso.descripcion %}
+          <p class="recurso-descripcion">{{ recurso.descripcion|truncatechars:100 }}</p>
+          {% endif %}
+
+          {% if recurso.tags_lista %}
+          <div class="recurso-tags">
+            {% for tag in recurso.tags_lista %}
+            <span class="recurso-tag">#{{ tag }}</span>
+            {% endfor %}
+          </div>
+          {% endif %}
+
+          <div class="recurso-meta">
+            <span class="recurso-categoria">
+              <i class="bi bi-tag"></i> {{ recurso.get_categoria_display }}
+            </span>
+            <span class="recurso-tipo">
+              {{ recurso.get_tipo_display }}
+            </span>
+            <span class="recurso-fecha">
+              {{ recurso.fecha_creacion|date:"d M Y" }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILA COMPLETA ABAJO: ACCIONES -->
+      <div class="recurso-actions">
+        <button type="button" class="btn-ver-recurso" onclick="abrirPreview(this)" data-id="{{ recurso.id }}"
+          data-titulo="{{ recurso.titulo }}" data-descripcion="{{ recurso.descripcion|default:'' }}"
+          data-tipo="{{ recurso.tipo }}" data-tipo-label="{{ recurso.get_tipo_display }}"
+          data-categoria="{{ recurso.get_categoria_display }}"
+          data-archivo-url="{% if recurso.tiene_archivo %}{{ recurso.archivo.url }}{% endif %}"
+          data-url-externa="{{ recurso.url_externa|default:'' }}">
+          <i class="bi bi-eye-fill"></i> Ver
+        </button>
+
+        <button type="button" class="btn-icon-action copy" data-tip="Copiar enlace" onclick="copiarEnlace(this)"
+          data-url="{% if recurso.tiene_archivo %}{{ recurso.archivo.url }}{% elif recurso.tiene_url %}{{ recurso.url_externa }}{% endif %}">
+          <i class="bi bi-link-45deg"></i>
+        </button>
+
+        <button type="button" class="btn-icon-action edit" data-tip="Editar" onclick="abrirModalEditar(this)"
+          data-url-editar="{% url 'docente:editar_recurso' recurso.id %}"
+          data-titulo="{{ recurso.titulo }}" data-descripcion="{{ recurso.descripcion|default:'' }}"
+          data-tipo="{{ recurso.tipo }}" data-categoria="{{ recurso.categoria }}"
+          data-tags="{{ recurso.tags|default:'' }}" data-url-externa="{{ recurso.url_externa|default:'' }}">
+          <i class="bi bi-pencil-fill"></i>
+        </button>
+
+        <button type="button" class="btn-icon-action duplicate" data-tip="Duplicar" onclick="abrirModalDuplicar(this)"
+          data-titulo="{{ recurso.titulo }} (copia)" data-descripcion="{{ recurso.descripcion|default:'' }}"
+          data-tipo="{{ recurso.tipo }}" data-categoria="{{ recurso.categoria }}"
+          data-tags="{{ recurso.tags|default:'' }}" data-url-externa="{{ recurso.url_externa|default:'' }}">
+          <i class="bi bi-files"></i>
+        </button>
+
+        <button type="button" class="btn-icon-action danger" data-tip="Eliminar" data-bs-toggle="modal"
+          data-bs-target="#modalEliminar{{ recurso.id }}">
+          <i class="bi bi-trash-fill"></i>
+        </button>
       </div>
     </div>
-    
+
     <!-- Modal Eliminar -->
     <div class="modal fade" id="modalEliminar{{ recurso.id }}" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Eliminar recurso</h5>
+            <h5 class="modal-title"><i class="bi bi-exclamation-triangle-fill" style="color: var(--danger);"></i>
+              Eliminar recurso</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
           </div>
           <div class="modal-body">
-            ¿Estás seguro de eliminar "{{ recurso.titulo }}"?
+            ¿Estás seguro de eliminar <strong>"{{ recurso.titulo }}"</strong>? Esta acción no se puede deshacer.
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <form action="{% url 'eliminar_recurso' recurso.id %}" method="POST">
+            <form action="{% url 'docente:eliminar_recurso' recurso.id %}" method="POST" style="margin: 0;">
               {% csrf_token %}
-              <button type="submit" class="btn btn-danger">Eliminar</button>
+              <button type="submit" class="btn btn-danger">Sí, eliminar</button>
             </form>
           </div>
         </div>
@@ -152,12 +240,23 @@
     </div>
     {% endfor %}
   </div>
+
+  <!-- Empty state cuando no hay resultados de filtro -->
+  <div class="empty-state" id="emptyFiltered" style="display: none;">
+    <i class="bi bi-search"></i>
+    <h3>Sin resultados</h3>
+    <p>No se encontraron recursos con esos filtros. Prueba ajustando la búsqueda.</p>
+    <button class="btn-crear-recurso" onclick="limpiarFiltros()">
+      <i class="bi bi-arrow-clockwise"></i> Limpiar filtros
+    </button>
+  </div>
+
   {% else %}
   <div class="empty-state">
     <i class="bi bi-folder2-open"></i>
     <h3>No hay recursos</h3>
     <p>Crea tu primer recurso musical para compartir con tus estudiantes.</p>
-    <button class="btn-crear-recurso" data-bs-toggle="modal" data-bs-target="#modalCrearRecurso">
+    <button class="btn-crear-recurso" onclick="abrirModalCrear()">
       <i class="bi bi-plus-lg"></i> Crear recurso
     </button>
   </div>
@@ -165,73 +264,633 @@
 
 </div>
 
-<!-- MODAL CREAR RECURSO -->
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL CREAR / EDITAR RECURSO                        -->
+<!-- ═══════════════════════════════════════════════════ -->
 <div class="modal fade" id="modalCrearRecurso" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
+  <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-plus-circle"></i> Nuevo recurso</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <h5 class="modal-title" id="modalRecursoTitle">
+          <i class="bi bi-plus-circle-fill"></i>
+          <span id="modalRecursoTitleText">Nuevo recurso</span>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
       </div>
-      <form action="{% url 'crear_recurso' %}" method="POST" enctype="multipart/form-data">
+
+      <form action="{% url 'docente:crear_recurso' %}" method="POST" enctype="multipart/form-data" id="formRecurso">
         {% csrf_token %}
+        <input type="hidden" name="recurso_id" id="inputRecursoId" value="">
+
         <div class="modal-body">
-          
-          <div class="mb-3">
-            <label class="form-label">Título <span class="text-danger">*</span></label>
-            <input type="text" name="titulo" class="form-control" required>
-          </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Descripción</label>
-            <textarea name="descripcion" class="form-control" rows="3"></textarea>
-          </div>
-          
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Tipo</label>
-              <select name="tipo" class="form-select" required>
-                <option value="audio">Audio</option>
-                <option value="partitura">Partitura</option>
-                <option value="video">Video</option>
-                <option value="documento">Documento</option>
-                <option value="imagen">Imagen</option>
-              </select>
+          <div class="modal-recurso-grid">
+
+            <!-- COLUMNA IZQUIERDA -->
+            <div class="modal-recurso-section">
+              <h6 class="modal-recurso-section-title">
+                <i class="bi bi-info-circle-fill"></i> Información del recurso
+              </h6>
+
+              <div>
+                <label class="modal-recurso-label">Título <span class="req">*</span></label>
+                <div class="modal-recurso-field">
+                  <i class="bi bi-type field-icon"></i>
+                  <input type="text" name="titulo" id="inputTitulo" placeholder="Ej: Escala de Do mayor" required>
+                </div>
+              </div>
+
+              <div>
+                <label class="modal-recurso-label">Descripción</label>
+                <div class="modal-recurso-field">
+                  <i class="bi bi-text-paragraph field-icon top"></i>
+                  <textarea name="descripcion" id="inputDescripcion"
+                    placeholder="Describe brevemente el recurso..."></textarea>
+                </div>
+              </div>
+
+              <div class="modal-recurso-row">
+                <div>
+                  <label class="modal-recurso-label">Tipo</label>
+                  <div class="modal-recurso-field">
+                    <i class="bi bi-collection field-icon"></i>
+                    <select name="tipo" id="inputTipo" required>
+                      <option value="audio">🎵 Audio</option>
+                      <option value="partitura">🎼 Partitura</option>
+                      <option value="video">🎬 Video</option>
+                      <option value="documento">📄 Documento</option>
+                      <option value="imagen">🖼️ Imagen</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label class="modal-recurso-label">Categoría</label>
+                  <div class="modal-recurso-field">
+                    <i class="bi bi-tag field-icon"></i>
+                    <select name="categoria" id="inputCategoria" required>
+                      <option value="intervalos">Intervalos</option>
+                      <option value="acordes">Acordes</option>
+                      <option value="escalas">Escalas</option>
+                      <option value="ritmo">Ritmo</option>
+                      <option value="melodia">Melodía</option>
+                      <option value="armonia">Armonía</option>
+                      <option value="teoria">Teoría Musical</option>
+                      <option value="otro">Otro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="modal-recurso-label">
+                  Etiquetas
+                  <span style="color: var(--text-muted); font-weight: 500; font-size: 0.7rem; text-transform: none; letter-spacing: 0;">(opcional, separadas por coma)</span>
+                </label>
+                <div class="modal-recurso-field">
+                  <i class="bi bi-hash field-icon"></i>
+                  <input type="text" name="tags" id="inputTags" placeholder="principiantes, nivel2, examen">
+                </div>
+              </div>
             </div>
-            <div class="col-md-6 mb-3">
-              <label class="form-label">Categoría</label>
-              <select name="categoria" class="form-select" required>
-                <option value="intervalos">Intervalos</option>
-                <option value="acordes">Acordes</option>
-                <option value="escalas">Escalas</option>
-                <option value="ritmo">Ritmo</option>
-                <option value="melodia">Melodía</option>
-                <option value="armonia">Armonía</option>
-                <option value="teoria">Teoría Musical</option>
-                <option value="otro">Otro</option>
-              </select>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="modal-recurso-section">
+              <h6 class="modal-recurso-section-title">
+                <i class="bi bi-cloud-arrow-up-fill"></i> Archivo o enlace
+              </h6>
+
+              <div>
+                <label class="modal-recurso-label">Subir archivo</label>
+                <label class="modal-recurso-dropzone">
+                  <input type="file" name="archivo" id="inputArchivo">
+                  <div class="dz-icon">
+                    <i class="bi bi-cloud-arrow-up-fill"></i>
+                  </div>
+                  <div class="dz-text" id="dzText">Haz clic para subir un archivo</div>
+                  <div class="dz-hint">o arrastra y suelta aquí · MP3, PDF, MP4, JPG...</div>
+                </label>
+              </div>
+
+              <div class="modal-recurso-sep">o</div>
+
+              <div>
+                <label class="modal-recurso-label">URL externa</label>
+                <div class="modal-recurso-field">
+                  <i class="bi bi-link-45deg field-icon"></i>
+                  <input type="url" name="url_externa" id="inputUrlExterna" placeholder="https://youtube.com/...">
+                </div>
+              </div>
+
+              <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.5; padding: 0.6rem 0.8rem; background: rgba(139, 92, 246, 0.06); border-radius: 10px; border-left: 3px solid var(--accent-primary);">
+                <i class="bi bi-lightbulb-fill" style="color: var(--accent-primary);"></i>
+                Puedes subir un archivo <strong>o</strong> pegar una URL externa (YouTube, Drive, etc.).
+              </div>
             </div>
+
           </div>
-          
-          <div class="mb-3">
-            <label class="form-label">Subir archivo</label>
-            <input type="file" name="archivo" class="form-control">
-            <small class="text-muted">O coloca una URL externa</small>
-          </div>
-          
-          <div class="mb-0">
-            <label class="form-label">URL externa (YouTube, Drive, etc.)</label>
-            <input type="url" name="url_externa" class="form-control" placeholder="https://...">
-          </div>
-          
         </div>
+
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Crear recurso</button>
+          <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+          <button type="submit" class="btn-modal-crear" id="btnSubmitRecurso">
+            <i class="bi bi-check-lg"></i> <span id="btnSubmitText">Crear recurso</span>
+          </button>
         </div>
       </form>
     </div>
   </div>
 </div>
 
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL PREVIEW                                       -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="modal fade" id="modalPreviewRecurso" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-eye-fill"></i>
+          Vista previa
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="preview-layout">
+
+          <div class="preview-main">
+            <div class="preview-area" id="previewArea"></div>
+          </div>
+
+          <div class="preview-side">
+            <h3 class="preview-side-title" id="previewTitulo">Vista previa</h3>
+
+            <div class="preview-meta" id="previewMeta"></div>
+
+            <p class="preview-desc" id="previewDesc" style="display: none;"></p>
+
+            <div class="preview-side-actions">
+              <button type="button" class="btn-modal-cancel" data-bs-dismiss="modal">
+                <i class="bi bi-x-lg"></i> Cerrar
+              </button>
+              <a href="#" id="previewDownload" target="_blank" class="btn-ver-recurso">
+                <i class="bi bi-download"></i> Abrir / Descargar
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- CONTENEDOR DE TOASTS                                -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div id="qbyt-toast-container"></div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  /* ============================================================
+     BIBLIOTECA DE RECURSOS — JavaScript v5.1
+     ============================================================ */
+
+  const CSRF_TOKEN = '{{ csrf_token }}';
+  const STORAGE_FAV = 'qbyt_biblioteca_favoritos';
+  const STORAGE_VIEW = 'qbyt_biblioteca_view';
+
+  /* ═══════════════════════════════════════════
+     TOASTS
+     ═══════════════════════════════════════════ */
+  function mostrarToast(mensaje, tipo = 'info') {
+    const container = document.getElementById('qbyt-toast-container');
+    const toast = document.createElement('div');
+    toast.className = `qbyt-toast ${tipo}`;
+
+    let icon = 'bi-info-circle-fill';
+    if (tipo === 'success') icon = 'bi-check-circle-fill';
+    if (tipo === 'error') icon = 'bi-exclamation-triangle-fill';
+
+    toast.innerHTML = `<i class="bi ${icon}"></i><span>${mensaje}</span>`;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.add('out');
+      setTimeout(() => toast.remove(), 300);
+    }, 2800);
+  }
+
+  /* ═══════════════════════════════════════════
+     FAVORITOS
+     ═══════════════════════════════════════════ */
+  function getFavoritos() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_FAV) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function setFavoritos(arr) {
+    localStorage.setItem(STORAGE_FAV, JSON.stringify(arr));
+  }
+
+  function esFavorito(id) {
+    return getFavoritos().includes(String(id));
+  }
+
+  function toggleFavorito(id, btn) {
+    const favs = getFavoritos();
+    const idStr = String(id);
+    const idx = favs.indexOf(idStr);
+
+    if (idx >= 0) {
+      favs.splice(idx, 1);
+      btn.classList.remove('is-favorite');
+      btn.closest('.recurso-card').classList.remove('is-favorite');
+      mostrarToast('Quitado de favoritos', 'info');
+    } else {
+      favs.push(idStr);
+      btn.classList.add('is-favorite');
+      btn.closest('.recurso-card').classList.add('is-favorite');
+      mostrarToast('⭐ Añadido a favoritos', 'success');
+    }
+
+    setFavoritos(favs);
+  }
+
+  function aplicarFavoritosAlCargar() {
+    document.querySelectorAll('.recurso-fav-btn').forEach(btn => {
+      const id = btn.dataset.id;
+      if (esFavorito(id)) {
+        btn.classList.add('is-favorite');
+        btn.closest('.recurso-card').classList.add('is-favorite');
+      }
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     FILTRADO + ORDEN
+     ═══════════════════════════════════════════ */
+  function aplicarFiltros() {
+    const q = document.getElementById('searchInput').value.toLowerCase().trim();
+    const cat = document.getElementById('filtroCategoria').value;
+    const tipo = document.getElementById('filtroTipo').value;
+    const orden = document.getElementById('filtroOrden').value;
+
+    const grid = document.getElementById('recursosGrid');
+    if (!grid) return;
+
+    const cards = Array.from(grid.querySelectorAll('.recurso-card'));
+    let visibles = 0;
+
+    cards.forEach(card => {
+      const titulo = card.dataset.titulo || '';
+      const desc = card.dataset.descripcion || '';
+      const tags = card.dataset.tags || '';
+      const cCat = card.dataset.categoria || '';
+      const cTipo = card.dataset.tipo || '';
+      const id = card.dataset.id;
+
+      const matchQ = !q || titulo.includes(q) || desc.includes(q) || tags.includes(q);
+      const matchCat = !cat || cCat === cat;
+      const matchTipo = !tipo || cTipo === tipo;
+      const matchFav = orden !== 'favoritos' || esFavorito(id);
+
+      const visible = matchQ && matchCat && matchTipo && matchFav;
+      card.style.display = visible ? '' : 'none';
+      if (visible) visibles++;
+    });
+
+    const visiblesCards = cards.filter(c => c.style.display !== 'none');
+    visiblesCards.sort((a, b) => {
+      switch (orden) {
+        case 'recent': return parseInt(b.dataset.fecha) - parseInt(a.dataset.fecha);
+        case 'old': return parseInt(a.dataset.fecha) - parseInt(b.dataset.fecha);
+        case 'az': return a.dataset.titulo.localeCompare(b.dataset.titulo);
+        case 'za': return b.dataset.titulo.localeCompare(a.dataset.titulo);
+        case 'tipo': return a.dataset.tipo.localeCompare(b.dataset.tipo);
+        case 'favoritos': return parseInt(b.dataset.fecha) - parseInt(a.dataset.fecha);
+        default: return 0;
+      }
+    });
+    visiblesCards.forEach(c => grid.appendChild(c));
+
+    const plural = visibles === 1 ? '' : 's';
+    document.getElementById('contadorTexto').textContent = `${visibles} recurso${plural}`;
+
+    const emptyFiltered = document.getElementById('emptyFiltered');
+    if (emptyFiltered) {
+      emptyFiltered.style.display = (visibles === 0 && cards.length > 0) ? 'flex' : 'none';
+    }
+
+    const info = document.getElementById('filtroActivoInfo');
+    const infoTexto = document.getElementById('filtroActivoTexto');
+    const hayFiltros = q || cat || tipo || orden === 'favoritos';
+    if (hayFiltros) {
+      const partes = [];
+      if (q) partes.push(`"${q}"`);
+      if (cat) partes.push(cat);
+      if (tipo) partes.push(tipo);
+      if (orden === 'favoritos') partes.push('favoritos ⭐');
+      infoTexto.textContent = partes.join(' · ');
+      info.classList.add('show');
+    } else {
+      info.classList.remove('show');
+    }
+  }
+
+  function limpiarFiltros() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('filtroCategoria').value = '';
+    document.getElementById('filtroTipo').value = '';
+    document.getElementById('filtroOrden').value = 'recent';
+    aplicarFiltros();
+    mostrarToast('Filtros limpiados', 'info');
+  }
+
+  /* ═══════════════════════════════════════════
+     VISTA GRID / LISTA
+     ═══════════════════════════════════════════ */
+  function aplicarVista(vista) {
+    const grid = document.getElementById('recursosGrid');
+    if (!grid) return;
+
+    if (vista === 'list') {
+      grid.classList.add('view-list');
+      document.getElementById('viewList').classList.add('active');
+      document.getElementById('viewGrid').classList.remove('active');
+    } else {
+      grid.classList.remove('view-list');
+      document.getElementById('viewGrid').classList.add('active');
+      document.getElementById('viewList').classList.remove('active');
+    }
+    localStorage.setItem(STORAGE_VIEW, vista);
+  }
+
+  /* ═══════════════════════════════════════════
+     COPIAR ENLACE
+     ═══════════════════════════════════════════ */
+  function copiarEnlace(btn) {
+    const url = btn.dataset.url;
+    if (!url) {
+      mostrarToast('Este recurso no tiene enlace', 'error');
+      return;
+    }
+
+    navigator.clipboard.writeText(url).then(() => {
+      mostrarToast('Enlace copiado al portapapeles', 'success');
+      const icon = btn.querySelector('i');
+      const oldClass = icon.className;
+      icon.className = 'bi bi-check-lg';
+      setTimeout(() => icon.className = oldClass, 1500);
+    }).catch(() => {
+      mostrarToast('No se pudo copiar', 'error');
+    });
+  }
+
+  /* ═══════════════════════════════════════════
+     MODAL CREAR / EDITAR
+     ═══════════════════════════════════════════ */
+  let modalRecursoInstance = null;
+
+  function getModalRecurso() {
+    if (!modalRecursoInstance) {
+      modalRecursoInstance = new bootstrap.Modal(document.getElementById('modalCrearRecurso'));
+    }
+    return modalRecursoInstance;
+  }
+
+  function abrirModalCrear() {
+    const form = document.getElementById('formRecurso');
+    form.action = "{% url 'docente:crear_recurso' %}";
+    form.reset();
+    document.getElementById('inputRecursoId').value = '';
+    document.getElementById('modalRecursoTitleText').textContent = 'Nuevo recurso';
+    document.getElementById('btnSubmitText').textContent = 'Crear recurso';
+    document.getElementById('dzText').textContent = 'Haz clic para subir un archivo';
+    getModalRecurso().show();
+  }
+
+  function abrirModalEditar(btn) {
+    const d = btn.dataset;
+    const form = document.getElementById('formRecurso');
+
+    form.action = d.urlEditar;
+
+    document.getElementById('inputRecursoId').value = d.id;
+    document.getElementById('inputTitulo').value = d.titulo || '';
+    document.getElementById('inputDescripcion').value = d.descripcion || '';
+    document.getElementById('inputTipo').value = d.tipo || 'audio';
+    document.getElementById('inputCategoria').value = d.categoria || 'otro';
+    document.getElementById('inputTags').value = d.tags || '';
+    document.getElementById('inputUrlExterna').value = d.urlExterna || '';
+
+    document.getElementById('modalRecursoTitleText').textContent = 'Editar recurso';
+    document.getElementById('btnSubmitText').textContent = 'Guardar cambios';
+    document.getElementById('dzText').textContent = 'Haz clic para reemplazar el archivo';
+
+    getModalRecurso().show();
+  }
+
+  function abrirModalDuplicar(btn) {
+    const d = btn.dataset;
+    const form = document.getElementById('formRecurso');
+
+    form.action = "{% url 'docente:crear_recurso' %}";
+    form.reset();
+
+    document.getElementById('inputTitulo').value = d.titulo || '';
+    document.getElementById('inputDescripcion').value = d.descripcion || '';
+    document.getElementById('inputTipo').value = d.tipo || 'audio';
+    document.getElementById('inputCategoria').value = d.categoria || 'otro';
+    document.getElementById('inputTags').value = d.tags || '';
+    document.getElementById('inputUrlExterna').value = d.urlExterna || '';
+
+    document.getElementById('modalRecursoTitleText').textContent = 'Duplicar recurso';
+    document.getElementById('btnSubmitText').textContent = 'Crear copia';
+    document.getElementById('dzText').textContent = 'Haz clic para subir un archivo';
+
+    getModalRecurso().show();
+    mostrarToast('Editando copia del recurso', 'info');
+  }
+
+  /* ═══════════════════════════════════════════
+     MODAL PREVIEW (¡CORREGIDO AQUÍ!)
+     ═══════════════════════════════════════════ */
+  let modalPreviewInstance = null;
+
+  function getModalPreview() {
+    if (!modalPreviewInstance) {
+      modalPreviewInstance = new bootstrap.Modal(document.getElementById('modalPreviewRecurso'));
+    }
+    return modalPreviewInstance;
+  }
+
+  function abrirPreview(btn) {
+    const d = btn.dataset;
+    const tipo = d.tipo;
+    const archivoUrl = d.archivoUrl || '';
+    const urlExterna = d.urlExterna || '';
+    let url = archivoUrl || urlExterna;
+
+    document.getElementById('previewTitulo').textContent = d.titulo || 'Vista previa';
+
+    document.getElementById('previewMeta').innerHTML = `
+      <span class="preview-chip"><i class="bi bi-collection"></i> ${d.tipoLabel}</span>
+      <span class="preview-chip"><i class="bi bi-tag"></i> ${d.categoria}</span>
+    `;
+
+    const descEl = document.getElementById('previewDesc');
+    if (d.descripcion) {
+      descEl.textContent = d.descripcion;
+      descEl.style.display = 'block';
+    } else {
+      descEl.style.display = 'none';
+    }
+
+    const area = document.getElementById('previewArea');
+    area.innerHTML = '';
+
+    if (!url) {
+      area.innerHTML = `
+        <div class="preview-empty">
+          <i class="bi bi-file-earmark-x"></i>
+          <p>Este recurso no tiene archivo ni URL para previsualizar.</p>
+        </div>
+      `;
+    } else if (tipo === 'audio') {
+      area.innerHTML = `<audio controls preload="metadata" src="${url}"></audio>`;
+    } else if (tipo === 'imagen') {
+      area.innerHTML = `<img src="${url}" alt="${d.titulo}">`;
+    } else if (tipo === 'video') {
+      // 🚨 AQUÍ ESTÁ EL ARREGLO: Forzamos la conversión si viene un link normal
+      let embed = url;
+      if (!url.includes('/embed/')) {
+          embed = getVideoEmbed(url);
+      }
+      
+      if (embed && (embed.includes('youtube.com/embed') || embed.includes('player.vimeo.com'))) {
+        area.innerHTML = `<iframe src="${embed}" allowfullscreen></iframe>`;
+      } else {
+        area.innerHTML = `<video controls src="${url}"></video>`;
+      }
+    } else if (tipo === 'documento') {
+      if (url.toLowerCase().endsWith('.pdf')) {
+        area.innerHTML = `<iframe src="${url}"></iframe>`;
+      } else {
+        area.innerHTML = `
+          <div class="preview-empty">
+            <i class="bi bi-file-earmark-text"></i>
+            <p>Vista previa no disponible para este tipo de documento.</p>
+          </div>
+        `;
+      }
+    } else if (tipo === 'partitura') {
+      if (url.toLowerCase().endsWith('.pdf')) {
+        area.innerHTML = `<iframe src="${url}"></iframe>`;
+      } else {
+        area.innerHTML = `<img src="${url}" alt="${d.titulo}">`;
+      }
+    }
+
+    document.getElementById('previewDownload').href = url;
+
+    const card = btn.closest('.recurso-card');
+    if (card) {
+      const vistasEl = card.querySelector('.vistas-num');
+      if (vistasEl) {
+        const actual = parseInt(vistasEl.textContent) || 0;
+        vistasEl.textContent = actual + 1;
+      }
+
+      const recursoId = card.dataset.id;
+      fetch(`/docente/biblioteca-recursos/vista/${recursoId}/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': CSRF_TOKEN,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      }).catch(() => { /* silencioso */ });
+    }
+
+    getModalPreview().show();
+  }
+
+  function getVideoEmbed(url) {
+    const ytMatch = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+
+    const vimeoMatch = url.match(/vimeo\.com\/(?:.*#|.*\/videos\/)?([0-9]+)/);
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+
+    return null;
+  }
+
+  /* ═══════════════════════════════════════════
+     INICIALIZACIÓN
+     ═══════════════════════════════════════════ */
+  document.addEventListener('DOMContentLoaded', () => {
+
+    aplicarFavoritosAlCargar();
+    document.querySelectorAll('.recurso-fav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toggleFavorito(btn.dataset.id, btn);
+      });
+    });
+
+    const vistaGuardada = localStorage.getItem(STORAGE_VIEW) || 'grid';
+    aplicarVista(vistaGuardada);
+    document.getElementById('viewGrid').addEventListener('click', () => aplicarVista('grid'));
+    document.getElementById('viewList').addEventListener('click', () => aplicarVista('list'));
+
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      let timer;
+      searchInput.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(aplicarFiltros, 120);
+      });
+    }
+
+    ['filtroCategoria', 'filtroTipo', 'filtroOrden'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', aplicarFiltros);
+    });
+
+    const formRecurso = document.getElementById('formRecurso');
+    if (formRecurso) {
+      formRecurso.addEventListener('submit', (e) => {
+        const titulo = document.getElementById('inputTitulo').value.trim();
+        const urlExt = document.getElementById('inputUrlExterna').value.trim();
+        const fileInput = document.getElementById('inputArchivo');
+        const tieneArchivo = fileInput.files.length > 0;
+        const esEdicion = document.getElementById('inputRecursoId').value !== '';
+
+        if (!titulo) {
+          e.preventDefault();
+          mostrarToast('El título es obligatorio', 'error');
+          return;
+        }
+
+        if (!esEdicion && !tieneArchivo && !urlExt) {
+          e.preventDefault();
+          mostrarToast('Debes subir un archivo o pegar una URL', 'error');
+          return;
+        }
+      });
+
+      document.getElementById('inputArchivo').addEventListener('change', function () {
+        const dzText = document.getElementById('dzText');
+        if (this.files.length > 0) {
+          dzText.textContent = `📎 ${this.files[0].name}`;
+        }
+      });
+    }
+
+    aplicarFiltros();
+  });
+</script>
 {% endblock %}

@@ -13,7 +13,7 @@
 
 <!-- BOTÓN VOLVER A MIS CLASES -->
 <div class="back-navigation">
-    <a href="{% url 'mis_clases' %}" class="btn-back-classes">
+    <a href="{% url 'docente:mis_clases' %}" class="btn-back-classes">
         <i class="bi bi-arrow-left"></i> Volver a mis clases
     </a>
 </div>
@@ -58,99 +58,109 @@
             <h1 class="class-hero-title">{{ clase.nombre }}</h1>
 
             {% if clase.esta_bloqueada %}
-            <div
-                style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #ff9999; padding: 0.35rem 0.8rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; margin-top: 0.5rem; backdrop-filter: blur(10px);">
+            <div class="class-hero-blocked-badge">
                 <i class="bi {{ clase.estado_icon_docente }}"></i>
                 {{ clase.estado_label_docente }} — los estudiantes no pueden acceder
             </div>
             {% endif %}
 
             {% if clase.descripcion %}
-            <p class="class-hero-description">{{ clase.descripcion }}</p>
-            {% endif %}
-
-            <div class="class-hero-meta">
-                <span class="class-hero-meta-item">
-                    <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }} estudiantes
-                </span>
-                <span class="class-hero-meta-item">
-                    <i class="bi bi-calendar3"></i> {{ clase.fecha_creacion|date:"d M Y" }}
-                </span>
-                {% if clase.fecha_inicio %}
-                <span class="class-hero-meta-item">
-                    <i class="bi bi-play-circle"></i> Inicio: {{ clase.fecha_inicio|date:"d M Y" }}
-                </span>
-                {% endif %}
-                {% if clase.fecha_fin %}
-                <span class="class-hero-meta-item">
-                    <i class="bi bi-stop-circle"></i> Fin: {{ clase.fecha_fin|date:"d M Y" }}
+            <div class="class-hero-description-box" onclick="abrirModalDescripcion()" role="button" tabindex="0"
+                 onkeydown="if(event.key==='Enter'){abrirModalDescripcion()}"
+                 title="Click para ver la descripción completa">
+                <i class="bi bi-info-circle-fill class-hero-desc-icon"></i>
+                <p class="class-hero-description">{{ clase.descripcion|truncatechars:110 }}</p>
+                {% if clase.descripcion|length > 110 %}
+                <span class="class-hero-desc-more">
+                    Ver más <i class="bi bi-arrow-right-short"></i>
                 </span>
                 {% endif %}
             </div>
+            {% endif %}
+
+            <!-- 🔽 FOOTER: METADATOS + BOTONES EN LA MISMA FILA 🔽 -->
+            <div class="class-hero-footer">
+                <div class="class-hero-meta">
+                    <span class="class-hero-meta-item">
+                        <i class="bi bi-people-fill"></i> {{ clase.estudiantes.count }} estudiantes
+                    </span>
+                    <span class="class-hero-meta-item">
+                        <i class="bi bi-calendar3"></i> {{ clase.fecha_creacion|date:"d M Y" }}
+                    </span>
+                    {% if clase.fecha_inicio %}
+                    <span class="class-hero-meta-item">
+                        <i class="bi bi-play-circle"></i> Inicio: {{ clase.fecha_inicio|date:"d M Y" }}
+                    </span>
+                    {% endif %}
+                    {% if clase.fecha_fin %}
+                    <span class="class-hero-meta-item">
+                        <i class="bi bi-stop-circle"></i> Fin: {{ clase.fecha_fin|date:"d M Y" }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <div class="class-hero-actions">
+                    <a href="{% url 'ejercicios:reporte_debilidades' clase.id %}" class="btn-stats"
+                        title="Ver reporte de debilidades auditivas">
+                        <i class="bi bi-activity"></i> Debilidades
+                    </a>
+                    <a href="{% url 'docente:estadisticas_clase' clase.id %}" class="btn-stats" title="Ver estadísticas">
+                        <i class="bi bi-graph-up"></i> Calificaciones
+                    </a>
+
+                    <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
+                        <i class="bi bi-key-fill"></i> {{ clase.codigo }}
+                    </div>
+                </div>
+            </div>
         </div>
 
-<!-- ⚙️ SOLO EL ENGRANAJE ARRIBA A LA DERECHA -->
-<div class="hero-settings-top">
-    <div class="dropdown">
-        <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
-            <i class="bi bi-gear-fill"></i>
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end">
-            <li>
-                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
-                    <i class="bi bi-pencil-square"></i> Editar clase
+        <!-- ⚙️ SOLO EL ENGRANAJE ARRIBA A LA DERECHA -->
+        <div class="hero-settings-top">
+            <div class="dropdown">
+                <button class="btn-settings" data-bs-toggle="dropdown" title="Configuración">
+                    <i class="bi bi-gear-fill"></i>
                 </button>
-            </li>
-            <li>
-                <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST" style="margin: 0;">
-                    {% csrf_token %}
-                    {% if clase.activa %}
-                    <button type="submit" class="dropdown-item text-warning">
-                        <i class="bi bi-pause-circle"></i> Desactivar clase
-                    </button>
-                    {% else %}
-                    <button type="submit" class="dropdown-item text-success">
-                        <i class="bi bi-play-circle"></i> Reactivar clase
-                    </button>
-                    {% endif %}
-                </form>
-            </li>
-            <li>
-                <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalExtenderFecha">
-                    <i class="bi bi-calendar-plus"></i> Extender fecha de fin
-                </button>
-            </li>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                        <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalEditarClase">
+                            <i class="bi bi-pencil-square"></i> Editar clase
+                        </button>
+                    </li>
+                    <li>
+                        <form action="{% url 'clase:toggle_estado_clase' clase.id %}" method="POST" style="margin: 0;">
+                            {% csrf_token %}
+                            {% if clase.activa %}
+                            <button type="submit" class="dropdown-item text-warning">
+                                <i class="bi bi-pause-circle"></i> Desactivar clase
+                            </button>
+                            {% else %}
+                            <button type="submit" class="dropdown-item text-success">
+                                <i class="bi bi-play-circle"></i> Reactivar clase
+                            </button>
+                            {% endif %}
+                        </form>
+                    </li>
+                    <li>
+                        <button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modalExtenderFecha">
+                            <i class="bi bi-calendar-plus"></i> Extender fecha de fin
+                        </button>
+                    </li>
 
-            <li>
-                <a href="{% url 'generar_reporte_pdf' clase.id %}" class="dropdown-item">
-                    <i class="bi bi-file-earmark-pdf-fill"></i> Descargar reporte PDF
-                </a>
-            </li>
+                    <li>
+                        <a href="{% url 'docente:generar_reporte_pdf' clase.id %}" class="dropdown-item">
+                            <i class="bi bi-file-earmark-pdf-fill"></i> Descargar reporte PDF
+                        </a>
+                    </li>
 
-            <li><hr class="dropdown-divider"></li>
-            <li>
-                <button class="dropdown-item text-danger" data-bs-toggle="modal"
-                    data-bs-target="#modalEliminarClase">
-                    <i class="bi bi-trash-fill"></i> Eliminar clase
-                </button>
-            </li>
-        </ul>
-    </div>
-</div>
-
-        <div class="class-hero-actions">
-            <div class="d-flex gap-2 flex-wrap">
-                <a href="{% url 'ejercicios:reporte_debilidades' clase.id %}" class="btn-stats"
-                    title="Ver reporte de debilidades auditivas">
-                    <i class="bi bi-activity"></i> Debilidades
-                </a>
-                <a href="{% url 'estadisticas_clase' clase.id %}" class="btn-stats" title="Ver estadísticas">
-                    <i class="bi bi-graph-up"></i> Calificaciones
-                </a>
-
-                <div class="code-badge" onclick="copiarCodigo()" title="Click para copiar">
-                    <i class="bi bi-key-fill"></i> {{ clase.codigo }}
-                </div>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <button class="dropdown-item text-danger" data-bs-toggle="modal"
+                            data-bs-target="#modalEliminarClase">
+                            <i class="bi bi-trash-fill"></i> Eliminar clase
+                        </button>
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
@@ -209,7 +219,7 @@
                         <i class="bi bi-person-plus-fill icon-purple"></i>
                         Agregar estudiante
                     </h3>
-                    <form action="{% url 'agregar_estudiante' clase.id %}" method="POST" class="add-student-form">
+                    <form action="{% url 'docente:agregar_estudiante' clase.id %}" method="POST" class="add-student-form">
                         {% csrf_token %}
                         <input type="text" name="username" placeholder="Nombre de usuario" required>
                         <button type="submit" class="btn-agregar">Agregar</button>
@@ -246,7 +256,7 @@
                             <h4>{{ estudiante.get_full_name|default:estudiante.username }}</h4>
                             <p>@{{ estudiante.username }}</p>
                         </div>
-                        <a href="{% url 'expulsar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft"
+                        <a href="{% url 'docente:expulsar_estudiante_clase' clase.id estudiante.id %}" class="btn-danger-soft"
                             onclick="return confirm('¿Remover a {{ estudiante.username }}?')">
                             <i class="bi bi-person-dash"></i> Remover
                         </a>
@@ -291,7 +301,7 @@
                                     {{clase.docente.get_full_name|default:clase.docente.username }}</div>
                                 <div class="announcement-date">{{ anuncio.fecha|date:"d M Y, H:i" }}</div>
                             </div>
-                            <a href="{% url 'eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement"
+                            <a href="{% url 'docente:eliminar_anuncio' clase.id anuncio.id %}" class="btn-delete-announcement"
                                 onclick="return confirm('¿Eliminar anuncio?')">
                                 <i class="bi bi-trash"></i>
                             </a>
@@ -339,6 +349,53 @@
     </div>
 </main>
 
+<!-- ═══════════════════════════════════════════════════ -->
+<!-- MODAL: DESCRIPCIÓN COMPLETA DE LA CLASE             -->
+<!-- ═══════════════════════════════════════════════════ -->
+<div class="desc-modal-backdrop" id="descModalBackdrop" onclick="cerrarModalDescripcion()"></div>
+
+<div class="desc-modal" id="descModal" role="dialog" aria-modal="true" aria-labelledby="descModalTitle">
+    <div class="desc-modal-header">
+        <div class="desc-modal-header-icon">
+            <i class="bi bi-info-circle-fill"></i>
+        </div>
+        <div class="desc-modal-header-text">
+            <h3 class="desc-modal-title" id="descModalTitle">Sobre esta clase</h3>
+            <p class="desc-modal-subtitle">{{ clase.nombre }}</p>
+        </div>
+        <button class="desc-modal-close" onclick="cerrarModalDescripcion()" aria-label="Cerrar">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+
+    <div class="desc-modal-body">
+        <div class="desc-modal-meta">
+            <span class="desc-modal-chip">
+                <i class="bi bi-mortarboard-fill"></i>
+                {{ clase.docente.get_full_name|default:clase.docente.username }}
+            </span>
+            <span class="desc-modal-chip">
+                <i class="bi bi-people-fill"></i>
+                {{ clase.estudiantes.count }} estudiantes
+            </span>
+            {% if clase.categoria_tema %}
+            <span class="desc-modal-chip">
+                <i class="bi bi-tag-fill"></i>
+                {{ clase.get_categoria_tema_display }}
+            </span>
+            {% endif %}
+        </div>
+
+        <p class="desc-modal-text">{{ clase.descripcion|default:"Sin descripción." }}</p>
+    </div>
+
+    <div class="desc-modal-footer">
+        <button class="desc-modal-btn" onclick="cerrarModalDescripcion()">
+            <i class="bi bi-check-lg"></i> Entendido
+        </button>
+    </div>
+</div>
+
 <!-- MODALES -->
 <!-- Modal Anuncio -->
 <div class="modal fade" id="modalAnuncio" tabindex="-1">
@@ -348,7 +405,7 @@
                 <h5 class="modal-title"><i class="bi bi-megaphone-fill icon-orange"></i> Publicar anuncio</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="{% url 'crear_anuncio' clase.id %}" method="POST">
+            <form action="{% url 'docente:crear_anuncio' clase.id %}" method="POST">
                 {% csrf_token %}
                 <div class="modal-body">
                     <div class="mb-3">
@@ -511,7 +568,6 @@
                 <p class="text-center text-muted mb-4">Elige el formato que mejor se adapte a tu contenido</p>
                 <div class="ejercicio-options-grid">
 
-                    <!-- 1. QUIZ -->
                     <a href="{% url 'ejercicios:crear_quiz' clase.id %}" class="ejercicio-option-card card-quiz">
                         <div class="option-icon quiz-icon"><i class="bi bi-patch-question-fill"></i></div>
                         <h4 class="option-title">Quiz de Selección Múltiple</h4>
@@ -521,7 +577,6 @@
                             D</span>
                     </a>
 
-                    <!-- 2. ENTRENAMIENTO AUDITIVO -->
                     <a href="{% url 'ejercicios:crear_entrenamiento_auditivo' clase.id %}"
                         class="ejercicio-option-card card-auditivo">
                         <div class="option-icon audio-icon">
@@ -535,7 +590,6 @@
                         </span>
                     </a>
 
-                    <!-- 3. ENTRENAMIENTO AVANZADO -->
                     <a href="#" class="ejercicio-option-card card-avanzado" data-bs-toggle="modal"
                         data-bs-target="#modalEntrenamientoAvanzado" data-bs-dismiss="modal">
                         <div class="option-icon avanzado-icon">
@@ -548,7 +602,6 @@
                         </span>
                     </a>
 
-                    <!-- 4. ACORDES -->
                     <a href="{% url 'ejercicios:crear_ejercicio_acordes' clase.id %}"
                         class="ejercicio-option-card card-acordes">
                         <div class="option-icon acordes-icon"><i class="bi bi-music-note-beamed"></i></div>
@@ -557,7 +610,6 @@
                         <span class="option-badge badge-purple"><i class="bi bi-soundwave"></i> Armonía</span>
                     </a>
 
-                    <!-- 5. INTERVALOS -->
                     <a href="{% url 'ejercicios:crear_ejercicio_intervalos' clase.id %}"
                         class="ejercicio-option-card card-intervalos">
                         <div class="option-icon intervalos-icon"><i class="bi bi-soundwave"></i></div>
@@ -567,7 +619,6 @@
                             auditiva</span>
                     </a>
 
-                    <!-- 6. ESCALAS -->
                     <a href="{% url 'ejercicios:crear_ejercicio_escalas' clase.id %}"
                         class="ejercicio-option-card card-escalas">
                         <div class="option-icon escalas-icon"><i class="bi bi-music-note-list"></i></div>
@@ -667,6 +718,8 @@
 
 <!-- =====================================================
      MODAL DE DETALLE DEL EJERCICIO — VISTA DOCENTE
+     ⚠️ IMPORTANTE: Este modal DEBE estar aquí, dentro del content,
+     para que el JavaScript lo encuentre al abrir la página.
      ===================================================== -->
 <div class="ej-modal-backdrop" id="ejModalBackdropDocente" onclick="cerrarModalEjercicioDocente()"></div>
 
@@ -728,6 +781,37 @@
         </a>
     </div>
 </div>
+
+<!-- =====================================================
+     SCRIPT DE DESCRIPCIÓN
+     ===================================================== -->
+<script>
+    window.abrirModalDescripcion = function() {
+        var modal = document.getElementById('descModal');
+        var backdrop = document.getElementById('descModalBackdrop');
+        if (modal && backdrop) {
+            modal.classList.add('show');
+            backdrop.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.cerrarModalDescripcion = function() {
+        var modal = document.getElementById('descModal');
+        var backdrop = document.getElementById('descModalBackdrop');
+        if (modal && backdrop) {
+            modal.classList.remove('show');
+            backdrop.classList.remove('show');
+            document.body.style.overflow = '';
+        }
+    };
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            window.cerrarModalDescripcion();
+        }
+    });
+</script>
 
 {% endblock %}
 
@@ -805,9 +889,6 @@
         }
     });
 
-    /* =====================================================
-       VALIDACIÓN DEL MODAL EXTENDER FECHA
-       ===================================================== */
     document.getElementById('formExtenderFecha').addEventListener('submit', function (e) {
         const input = document.getElementById('nuevaFechaFin');
         const nuevaFecha = input.value;
@@ -841,13 +922,8 @@
         document.querySelectorAll('.alert').forEach(a => new bootstrap.Alert(a).close());
     }, 4000);
 
-    /* =====================================================
-       MODAL DE DETALLE DEL EJERCICIO — VISTA DOCENTE
-       ===================================================== */
-
     function abrirModalEjercicioDocente(card) {
         const d = card.dataset;
-
         const backdrop = document.getElementById('ejModalBackdropDocente');
         const modal = document.getElementById('ejModalDocente');
 
@@ -940,7 +1016,6 @@
         item.style.opacity = '0';
         item.style.transform = 'translateY(15px)';
         item.style.transition = `all 0.4s ease ${i * 0.05}s`;
-        observerDocente.observe(item);
-    });
+        observerDocente.observe(item);});
 </script>
 {% endblock %}

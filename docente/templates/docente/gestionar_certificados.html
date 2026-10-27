@@ -13,7 +13,7 @@
 <div class="cert-container">
 
     <div class="cert-header">
-        <a href="{% url 'estadisticas_clase' clase.id %}" class="back-link-modern">
+        <a href="{% url 'docente:estadisticas_clase' clase.id %}" class="back-link-modern">
             <i class="bi bi-arrow-left"></i> Volver a calificaciones
         </a>
         <h1>🎓 Emitir Certificados</h1>
@@ -108,7 +108,7 @@
         </div>
 
         <div class="cert-actions">
-            <a href="{% url 'estadisticas_clase' clase.id %}" class="cert-btn cert-btn-secondary">
+            <a href="{% url 'docente:estadisticas_clase' clase.id %}" class="cert-btn cert-btn-secondary">
                 Cancelar
             </a>
             <button type="submit" class="cert-btn cert-btn-primary">

@@ -56,7 +56,7 @@ def toggle_estado_ejercicio(request, ejercicio_id):
     estado_texto = "activado" if ejercicio.activo else "desactivado"
     messages.success(request, f"El ejercicio ha sido {estado_texto} correctamente.")
     
-    return redirect('editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
+    return redirect('docente:editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
 # ============================================================
 # CREAR EJERCICIO ACORDES
 # ============================================================

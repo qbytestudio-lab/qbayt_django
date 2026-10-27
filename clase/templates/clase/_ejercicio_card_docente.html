@@ -18,7 +18,7 @@ Variables: ejercicio, estado, estado_label, estado_icon, clase
      data-intentos-pendientes="{{ ejercicio.intentos_pendientes|default:0 }}"
      data-intentos-calificados="{{ ejercicio.intentos_calificados|default:0 }}"
      data-url-ver="{% url 'ejercicios:detalle_ejercicio_docente' clase.id ejercicio.id %}"
-     data-url-editar="{% url 'editar_ejercicio' clase.id ejercicio.id %}"
+     data-url-editar="{% url 'docente:editar_ejercicio' clase.id ejercicio.id %}"
      data-url-toggle="{% url 'ejercicios:toggle_estado_ejercicio' ejercicio.id %}">
 
     <div class="ej-card-icon">

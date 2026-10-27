@@ -238,7 +238,7 @@
                             <i class="bi bi-chat-dots"></i>
                         </a>
 
-                        <a href="{% url 'notas_estudiante' clase.id estudiante.id %}" class="btn-action view"
+                        <a href="{% url 'docente:notas_estudiante' clase.id estudiante.id %}" class="btn-action view"
                             title="Ver progreso de {{ estudiante.username }}">
                             <i class="bi bi-graph-up"></i>
                         </a>

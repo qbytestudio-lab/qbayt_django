@@ -4,15 +4,16 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+from django.db.models import Q
 
 from clase.models import Clase, SolicitudClase, Anuncio
 from ejercicios.models import Ejercicio, IntentoEjercicio
 from notificaciones.services import notificar_aceptacion, notificar_rechazo
-    
+from .models import RecursoMusical
 
 
 # ═══════════════════════════════════════════
@@ -25,7 +26,6 @@ def perfil_docente(request):
     total_estudiantes = sum(c.estudiantes.count() for c in clases)
     solicitudes_pendientes = SolicitudClase.objects.filter(clase__docente=request.user, estado='pendiente')
     
-    # Estados guardados en sesión
     estados_estudiantes = request.session.get('estados_estudiantes', {})
     estados_inactivos = [int(k) for k, v in estados_estudiantes.items() if v == 'inactivo']
     
@@ -38,6 +38,7 @@ def perfil_docente(request):
     
     return render(request, 'docente/perfil_docente.html', context)
 
+
 # ═══════════════════════════════════════════
 #         GESTIÓN DE ESTUDIANTES
 # ═══════════════════════════════════════════
@@ -46,6 +47,7 @@ def perfil_docente(request):
 def agregar_estudiante(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
+    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     
     if request.method == 'POST':
@@ -53,12 +55,9 @@ def agregar_estudiante(request, clase_id):
         try:
             estudiante = User.objects.get(username=username, perfil__rol='estudiante')
             
-            # Verificar si ya está en ESTA clase
             if estudiante in clase.estudiantes.all():
                 messages.warning(request, f'"{username}" ya está en esta clase.')
-            
             else:
-                # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
                 clase_duplicada = Clase.objects.filter(
                     nombre__iexact=clase.nombre,
                     categoria_tema=clase.categoria_tema,
@@ -70,23 +69,19 @@ def agregar_estudiante(request, clase_id):
                         request, 
                         f'El estudiante "{username}" ya está inscrito en otra clase con el mismo título ("{clase.nombre}") y la misma categoría.'
                     )
-                
                 else:
-                    #  Si pasa la validación, lo agregamos normalmente
                     clase.estudiantes.add(estudiante)
-                    
-                    # Actualizar solicitud si existe
                     SolicitudClase.objects.filter(
                         clase=clase, estudiante=estudiante
                     ).update(estado='aceptada')
-                    
                     messages.success(request, f'"{username}" agregado a la clase.')
                 
         except User.DoesNotExist:
             messages.error(request, f'No existe un estudiante con usuario "{username}".')
     
     return redirect('clase:detalle_clase', clase_id=clase_id)
-    
+
+
 @login_required
 def eliminar_estudiante_clase(request, clase_id, estudiante_id):
     if request.user.perfil.rol != 'docente':
@@ -134,7 +129,6 @@ def aceptar_solicitud(request, solicitud_id):
     
     solicitud = get_object_or_404(SolicitudClase, id=solicitud_id, clase__docente=request.user)
     
-    # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
     clase_duplicada = Clase.objects.filter(
         nombre__iexact=solicitud.clase.nombre,
         categoria_tema=solicitud.clase.categoria_tema,
@@ -150,60 +144,16 @@ def aceptar_solicitud(request, solicitud_id):
         solicitud.save()
         return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
-    #  Si pasa la validación, lo acepta e inscribe
     solicitud.clase.estudiantes.add(solicitud.estudiante)
     solicitud.estado = 'aceptada'
     solicitud.save()
     
+    # Notificación
+    notificar_aceptacion(solicitud.estudiante, solicitud.clase)
+    
     messages.success(request, f'"{solicitud.estudiante.username}" aceptado en "{solicitud.clase.nombre}".')
     return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
-
-@login_required
-def agregar_estudiante(request, clase_id):
-    if request.user.perfil.rol != 'docente':
-        return redirect('inicio')
-    
-    clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    
-    if request.method == 'POST':
-        username = request.POST.get('username', '').strip()
-        try:
-            estudiante = User.objects.get(username=username, perfil__rol='estudiante')
-            
-            # Verificar si ya está en ESTA clase
-            if estudiante in clase.estudiantes.all():
-                messages.warning(request, f'"{username}" ya está en esta clase.')
-            
-            else:
-                # BLOQUEAR SOLO si ya está en otra clase con el MISMO nombre Y la MISMA categoría
-                clase_duplicada = Clase.objects.filter(
-                    nombre__iexact=clase.nombre,
-                    categoria_tema=clase.categoria_tema,
-                    estudiantes=estudiante
-                ).exclude(id=clase.id).exists()
-
-                if clase_duplicada:
-                    messages.error(
-                        request, 
-                        f'El estudiante "{username}" ya está inscrito en otra clase con el mismo título ("{clase.nombre}") y la misma categoría.'
-                    )
-                
-                else:
-                    #  Si pasa la validación, lo agregamos normalmente
-                    clase.estudiantes.add(estudiante)
-                    
-                    # Actualizar solicitud si existe
-                    SolicitudClase.objects.filter(
-                        clase=clase, estudiante=estudiante
-                    ).update(estado='aceptada')
-                    
-                    messages.success(request, f'"{username}" agregado a la clase.')
-                
-        except User.DoesNotExist:
-            messages.error(request, f'No existe un estudiante con usuario "{username}".')
-    
-    return redirect('clase:detalle_clase', clase_id=clase_id)
 
 @login_required
 def rechazar_solicitud(request, solicitud_id):
@@ -212,6 +162,10 @@ def rechazar_solicitud(request, solicitud_id):
     solicitud = get_object_or_404(SolicitudClase, id=solicitud_id, clase__docente=request.user)
     solicitud.estado = 'rechazada'
     solicitud.save()
+    
+    # Notificación
+    notificar_rechazo(solicitud.estudiante, solicitud.clase)
+    
     messages.info(request, f'Solicitud de "{solicitud.estudiante.username}" rechazada.')
     return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
@@ -241,9 +195,11 @@ def eliminar_anuncio(request, clase_id, anuncio_id):
     anuncio.delete()
     messages.success(request, 'Anuncio eliminado.')
     return redirect('clase:detalle_clase', clase_id=clase_id)
+
+
 # ═══════════════════════════════════════════
 #         REPORTES Y ESTADÍSTICAS
-# ══════════════════════════════════════════
+# ═══════════════════════════════════════════
 
 @login_required
 def generar_reporte_pdf(request, clase_id):
@@ -291,32 +247,21 @@ def estadisticas_clase(request, clase_id):
     estudiantes = clase.estudiantes.all()
     ejercicios = Ejercicio.objects.filter(clase=clase)
     
-    # Datos por estudiante
     data_estudiantes = []
     for estudiante in estudiantes:
-        # Obtener intentos del estudiante en esta clase
         intentos = IntentoEjercicio.objects.filter(
             estudiante=estudiante,
             ejercicio__clase=clase
         ).select_related('ejercicio')
         
-        # Mapear los intentos en un diccionario por ID de ejercicio para acceso directo en la matriz
         intentos_dict = {intento.ejercicio_id: intento for intento in intentos}
-        
-        # Ejercicios completados (aprobados)
         completadas = intentos.filter(aprobado=True).values('ejercicio').distinct().count()
-        
-        # Total de ejercicios
         total = ejercicios.count()
-        
-        # Progreso
         progreso = round((completadas / total) * 100) if total > 0 else 0
         
-        # Calcular puntaje promedio de las calificaciones
         calificaciones = intentos.exclude(calificacion__isnull=True).values_list('calificacion', flat=True)
         if calificaciones:
             promedio_calificaciones = sum(float(c) for c in calificaciones) / len(calificaciones)
-            # Convertir a porcentaje (asumiendo calificación máxima de 5.0)
             puntaje = round((promedio_calificaciones / 5.0) * 100)
         else:
             puntaje = 0
@@ -327,25 +272,20 @@ def estadisticas_clase(request, clase_id):
             'total': total,
             'progreso': progreso,
             'puntaje': puntaje,
-            'intentos_dict': intentos_dict,  # <-- Agregado para mostrar las calificaciones en la matriz
+            'intentos_dict': intentos_dict,
         })
     
-    # Ordenar estudiantes por progreso (de mayor a menor)
     data_estudiantes.sort(key=lambda x: x['progreso'], reverse=True)
     
-    # Datos por ejercicio
     data_ejercicios = []
     for ejercicio in ejercicios:
-        # Estudiantes que completaron (aprobaron) el ejercicio
         completaron = IntentoEjercicio.objects.filter(
             ejercicio=ejercicio,
             aprobado=True
         ).values('estudiante').distinct().count()
         
-        # Calcular porcentaje de completitud
         porcentaje = round((completaron / estudiantes.count()) * 100) if estudiantes.count() > 0 else 0
         
-        # Calcular promedio de calificaciones del ejercicio
         calificaciones_ejercicio = IntentoEjercicio.objects.filter(
             ejercicio=ejercicio
         ).exclude(calificacion__isnull=True).values_list('calificacion', flat=True)
@@ -363,7 +303,6 @@ def estadisticas_clase(request, clase_id):
             'promedio': promedio,
         })
     
-    # Ordenar ejercicios por porcentaje de completitud
     data_ejercicios.sort(key=lambda x: x['porcentaje'], reverse=True)
     
     context = {
@@ -376,6 +315,7 @@ def estadisticas_clase(request, clase_id):
     
     return render(request, 'docente/estadisticas.html', context)
 
+
 @login_required
 def notas_estudiante(request, clase_id, estudiante_id):
     if request.user.perfil.rol != 'docente':
@@ -386,30 +326,23 @@ def notas_estudiante(request, clase_id, estudiante_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     estudiante = get_object_or_404(User, id=estudiante_id)
     
-    # Verificar que el estudiante esté inscrito en la clase
     if not clase.estudiantes.filter(id=estudiante_id).exists():
         messages.error(request, 'El estudiante no está inscrito en esta clase.')
         return redirect('estadisticas_clase', clase_id=clase_id)
     
-    # Obtener ejercicios de la clase
     ejercicios = Ejercicio.objects.filter(clase=clase).order_by('fecha_creacion')
     
-    # Construir lista de notas
     notas = []
     total_calificaciones = 0
     cantidad_calificaciones = 0
     
     for ejercicio in ejercicios:
-        # Obtener todos los intentos del estudiante en este ejercicio
         intentos_ejercicio = IntentoEjercicio.objects.filter(
             estudiante=estudiante,
             ejercicio=ejercicio
         ).order_by('-fecha_envio')
         
-        # El mejor intento (aprobado con mayor calificación)
         mejor_intento = intentos_ejercicio.filter(aprobado=True).order_by('-calificacion').first()
-        
-        # Si no hay aprobado, usar el último intento
         if not mejor_intento:
             mejor_intento = intentos_ejercicio.first()
         
@@ -430,9 +363,7 @@ def notas_estudiante(request, clase_id, estudiante_id):
             'total_intentos': total_intentos,
         })
     
-    # Calcular promedio
     promedio = round((total_calificaciones / cantidad_calificaciones) * 20) if cantidad_calificaciones > 0 else 0
-    # (multiplicamos por 20 porque la calificación es de 1-5 y queremos porcentaje)
     
     context = {
         'clase': clase,
@@ -445,41 +376,15 @@ def notas_estudiante(request, clase_id, estudiante_id):
     
     return render(request, 'docente/notas_estudiante.html', context)
 
-# En la función aceptar_solicitud
-def aceptar_solicitud(request, solicitud_id):
-    solicitud = get_object_or_404(SolicitudClase, id=solicitud_id)
-    solicitud.estado = 'aceptada'
-    solicitud.save()
-    
-    # Agregar estudiante a la clase
-    solicitud.clase.estudiantes.add(solicitud.estudiante)
-    
-    # CREAR NOTIFICACIÓN
-    notificar_aceptacion(solicitud.estudiante, solicitud.clase)
-    
-    messages.success(request, 'Solicitud aceptada.')
-    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
 
-# En la función rechazar_solicitud
-def rechazar_solicitud(request, solicitud_id):
-    solicitud = get_object_or_404(SolicitudClase, id=solicitud_id)
-    solicitud.estado = 'rechazada'
-    solicitud.save()
-    
-    # CREAR NOTIFICACIÓN
-    notificar_rechazo(solicitud.estudiante, solicitud.clase)
-    
-    messages.success(request, 'Solicitud rechazada.')
-    return redirect('clase:detalle_clase', clase_id=solicitud.clase.id)
+# ═══════════════════════════════════════════
+#         EJERCICIOS
+# ═══════════════════════════════════════════
 
 @login_required
 def editar_ejercicio(request, clase_id, ejercicio_id):
-    from datetime import datetime
-    from ejercicios.models import Ejercicio
-    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
-    
     
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
@@ -501,7 +406,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
                 ejercicio.fecha_limite = datetime.strptime(fecha_limite, '%Y-%m-%dT%H:%M')
             except ValueError:
                 messages.error(request, 'Formato de fecha inválido.')
-                return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
+                return redirect(f'/clase/detalle/{clase.id}/')
         else:
             ejercicio.fecha_limite = None
         
@@ -517,7 +422,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
         ejercicio.save()
         
         messages.success(request, f'Ejercicio "{titulo}" actualizado correctamente.')
-        return redirect(f'/clase/detalle/{clase.id}/') 
+        return redirect(f'/clase/detalle/{clase.id}/')
     
     context = {
         'clase': clase,
@@ -526,10 +431,9 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
     
     return render(request, 'docente/editar_ejercicio.html', context)
 
+
 @login_required
 def eliminar_ejercicio(request, clase_id, ejercicio_id):
-    from ejercicios.models import Ejercicio
-    
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase)
     
@@ -538,6 +442,11 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
         messages.success(request, 'Ejercicio eliminado correctamente.')
     
     return redirect(f'/clase/detalle/{clase.id}/')
+
+
+# ═══════════════════════════════════════════
+#         CLASES Y BIBLIOTECA
+# ═══════════════════════════════════════════
 
 @login_required
 def mis_clases(request):
@@ -548,7 +457,6 @@ def mis_clases(request):
         )
         total_estudiantes = sum(c.estudiantes.count() for c in clases)
 
-        # NUEVO: límite de clases
         LIMITE_CLASES = 3
         clases_count = clases.count()
 
@@ -565,15 +473,15 @@ def mis_clases(request):
         clases = request.user.clases_estudiante.all()
         return render(request, 'estudiante/mis_clases.html', {'clases': clases})
 
+
+import re
+from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import RecursoMusical
+
 @login_required
 def biblioteca_recursos(request):
-    """
-    Vista para la biblioteca de recursos musicales
-    """
-    from docente.models import RecursoMusical
-    from django.db.models import Q
-    
-    # Filtros
     categoria = request.GET.get('categoria', '')
     tipo = request.GET.get('tipo', '')
     busqueda = request.GET.get('q', '')
@@ -592,6 +500,15 @@ def biblioteca_recursos(request):
             Q(descripcion__icontains=busqueda)
         )
     
+    # Transformar URLs de YouTube a formato embed para evitar el Error 153
+    for recurso in recursos:
+        if recurso.url_externa:
+            # Buscar si es un enlace de YouTube (normal, corto o ya embed)
+            yt_match = re.search(r'(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})', recurso.url_externa)
+            if yt_match:
+                # Reemplazar la URL por la de inserción limpia
+                recurso.url_externa = f"https://www.youtube.com/embed/{yt_match.group(1)}"
+    
     context = {
         'recursos': recursos,
         'categoria_actual': categoria,
@@ -607,51 +524,72 @@ def biblioteca_recursos(request):
 
 @login_required
 def crear_recurso(request):
-    """
-    Vista para crear un nuevo recurso musical
-    """
-    from docente.models import RecursoMusical
-    
     if request.method == 'POST':
         titulo = request.POST.get('titulo', '').strip()
         descripcion = request.POST.get('descripcion', '').strip()
         tipo = request.POST.get('tipo', 'documento')
         categoria = request.POST.get('categoria', 'otro')
+        tags = request.POST.get('tags', '').strip()
+        url_externa = request.POST.get('url_externa', '').strip() or None
         archivo = request.FILES.get('archivo')
-        url_externa = request.POST.get('url_externa', '').strip()
         
         if not titulo:
             messages.error(request, 'El título es obligatorio.')
-            return redirect('biblioteca_recursos')
+            return redirect('docente:biblioteca_recursos')
         
-        recurso = RecursoMusical.objects.create(
+        RecursoMusical.objects.create(
             titulo=titulo,
             descripcion=descripcion,
             tipo=tipo,
             categoria=categoria,
-            archivo=archivo if archivo else None,
-            url_externa=url_externa if url_externa else None,
+            tags=tags,
+            url_externa=url_externa,
+            archivo=archivo,
             docente=request.user,
         )
-        
         messages.success(request, f'Recurso "{titulo}" creado correctamente.')
-        return redirect('biblioteca_recursos')
     
-    return redirect('biblioteca_recursos')
+    return redirect('docente:biblioteca_recursos')
 
 
 @login_required
 def eliminar_recurso(request, recurso_id):
-    """
-    Vista para eliminar un recurso musical
-    """
-    from docente.models import RecursoMusical
-    
     recurso = get_object_or_404(RecursoMusical, id=recurso_id, docente=request.user)
     
     if request.method == 'POST':
         titulo = recurso.titulo
         recurso.delete()
-        messages.success(request, f'Recurso "{titulo}" eliminado correctamente.')
+        messages.warning(request, f'Recurso "{titulo}" eliminado correctamente.')
     
-    return redirect('biblioteca_recursos')
+    return redirect('docente:biblioteca_recursos')
+
+
+@login_required
+def editar_recurso(request, recurso_id):
+    recurso = get_object_or_404(RecursoMusical, id=recurso_id, docente=request.user)
+    
+    if request.method == 'POST':
+        recurso.titulo = request.POST.get('titulo', '').strip()
+        recurso.descripcion = request.POST.get('descripcion', '').strip()
+        recurso.tipo = request.POST.get('tipo', 'audio')
+        recurso.categoria = request.POST.get('categoria', 'otro')
+        recurso.tags = request.POST.get('tags', '').strip()
+        recurso.url_externa = request.POST.get('url_externa', '').strip() or None
+        
+        if 'archivo' in request.FILES:
+            recurso.archivo = request.FILES['archivo']
+        
+        recurso.save()
+        messages.success(request, f'Recurso "{recurso.titulo}" actualizado correctamente.')
+    
+    return redirect('docente:biblioteca_recursos')
+
+
+@login_required
+def incrementar_vista_recurso(request, recurso_id):
+    if request.method == 'POST':
+        recurso = get_object_or_404(RecursoMusical, id=recurso_id)
+        recurso.vistas += 1
+        recurso.save(update_fields=['vistas'])
+        return JsonResponse({'ok': True, 'vistas': recurso.vistas})
+    return JsonResponse({'ok': False}, status=400)

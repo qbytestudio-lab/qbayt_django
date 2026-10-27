@@ -32,6 +32,10 @@ class RecursoMusical(models.Model):
     archivo = models.FileField(upload_to='recursos/', blank=True, null=True)
     url_externa = models.URLField(blank=True, null=True)
     
+    # NUEVO
+    tags = models.CharField(max_length=255, blank=True, help_text="Etiquetas separadas por coma")
+    vistas = models.PositiveIntegerField(default=0)
+    
     docente = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -49,8 +53,32 @@ class RecursoMusical(models.Model):
     
     @property
     def tiene_archivo(self):
-        return self.archivo is not None
-    
+        """True si hay un archivo subido Y no está vacío."""
+        try:
+            return bool(self.archivo and self.archivo.name)
+        except (ValueError, AttributeError):
+            return False
+
+
     @property
     def tiene_url(self):
-        return self.url_externa is not None
+        """True si hay una URL externa."""
+        return bool(self.url_externa)
+
+
+    @property
+    def archivo_url(self):
+        """Devuelve la URL del archivo o cadena vacía."""
+        try:
+            if self.archivo and self.archivo.name:
+                return self.archivo.url
+        except (ValueError, AttributeError):
+            pass
+        return ''
+    
+    # NUEVA PROPIEDAD: lista de tags
+    @property
+    def tags_lista(self):
+        if not self.tags:
+            return []
+        return [t.strip() for t in self.tags.split(',') if t.strip()]
