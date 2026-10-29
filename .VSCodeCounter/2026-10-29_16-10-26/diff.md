@@ -1,6 +1,6 @@
 # Diff Summary
 
-Date : 2026-10-29 15:42:51
+Date : 2026-10-29 16:10:26
 
 Directory c:\\Users\\marar\\OneDrive\\Documentos\\SENA\\GIt hub Ejercicios\\Nueva carpeta\\qbayt_django
 

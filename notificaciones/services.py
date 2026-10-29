@@ -1,5 +1,4 @@
 from .models import Notificacion
-
 def crear_notificacion(usuario, tipo, titulo, mensaje, url_destino=None):
     """
     Función auxiliar para crear notificaciones
@@ -12,7 +11,6 @@ def crear_notificacion(usuario, tipo, titulo, mensaje, url_destino=None):
         url_destino=url_destino
     )
     return notificacion
-
 def notificar_solicitud_clase(docente, estudiante, clase):
     """Notificar al docente sobre una nueva solicitud"""
     crear_notificacion(
@@ -22,7 +20,6 @@ def notificar_solicitud_clase(docente, estudiante, clase):
         mensaje=f'{estudiante.get_full_name() or estudiante.username} solicita unirse a {clase.nombre}',
         url_destino=f'/docente/clase/{clase.id}/'
     )
-
 def notificar_aceptacion(estudiante, clase):
     """Notificar al estudiante que fue aceptado"""
     crear_notificacion(
@@ -32,7 +29,6 @@ def notificar_aceptacion(estudiante, clase):
         mensaje=f'Fuiste aceptado en la clase {clase.nombre}',
         url_destino=f'/estudiante/clase/{clase.id}/'
     )
-
 def notificar_rechazo(estudiante, clase):
     """Notificar al estudiante que fue rechazado"""
     crear_notificacion(
@@ -42,7 +38,6 @@ def notificar_rechazo(estudiante, clase):
         mensaje=f'Tu solicitud para la clase {clase.nombre} fue rechazada',
         url_destino=f'/estudiante/explorar-clases/'
     )
-
 def notificar_calificacion(estudiante, ejercicio, calificacion):
     """Notificar al estudiante que su ejercicio fue calificado"""
     crear_notificacion(
@@ -52,7 +47,6 @@ def notificar_calificacion(estudiante, ejercicio, calificacion):
         mensaje=f'Tu ejercicio "{ejercicio.titulo}" fue calificado con {calificacion}/5.0',
         url_destino=f'/estudiante/clase/{ejercicio.clase.id}/'
     )
-
 def notificar_anuncio(estudiantes, clase, anuncio):
     """Notificar a todos los estudiantes sobre un nuevo anuncio"""
     for estudiante in estudiantes:

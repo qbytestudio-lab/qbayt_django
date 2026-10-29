@@ -1,6 +1,6 @@
-Date : 2026-10-29 16:02:23
+Date : 2026-10-29 16:10:18
 Directory : c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django
-Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
+Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 
 Languages
 +----------+------------+------------+------------+------------+------------+
@@ -8,7 +8,7 @@ Languages
 +----------+------------+------------+------------+------------+------------+
 | PostCSS  |         61 |     46,624 |      3,301 |      7,977 |     57,902 |
 | HTML     |         62 |     16,196 |        560 |      2,083 |     18,839 |
-| Python   |        133 |      6,485 |        541 |      1,246 |      8,272 |
+| Python   |        133 |      6,485 |        541 |      1,159 |      8,185 |
 | Markdown |          1 |          3 |          0 |          2 |          5 |
 +----------+------------+------------+------------+------------+------------+
 
@@ -16,7 +16,7 @@ Directories
 +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
 | path                                                                                                                                                                           | files      | code       | comment    | blank      | total      |
 +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
-| .                                                                                                                                                                              |        257 |     69,308 |      4,402 |     11,308 |     85,018 |
+| .                                                                                                                                                                              |        257 |     69,308 |      4,402 |     11,221 |     84,931 |
 | . (Files)                                                                                                                                                                      |          2 |         18 |          3 |          7 |         28 |
 | clase                                                                                                                                                                          |         25 |      2,425 |        210 |        501 |      3,136 |
 | clase (Files)                                                                                                                                                                  |          7 |        402 |         56 |        116 |        574 |
@@ -32,8 +32,8 @@ Directories
 | docente\static\docente\css                                                                                                                                                     |         13 |     12,077 |        739 |      2,031 |     14,847 |
 | docente\templates                                                                                                                                                              |         10 |      3,597 |        140 |        421 |      4,158 |
 | docente\templates\docente                                                                                                                                                      |         10 |      3,597 |        140 |        421 |      4,158 |
-| ejercicios                                                                                                                                                                     |         56 |     18,660 |        977 |      2,846 |     22,483 |
-| ejercicios (Files)                                                                                                                                                             |          7 |      1,381 |         40 |         93 |      1,514 |
+| ejercicios                                                                                                                                                                     |         56 |     18,660 |        977 |      2,759 |     22,396 |
+| ejercicios (Files)                                                                                                                                                             |          7 |      1,381 |         40 |          6 |      1,427 |
 | ejercicios\migrations                                                                                                                                                          |         16 |        360 |         15 |         92 |        467 |
 | ejercicios\static                                                                                                                                                              |         15 |     11,083 |        770 |      1,920 |     13,773 |
 | ejercicios\static\ejercicios                                                                                                                                                   |         15 |     11,083 |        770 |      1,920 |     13,773 |
@@ -157,7 +157,7 @@ Files
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\docente\views.py                                                                         | Python   |        442 |          0 |          0 |        442 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\__init__.py                                                                   | Python   |          0 |          0 |          1 |          1 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\admin.py                                                                      | Python   |          1 |          1 |          2 |          4 |
-| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\apps.py                                                                       | Python   |          4 |          0 |          3 |          7 |
+| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\apps.py                                                                       | Python   |          4 |          0 |          1 |          5 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0001_initial.py                                                    | Python   |         52 |          1 |          7 |         60 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0002_ejercicio_opcion_pregunta_and_more.py                         | Python   |         58 |          1 |          6 |         65 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0003_intentoejercicio_respuestaestudiante.py                       | Python   |         30 |          1 |          6 |         37 |
@@ -174,7 +174,7 @@ Files
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0014_alter_ejercicio_tipo_and_more.py                              | Python   |         17 |          1 |          6 |         24 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0015_alter_ejercicio_tipo.py                                       | Python   |         12 |          1 |          6 |         19 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\__init__.py                                                        | Python   |          0 |          0 |          1 |          1 |
-| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\models.py                                                                     | Python   |        313 |         36 |         78 |        427 |
+| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\models.py                                                                     | Python   |        313 |         36 |          0 |        349 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\calificar_ejercicios.css                                | PostCSS  |      1,345 |         68 |        237 |      1,650 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\crear_acordes.css                                       | PostCSS  |        830 |         60 |        141 |      1,031 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\crear_completar.css                                     | PostCSS  |        287 |         40 |         51 |        378 |
@@ -209,7 +209,7 @@ Files
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\templates\ejercicios\resolver_entrenamiento_avanzado.html                     | HTML     |        396 |         12 |         80 |        488 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\templatetags\video_filters.py                                                 | Python   |         18 |          3 |          3 |         24 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\tests.py                                                                      | Python   |          1 |          1 |          2 |          4 |
-| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\urls.py                                                                       | Python   |         28 |          2 |          7 |         37 |
+| c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\urls.py                                                                       | Python   |         28 |          2 |          0 |         30 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\views.py                                                                      | Python   |      1,034 |          0 |          0 |      1,034 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\estudiante\__init__.py                                                                   | Python   |          0 |          0 |          1 |          1 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\estudiante\admin.py                                                                      | Python   |          1 |          1 |          2 |          4 |
@@ -345,5 +345,5 @@ Files
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\urls.py                                                                              | Python   |         26 |          8 |          3 |         37 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\utils.py                                                                             | Python   |         35 |          3 |          8 |         46 |
 | c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\views.py                                                                             | Python   |        828 |        121 |        205 |      1,154 |
-| Total                                                                                                                                                                          |          |     69,308 |      4,402 |     11,308 |     85,018 |
+| Total                                                                                                                                                                          |          |     69,308 |      4,402 |     11,221 |     84,931 |
 +--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+

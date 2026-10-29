@@ -1,7 +1,6 @@
 from django.urls import path, include
 from django.shortcuts import redirect
 from . import views
-
 urlpatterns = [
     path('', views.index, name='index'),
     path('registro/', views.registro, name='registro'),
@@ -9,11 +8,9 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('inicio/', views.inicio, name='inicio'),
     path('admperfil_administrador/', views.perfil_administrador, name='perfil_administrador'),
-    
     # --- RUTAS AGREGADAS PARA EL SELF-CRUD ---
     path('perfil/editar/', views.editar_perfil, name='editar_perfil'),
     path('perfil/eliminar/', views.eliminar_perfil, name='eliminar_perfil'),
-    
     # ============================================
     # OTRAS RUTAS
     # ============================================

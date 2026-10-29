@@ -1,10 +1,10 @@
 # Details
 
-Date : 2026-10-29 16:02:23
+Date : 2026-10-29 16:10:47
 
 Directory c:\\Users\\marar\\OneDrive\\Documentos\\SENA\\GIt hub Ejercicios\\Nueva carpeta\\qbayt_django
 
-Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
+Total : 257 files,  69030 codes, 4336 comments, 11072 blanks, all 84438 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -80,7 +80,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
 | [docente/views.py](/docente/views.py) | Python | 442 | 0 | 0 | 442 |
 | [ejercicios/\_\_init\_\_.py](/ejercicios/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [ejercicios/admin.py](/ejercicios/admin.py) | Python | 1 | 1 | 2 | 4 |
-| [ejercicios/apps.py](/ejercicios/apps.py) | Python | 4 | 0 | 3 | 7 |
+| [ejercicios/apps.py](/ejercicios/apps.py) | Python | 4 | 0 | 1 | 5 |
 | [ejercicios/migrations/0001\_initial.py](/ejercicios/migrations/0001_initial.py) | Python | 52 | 1 | 7 | 60 |
 | [ejercicios/migrations/0002\_ejercicio\_opcion\_pregunta\_and\_more.py](/ejercicios/migrations/0002_ejercicio_opcion_pregunta_and_more.py) | Python | 58 | 1 | 6 | 65 |
 | [ejercicios/migrations/0003\_intentoejercicio\_respuestaestudiante.py](/ejercicios/migrations/0003_intentoejercicio_respuestaestudiante.py) | Python | 30 | 1 | 6 | 37 |
@@ -97,7 +97,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
 | [ejercicios/migrations/0014\_alter\_ejercicio\_tipo\_and\_more.py](/ejercicios/migrations/0014_alter_ejercicio_tipo_and_more.py) | Python | 17 | 1 | 6 | 24 |
 | [ejercicios/migrations/0015\_alter\_ejercicio\_tipo.py](/ejercicios/migrations/0015_alter_ejercicio_tipo.py) | Python | 12 | 1 | 6 | 19 |
 | [ejercicios/migrations/\_\_init\_\_.py](/ejercicios/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [ejercicios/models.py](/ejercicios/models.py) | Python | 313 | 36 | 78 | 427 |
+| [ejercicios/models.py](/ejercicios/models.py) | Python | 313 | 36 | 0 | 349 |
 | [ejercicios/static/ejercicios/css/calificar\_ejercicios.css](/ejercicios/static/ejercicios/css/calificar_ejercicios.css) | PostCSS | 1,345 | 68 | 237 | 1,650 |
 | [ejercicios/static/ejercicios/css/crear\_acordes.css](/ejercicios/static/ejercicios/css/crear_acordes.css) | PostCSS | 830 | 60 | 141 | 1,031 |
 | [ejercicios/static/ejercicios/css/crear\_completar.css](/ejercicios/static/ejercicios/css/crear_completar.css) | PostCSS | 287 | 40 | 51 | 378 |
@@ -132,7 +132,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
 | [ejercicios/templates/ejercicios/resolver\_entrenamiento\_avanzado.html](/ejercicios/templates/ejercicios/resolver_entrenamiento_avanzado.html) | HTML | 396 | 12 | 80 | 488 |
 | [ejercicios/templatetags/video\_filters.py](/ejercicios/templatetags/video_filters.py) | Python | 18 | 3 | 3 | 24 |
 | [ejercicios/tests.py](/ejercicios/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [ejercicios/urls.py](/ejercicios/urls.py) | Python | 28 | 2 | 7 | 37 |
+| [ejercicios/urls.py](/ejercicios/urls.py) | Python | 28 | 2 | 0 | 30 |
 | [ejercicios/views.py](/ejercicios/views.py) | Python | 1,034 | 0 | 0 | 1,034 |
 | [estudiante/\_\_init\_\_.py](/estudiante/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [estudiante/admin.py](/estudiante/admin.py) | Python | 1 | 1 | 2 | 4 |
@@ -169,7 +169,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
 | [estudiante/tests.py](/estudiante/tests.py) | Python | 1 | 1 | 2 | 4 |
 | [estudiante/urls.py](/estudiante/urls.py) | Python | 17 | 1 | 2 | 20 |
 | [estudiante/utils.py](/estudiante/utils.py) | Python | 114 | 43 | 47 | 204 |
-| [estudiante/views.py](/estudiante/views.py) | Python | 586 | 66 | 149 | 801 |
+| [estudiante/views.py](/estudiante/views.py) | Python | 308 | 0 | 0 | 308 |
 | [manage.py](/manage.py) | Python | 15 | 3 | 5 | 23 |
 | [mensajeria/\_\_init\_\_.py](/mensajeria/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [mensajeria/admin.py](/mensajeria/admin.py) | Python | 12 | 0 | 2 | 14 |

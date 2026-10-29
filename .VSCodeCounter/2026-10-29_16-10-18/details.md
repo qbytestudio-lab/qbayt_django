@@ -1,10 +1,10 @@
 # Details
 
-Date : 2026-10-29 15:42:51
+Date : 2026-10-29 16:10:18
 
 Directory c:\\Users\\marar\\OneDrive\\Documentos\\SENA\\GIt hub Ejercicios\\Nueva carpeta\\qbayt_django
 
-Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
+Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -34,15 +34,12 @@ Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
 | [clase/static/clase/css/continuar\_curso.css](/clase/static/clase/css/continuar_curso.css) | PostCSS | 517 | 41 | 97 | 655 |
 | [clase/static/clase/css/crear\_curso.css](/clase/static/clase/css/crear_curso.css) | PostCSS | 409 | 38 | 77 | 524 |
 | [clase/static/clase/css/curso.css](/clase/static/clase/css/curso.css) | PostCSS | 693 | 61 | 125 | 879 |
-| [clase/static/clase/css/detalle\_curso.css](/clase/static/clase/css/detalle_curso.css) | PostCSS | 376 | 33 | 70 | 479 |
-| [clase/templates/clase/\_ejercicio\_card\_docente.html](/clase/templates/clase/_ejercicio_card_docente.html) | HTML | 37 | 0 | 5 | 42 |
-| [clase/templates/clase/detalle\_clase.html](/clase/templates/clase/detalle_clase.html) | HTML | 879 | 32 | 110 | 1,021 |
 | [clase/tests.py](/clase/tests.py) | Python | 1 | 1 | 2 | 4 |
 | [clase/urls.py](/clase/urls.py) | Python | 12 | 0 | 2 | 14 |
 | [clase/views.py](/clase/views.py) | Python | 247 | 44 | 77 | 368 |
 | [docente/\_\_init\_\_.py](/docente/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [docente/admin.py](/docente/admin.py) | Python | 1 | 1 | 2 | 4 |
-| [docente/apps.py](/docente/apps.py) | Python | 4 | 0 | 3 | 7 |
+| [docente/apps.py](/docente/apps.py) | Python | 4 | 0 | 1 | 5 |
 | [docente/migrations/0001\_initial.py](/docente/migrations/0001_initial.py) | Python | 22 | 1 | 7 | 30 |
 | [docente/migrations/0002\_solicitudclase.py](/docente/migrations/0002_solicitudclase.py) | Python | 23 | 1 | 6 | 30 |
 | [docente/migrations/0003\_leccion\_anuncio.py](/docente/migrations/0003_leccion_anuncio.py) | Python | 31 | 1 | 6 | 38 |
@@ -53,12 +50,13 @@ Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
 | [docente/migrations/0008\_initial.py](/docente/migrations/0008_initial.py) | Python | 30 | 1 | 7 | 38 |
 | [docente/migrations/0009\_recursomusical\_tags\_recursomusical\_vistas.py](/docente/migrations/0009_recursomusical_tags_recursomusical_vistas.py) | Python | 17 | 1 | 6 | 24 |
 | [docente/migrations/\_\_init\_\_.py](/docente/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [docente/models.py](/docente/models.py) | Python | 63 | 6 | 15 | 84 |
+| [docente/models.py](/docente/models.py) | Python | 63 | 6 | 0 | 69 |
 | [docente/static/docente/css/biblioteca\_recursos.css](/docente/static/docente/css/biblioteca_recursos.css) | PostCSS | 1,516 | 58 | 241 | 1,815 |
 | [docente/static/docente/css/calendario\_docente.css](/docente/static/docente/css/calendario_docente.css) | PostCSS | 1,307 | 60 | 236 | 1,603 |
 | [docente/static/docente/css/certificados.css](/docente/static/docente/css/certificados.css) | PostCSS | 672 | 52 | 132 | 856 |
 | [docente/static/docente/css/detalle\_actividad.css](/docente/static/docente/css/detalle_actividad.css) | PostCSS | 619 | 50 | 116 | 785 |
 | [docente/static/docente/css/detalle\_clase.css](/docente/static/docente/css/detalle_clase.css) | PostCSS | 2,116 | 110 | 290 | 2,516 |
+| [docente/static/docente/css/detalle\_curso.css](/docente/static/docente/css/detalle_curso.css) | PostCSS | 376 | 33 | 70 | 479 |
 | [docente/static/docente/css/detalle\_leccion.css](/docente/static/docente/css/detalle_leccion.css) | PostCSS | 564 | 43 | 107 | 714 |
 | [docente/static/docente/css/editar\_ejercicio.css](/docente/static/docente/css/editar_ejercicio.css) | PostCSS | 809 | 57 | 129 | 995 |
 | [docente/static/docente/css/estadisticas.css](/docente/static/docente/css/estadisticas.css) | PostCSS | 827 | 47 | 160 | 1,034 |
@@ -66,21 +64,23 @@ Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
 | [docente/static/docente/css/notas\_estudiante.css](/docente/static/docente/css/notas_estudiante.css) | PostCSS | 424 | 29 | 75 | 528 |
 | [docente/static/docente/css/perfil\_docente.css](/docente/static/docente/css/perfil_docente.css) | PostCSS | 1,050 | 73 | 172 | 1,295 |
 | [docente/static/docente/css/seleccionar\_ejercicios.css](/docente/static/docente/css/seleccionar_ejercicios.css) | PostCSS | 650 | 68 | 108 | 826 |
+| [docente/templates/docente/\_ejercicio\_card\_docente.html](/docente/templates/docente/_ejercicio_card_docente.html) | HTML | 37 | 0 | 5 | 42 |
 | [docente/templates/docente/biblioteca\_recursos.html](/docente/templates/docente/biblioteca_recursos.html) | HTML | 754 | 21 | 121 | 896 |
 | [docente/templates/docente/calendario\_docente.html](/docente/templates/docente/calendario_docente.html) | HTML | 386 | 22 | 53 | 461 |
+| [docente/templates/docente/detalle\_clase.html](/docente/templates/docente/detalle_clase.html) | HTML | 879 | 32 | 110 | 1,021 |
 | [docente/templates/docente/editar\_ejercicio.html](/docente/templates/docente/editar_ejercicio.html) | HTML | 158 | 14 | 26 | 198 |
 | [docente/templates/docente/estadisticas.html](/docente/templates/docente/estadisticas.html) | HTML | 169 | 7 | 19 | 195 |
 | [docente/templates/docente/gestionar\_certificados.html](/docente/templates/docente/gestionar_certificados.html) | HTML | 124 | 0 | 12 | 136 |
 | [docente/templates/docente/mis\_clases\_docente.html](/docente/templates/docente/mis_clases_docente.html) | HTML | 508 | 23 | 65 | 596 |
-| [docente/templates/docente/notas\_estudiante.html](/docente/templates/docente/notas_estudiante.html) | HTML | 146 | 4 | 11 | 161 |
-| [docente/templates/docente/perfil\_docente.html](/docente/templates/docente/perfil_docente.html) | HTML | 436 | 17 | 40 | 493 |
+| [docente/templates/docente/notas\_estudiante.html](/docente/templates/docente/notas_estudiante.html) | HTML | 146 | 4 | 9 | 159 |
+| [docente/templates/docente/perfil\_docente.html](/docente/templates/docente/perfil_docente.html) | HTML | 436 | 17 | 1 | 454 |
 | [docente/tests.py](/docente/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [docente/urls.py](/docente/urls.py) | Python | 24 | 1 | 5 | 30 |
-| [docente/utils.py](/docente/utils.py) | Python | 10 | 1 | 1 | 12 |
-| [docente/views.py](/docente/views.py) | Python | 434 | 26 | 135 | 595 |
+| [docente/urls.py](/docente/urls.py) | Python | 24 | 1 | 0 | 25 |
+| [docente/utils.py](/docente/utils.py) | Python | 10 | 1 | 0 | 11 |
+| [docente/views.py](/docente/views.py) | Python | 442 | 0 | 0 | 442 |
 | [ejercicios/\_\_init\_\_.py](/ejercicios/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [ejercicios/admin.py](/ejercicios/admin.py) | Python | 1 | 1 | 2 | 4 |
-| [ejercicios/apps.py](/ejercicios/apps.py) | Python | 4 | 0 | 3 | 7 |
+| [ejercicios/apps.py](/ejercicios/apps.py) | Python | 4 | 0 | 1 | 5 |
 | [ejercicios/migrations/0001\_initial.py](/ejercicios/migrations/0001_initial.py) | Python | 52 | 1 | 7 | 60 |
 | [ejercicios/migrations/0002\_ejercicio\_opcion\_pregunta\_and\_more.py](/ejercicios/migrations/0002_ejercicio_opcion_pregunta_and_more.py) | Python | 58 | 1 | 6 | 65 |
 | [ejercicios/migrations/0003\_intentoejercicio\_respuestaestudiante.py](/ejercicios/migrations/0003_intentoejercicio_respuestaestudiante.py) | Python | 30 | 1 | 6 | 37 |
@@ -97,7 +97,7 @@ Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
 | [ejercicios/migrations/0014\_alter\_ejercicio\_tipo\_and\_more.py](/ejercicios/migrations/0014_alter_ejercicio_tipo_and_more.py) | Python | 17 | 1 | 6 | 24 |
 | [ejercicios/migrations/0015\_alter\_ejercicio\_tipo.py](/ejercicios/migrations/0015_alter_ejercicio_tipo.py) | Python | 12 | 1 | 6 | 19 |
 | [ejercicios/migrations/\_\_init\_\_.py](/ejercicios/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [ejercicios/models.py](/ejercicios/models.py) | Python | 313 | 36 | 78 | 427 |
+| [ejercicios/models.py](/ejercicios/models.py) | Python | 313 | 36 | 0 | 349 |
 | [ejercicios/static/ejercicios/css/calificar\_ejercicios.css](/ejercicios/static/ejercicios/css/calificar_ejercicios.css) | PostCSS | 1,345 | 68 | 237 | 1,650 |
 | [ejercicios/static/ejercicios/css/crear\_acordes.css](/ejercicios/static/ejercicios/css/crear_acordes.css) | PostCSS | 830 | 60 | 141 | 1,031 |
 | [ejercicios/static/ejercicios/css/crear\_completar.css](/ejercicios/static/ejercicios/css/crear_completar.css) | PostCSS | 287 | 40 | 51 | 378 |
@@ -132,8 +132,8 @@ Total : 257 files,  69747 codes, 4633 comments, 11869 blanks, all 86249 lines
 | [ejercicios/templates/ejercicios/resolver\_entrenamiento\_avanzado.html](/ejercicios/templates/ejercicios/resolver_entrenamiento_avanzado.html) | HTML | 396 | 12 | 80 | 488 |
 | [ejercicios/templatetags/video\_filters.py](/ejercicios/templatetags/video_filters.py) | Python | 18 | 3 | 3 | 24 |
 | [ejercicios/tests.py](/ejercicios/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [ejercicios/urls.py](/ejercicios/urls.py) | Python | 28 | 2 | 7 | 37 |
-| [ejercicios/views.py](/ejercicios/views.py) | Python | 1,481 | 205 | 362 | 2,048 |
+| [ejercicios/urls.py](/ejercicios/urls.py) | Python | 28 | 2 | 0 | 30 |
+| [ejercicios/views.py](/ejercicios/views.py) | Python | 1,034 | 0 | 0 | 1,034 |
 | [estudiante/\_\_init\_\_.py](/estudiante/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [estudiante/admin.py](/estudiante/admin.py) | Python | 1 | 1 | 2 | 4 |
 | [estudiante/apps.py](/estudiante/apps.py) | Python | 4 | 0 | 3 | 7 |

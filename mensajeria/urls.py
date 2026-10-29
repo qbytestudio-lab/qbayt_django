@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
-
 app_name = 'mensajeria'
-
 urlpatterns = [
     path('', views.listar_conversaciones, name='lista'),
     path('clase/<int:clase_id>/contactos/', views.contactos_clase, name='contactos_clase'),

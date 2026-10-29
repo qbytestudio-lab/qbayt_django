@@ -1,4 +1,4 @@
-Date : 2026-10-29 15:42:51
+Date : 2026-10-29 16:10:18
 Directory : c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django
 Total : 0 files,  0 codes, 0 comments, 0 blanks, all 0 lines
 

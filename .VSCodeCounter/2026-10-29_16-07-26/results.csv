@@ -68,7 +68,7 @@
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\docente\views.py", "Python", 442, 0, 0, 0, 0, 0, 442
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\admin.py", "Python", 1, 0, 0, 0, 1, 2, 4
-"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\apps.py", "Python", 4, 0, 0, 0, 0, 3, 7
+"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\apps.py", "Python", 4, 0, 0, 0, 0, 1, 5
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0001_initial.py", "Python", 52, 0, 0, 0, 1, 7, 60
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0002_ejercicio_opcion_pregunta_and_more.py", "Python", 58, 0, 0, 0, 1, 6, 65
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0003_intentoejercicio_respuestaestudiante.py", "Python", 30, 0, 0, 0, 1, 6, 37
@@ -85,7 +85,7 @@
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0014_alter_ejercicio_tipo_and_more.py", "Python", 17, 0, 0, 0, 1, 6, 24
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\0015_alter_ejercicio_tipo.py", "Python", 12, 0, 0, 0, 1, 6, 19
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\migrations\__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
-"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\models.py", "Python", 313, 0, 0, 0, 36, 78, 427
+"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\models.py", "Python", 313, 0, 0, 0, 36, 0, 349
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\calificar_ejercicios.css", "PostCSS", 0, 0, 1345, 0, 68, 237, 1650
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\crear_acordes.css", "PostCSS", 0, 0, 830, 0, 60, 141, 1031
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\static\ejercicios\css\crear_completar.css", "PostCSS", 0, 0, 287, 0, 40, 51, 378
@@ -120,7 +120,7 @@
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\templates\ejercicios\resolver_entrenamiento_avanzado.html", "HTML", 0, 396, 0, 0, 12, 80, 488
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\templatetags\video_filters.py", "Python", 18, 0, 0, 0, 3, 3, 24
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\tests.py", "Python", 1, 0, 0, 0, 1, 2, 4
-"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\urls.py", "Python", 28, 0, 0, 0, 2, 7, 37
+"c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\urls.py", "Python", 28, 0, 0, 0, 2, 0, 30
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\ejercicios\views.py", "Python", 1034, 0, 0, 0, 0, 0, 1034
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\estudiante\__init__.py", "Python", 0, 0, 0, 0, 0, 1, 1
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\estudiante\admin.py", "Python", 1, 0, 0, 0, 1, 2, 4
@@ -256,4 +256,4 @@
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\urls.py", "Python", 26, 0, 0, 0, 8, 3, 37
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\utils.py", "Python", 35, 0, 0, 0, 3, 8, 46
 "c:\Users\marar\OneDrive\Documentos\SENA\GIt hub Ejercicios\Nueva carpeta\qbayt_django\web\views.py", "Python", 828, 0, 0, 0, 121, 205, 1154
-"Total", "-", 6485, 16196, 46624, 3, 4402, 11308, 85018
+"Total", "-", 6485, 16196, 46624, 3, 4402, 11221, 84931

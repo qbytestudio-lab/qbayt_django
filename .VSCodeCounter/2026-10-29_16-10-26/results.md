@@ -1,10 +1,10 @@
 # Summary
 
-Date : 2026-10-29 16:02:23
+Date : 2026-10-29 16:10:26
 
 Directory c:\\Users\\marar\\OneDrive\\Documentos\\SENA\\GIt hub Ejercicios\\Nueva carpeta\\qbayt_django
 
-Total : 257 files,  69308 codes, 4402 comments, 11308 blanks, all 85018 lines
+Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 
 Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -13,13 +13,13 @@ Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-
 | :--- | ---: | ---: | ---: | ---: | ---: |
 | PostCSS | 61 | 46,624 | 3,301 | 7,977 | 57,902 |
 | HTML | 62 | 16,196 | 560 | 2,083 | 18,839 |
-| Python | 133 | 6,485 | 541 | 1,246 | 8,272 |
+| Python | 133 | 6,485 | 541 | 1,159 | 8,185 |
 | Markdown | 1 | 3 | 0 | 2 | 5 |
 
 ## Directories
 | path | files | code | comment | blank | total |
 | :--- | ---: | ---: | ---: | ---: | ---: |
-| . | 257 | 69,308 | 4,402 | 11,308 | 85,018 |
+| . | 257 | 69,308 | 4,402 | 11,221 | 84,931 |
 | . (Files) | 2 | 18 | 3 | 7 | 28 |
 | clase | 25 | 2,425 | 210 | 501 | 3,136 |
 | clase (Files) | 7 | 402 | 56 | 116 | 574 |
@@ -35,8 +35,8 @@ Summary / [Details](details.md) / [Diff Summary](diff.md) / [Diff Details](diff-
 | docente\\static\\docente\\css | 13 | 12,077 | 739 | 2,031 | 14,847 |
 | docente\\templates | 10 | 3,597 | 140 | 421 | 4,158 |
 | docente\\templates\\docente | 10 | 3,597 | 140 | 421 | 4,158 |
-| ejercicios | 56 | 18,660 | 977 | 2,846 | 22,483 |
-| ejercicios (Files) | 7 | 1,381 | 40 | 93 | 1,514 |
+| ejercicios | 56 | 18,660 | 977 | 2,759 | 22,396 |
+| ejercicios (Files) | 7 | 1,381 | 40 | 6 | 1,427 |
 | ejercicios\\migrations | 16 | 360 | 15 | 92 | 467 |
 | ejercicios\\static | 15 | 11,083 | 770 | 1,920 | 13,773 |
 | ejercicios\\static\\ejercicios | 15 | 11,083 | 770 | 1,920 | 13,773 |
