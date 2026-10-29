@@ -1,11 +1,6 @@
 from django.urls import path
-
 from . import views
-
-
 app_name = 'ejercicios'
-
-
 urlpatterns = [
     path('crear/quiz/<int:clase_id>/', views.crear_quiz, name='crear_quiz'),
     path('crear/juego/<int:clase_id>/', views.crear_ejercicio_acordes, name='crear_ejercicio_acordes'),
@@ -31,7 +26,5 @@ urlpatterns = [
     path('clase/<int:clase_id>/crear-avanzado/<str:subtipo>/',views.crear_entrenamiento_avanzado,name='crear_entrenamiento_avanzado'),
     path('resolver-avanzado/<int:clase_id>/<int:ejercicio_id>/',views.resolver_entrenamiento_avanzado,name='resolver_entrenamiento_avanzado'),
     path('guardar-practica-avanzada/<int:ejercicio_id>/',views.guardar_practica_avanzada,name='guardar_practica_avanzada'),
-
     path('clase/<int:clase_id>/crear/acordes/', views.crear_ejercicio_acordes, name='crear_acordes'),
-
     ]

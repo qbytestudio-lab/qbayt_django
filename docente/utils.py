@@ -1,6 +1,5 @@
 # docente/utils.py
 from .models import Actividad, RespuestaEstudiante
-
 def calcular_progreso_clase(estudiante, clase):
     total_actividades = Actividad.objects.filter(leccion__clase=clase).count()
     if total_actividades == 0:

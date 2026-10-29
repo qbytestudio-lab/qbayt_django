@@ -1,10 +1,8 @@
 {% extends 'web/base.html' %}
 {% load static %}
-
 {% block title %}Notas de {{ estudiante.username }} — QBYT{% endblock %}
 {% block page_title %}Progreso del estudiante{% endblock %}
 {% block nav_clases %}active{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'docente/css/notas_estudiante.css' %}">
 {% endblock %}

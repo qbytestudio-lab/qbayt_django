@@ -2,10 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils import timezone
-
-
 class Ejercicio(models.Model):
-
     TIPO_CHOICES = [
         ('quiz', 'Quiz'),
         ('video_quiz', 'Video + Quiz'),
@@ -25,7 +22,6 @@ class Ejercicio(models.Model):
     activo = models.BooleanField(default=True)
     descripcion = models.TextField(blank=True, null=True)
     contenido = models.TextField(blank=True, null=True)
-
     # CAMPOS PARA VIDEO
     video_principal = models.FileField(
         upload_to='ejercicios/videos/',
@@ -33,13 +29,11 @@ class Ejercicio(models.Model):
         null=True,
         verbose_name="Video principal"
     )
-    
     video_url = models.URLField(
         blank=True,
         null=True,
         verbose_name="URL del video (YouTube, Vimeo)"
     )
-
     # Campo de imagen opcional (para thumbnail o imagen adicional)
     imagen_principal = models.ImageField(
         upload_to='ejercicios/',
@@ -47,7 +41,6 @@ class Ejercicio(models.Model):
         null=True,
         verbose_name="Imagen (opcional)"
     )
-
     # Relación con recursos musicales
     recursos = models.ManyToManyField(
         'docente.RecursoMusical',
@@ -55,72 +48,58 @@ class Ejercicio(models.Model):
         related_name='ejercicios',
         verbose_name="Recursos adjuntos"
     )
-
     juego_tipo = models.CharField(
         max_length=50,
         blank=True,
         null=True
     )
-
     fecha_creacion = models.DateTimeField(
         auto_now_add=True
     )
-
     fecha_limite = models.DateTimeField(
         verbose_name="Fecha de entrega",
         blank=True,
         null=True
     )
-
     def __str__(self):
         return self.titulo
-    
     @property
     def es_video_quiz(self):
         return self.tipo == 'video_quiz'
-    
     @property
     def url_video(self):
         """Devuelve la URL del video (archivo o URL externa)"""
         if self.video_principal:
             return self.video_principal.url
         return self.video_url
-    
     @property
     def embed_url(self):
         """Convierte la URL de YouTube a formato embed"""
         if not self.video_url:
             return None
-        
         url = self.video_url.strip()
-        
         # Si ya es embed
         if 'youtube.com/embed/' in url:
             return url
-        
         # YouTube watch
         if 'youtube.com/watch' in url:
             import re
             match = re.search(r'[?&]v=([a-zA-Z0-9_-]{11})', url)
             if match:
                 return f"https://www.youtube.com/embed/{match.group(1)}"
-        
         # YouTube shorts
         if 'youtube.com/shorts/' in url:
             import re
             match = re.search(r'shorts/([a-zA-Z0-9_-]{11})', url)
             if match:
                 return f"https://www.youtube.com/embed/{match.group(1)}"
-        
         # youtu.be
         if 'youtu.be/' in url:
             import re
             match = re.search(r'youtu\.be/([a-zA-Z0-9_-]{11})', url)
             if match:
                 return f"https://www.youtube.com/embed/{match.group(1)}"
-        
         return url
-
     # ============================================================
     # PROPIEDADES PARA VALIDACIÓN DE FECHA LÍMITE
     # ============================================================
@@ -130,12 +109,10 @@ class Ejercicio(models.Model):
         if not self.fecha_limite:
             return False
         return timezone.now() > self.fecha_limite
-
     @property
     def disponible(self):
         """True si el ejercicio se puede realizar (activo y sin vencer)."""
         return self.activo and not self.esta_vencido
-
     @property
     def estado_estudiante(self):
         """
@@ -149,7 +126,6 @@ class Ejercicio(models.Model):
         if self.esta_vencido:
             return 'vencido'
         return 'disponible'
-
     @property
     def tiempo_restante(self):
         """
@@ -158,21 +134,17 @@ class Ejercicio(models.Model):
         """
         if not self.fecha_limite or self.esta_vencido:
             return None
-        
         delta = self.fecha_limite - timezone.now()
         total_segundos = int(delta.total_seconds())
-        
         dias = total_segundos // 86400
         horas = (total_segundos % 86400) // 3600
         minutos = (total_segundos % 3600) // 60
-        
         return {
             'dias': dias,
             'horas': horas,
             'minutos': minutos,
             'total_segundos': total_segundos,
         }
-
 # ============================================================
 # CAMPOS PARA ENTRENAMIENTO AUDITIVO
 # ============================================================
@@ -182,11 +154,9 @@ class Ejercicio(models.Model):
         verbose_name="Configuración de entrenamiento auditivo",
         help_text="JSON con tipo, dificultad, número de preguntas, etc."
     )
-
     @property
     def es_entrenamiento_auditivo(self):
         return self.tipo == 'entrenamiento_auditivo'
-
     @property
     def vence_pronto(self):
         """True si la fecha límite está a menos de 24 horas."""
@@ -194,76 +164,58 @@ class Ejercicio(models.Model):
             return False
         delta = self.fecha_limite - timezone.now()
         return delta.total_seconds() < 86400 
-
     @property
     def es_entrenamiento_avanzado(self):
         return self.tipo == 'entrenamiento_avanzado'
-
     class Meta:
         verbose_name = "Ejercicio"
         verbose_name_plural = "Ejercicios"
-
-
 class Pregunta(models.Model):
     ejercicio = models.ForeignKey(
         Ejercicio,
         on_delete=models.CASCADE,
         related_name='preguntas'
     )
-
     enunciado = models.TextField()
-
     imagen = models.ImageField(
         upload_to='preguntas_img/',
         blank=True,
         null=True
     )
-
     def __str__(self):
         return f"{self.enunciado[:50]}..."
-    
     @property
     def opcion_correcta(self):
         """Devuelve la opción correcta de esta pregunta"""
         return self.opciones.filter(es_correcta=True).first()
-
-
 class Opcion(models.Model):
     pregunta = models.ForeignKey(
         Pregunta,
         on_delete=models.CASCADE,
         related_name='opciones'
     )
-
     texto_opcion = models.CharField(
         max_length=255
     )
-
     es_correcta = models.BooleanField(
         default=False
     )
-
     def __str__(self):
         return self.texto_opcion
-
-
 class IntentoEjercicio(models.Model):
     estudiante = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='intentos'
     )
-
     ejercicio = models.ForeignKey(
         Ejercicio,
         on_delete=models.CASCADE,
         related_name='intentos'
     )
-
     fecha_envio = models.DateTimeField(
         auto_now_add=True
     )
-
     calificacion = models.DecimalField(
         max_digits=3,
         decimal_places=1,
@@ -274,46 +226,36 @@ class IntentoEjercicio(models.Model):
             MaxValueValidator(5.0)
         ]
     )
-
     retroalimentacion = models.TextField(
         blank=True,
         null=True
     )
-
     aprobado = models.BooleanField(
         default=False
     )
-
     def __str__(self):
         return f"Intento de {self.estudiante.username} en {self.ejercicio}"
-
-
 class RespuestaEstudiante(models.Model):
     intento = models.ForeignKey(
         IntentoEjercicio,
         on_delete=models.CASCADE,
         related_name='respuestas'
     )
-
     pregunta = models.ForeignKey(
         Pregunta,
         on_delete=models.CASCADE
     )
-
     opcion_seleccionada = models.ForeignKey(
         Opcion,
         on_delete=models.CASCADE
     )
-
     def __str__(self):
         return (
             f"{self.intento.estudiante.username} - "
             f"{self.pregunta.enunciado[:30]}"
         )
-    
 class PracticaAuditiva(models.Model):
     """Registro de cada práctica de entrenamiento auditivo."""
-    
     TIPO_CHOICES = [
         # Básico
         ('intervalos', 'Intervalos'),
@@ -327,37 +269,29 @@ class PracticaAuditiva(models.Model):
         ('tapping_ritmico', 'Tapping Rítmico'),
         ('dictado_melodico', 'Dictado Melódico'),
     ]
-
     intento = models.OneToOneField(
         IntentoEjercicio,
         on_delete=models.CASCADE,
         related_name='practica_auditiva'
     )
-
     tipo_practica = models.CharField(max_length=30, choices=TIPO_CHOICES)
-
     aciertos = models.PositiveIntegerField(default=0)
     total_preguntas = models.PositiveIntegerField(default=0)
     tiempo_promedio_seg = models.FloatField(default=0)
-
     detalle_respuestas = models.JSONField(
         default=list,
         help_text="Lista con cada respuesta: {pregunta, respuesta, correcta, tiempo}"
     )
-
     def __str__(self):
         return f"Práctica {self.tipo_practica} - {self.aciertos}/{self.total_preguntas}"
-
     @property
     def porcentaje(self):
         if self.total_preguntas == 0:
             return 0
         return round((self.aciertos / self.total_preguntas) * 100, 1)  
-
     @property
     def errores(self):
         return self.total_preguntas - self.aciertos 
-
 class PracticaLibre(models.Model):
     """
     Registro de una práctica libre hecha por un estudiante
@@ -370,55 +304,43 @@ class PracticaLibre(models.Model):
         ('ritmo', 'Ritmo'),
         ('melodia', 'Melodía'),
     ]
-
     DIFICULTAD_CHOICES = [
         ('facil', 'Fácil'),
         ('medio', 'Medio'),
         ('dificil', 'Difícil'),
     ]
-
     estudiante = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
         related_name='practicas_libres'
     )
-
     tipo_practica = models.CharField(max_length=30, choices=TIPO_CHOICES)
     dificultad = models.CharField(max_length=20, choices=DIFICULTAD_CHOICES, default='medio')
     instrumento = models.CharField(max_length=30, default='piano')
-
     aciertos = models.PositiveIntegerField(default=0)
     total_preguntas = models.PositiveIntegerField(default=0)
-
     detalle_respuestas = models.JSONField(default=list)
-
     fecha = models.DateTimeField(auto_now_add=True)
-
     def __str__(self):
         return f"{self.estudiante.username} - {self.tipo_practica} - {self.aciertos}/{self.total_preguntas}"
-
     @property
     def porcentaje(self):
         if self.total_preguntas == 0:
             return 0
         return round((self.aciertos / self.total_preguntas) * 100, 1)
-
     @property
     def errores(self):
         return self.total_preguntas - self.aciertos
-
     class Meta:
         verbose_name = "Práctica libre"
         verbose_name_plural = "Prácticas libres"
         ordering = ['-fecha']
-
     SUBTIPO_CHOICES = [
         ('basico', 'Básico'),
         ('inversiones', 'Con inversiones'),
         ('cifrado', 'Cifrado americano'),
         ('progresiones', 'Progresiones armónicas'),
     ]
-
     subtipo = models.CharField(
         max_length=30,
         choices=SUBTIPO_CHOICES,

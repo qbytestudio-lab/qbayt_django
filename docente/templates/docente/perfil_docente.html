@@ -1,17 +1,13 @@
 {% extends 'web/base.html' %}
 {% load tz %}
 {% load static %}
-
 {% block title %}Perfil Docente — QBYT{% endblock %}
 {% block page_title %}Mi Perfil{% endblock %}
 {% block nav_perfil %}active{% endblock %}
-
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'docente/css/perfil_docente.css' %}">
 {% endblock %}
-
 {% block content %}
-
 {% if messages %}
 <div style="position:fixed; top:80px; left:50%; transform:translateX(-50%); z-index:1050; min-width:320px;">
     {% for message in messages %}
@@ -24,10 +20,8 @@
     {% endfor %}
 </div>
 {% endif %}
-
 <!-- PROFILE HERO CON BANNER - DOCENTE -->
 <section class="profile-hero docente">
-
     <!-- Banner de fondo -->
     <div class="profile-banner">
         {% if request.user.perfil.banner %}
@@ -37,31 +31,25 @@
         {% endif %}
         <div class="banner-overlay"></div>
     </div>
-
     <!-- ⚙ MENÚ DE AJUSTES (esquina superior derecha) -->
     <div class="settings-menu">
         <button class="settings-btn" onclick="toggleSettingsMenu(event)" title="Ajustes" aria-label="Ajustes">
             <i class="bi bi-gear-fill"></i>
         </button>
-
         <div class="settings-dropdown" id="settingsDropdown">
             <button class="settings-option" onclick="triggerBannerUpload(event)">
                 <i class="bi bi-image"></i>
                 <span>Cambiar banner</span>
             </button>
-
             <div class="settings-divider"></div>
-
             <button class="settings-option" data-bs-toggle="modal" data-bs-target="#modalEditar">
                 <i class="bi bi-pencil-square"></i>
                 <span>Editar perfil</span>
             </button>
         </div>
     </div>
-
     <!-- Input oculto para subir banner -->
     <input type="file" id="bannerInput" accept="image/*" style="display: none;" onchange="subirBanner(this)">
-
     <!-- Contenido del perfil -->
     <div class="profile-hero-content">
         <!-- Avatar con cámara -->
@@ -80,7 +68,6 @@
             <input type="file" id="fotoPerfilInput" accept="image/*" style="display: none;"
                 onchange="subirFotoPerfil(this)">
         </div>
-
         <!-- Info -->
         <div class="profile-info">
             <span class="role-badge docente">
@@ -96,7 +83,6 @@
             </div>
         </div>
     </div>
-
     <!-- Quick Stats -->
     <div class="quick-stats">
         <div class="stat-pill docente">
@@ -116,7 +102,6 @@
         </div>
     </div>
 </section>
-
 <!-- TABS -->
 <nav class="profile-tabs-bar">
     <div class="profile-tabs">
@@ -132,10 +117,8 @@
         </a>
     </div>
 </nav>
-
 <!-- MAIN CONTENT -->
 <main class="profile-body">
-
     <!-- TAB: DATOS PERSONALES -->
     <div class="tab-pane active" id="tab-datos">
         <div class="section-card">
@@ -145,7 +128,6 @@
                     <i class="bi bi-pencil"></i> Editar
                 </a>
             </div>
-
             <div class="info-grid">
                 <div class="info-field">
                     <span class="info-label">Nombre</span>
@@ -180,7 +162,6 @@
                     <span class="info-value">{{ request.user.last_login|localtime|date:"d \d\e F, H:i" }}</span>
                 </div>
             </div>
-
             <!-- Danger Zone -->
             <div class="danger-zone">
                 <h4 class="danger-title">
@@ -196,7 +177,6 @@
             </div>
         </div>
     </div>
-
     <!-- TAB: ESTUDIANTES -->
     <div class="tab-pane" id="tab-estudiantes">
         <div class="section-card">
@@ -204,13 +184,11 @@
                 <h2><i class="bi bi-people-fill"></i> Mis estudiantes</h2>
                 <span class="count-badge">{{ total_estudiantes }} total</span>
             </div>
-
             <!-- Search Bar -->
             <div class="search-bar">
                 <i class="bi bi-search"></i>
                 <input type="text" placeholder="Buscar estudiante por nombre o clase..." id="studentSearch">
             </div>
-
             <!-- Students List -->
             <div class="student-list">
                 {% for clase in clases %}
@@ -237,7 +215,6 @@
                             title="Enviar mensaje a {{ estudiante.username }}">
                             <i class="bi bi-chat-dots"></i>
                         </a>
-
                         <a href="{% url 'docente:notas_estudiante' clase.id estudiante.id %}" class="btn-action view"
                             title="Ver progreso de {{ estudiante.username }}">
                             <i class="bi bi-graph-up"></i>
@@ -256,9 +233,7 @@
             </div>
         </div>
     </div>
-
 </main>
-
 <!-- MODAL: EDITAR PERFIL -->
 <div class="modal fade" id="modalEditar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -299,7 +274,6 @@
         </div>
     </div>
 </div>
-
 <!-- MODAL: ELIMINAR CUENTA -->
 <div class="modal fade" id="modalEliminar" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -333,9 +307,7 @@
         </div>
     </div>
 </div>
-
 {% endblock %}
-
 {% block extra_js %}
 <script>
     // ============================================
@@ -346,13 +318,11 @@
         const dropdown = document.getElementById('settingsDropdown');
         dropdown.classList.toggle('active');
     }
-
     function triggerBannerUpload(e) {
         if (e) e.stopPropagation();
         document.getElementById('settingsDropdown').classList.remove('active');
         document.getElementById('bannerInput').click();
     }
-
     // Cerrar menú al hacer clic fuera
     document.addEventListener('click', function (e) {
         const dropdown = document.getElementById('settingsDropdown');
@@ -363,14 +333,12 @@
             }
         }
     });
-
     // Cerrar con ESC
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             document.getElementById('settingsDropdown').classList.remove('active');
         }
     });
-
     // ============================================
     // TABS
     // ============================================
@@ -384,7 +352,6 @@
             document.getElementById(tabId).classList.add('active');
         });
     });
-
     // ============================================
     // BÚSQUEDA DE ESTUDIANTES
     // ============================================
@@ -398,7 +365,6 @@
             });
         });
     }
-
     // ============================================
     // SUBIR FOTO DE PERFIL (desde la cámara)
     // ============================================
@@ -413,10 +379,8 @@
                 alert('La imagen no debe superar los 5MB.');
                 return;
             }
-
             const formData = new FormData();
             formData.append('foto_perfil', file);
-
             fetch('{% url "estudiante:subir_foto_perfil" %}', {
                 method: 'POST',
                 body: formData,
@@ -438,7 +402,6 @@
                 });
         }
     }
-
     // ============================================
     // SUBIR BANNER (desde el menú ⚙)
     // ============================================
@@ -453,7 +416,6 @@
                 alert('La imagen no debe superar los 10MB.');
                 return;
             }
-
             const formData = new FormData();
             formData.append('banner', file);
 
@@ -478,7 +440,6 @@
                 });
         }
     }
-
     // ============================================
     // AUTO-DISMISS ALERTS
     // ============================================

@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
-
 app_name = 'docente'
-
 urlpatterns = [
     path('docente/perfil/', views.perfil_docente, name='perfil_docente'),
     path('docente/clase/<int:clase_id>/agregar/', views.agregar_estudiante, name='agregar_estudiante'),
@@ -14,14 +12,11 @@ urlpatterns = [
     path('docente/clase/<int:clase_id>/generar_pdf/', views.generar_reporte_pdf, name='generar_reporte_pdf'),
     path('docente/clase/<int:clase_id>/estadisticas/', views.estadisticas_clase, name='estadisticas_clase'),
     path('docente/clase/<int:clase_id>/expulsar/<int:estudiante_id>/', views.expulsar_estudiante_clase, name='expulsar_estudiante_clase'),
-    
     path('docente/clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/editar/', views.editar_ejercicio, name='editar_ejercicio'),
     path('docente/clase/<int:clase_id>/ejercicio/<int:ejercicio_id>/eliminar/', views.eliminar_ejercicio, name='eliminar_ejercicio'),
     path('docente/mis-clases/', views.mis_clases, name='mis_clases'),
-
     # notas del estudiante en una clase
     path('docente/clase/<int:clase_id>/estudiante/<int:estudiante_id>/notas/', views.notas_estudiante, name='notas_estudiante'),
-
     path('docente/biblioteca-recursos/', views.biblioteca_recursos, name='biblioteca_recursos'),
     path('docente/biblioteca-recursos/crear/', views.crear_recurso, name='crear_recurso'),
     path('docente/biblioteca-recursos/eliminar/<int:recurso_id>/', views.eliminar_recurso, name='eliminar_recurso'),
