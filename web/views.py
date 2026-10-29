@@ -125,7 +125,7 @@ def editar_perfil(request):
         usuario.last_name = request.POST.get('last_name')
         usuario.save()
         messages.success(request, '¡Tu perfil ha sido actualizado correctamente!')
-        if usuario.perfil.rol == 'estudiante': return redirect('perfil_estudiante')
+        if usuario.perfil.rol == 'estudiante': return redirect('estudiante:perfil_estudiante')
         elif usuario.perfil.rol == 'docente': return redirect('docente:perfil_docente')
         else: return redirect('perfil_administrador')
     return redirect('inicio')
