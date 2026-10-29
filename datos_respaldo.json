@@ -1,0 +1,2289 @@
+[
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$600000$lqOAgpU8C5gCVaqPqGNzSW$94IDhRG9t+b3rP/7zq27a3Xh6/KTR2lyCJwfVrDIXn8=",
+        "last_login": "2026-09-23T03:05:27.758Z",
+        "is_superuser": false,
+        "username": "Fercho17",
+        "first_name": "Adrian",
+        "last_name": "Delgado",
+        "email": "mararay2006@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-09-02T12:39:46.915Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$600000$GF0RNDmAD2DJXJCgd4O5dj$Ox3Ps5qTLy9Zt6HMnunZvssSGit769QQtNWRzXQm7U4=",
+        "last_login": "2026-09-23T02:49:04.269Z",
+        "is_superuser": false,
+        "username": "Riasgremory17",
+        "first_name": "Rias",
+        "last_name": "Gremory",
+        "email": "pepe1@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-09-02T13:00:07.898Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$600000$ytvPE2tmAZzUNnI9JwWXKx$RTugHWzvEyBCrEFfhZvnDaesG6+UYguCuWX2ol9diRY=",
+        "last_login": "2026-09-17T22:53:09.306Z",
+        "is_superuser": false,
+        "username": "ichigo",
+        "first_name": "kurosaki",
+        "last_name": "ichigo",
+        "email": "notlinichigo@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-09-02T13:31:08.182Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$600000$l1nR4aG89vPFdwbevbaDMq$hG5OF4SRJzEpBtJ+Rjgi5yrIo/WFKVLdlOeYeYYRVgE=",
+        "last_login": "2026-09-17T22:54:17.361Z",
+        "is_superuser": false,
+        "username": "dylan18",
+        "first_name": "dylan",
+        "last_name": "muñoz",
+        "email": "dylannn0427@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-09-14T22:12:34.118Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "pbkdf2_sha256$600000$V9OAlVES8mQiC96fjAklip$b/KMlV3L4tZEiYkfpeKAkXSkMh9uSYmh8LmncWMy14U=",
+        "last_login": null,
+        "is_superuser": false,
+        "username": "dilan1",
+        "first_name": "prueba",
+        "last_name": "mooo",
+        "email": "QbyteStudio@gmail.com",
+        "is_staff": false,
+        "is_active": false,
+        "date_joined": "2026-09-14T22:26:49.403Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "auth.user",
+    "fields": {
+        "password": "!QwgH9JU9NDgFbpjwEHhDvpG9IvjFJZjJIZ6lQykl",
+        "last_login": "2026-09-16T12:26:37.603Z",
+        "is_superuser": false,
+        "username": "dilan",
+        "first_name": "Dilan",
+        "last_name": "Muñoz",
+        "email": "dilanmunoz671@gmail.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2026-09-16T12:26:37.563Z",
+        "groups": [],
+        "user_permissions": []
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "2v2npwjtrqr01cuftt8dilz96es2wb6a",
+    "fields": {
+        "session_data": ".eJxVjLsOwjAMAP_FM4pk08ZJR3a-oXJihxRQK_UxVfw7qtQB1rvT7dDLttZ-W2zuB4UOEC6_LEl-2XgIfcr4mFyexnUekjsSd9rF3Se19-1s_wZVlgodmMTEKG1RMmzIWxNLRsqFA7JRxiSpZVZULp6C18ilDZRDREUKV_h8Afi5N-c:1x2WLL:kO4SzbM7k_QIIlfIUHnAMKFr2LritZzgZZwqf1wM1Pk",
+        "expire_date": "2026-09-18T16:00:43.428Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "3fpbmolxx4dtf57uciqv2wn5yffentlo",
+    "fields": {
+        "session_data": ".eJxVjDEOgzAMAP_iuYoCjknD2J03RI6dFNoKJAJT1b9XSAztene6N0TetzHuNa9xUugB4fLLEsszz4fQB8_3xcgyb-uUzJGY01YzLJpft7P9G4xcR-iBJQgxNeTUWhHySOiwUWc5-eItdc5JW0qbEl4bRe5aslnRE2sIOcDnC9cMN5Q:1x1nhR:xUpS5gZW51kmUF8juXYCQ1WKqMrcLLfS9WF8iLQuk9o",
+        "expire_date": "2026-09-16T16:20:33.295Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "4hqxo58frmxppeubb2vlji3doylud7qq",
+    "fields": {
+        "session_data": ".eJxVjLsOwjAMAP_FM4ocaiVuR3a-obKdhBRQK_UxVfw7qtQB1rvT7dDLttZ-W_LcDwk6ILj8MhV75fEQ6SnjY3I2jes8qDsSd9rF3aeU37ez_RtUWSp0oIVRzYuhNYjC8coYMBOFmChqy2a-idKQ18IhsKdAhVBiq1kzC3y-2Jw3mw:1x68hw:UJmm8Pq2mMcp5eNAQ2f5cBXobSc2Ao2k526XTLaArSI",
+        "expire_date": "2026-09-28T15:35:00.245Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "5gng5dcyw1e97a8v55044pgwe239nttb",
+    "fields": {
+        "session_data": ".eJxVjDEOwjAMRe-SGUWyaeqEkZ0zVE7skAJKpaadKu4OlTrA-t97fzMDr0sZ1qbzMIq5GDCn3y1yemrdgTy43iebprrMY7S7Yg_a7G0SfV0P9--gcCvfWjlEAnZZUKHDXruQE2DK5IEUE0SOjkhAKPfoewmUncfkAwigP5v3B_i5N-c:1x1kgW:kOJEDY1Yy5ZYNYdoxlHZwfgHXXbSj-Q3LQ0JdDHtDn0",
+        "expire_date": "2026-09-16T13:07:24.515Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "dw8g1pqogcob50it3e3cm2hl8fddkhj6",
+    "fields": {
+        "session_data": ".eJxVjN1ugjAYQN_luyakYNcW7ubicK4SdeL-spC2FEWRmrayMOO7L0t2sd2ec3IuUIqz35Vnp23ZVJAChuAvk0IddPcjqr3otiZUpvO2keFPEv5aF85Npdvxb_tvsBNuBynImiGpIqGQGiEkGI0ZIkhjTGiFqUyYUtGIihGOZM0IYREmuMZI0ERqqZmAAJxRjWiFUubc-dJ54bWD9AJ3aqLnn33-mMhNv2gySN8vcLJGaecghdZsmw4CqIQXkHbntg3gdFC6VKbSZa9tUzfaQgrGjtFNPa35dMbz1WaSv9ldRjIiY4lJXrTFc7EdeIHLU7SeFpl_5X0uMv5w62enB8-4HOiycdFyszKL43FO9twuJst-zYv9IYnfLOfyS-Tsflgfs-HlOF4-DuOKZ1_mabbSKxfBNYgoS_AIYRaHCbmhNCYf1-s3beuKIg:1x6Gby:8wZN1Qa_02xUMagKZ1zRrYXgIMTkifqMsEfmtSVFm20",
+        "expire_date": "2026-09-29T00:01:22.966Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "lebolfigir664kesmvizcjgqocozgmyh",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQRe_C2hAY6RRcuu8ZCAyMVA0kpV0Z765NutDtf-_9l_BhW4vfel78nMRFaHH63WKgR647SPdQb01Sq-syR7kr8qBdTi3l5_Vw_w5K6OVbg9UYM6Y4MmeNI2TDAE5BZBVMGgiRB4ojqkCsyZ4JzcDJggNnlELx_gDxGzfW:1x9MXH:oXyxZ69Sfq53uPlnoCGnwWGW6lXsNKCBJ1Jifg9aEIY",
+        "expire_date": "2026-10-07T12:57:19.687Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "mof9g6tmm68klb4m2ufkrfk4vzn8y5o1",
+    "fields": {
+        "session_data": ".eJxVjLsOwjAMAP_FM4ocaiVuR3a-obKdhBRQK_UxVfw7qtQB1rvT7dDLttZ-W_LcDwk6ILj8MhV75fEQ6SnjY3I2jes8qDsSd9rF3aeU37ez_RtUWSp0oIVRzYuhNYjC8coYMBOFmChqy2a-idKQ18IhsKdAhVBiq1kzC3y-2Jw3mw:1x3gIm:f2X9wwEOzT64L6wtCP0F1rxEwiblAqs3InN0yBgJMd4",
+        "expire_date": "2026-09-21T20:50:52.544Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "ns9ppaldh0pfyour6ckxupju33cxx43b",
+    "fields": {
+        "session_data": ".eJxVjLsOAiEQAP-F2hAeEhZLe7-BLOwipwaS464y_rshuULbmcm8RcR9q3EfvMaFxEUYcfplCfOT2xT0wHbvMve2rUuSM5GHHfLWiV_Xo_0bVBx1bp1WRgdENMAZC0MBSBoDWchFZeWLJ2JK4MGCcR6TV9YpE87BQ1bi8wX0Rjfc:1x3lC5:obKhOBVM51zS0SmLW7_7-0ZHbOlI7_4t2OSx1x8u_h4",
+        "expire_date": "2026-09-22T02:04:17.852Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "xehqa6gwpsk723lwkt7x1w68nd2k2ntb",
+    "fields": {
+        "session_data": ".eJxVjEsOwiAUAO_C2hCkfUBduvcMDe-DVA0kpV0Z725IutDtzGTeao77lue9yTovrC7KqtMvw0hPKV3wI5Z71VTLti6oe6IP2_StsryuR_s3yLHlvh0dDAwEY8I0oTVgEPjsR0MUGdMQwEIQJyIkCcAET95MgxNgQbTq8wXpCThm:1x9MXg:C9LVhP_Rqy1dvSGulc8HiZR7ayZwcY3PBTbrvtXz4qE",
+        "expire_date": "2026-10-07T12:57:44.166Z"
+    }
+},
+{
+    "model": "sessions.session",
+    "pk": "znwvl7pvhprw3hxcfbcsw62gg2wbfcua",
+    "fields": {
+        "session_data": ".eJxVjEEOwiAQAP-yZ0OgsAV79N43NAvsStWUpLQn499Nkx70OjOZN0y0b2XaG6_TnGEAhMsvi5SevBwiP2i5V5Xqsq1zVEeiTtvUWDO_bmf7NyjUCgzAjsQK99hh6Nj1zL03TrIRg6xDYjHScdRJUGMwHGxGH6O_ahedDQSfL_s4OD4:1x7Kzh:05k-Nrw0P2LPF6mg6--s9eXX5QJphAezlz62YqnnRC4",
+        "expire_date": "2026-10-01T22:54:17.367Z"
+    }
+},
+{
+    "model": "sites.site",
+    "fields": {
+        "domain": "127.0.0.1:8000",
+        "name": "QBYT"
+    }
+},
+{
+    "model": "account.emailaddress",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "dilan"
+        ],
+        "email": "dilanmunoz671@gmail.com",
+        "verified": true,
+        "primary": true
+    }
+},
+{
+    "model": "socialaccount.socialaccount",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "dilan"
+        ],
+        "provider": "google",
+        "uid": "114350217615928663233",
+        "last_login": "2026-09-16T12:26:37.577Z",
+        "date_joined": "2026-09-16T12:26:37.577Z",
+        "extra_data": {
+            "iss": "https://accounts.google.com",
+            "azp": "742602922369-88sgdlr0pfd6jqnpa33vfm4q7is2qtuv.apps.googleusercontent.com",
+            "aud": "742602922369-88sgdlr0pfd6jqnpa33vfm4q7is2qtuv.apps.googleusercontent.com",
+            "sub": "114350217615928663233",
+            "email": "dilanmunoz671@gmail.com",
+            "email_verified": true,
+            "at_hash": "sWSZNmHdsHsOmf0OXgJsng",
+            "name": "Dilan Muñoz",
+            "picture": "https://lh3.googleusercontent.com/a/ACg8ocJRBMKr9eNbmx8rshgdWlv4gMD7RKRsQAaoR7lSAqTUqjiDAqYV=s96-c",
+            "given_name": "Dilan",
+            "family_name": "Muñoz",
+            "iat": 1789561596,
+            "exp": 1789565196
+        }
+    }
+},
+{
+    "model": "web.perfil",
+    "pk": 1,
+    "fields": {
+        "user": [
+            "Fercho17"
+        ],
+        "rol": "docente",
+        "foto_perfil": "perfiles/images_2_lfCDQvT.jpg",
+        "banner": "banners/cute-anime-girl-wallpaper_776894-107219.avif"
+    }
+},
+{
+    "model": "web.perfil",
+    "pk": 2,
+    "fields": {
+        "user": [
+            "Riasgremory17"
+        ],
+        "rol": "estudiante",
+        "foto_perfil": "perfiles/wallpaperflare.com_wallpaper_2.jpg",
+        "banner": "banners/wallpaperflare.com_wallpaper_3.jpg"
+    }
+},
+{
+    "model": "web.perfil",
+    "pk": 4,
+    "fields": {
+        "user": [
+            "ichigo"
+        ],
+        "rol": "docente",
+        "foto_perfil": "perfiles/wallpaperflare.com_wallpaper.jpg",
+        "banner": "banners/1392158_aaZPqrd.jpg"
+    }
+},
+{
+    "model": "web.perfil",
+    "pk": 5,
+    "fields": {
+        "user": [
+            "dylan18"
+        ],
+        "rol": "estudiante",
+        "foto_perfil": "perfiles/1879_1783158255_767b9c08667f_2FkvTFV.png",
+        "banner": "banners/satoru-gojo-de-jjk_9830x5529_xtrafondos.com.jpg"
+    }
+},
+{
+    "model": "web.perfil",
+    "pk": 6,
+    "fields": {
+        "user": [
+            "dilan1"
+        ],
+        "rol": "docente",
+        "foto_perfil": "",
+        "banner": ""
+    }
+},
+{
+    "model": "web.certificado",
+    "pk": 1,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "clase": 2,
+        "docente": [
+            "ichigo"
+        ],
+        "fecha_emision": "2026-09-15T15:49:57.203Z",
+        "promedio_final": "5.0",
+        "progreso_final": 100,
+        "horas_completadas": 8,
+        "codigo_verificacion": "CERT-2026-0002-0005",
+        "pdf": "",
+        "activo": true
+    }
+},
+{
+    "model": "docente.recursomusical",
+    "pk": 1,
+    "fields": {
+        "titulo": "prueba 3",
+        "descripcion": "video musical",
+        "tipo": "video",
+        "categoria": "ritmo",
+        "archivo": "recursos/Ali_Gatie_-_Its_You_Official_Music_Video.mp4",
+        "url_externa": null,
+        "tags": "",
+        "vistas": 0,
+        "docente": [
+            "ichigo"
+        ],
+        "fecha_creacion": "2026-09-07T15:47:22.310Z"
+    }
+},
+{
+    "model": "docente.recursomusical",
+    "pk": 2,
+    "fields": {
+        "titulo": "el mejor",
+        "descripcion": "",
+        "tipo": "imagen",
+        "categoria": "intervalos",
+        "archivo": "recursos/wallpaperflare.com_wallpaper_2.jpg",
+        "url_externa": null,
+        "tags": "",
+        "vistas": 0,
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-08T14:50:27.054Z"
+    }
+},
+{
+    "model": "docente.recursomusical",
+    "pk": 3,
+    "fields": {
+        "titulo": "Partitura",
+        "descripcion": "Partitura basica",
+        "tipo": "partitura",
+        "categoria": "otro",
+        "archivo": "recursos/images.png",
+        "url_externa": null,
+        "tags": "",
+        "vistas": 0,
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-22T23:24:52.751Z"
+    }
+},
+{
+    "model": "docente.recursomusical",
+    "pk": 4,
+    "fields": {
+        "titulo": "Partitura Unravel",
+        "descripcion": "Analisis para la composicion de acordes y tonos",
+        "tipo": "partitura",
+        "categoria": "otro",
+        "archivo": "recursos/Unravel-Sheet-Music-Tokyo-Ghoul-SheetMusic-Free.com.pdf",
+        "url_externa": null,
+        "tags": "",
+        "vistas": 0,
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-22T23:26:36.918Z"
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 1,
+    "fields": {
+        "nombre": "Acordes mayores",
+        "categoria_tema": "melodia",
+        "descripcion": "En esta clase aprenderas sobre el funcionamiento de acordes mayores y toda su estructura fundamental, armaduras, intervalos y como se componen los acordes por tonos y semi tonos",
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-02T13:04:18.083Z",
+        "codigo": "3LLWJVFH",
+        "imagen": "clases/Anime_Card.jpg",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-02",
+        "fecha_fin": "2026-09-15",
+        "activa": true,
+        "estudiantes": [
+            [
+                "Riasgremory17"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 2,
+    "fields": {
+        "nombre": "Fitnes1",
+        "categoria_tema": "ritmo",
+        "descripcion": "fomentar el ejercicio",
+        "docente": [
+            "ichigo"
+        ],
+        "fecha_creacion": "2026-09-02T13:38:37.607Z",
+        "codigo": "PEV2W8X6",
+        "imagen": "clases/totoro-y-kaonashi-no-face-from-spirited-away_8000x4504_xtrafondos.com_Ya3Ygs9.jpg",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-02",
+        "fecha_fin": "2026-09-28",
+        "activa": true,
+        "estudiantes": [
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 3,
+    "fields": {
+        "nombre": "Intervalos",
+        "categoria_tema": "ritmo",
+        "descripcion": "Clase diseñada para mejorar el ritmo, la resistencia y la capacidad cardiovascular mediante intervalos de trabajo a diferentes intensidades, alternando períodos de esfuerzo con momentos de recuperación. Ideal para desafiarte, aumentar tu rendimiento y mantener un ritmo constante durante el entrenamiento.",
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-08T01:59:05.920Z",
+        "codigo": "53CN7P0F",
+        "imagen": "clases/1392158_rZTqzrW.jpg",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-08",
+        "fecha_fin": "2026-09-23",
+        "activa": true,
+        "estudiantes": [
+            [
+                "Riasgremory17"
+            ]
+        ]
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 4,
+    "fields": {
+        "nombre": "Escala pentatonica",
+        "categoria_tema": "armonia",
+        "descripcion": "Ahora sobre escala pentatonica\r\n\r\nChatGPT dijo:\r\nClase enfocada en comprender y aplicar la escala pentatónica, explorando sus notas, posiciones y diferentes formas de utilizarla. Aprenderás a incorporarla en melodías, improvisaciones y frases musicales para desarrollar tu creatividad, musicalidad y dominio del instrumento.",
+        "docente": [
+            "Fercho17"
+        ],
+        "fecha_creacion": "2026-09-08T02:00:33.320Z",
+        "codigo": "9K6BOWO1",
+        "imagen": "clases/touristic-attraction-place-visit_acvlGZS.jpg",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-08",
+        "fecha_fin": "2026-09-23",
+        "activa": true,
+        "estudiantes": []
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 8,
+    "fields": {
+        "nombre": "piano 1",
+        "categoria_tema": "melodia",
+        "descripcion": "Aprende la posición correcta para tocar el piano",
+        "docente": [
+            "ichigo"
+        ],
+        "fecha_creacion": "2026-09-14T13:12:41.941Z",
+        "codigo": "4QIACF3D",
+        "imagen": "clases/wallhaven-md6djm_2880x1620.png",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-14",
+        "fecha_fin": "2026-09-22",
+        "activa": true,
+        "estudiantes": [
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "clase.clase",
+    "pk": 11,
+    "fields": {
+        "nombre": "prueba fecha 1",
+        "categoria_tema": "armonia",
+        "descripcion": "esta es una prueba de limite de clase",
+        "docente": [
+            "ichigo"
+        ],
+        "fecha_creacion": "2026-09-15T16:45:06.291Z",
+        "codigo": "1KL3NASD",
+        "imagen": "clases/minimalista-miles-morales_7680x4320_xtrafondos.com_DmGto2M.jpg",
+        "nivel_previo": null,
+        "max_estudiantes": 35,
+        "fecha_inicio": "2026-09-15",
+        "fecha_fin": "2026-09-21",
+        "activa": true,
+        "estudiantes": []
+    }
+},
+{
+    "model": "clase.solicitudclase",
+    "pk": 2,
+    "fields": {
+        "clase": 2,
+        "estudiante": [
+            "dylan18"
+        ],
+        "estado": "aceptada",
+        "intentos": 1,
+        "bloqueado": false,
+        "fecha": "2026-09-15T13:56:00.785Z"
+    }
+},
+{
+    "model": "clase.solicitudclase",
+    "pk": 3,
+    "fields": {
+        "clase": 8,
+        "estudiante": [
+            "dylan18"
+        ],
+        "estado": "aceptada",
+        "intentos": 1,
+        "bloqueado": false,
+        "fecha": "2026-09-15T13:56:06.445Z"
+    }
+},
+{
+    "model": "clase.anuncio",
+    "pk": 1,
+    "fields": {
+        "clase": 2,
+        "texto": "hola",
+        "fecha": "2026-09-09T16:00:25.572Z"
+    }
+},
+{
+    "model": "clase.anuncio",
+    "pk": 4,
+    "fields": {
+        "clase": 3,
+        "texto": "Buenos dias estudiantes, aqui les deje 3 nuevas actividades para que realicen.",
+        "fecha": "2026-09-22T23:15:33.125Z"
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 15,
+    "fields": {
+        "tipo": "video_quiz",
+        "clase": 2,
+        "titulo": "prueba 3",
+        "activo": false,
+        "descripcion": "dios",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": "https://www.youtube.com/watch?v=b89CnP0Iq30",
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-09T15:01:09.387Z",
+        "fecha_limite": "2026-09-27T04:59:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 16,
+    "fields": {
+        "tipo": "video_quiz",
+        "clase": 2,
+        "titulo": "prueba 4",
+        "activo": true,
+        "descripcion": "esto es  una prueba",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": "https://www.youtube.com/watch?v=QudK-xpnOw0",
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-14T19:38:44.826Z",
+        "fecha_limite": "2026-09-16T04:59:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 18,
+    "fields": {
+        "tipo": "entrenamiento_auditivo",
+        "clase": 2,
+        "titulo": "prueba 2",
+        "activo": true,
+        "descripcion": "",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-17T15:13:39.428Z",
+        "fecha_limite": "2026-09-25T04:59:00Z",
+        "config_auditivo": {
+            "tipo_practica": "intervalos",
+            "dificultad": "dificil",
+            "num_preguntas": 10,
+            "instrumento": "guitarra"
+        },
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 20,
+    "fields": {
+        "tipo": "entrenamiento_avanzado",
+        "clase": 2,
+        "titulo": "prueba",
+        "activo": true,
+        "descripcion": "",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-17T22:20:55.113Z",
+        "fecha_limite": "2026-09-19T04:59:00Z",
+        "config_auditivo": {
+            "subtipo_avanzado": "oido_absoluto",
+            "dificultad": "dificil",
+            "num_preguntas": 5,
+            "instrumento": "piano",
+            "rango_notas": "completo"
+        },
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 22,
+    "fields": {
+        "tipo": "entrenamiento_avanzado",
+        "clase": 2,
+        "titulo": "prueba",
+        "activo": true,
+        "descripcion": "",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-17T22:54:09.159Z",
+        "fecha_limite": "2026-09-25T04:59:00Z",
+        "config_auditivo": {
+            "subtipo_avanzado": "tapping_ritmico",
+            "dificultad": "medio",
+            "num_preguntas": 5,
+            "instrumento": "piano",
+            "bpm": 60,
+            "tolerancia_ms": 150
+        },
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 23,
+    "fields": {
+        "tipo": "acordes",
+        "clase": 3,
+        "titulo": "Acordes mayores",
+        "activo": true,
+        "descripcion": "Identifica y practica los acordes mayores, reconociendo su sonido y posición en el piano. Escucha cada acorde y responde las preguntas para reforzar su reconocimiento.",
+        "contenido": "[{\"id\": 1790117761260, \"enunciado\": \"Identifica el acorde reproducido\", \"acorde\": \"Do Mayor\", \"semitonos\": [0, 4, 7], \"rootIdx\": 0, \"octava\": 4, \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"Mi mayor\", \"correcta\": false}, {\"texto\": \"Fa Mayor\", \"correcta\": false}, {\"texto\": \"Do S\\u00e9ptima Mayor\", \"correcta\": false}, {\"texto\": \"Do mayor\", \"correcta\": true}]}, {\"id\": 1790117770531, \"enunciado\": \"Identifica el acorde reproducido\", \"acorde\": \"Sol Mayor\", \"semitonos\": [0, 4, 7], \"rootIdx\": 7, \"octava\": 3, \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"Mi aumentado\", \"correcta\": false}, {\"texto\": \"Do Mayor\", \"correcta\": false}, {\"texto\": \"Sol Mayor\", \"correcta\": true}, {\"texto\": \"Si Disminuido\", \"correcta\": false}]}, {\"id\": 1790117783169, \"enunciado\": \"Identifica el acorde reproducido\", \"acorde\": \"D\", \"semitonos\": [0, 4, 7], \"rootIdx\": 2, \"octava\": 5, \"nomenclatura\": \"americano\", \"opciones\": [{\"texto\": \"D\", \"correcta\": true}, {\"texto\": \"Bdim\", \"correcta\": false}, {\"texto\": \"Am7\", \"correcta\": false}, {\"texto\": \"Cdim\", \"correcta\": false}]}]",
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-22T22:57:21.651Z",
+        "fecha_limite": "2026-09-25T01:56:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 24,
+    "fields": {
+        "tipo": "intervalos",
+        "clase": 3,
+        "titulo": "Reconocimiento de segundas y terceras ",
+        "activo": true,
+        "descripcion": "El presente ejercicio tiene como objetivo desarrollar la percepción auditiva y la discriminación interválica. A partir de la audición de secuencias melódicas ascendentes en la octava central, el estudiante deberá identificar y clasificar correctamente los intervalos musicales presentados, distinguiendo entre segundas y terceras. Se recomienda prestar suma atención a la afinación y a la distancia tonal de cada estímulo sonoro antes de registrar su respuesta.",
+        "contenido": "[{\"id\": 1790118186317, \"enunciado\": \"Identifica el intervalo auditivo reproducido\", \"intervalo\": \"2da Menor\", \"semitonos\": 1, \"rootIdx\": 7, \"octava\": 3, \"modo\": \"ascendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"2da Menor\", \"correcta\": true}, {\"texto\": \"6ta Mayor\", \"correcta\": false}, {\"texto\": \"4ta Justa\", \"correcta\": false}, {\"texto\": \"3ra Menor\", \"correcta\": false}]}, {\"id\": 1790118194423, \"enunciado\": \"Identifica el intervalo auditivo reproducido\", \"intervalo\": \"3ra Menor\", \"semitonos\": 3, \"rootIdx\": 5, \"octava\": 4, \"modo\": \"descendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"3ra Menor\", \"correcta\": true}, {\"texto\": \"6ta Mayor\", \"correcta\": false}, {\"texto\": \"2da Mayor\", \"correcta\": false}, {\"texto\": \"8va Justa\", \"correcta\": false}]}, {\"id\": 1790118200588, \"enunciado\": \"Identifica el intervalo auditivo reproducido\", \"intervalo\": \"3ra Mayor\", \"semitonos\": 4, \"rootIdx\": 11, \"octava\": 5, \"modo\": \"armonico\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"3ra Mayor\", \"correcta\": true}, {\"texto\": \"Tritono (4ta Aum / 5ta Dis)\", \"correcta\": false}, {\"texto\": \"4ta Justa\", \"correcta\": false}, {\"texto\": \"7ma Menor\", \"correcta\": false}]}]",
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-22T23:03:27.887Z",
+        "fecha_limite": "2026-09-24T04:59:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 27,
+    "fields": {
+        "tipo": "video_quiz",
+        "clase": 3,
+        "titulo": "Diferencia de tono y semitono",
+        "activo": false,
+        "descripcion": "El presente cuestionario tiene como propósito evaluar la comprensión teórica y la discriminación auditiva de las unidades métricas musicales fundamentales. A través de este ejercicio, el estudiante deberá demostrar su capacidad para diferenciar y reconocer con precisión la distancia entre un semitono (la unidad interválica más pequeña empleada en el sistema occidental) y un tono (compuesto por dos semitonos). Se recomienda analizar detenidamente la distancia entre los grados sonoros antes de seleccionar la opción correcta.",
+        "contenido": null,
+        "video_principal": "",
+        "video_url": "https://youtu.be/sEQf5lcnj_o?si=zYOGgYxIrRB9DdaF",
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-22T23:36:35.357Z",
+        "fecha_limite": "2026-09-30T04:59:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 28,
+    "fields": {
+        "tipo": "escalas",
+        "clase": 3,
+        "titulo": "Escalas mayores ",
+        "activo": true,
+        "descripcion": "El presente ejercicio tiene como objetivo consolidar el reconocimiento auditivo y la comprensión teórica de las estructuras tonales. A partir de los estímulos presentados, el estudiante deberá identificar y diferenciar las características melódicas de las escalas mayores, reconociendo su patrón característico de tonos y semitonos. Se recomienda analizar atentamente la dirección y la estabilidad tonal de cada secuencia antes de registrar la respuesta.",
+        "contenido": "[{\"id\": 1790121712948, \"enunciado\": \"Identifica la escala reproducida\", \"escala\": \"Mayor Natural\", \"formula\": [0, 2, 4, 5, 7, 9, 11, 12], \"rootIdx\": 0, \"octava\": 4, \"direccion\": \"ascendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"Dob\", \"correcta\": false}, {\"texto\": \"Do#\", \"correcta\": false}, {\"texto\": \"Do\", \"correcta\": true}, {\"texto\": \"Re \", \"correcta\": false}, {\"texto\": \"Reb\", \"correcta\": false}]}, {\"id\": 1790121732809, \"enunciado\": \"Identifica la escala reproducida\", \"escala\": \"Mayor Natural\", \"formula\": [0, 2, 4, 5, 7, 9, 11, 12], \"rootIdx\": 7, \"octava\": 3, \"direccion\": \"descendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"Descendente Octava 3 \", \"correcta\": true}, {\"texto\": \"Descendente Octava 2\", \"correcta\": false}, {\"texto\": \"Ascendente Octava 3\", \"correcta\": false}, {\"texto\": \"Ascendente Octava 2\", \"correcta\": false}]}, {\"id\": 1790121770820, \"enunciado\": \"Identifica la escala reproducida\", \"escala\": \"Mayor Natural\", \"formula\": [0, 2, 4, 5, 7, 9, 11, 12], \"rootIdx\": 9, \"octava\": 5, \"direccion\": \"ascendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"Sol # Octava 5\", \"correcta\": false}, {\"texto\": \"Lab octava 5\", \"correcta\": false}, {\"texto\": \"La# octava 4\", \"correcta\": false}, {\"texto\": \"La octava 5\", \"correcta\": true}]}]",
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-23T00:09:54.497Z",
+        "fecha_limite": "2026-09-24T04:59:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 36,
+    "fields": {
+        "tipo": "escalas",
+        "clase": 3,
+        "titulo": "ewqdxdzcqw",
+        "activo": true,
+        "descripcion": "ewdcscq",
+        "contenido": "[{\"id\":1790133646091,\"enunciado\":\"daqwdxzcqe\",\"escala\":\"Mayor Natural\",\"formula\":[0,2,4,5,7,9,11,12],\"rootIdx\":0,\"octava\":4,\"direccion\":\"ascendente\",\"nomenclatura\":\"latino\",\"opciones\":[{\"texto\":\"Mayor Natural\",\"correcta\":true},{\"texto\":\"Modo Lócrio\",\"correcta\":false},{\"texto\":\"Menor Natural\",\"correcta\":false},{\"texto\":\"Modo Lidio\",\"correcta\":false}]}]",
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-23T03:20:54.013Z",
+        "fecha_limite": null,
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.ejercicio",
+    "pk": 37,
+    "fields": {
+        "tipo": "intervalos",
+        "clase": 3,
+        "titulo": "ewqds",
+        "activo": true,
+        "descripcion": "dsczw",
+        "contenido": "[{\"id\": 1790167424729, \"enunciado\": \"Identifica el intervalo auditivo reproducido\", \"intervalo\": \"2da Menor\", \"semitonos\": 1, \"rootIdx\": 3, \"octava\": 4, \"modo\": \"ascendente\", \"nomenclatura\": \"latino\", \"opciones\": [{\"texto\": \"2da Menor\", \"correcta\": true}, {\"texto\": \"8va Justa\", \"correcta\": false}, {\"texto\": \"Tritono (4ta Aum / 5ta Dis)\", \"correcta\": false}, {\"texto\": \"6ta Mayor\", \"correcta\": false}]}]",
+        "video_principal": "",
+        "video_url": null,
+        "imagen_principal": "",
+        "juego_tipo": null,
+        "fecha_creacion": "2026-09-23T12:43:46.863Z",
+        "fecha_limite": "2026-09-23T12:45:00Z",
+        "config_auditivo": null,
+        "recursos": []
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 16,
+    "fields": {
+        "ejercicio": 15,
+        "enunciado": "sera el luisiyo",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 17,
+    "fields": {
+        "ejercicio": 16,
+        "enunciado": "que donghua es ?",
+        "imagen": "preguntas_img/wallhaven-mlzoy1_2880x1620.png"
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 20,
+    "fields": {
+        "ejercicio": 27,
+        "enunciado": "¿Cuál es la definición correcta de un semitono dentro del sistema musical occidental?",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 21,
+    "fields": {
+        "ejercicio": 27,
+        "enunciado": "Si comparamos las unidades de distancia musical, ¿a cuántos semitonos equivale exactamente un tono entero?",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 22,
+    "fields": {
+        "ejercicio": 27,
+        "enunciado": "En un piano estándar, la distancia tonal que existe entre una tecla blanca y su tecla negra adyacente (inmediata) es siempre de un semitono.",
+        "imagen": "preguntas_img/images_VfuhKvw.jpeg"
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 24,
+    "fields": {
+        "ejercicio": 23,
+        "enunciado": "Identifica el acorde reproducido",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 25,
+    "fields": {
+        "ejercicio": 28,
+        "enunciado": "Identifica la escala reproducida",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 26,
+    "fields": {
+        "ejercicio": 24,
+        "enunciado": "Identifica el intervalo auditivo reproducido",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.pregunta",
+    "pk": 28,
+    "fields": {
+        "ejercicio": 36,
+        "enunciado": "daqwdxzcqe",
+        "imagen": ""
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 48,
+    "fields": {
+        "pregunta": 16,
+        "texto_opcion": "no",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 49,
+    "fields": {
+        "pregunta": 16,
+        "texto_opcion": "yes i do",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 50,
+    "fields": {
+        "pregunta": 17,
+        "texto_opcion": "immortal renegade ?",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 51,
+    "fields": {
+        "pregunta": 17,
+        "texto_opcion": "doupo ccaqiong ?",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 52,
+    "fields": {
+        "pregunta": 17,
+        "texto_opcion": "Against the God ?",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 53,
+    "fields": {
+        "pregunta": 17,
+        "texto_opcion": "A Record Mortal's Journey To Immortality ?",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 60,
+    "fields": {
+        "pregunta": 20,
+        "texto_opcion": "Es la distancia exacta entre dos notas naturales consecutivas que tienen una tecla negra en medio.",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 61,
+    "fields": {
+        "pregunta": 20,
+        "texto_opcion": "Es la distancia interválica más pequeña utilizada en la música occidental, equivalente a medio tono.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 62,
+    "fields": {
+        "pregunta": 20,
+        "texto_opcion": "Es la suma de dos tonos enteros consecutivos.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 63,
+    "fields": {
+        "pregunta": 20,
+        "texto_opcion": "Es el intervalo que se forma siempre entre la tónica y la dominante de una escala mayor.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 64,
+    "fields": {
+        "pregunta": 21,
+        "texto_opcion": "A 1 semitono.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 65,
+    "fields": {
+        "pregunta": 21,
+        "texto_opcion": "A 3 semitonos.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 66,
+    "fields": {
+        "pregunta": 21,
+        "texto_opcion": "A 4 semitonos.",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 67,
+    "fields": {
+        "pregunta": 21,
+        "texto_opcion": "A 2 semitonos.",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 68,
+    "fields": {
+        "pregunta": 22,
+        "texto_opcion": "Verdadero",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 69,
+    "fields": {
+        "pregunta": 22,
+        "texto_opcion": "Falso",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 73,
+    "fields": {
+        "pregunta": 24,
+        "texto_opcion": "Do mayor",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 74,
+    "fields": {
+        "pregunta": 24,
+        "texto_opcion": "Mi aumentado",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 75,
+    "fields": {
+        "pregunta": 24,
+        "texto_opcion": "Cdim",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 76,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Dob",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 77,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Ascendente Octava 3",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 78,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "La# octava 4",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 79,
+    "fields": {
+        "pregunta": 26,
+        "texto_opcion": "4ta Justa",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 80,
+    "fields": {
+        "pregunta": 26,
+        "texto_opcion": "6ta Mayor",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 81,
+    "fields": {
+        "pregunta": 26,
+        "texto_opcion": "3ra Mayor",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 82,
+    "fields": {
+        "pregunta": 26,
+        "texto_opcion": "3ra Menor",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 83,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Do",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 84,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Ascendente Octava 2",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 85,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Sol # Octava 5",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 87,
+    "fields": {
+        "pregunta": 26,
+        "texto_opcion": "2da Menor",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 88,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Re ",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 89,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Descendente Octava 3 ",
+        "es_correcta": true
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 90,
+    "fields": {
+        "pregunta": 28,
+        "texto_opcion": "Menor Natural",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.opcion",
+    "pk": 91,
+    "fields": {
+        "pregunta": 25,
+        "texto_opcion": "Lab octava 5",
+        "es_correcta": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 11,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "ejercicio": 18,
+        "fecha_envio": "2026-09-17T15:15:46.114Z",
+        "calificacion": "1.5",
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 13,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "ejercicio": 20,
+        "fecha_envio": "2026-09-17T22:22:10.553Z",
+        "calificacion": "2.0",
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 15,
+    "fields": {
+        "estudiante": [
+            "Riasgremory17"
+        ],
+        "ejercicio": 23,
+        "fecha_envio": "2026-09-22T23:51:53.057Z",
+        "calificacion": null,
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 23,
+    "fields": {
+        "estudiante": [
+            "Riasgremory17"
+        ],
+        "ejercicio": 24,
+        "fecha_envio": "2026-09-23T12:46:42.245Z",
+        "calificacion": null,
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 24,
+    "fields": {
+        "estudiante": [
+            "Riasgremory17"
+        ],
+        "ejercicio": 36,
+        "fecha_envio": "2026-09-23T12:51:50.187Z",
+        "calificacion": null,
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.intentoejercicio",
+    "pk": 25,
+    "fields": {
+        "estudiante": [
+            "Riasgremory17"
+        ],
+        "ejercicio": 28,
+        "fecha_envio": "2026-09-23T12:57:43.958Z",
+        "calificacion": null,
+        "retroalimentacion": null,
+        "aprobado": false
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 13,
+    "fields": {
+        "intento": 15,
+        "pregunta": 24,
+        "opcion_seleccionada": 73
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 14,
+    "fields": {
+        "intento": 15,
+        "pregunta": 24,
+        "opcion_seleccionada": 74
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 15,
+    "fields": {
+        "intento": 15,
+        "pregunta": 24,
+        "opcion_seleccionada": 75
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 35,
+    "fields": {
+        "intento": 23,
+        "pregunta": 26,
+        "opcion_seleccionada": 87
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 36,
+    "fields": {
+        "intento": 23,
+        "pregunta": 26,
+        "opcion_seleccionada": 80
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 37,
+    "fields": {
+        "intento": 23,
+        "pregunta": 26,
+        "opcion_seleccionada": 81
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 38,
+    "fields": {
+        "intento": 24,
+        "pregunta": 28,
+        "opcion_seleccionada": 90
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 39,
+    "fields": {
+        "intento": 25,
+        "pregunta": 25,
+        "opcion_seleccionada": 76
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 40,
+    "fields": {
+        "intento": 25,
+        "pregunta": 25,
+        "opcion_seleccionada": 77
+    }
+},
+{
+    "model": "ejercicios.respuestaestudiante",
+    "pk": 41,
+    "fields": {
+        "intento": 25,
+        "pregunta": 25,
+        "opcion_seleccionada": 91
+    }
+},
+{
+    "model": "ejercicios.practicaauditiva",
+    "pk": 1,
+    "fields": {
+        "intento": 11,
+        "tipo_practica": "intervalos",
+        "aciertos": 3,
+        "total_preguntas": 10,
+        "tiempo_promedio_seg": 0.0,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "3ª Mayor",
+                "correcta": "2ª Mayor",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "2ª Menor",
+                "correcta": "4ª Aumentada",
+                "acerto": false
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "4ª Aumentada",
+                "correcta": "4ª Aumentada",
+                "acerto": true
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "4ª Justa",
+                "correcta": "2ª Mayor",
+                "acerto": false
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "6ª Menor",
+                "correcta": "4ª Justa",
+                "acerto": false
+            },
+            {
+                "pregunta": 6,
+                "respuesta": "5ª Disminuida",
+                "correcta": "5ª Disminuida",
+                "acerto": true
+            },
+            {
+                "pregunta": 7,
+                "respuesta": "6ª Menor",
+                "correcta": "3ª Menor",
+                "acerto": false
+            },
+            {
+                "pregunta": 8,
+                "respuesta": "5ª Justa",
+                "correcta": "4ª Justa",
+                "acerto": false
+            },
+            {
+                "pregunta": 9,
+                "respuesta": "7ª Mayor",
+                "correcta": "6ª Menor",
+                "acerto": false
+            },
+            {
+                "pregunta": 10,
+                "respuesta": "8ª Justa",
+                "correcta": "8ª Justa",
+                "acerto": true
+            }
+        ]
+    }
+},
+{
+    "model": "ejercicios.practicaauditiva",
+    "pk": 3,
+    "fields": {
+        "intento": 13,
+        "tipo_practica": "oido_absoluto",
+        "aciertos": 2,
+        "total_preguntas": 5,
+        "tiempo_promedio_seg": 0.0,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "Sol",
+                "correcta": "Re",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "Do",
+                "correcta": "Si",
+                "acerto": false
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "La",
+                "correcta": "La",
+                "acerto": true
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "Sol",
+                "correcta": "Fa",
+                "acerto": false
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "Fa",
+                "correcta": "Fa",
+                "acerto": true
+            }
+        ]
+    }
+},
+{
+    "model": "ejercicios.practicalibre",
+    "pk": 1,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "tipo_practica": "intervalos",
+        "dificultad": "dificil",
+        "instrumento": "sine",
+        "aciertos": 2,
+        "total_preguntas": 5,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "2ª Mayor",
+                "correcta": "3ª Mayor",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "6ª Mayor",
+                "correcta": "6ª Mayor",
+                "acerto": true
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "7ª Mayor",
+                "correcta": "7ª Mayor",
+                "acerto": true
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "3ª Menor",
+                "correcta": "Tritono",
+                "acerto": false
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "3ª Menor",
+                "correcta": "5ª Justa",
+                "acerto": false
+            }
+        ],
+        "fecha": "2026-09-17T16:16:54.700Z",
+        "subtipo": "basico"
+    }
+},
+{
+    "model": "ejercicios.practicalibre",
+    "pk": 2,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "tipo_practica": "melodia",
+        "dificultad": "facil",
+        "instrumento": "piano",
+        "aciertos": 2,
+        "total_preguntas": 5,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "Do-Mi-Sol",
+                "correcta": "Sol-Mi-Do",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "Sol-Mi-Do",
+                "correcta": "Sol-Mi-Do",
+                "acerto": true
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "Do-Mi-Sol",
+                "correcta": "Mi-Fa-Sol",
+                "acerto": false
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "Mi-Fa-Sol",
+                "correcta": "Mi-Fa-Sol",
+                "acerto": true
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "Do-Mi-Sol",
+                "correcta": "Sol-Mi-Do",
+                "acerto": false
+            }
+        ],
+        "fecha": "2026-09-17T16:22:56.587Z",
+        "subtipo": "basico"
+    }
+},
+{
+    "model": "ejercicios.practicalibre",
+    "pk": 3,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "tipo_practica": "acordes",
+        "dificultad": "medio",
+        "instrumento": "piano",
+        "aciertos": 2,
+        "total_preguntas": 5,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "Disminuido",
+                "correcta": "Mayor",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "Aumentado",
+                "correcta": "Aumentado",
+                "acerto": true
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "Disminuido",
+                "correcta": "Mayor",
+                "acerto": false
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "Aumentado",
+                "correcta": "Aumentado",
+                "acerto": true
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "Mayor",
+                "correcta": "Aumentado",
+                "acerto": false
+            }
+        ],
+        "fecha": "2026-09-17T21:22:24.508Z",
+        "subtipo": "basico"
+    }
+},
+{
+    "model": "ejercicios.practicalibre",
+    "pk": 4,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "tipo_practica": "ritmo",
+        "dificultad": "facil",
+        "instrumento": "piano",
+        "aciertos": 3,
+        "total_preguntas": 5,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "Negras",
+                "correcta": "Corcheas",
+                "acerto": false
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "Negras",
+                "correcta": "Negras",
+                "acerto": true
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "Blancas",
+                "correcta": "Negras",
+                "acerto": false
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "Negras",
+                "correcta": "Negras",
+                "acerto": true
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "Negras",
+                "correcta": "Negras",
+                "acerto": true
+            }
+        ],
+        "fecha": "2026-09-17T21:37:52.102Z",
+        "subtipo": "basico"
+    }
+},
+{
+    "model": "ejercicios.practicalibre",
+    "pk": 5,
+    "fields": {
+        "estudiante": [
+            "dylan18"
+        ],
+        "tipo_practica": "ritmo",
+        "dificultad": "dificil",
+        "instrumento": "piano",
+        "aciertos": 4,
+        "total_preguntas": 5,
+        "detalle_respuestas": [
+            {
+                "pregunta": 1,
+                "respuesta": "7/8",
+                "correcta": "7/8",
+                "acerto": true
+            },
+            {
+                "pregunta": 2,
+                "respuesta": "Ritmo africano",
+                "correcta": "Ritmo africano",
+                "acerto": true
+            },
+            {
+                "pregunta": 3,
+                "respuesta": "Síncopa compleja",
+                "correcta": "Síncopa compleja",
+                "acerto": true
+            },
+            {
+                "pregunta": 4,
+                "respuesta": "Tresillo",
+                "correcta": "7/8",
+                "acerto": false
+            },
+            {
+                "pregunta": 5,
+                "respuesta": "7/8",
+                "correcta": "7/8",
+                "acerto": true
+            }
+        ],
+        "fecha": "2026-09-17T21:40:05.594Z",
+        "subtipo": "basico"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 1,
+    "fields": {
+        "usuario": [
+            "ichigo"
+        ],
+        "tipo": "solicitud",
+        "titulo": "Nueva solicitud de ingreso",
+        "mensaje": "dylan muñoz solicita unirse a Fitnes1",
+        "url_destino": "/docente/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-02T13:39:54.916Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 5,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Acordes mayores",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"Armadura de acordes mayores\"",
+        "url_destino": "/estudiante/clase/1/",
+        "leida": false,
+        "fecha_creacion": "2026-09-04T15:52:19.755Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 6,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Acordes mayores",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"Armadura de acordes mayores\"",
+        "url_destino": "/estudiante/clase/1/",
+        "leida": false,
+        "fecha_creacion": "2026-09-04T15:53:20.163Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 7,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Acordes mayores",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"Armadura de acordes mayores\"",
+        "url_destino": "/estudiante/clase/1/",
+        "leida": false,
+        "fecha_creacion": "2026-09-04T15:58:08.768Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 11,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Acordes mayores",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"ewq\"",
+        "url_destino": "/estudiante/clase/1/",
+        "leida": false,
+        "fecha_creacion": "2026-09-08T01:37:13.710Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 18,
+    "fields": {
+        "usuario": [
+            "ichigo"
+        ],
+        "tipo": "sistema",
+        "titulo": "Nuevo mensaje",
+        "mensaje": "dylan muñoz te envió un mensaje",
+        "url_destino": "/mensajeria/conversacion/1/",
+        "leida": true,
+        "fecha_creacion": "2026-09-14T12:54:11.454Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 24,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "aceptacion",
+        "titulo": "Solicitud aceptada",
+        "mensaje": "Fuiste aceptado en la clase Fitnes1",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T13:56:33.463Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 25,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "aceptacion",
+        "titulo": "Solicitud aceptada",
+        "mensaje": "Fuiste aceptado en la clase piano 1",
+        "url_destino": "/estudiante/clase/8/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T13:56:40.315Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 26,
+    "fields": {
+        "usuario": [
+            "ichigo"
+        ],
+        "tipo": "sistema",
+        "titulo": "Nuevo mensaje",
+        "mensaje": "dylan muñoz te envió un mensaje",
+        "url_destino": "/mensajeria/conversacion/4/",
+        "leida": false,
+        "fecha_creacion": "2026-09-15T14:19:13.235Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 27,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "sistema",
+        "titulo": "Nuevo mensaje en Acordes mayores",
+        "mensaje": "Adrian Delgado: si funciona ?",
+        "url_destino": "/mensajeria/conversacion/5/",
+        "leida": false,
+        "fecha_creacion": "2026-09-15T14:53:45.569Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 28,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "sistema",
+        "titulo": "Nuevo mensaje en Acordes mayores",
+        "mensaje": "Adrian Delgado: si funciona ?",
+        "url_destino": "/mensajeria/conversacion/5/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T14:53:45.571Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 29,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "calificacion",
+        "titulo": "Ejercicio calificado",
+        "mensaje": "Tu ejercicio \"prueba 3\" fue calificado con 5/5.0",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T15:47:22.142Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 30,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "calificacion",
+        "titulo": "Ejercicio calificado",
+        "mensaje": "Tu ejercicio \"prueba 2\" fue calificado con 5/5.0",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T15:47:35.876Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 31,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "calificacion",
+        "titulo": "Ejercicio calificado",
+        "mensaje": "Tu ejercicio \"prueba\" fue calificado con 5/5.0",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T15:47:53.776Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 32,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "calificacion",
+        "titulo": "Ejercicio calificado",
+        "mensaje": "Tu ejercicio \"prueba 4\" fue calificado con 5/5.0",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T15:49:41.447Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 33,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "sistema",
+        "titulo": "???? ¡Nuevo certificado!",
+        "mensaje": "Has recibido un certificado por completar la clase \"Fitnes1\".",
+        "url_destino": "/certificados/",
+        "leida": true,
+        "fecha_creacion": "2026-09-15T15:49:57.238Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 34,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba 1\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T14:37:58.081Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 35,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba 2\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T15:13:39.432Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 36,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba 3\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T21:31:41.529Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 37,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T22:20:55.125Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 38,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T22:46:17.363Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 39,
+    "fields": {
+        "usuario": [
+            "dylan18"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Fitnes1",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"prueba\"",
+        "url_destino": "/estudiante/clase/2/",
+        "leida": false,
+        "fecha_creacion": "2026-09-17T22:54:09.164Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 40,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Intervalos",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"Diferencia de tono y semitono\"",
+        "url_destino": "/estudiante/clase/3/",
+        "leida": false,
+        "fecha_creacion": "2026-09-22T23:32:38.571Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 41,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "anuncio",
+        "titulo": "Nuevo ejercicio en Intervalos",
+        "mensaje": "El docente publicó un nuevo ejercicio: \"Diferencia de tono y semitono\"",
+        "url_destino": "/estudiante/clase/3/",
+        "leida": false,
+        "fecha_creacion": "2026-09-22T23:36:35.411Z"
+    }
+},
+{
+    "model": "notificaciones.notificacion",
+    "pk": 42,
+    "fields": {
+        "usuario": [
+            "Riasgremory17"
+        ],
+        "tipo": "calificacion",
+        "titulo": "Ejercicio calificado",
+        "mensaje": "Tu ejercicio \"Reconocimiento de segundas y terceras \" fue calificado con 3/5.0",
+        "url_destino": "/estudiante/clase/3/",
+        "leida": false,
+        "fecha_creacion": "2026-09-23T02:32:27.936Z"
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 2,
+    "fields": {
+        "tipo": "clase",
+        "clase": 2,
+        "fecha_creacion": "2026-09-15T14:13:46.578Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "ichigo"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 3,
+    "fields": {
+        "tipo": "clase",
+        "clase": 8,
+        "fecha_creacion": "2026-09-15T14:13:46.589Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "ichigo"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 4,
+    "fields": {
+        "tipo": "privada",
+        "clase": null,
+        "fecha_creacion": "2026-09-15T14:18:47.995Z",
+        "ultimo_mensaje": "2026-09-15T14:19:13.231Z",
+        "participantes": [
+            [
+                "ichigo"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 5,
+    "fields": {
+        "tipo": "clase",
+        "clase": 1,
+        "fecha_creacion": "2026-09-15T14:53:30.906Z",
+        "ultimo_mensaje": "2026-09-15T14:53:45.561Z",
+        "participantes": [
+            [
+                "Fercho17"
+            ],
+            [
+                "Riasgremory17"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 6,
+    "fields": {
+        "tipo": "clase",
+        "clase": 3,
+        "fecha_creacion": "2026-09-15T14:53:30.918Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "Fercho17"
+            ],
+            [
+                "Riasgremory17"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 7,
+    "fields": {
+        "tipo": "clase",
+        "clase": 4,
+        "fecha_creacion": "2026-09-15T14:53:30.925Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "Fercho17"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 8,
+    "fields": {
+        "tipo": "privada",
+        "clase": null,
+        "fecha_creacion": "2026-09-15T21:27:11.357Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "Riasgremory17"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 9,
+    "fields": {
+        "tipo": "clase",
+        "clase": 11,
+        "fecha_creacion": "2026-09-15T21:33:59.521Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "ichigo"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.conversacion",
+    "pk": 10,
+    "fields": {
+        "tipo": "privada",
+        "clase": null,
+        "fecha_creacion": "2026-09-16T00:54:51.153Z",
+        "ultimo_mensaje": null,
+        "participantes": [
+            [
+                "Fercho17"
+            ],
+            [
+                "dylan18"
+            ]
+        ]
+    }
+},
+{
+    "model": "mensajeria.mensaje",
+    "pk": 3,
+    "fields": {
+        "conversacion": 4,
+        "remitente": [
+            "dylan18"
+        ],
+        "contenido": "hola",
+        "fecha_envio": "2026-09-15T14:19:13.231Z",
+        "leido": true
+    }
+},
+{
+    "model": "mensajeria.mensaje",
+    "pk": 4,
+    "fields": {
+        "conversacion": 5,
+        "remitente": [
+            "Fercho17"
+        ],
+        "contenido": "si funciona ?",
+        "fecha_envio": "2026-09-15T14:53:45.561Z",
+        "leido": false
+    }
+}
+]

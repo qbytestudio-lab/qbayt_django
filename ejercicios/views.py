@@ -1,4 +1,3 @@
-```python
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import json

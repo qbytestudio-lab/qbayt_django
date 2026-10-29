@@ -1,10 +1,10 @@
 # Details
 
-Date : 2026-10-29 16:05:16
+Date : 2026-10-29 16:25:50
 
 Directory c:\\Users\\marar\\OneDrive\\Documentos\\SENA\\GIt hub Ejercicios\\Nueva carpeta\\qbayt_django
 
-Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
+Total : 257 files,  68156 codes, 4173 comments, 10689 blanks, all 83018 lines
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
 
@@ -34,6 +34,9 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [clase/static/clase/css/continuar\_curso.css](/clase/static/clase/css/continuar_curso.css) | PostCSS | 517 | 41 | 97 | 655 |
 | [clase/static/clase/css/crear\_curso.css](/clase/static/clase/css/crear_curso.css) | PostCSS | 409 | 38 | 77 | 524 |
 | [clase/static/clase/css/curso.css](/clase/static/clase/css/curso.css) | PostCSS | 693 | 61 | 125 | 879 |
+| [clase/static/clase/css/detalle\_curso.css](/clase/static/clase/css/detalle_curso.css) | PostCSS | 376 | 33 | 70 | 479 |
+| [clase/templates/clase/\_ejercicio\_card\_docente.html](/clase/templates/clase/_ejercicio_card_docente.html) | HTML | 37 | 0 | 5 | 42 |
+| [clase/templates/clase/detalle\_clase.html](/clase/templates/clase/detalle_clase.html) | HTML | 879 | 32 | 110 | 1,021 |
 | [clase/tests.py](/clase/tests.py) | Python | 1 | 1 | 2 | 4 |
 | [clase/urls.py](/clase/urls.py) | Python | 12 | 0 | 2 | 14 |
 | [clase/views.py](/clase/views.py) | Python | 247 | 44 | 77 | 368 |
@@ -56,7 +59,6 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [docente/static/docente/css/certificados.css](/docente/static/docente/css/certificados.css) | PostCSS | 672 | 52 | 132 | 856 |
 | [docente/static/docente/css/detalle\_actividad.css](/docente/static/docente/css/detalle_actividad.css) | PostCSS | 619 | 50 | 116 | 785 |
 | [docente/static/docente/css/detalle\_clase.css](/docente/static/docente/css/detalle_clase.css) | PostCSS | 2,116 | 110 | 290 | 2,516 |
-| [docente/static/docente/css/detalle\_curso.css](/docente/static/docente/css/detalle_curso.css) | PostCSS | 376 | 33 | 70 | 479 |
 | [docente/static/docente/css/detalle\_leccion.css](/docente/static/docente/css/detalle_leccion.css) | PostCSS | 564 | 43 | 107 | 714 |
 | [docente/static/docente/css/editar\_ejercicio.css](/docente/static/docente/css/editar_ejercicio.css) | PostCSS | 809 | 57 | 129 | 995 |
 | [docente/static/docente/css/estadisticas.css](/docente/static/docente/css/estadisticas.css) | PostCSS | 827 | 47 | 160 | 1,034 |
@@ -64,10 +66,8 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [docente/static/docente/css/notas\_estudiante.css](/docente/static/docente/css/notas_estudiante.css) | PostCSS | 424 | 29 | 75 | 528 |
 | [docente/static/docente/css/perfil\_docente.css](/docente/static/docente/css/perfil_docente.css) | PostCSS | 1,050 | 73 | 172 | 1,295 |
 | [docente/static/docente/css/seleccionar\_ejercicios.css](/docente/static/docente/css/seleccionar_ejercicios.css) | PostCSS | 650 | 68 | 108 | 826 |
-| [docente/templates/docente/\_ejercicio\_card\_docente.html](/docente/templates/docente/_ejercicio_card_docente.html) | HTML | 37 | 0 | 5 | 42 |
 | [docente/templates/docente/biblioteca\_recursos.html](/docente/templates/docente/biblioteca_recursos.html) | HTML | 754 | 21 | 121 | 896 |
 | [docente/templates/docente/calendario\_docente.html](/docente/templates/docente/calendario_docente.html) | HTML | 386 | 22 | 53 | 461 |
-| [docente/templates/docente/detalle\_clase.html](/docente/templates/docente/detalle_clase.html) | HTML | 879 | 32 | 110 | 1,021 |
 | [docente/templates/docente/editar\_ejercicio.html](/docente/templates/docente/editar_ejercicio.html) | HTML | 158 | 14 | 26 | 198 |
 | [docente/templates/docente/estadisticas.html](/docente/templates/docente/estadisticas.html) | HTML | 169 | 7 | 19 | 195 |
 | [docente/templates/docente/gestionar\_certificados.html](/docente/templates/docente/gestionar_certificados.html) | HTML | 124 | 0 | 12 | 136 |
@@ -167,19 +167,19 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [estudiante/templates/estudiante/resolver\_escalas.html](/estudiante/templates/estudiante/resolver_escalas.html) | HTML | 252 | 8 | 49 | 309 |
 | [estudiante/templates/estudiante/resolver\_intervalos.html](/estudiante/templates/estudiante/resolver_intervalos.html) | HTML | 236 | 7 | 45 | 288 |
 | [estudiante/tests.py](/estudiante/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [estudiante/urls.py](/estudiante/urls.py) | Python | 17 | 1 | 2 | 20 |
-| [estudiante/utils.py](/estudiante/utils.py) | Python | 114 | 43 | 47 | 204 |
-| [estudiante/views.py](/estudiante/views.py) | Python | 586 | 66 | 149 | 801 |
+| [estudiante/urls.py](/estudiante/urls.py) | Python | 17 | 1 | 0 | 18 |
+| [estudiante/utils.py](/estudiante/utils.py) | Python | 114 | 43 | 0 | 157 |
+| [estudiante/views.py](/estudiante/views.py) | Python | 308 | 0 | 0 | 308 |
 | [manage.py](/manage.py) | Python | 15 | 3 | 5 | 23 |
 | [mensajeria/\_\_init\_\_.py](/mensajeria/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [mensajeria/admin.py](/mensajeria/admin.py) | Python | 12 | 0 | 2 | 14 |
-| [mensajeria/apps.py](/mensajeria/apps.py) | Python | 4 | 0 | 3 | 7 |
+| [mensajeria/admin.py](/mensajeria/admin.py) | Python | 12 | 0 | 0 | 12 |
+| [mensajeria/apps.py](/mensajeria/apps.py) | Python | 4 | 0 | 1 | 5 |
 | [mensajeria/migrations/0001\_initial.py](/mensajeria/migrations/0001_initial.py) | Python | 36 | 1 | 7 | 44 |
 | [mensajeria/migrations/0002\_conversacion\_clase\_alter\_conversacion\_ultimo\_mensaje.py](/mensajeria/migrations/0002_conversacion_clase_alter_conversacion_ultimo_mensaje.py) | Python | 19 | 1 | 6 | 26 |
 | [mensajeria/migrations/0003\_remove\_conversacion\_clase.py](/mensajeria/migrations/0003_remove_conversacion_clase.py) | Python | 11 | 1 | 6 | 18 |
 | [mensajeria/migrations/0004\_conversacion\_clase\_conversacion\_tipo.py](/mensajeria/migrations/0004_conversacion_clase_conversacion_tipo.py) | Python | 19 | 1 | 6 | 26 |
 | [mensajeria/migrations/\_\_init\_\_.py](/mensajeria/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [mensajeria/models.py](/mensajeria/models.py) | Python | 45 | 1 | 13 | 59 |
+| [mensajeria/models.py](/mensajeria/models.py) | Python | 45 | 1 | 0 | 46 |
 | [mensajeria/static/mensajeria/css/contactos\_clase.css](/mensajeria/static/mensajeria/css/contactos_clase.css) | PostCSS | 642 | 55 | 117 | 814 |
 | [mensajeria/static/mensajeria/css/detalle\_conversacion.css](/mensajeria/static/mensajeria/css/detalle_conversacion.css) | PostCSS | 654 | 52 | 128 | 834 |
 | [mensajeria/static/mensajeria/css/lista\_conversaciones.css](/mensajeria/static/mensajeria/css/lista_conversaciones.css) | PostCSS | 783 | 53 | 142 | 978 |
@@ -188,20 +188,20 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [mensajeria/templates/mensajeria/detalle\_conversacion.html](/mensajeria/templates/mensajeria/detalle_conversacion.html) | HTML | 124 | 3 | 16 | 143 |
 | [mensajeria/templates/mensajeria/lista\_conversaciones.html](/mensajeria/templates/mensajeria/lista_conversaciones.html) | HTML | 167 | 2 | 23 | 192 |
 | [mensajeria/tests.py](/mensajeria/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [mensajeria/urls.py](/mensajeria/urls.py) | Python | 9 | 0 | 2 | 11 |
-| [mensajeria/views.py](/mensajeria/views.py) | Python | 224 | 32 | 52 | 308 |
+| [mensajeria/urls.py](/mensajeria/urls.py) | Python | 9 | 0 | 0 | 9 |
+| [mensajeria/views.py](/mensajeria/views.py) | Python | 120 | 0 | 0 | 120 |
 | [notificaciones/\_\_init\_\_.py](/notificaciones/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [notificaciones/admin.py](/notificaciones/admin.py) | Python | 7 | 0 | 1 | 8 |
-| [notificaciones/apps.py](/notificaciones/apps.py) | Python | 5 | 0 | 1 | 6 |
+| [notificaciones/admin.py](/notificaciones/admin.py) | Python | 7 | 0 | 0 | 7 |
+| [notificaciones/apps.py](/notificaciones/apps.py) | Python | 5 | 0 | 0 | 5 |
 | [notificaciones/migrations/0001\_initial.py](/notificaciones/migrations/0001_initial.py) | Python | 26 | 1 | 7 | 34 |
 | [notificaciones/migrations/\_\_init\_\_.py](/notificaciones/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [notificaciones/models.py](/notificaciones/models.py) | Python | 23 | 0 | 4 | 27 |
-| [notificaciones/services.py](/notificaciones/services.py) | Python | 60 | 9 | 6 | 75 |
+| [notificaciones/models.py](/notificaciones/models.py) | Python | 23 | 0 | 0 | 23 |
+| [notificaciones/services.py](/notificaciones/services.py) | Python | 60 | 9 | 0 | 69 |
 | [notificaciones/static/css/notificaciones.css](/notificaciones/static/css/notificaciones.css) | PostCSS | 574 | 48 | 87 | 709 |
 | [notificaciones/templates/notificaciones/lista.html](/notificaciones/templates/notificaciones/lista.html) | HTML | 58 | 0 | 11 | 69 |
 | [notificaciones/tests.py](/notificaciones/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [notificaciones/urls.py](/notificaciones/urls.py) | Python | 9 | 1 | 1 | 11 |
-| [notificaciones/views.py](/notificaciones/views.py) | Python | 56 | 10 | 14 | 80 |
+| [notificaciones/urls.py](/notificaciones/urls.py) | Python | 9 | 1 | 0 | 10 |
+| [notificaciones/views.py](/notificaciones/views.py) | Python | 28 | 0 | 0 | 28 |
 | [qbyt/\_\_init\_\_.py](/qbyt/__init__.py) | Python | 2 | 0 | 0 | 2 |
 | [qbyt/asgi.py](/qbyt/asgi.py) | Python | 4 | 8 | 5 | 17 |
 | [qbyt/settings.py](/qbyt/settings.py) | Python | 131 | 33 | 39 | 203 |
@@ -219,7 +219,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [templates/socialaccount/login.html](/templates/socialaccount/login.html) | HTML | 25 | 0 | 6 | 31 |
 | [web/\_\_init\_\_.py](/web/__init__.py) | Python | 0 | 0 | 1 | 1 |
 | [web/admin.py](/web/admin.py) | Python | 0 | 0 | 1 | 1 |
-| [web/apps.py](/web/apps.py) | Python | 3 | 0 | 3 | 6 |
+| [web/apps.py](/web/apps.py) | Python | 3 | 0 | 1 | 4 |
 | [web/migrations/0001\_initial.py](/web/migrations/0001_initial.py) | Python | 18 | 1 | 7 | 26 |
 | [web/migrations/0002\_alter\_perfil\_id.py](/web/migrations/0002_alter_perfil_id.py) | Python | 12 | 1 | 6 | 19 |
 | [web/migrations/0003\_curso\_modulo.py](/web/migrations/0003_curso_modulo.py) | Python | 30 | 1 | 6 | 37 |
@@ -238,7 +238,7 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [web/migrations/0016\_alter\_inscripcioncurso\_unique\_together\_and\_more.py](/web/migrations/0016_alter_inscripcioncurso_unique_together_and_more.py) | Python | 32 | 1 | 6 | 39 |
 | [web/migrations/0017\_certificado.py](/web/migrations/0017_certificado.py) | Python | 33 | 1 | 6 | 40 |
 | [web/migrations/\_\_init\_\_.py](/web/migrations/__init__.py) | Python | 0 | 0 | 1 | 1 |
-| [web/models.py](/web/models.py) | Python | 86 | 4 | 14 | 104 |
+| [web/models.py](/web/models.py) | Python | 86 | 4 | 0 | 90 |
 | [web/static/web/css/auth.css](/web/static/web/css/auth.css) | PostCSS | 857 | 78 | 153 | 1,088 |
 | [web/static/web/css/auth\_horizontal.css](/web/static/web/css/auth_horizontal.css) | PostCSS | 871 | 83 | 157 | 1,111 |
 | [web/static/web/css/base.css](/web/static/web/css/base.css) | PostCSS | 0 | 0 | 1 | 1 |
@@ -264,9 +264,9 @@ Total : 257 files,  69308 codes, 4402 comments, 11221 blanks, all 84931 lines
 | [web/templates/web/registro.html](/web/templates/web/registro.html) | HTML | 178 | 7 | 25 | 210 |
 | [web/templates/web/verificacion\_fallida.html](/web/templates/web/verificacion_fallida.html) | HTML | 26 | 0 | 2 | 28 |
 | [web/tests.py](/web/tests.py) | Python | 1 | 1 | 2 | 4 |
-| [web/tokens.py](/web/tokens.py) | Python | 5 | 0 | 4 | 9 |
-| [web/urls.py](/web/urls.py) | Python | 26 | 8 | 3 | 37 |
-| [web/utils.py](/web/utils.py) | Python | 35 | 3 | 8 | 46 |
-| [web/views.py](/web/views.py) | Python | 828 | 121 | 205 | 1,154 |
+| [web/tokens.py](/web/tokens.py) | Python | 5 | 0 | 0 | 5 |
+| [web/urls.py](/web/urls.py) | Python | 26 | 8 | 0 | 34 |
+| [web/utils.py](/web/utils.py) | Python | 35 | 3 | 0 | 38 |
+| [web/views.py](/web/views.py) | Python | 86 | 0 | 0 | 86 |
 
 [Summary](results.md) / Details / [Diff Summary](diff.md) / [Diff Details](diff-details.md)
