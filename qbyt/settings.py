@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'notificaciones',
     'mensajeria',
     'django_extensions',
+    'administrador'
 
 ]
 

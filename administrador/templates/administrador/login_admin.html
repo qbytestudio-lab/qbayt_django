@@ -1,0 +1,38 @@
+{% extends 'web/base_login.html' %}
+
+{% block content %}
+<div class="login-card">
+    <h2>Acceso Administrador</h2>
+    <p class="subtitle">Ingresa tus credenciales para gestionar QBYT</p>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-danger mb-4">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+            <label class="form-label"><i class="bi bi-person-fill" style="color: var(--primary);"></i> Usuario Admin</label>
+            <input type="text" name="username" class="form-control" placeholder="Ej. ichigo" required>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label"><i class="bi bi-lock-fill" style="color: var(--primary);"></i> Contraseña</label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+        
+        <button type="submit" class="btn-login">
+            <i class="bi bi-box-arrow-in-right"></i> Ingresar
+        </button>
+    </form>
+    
+    <div class="footer-links">
+        <a href="{% url 'inicio' %}">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
+    </div>
+</div>
+{% endblock %}

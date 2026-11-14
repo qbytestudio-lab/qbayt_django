@@ -43,6 +43,7 @@ urlpatterns = [
     path('notificaciones/', include('notificaciones.urls')),
     path('mensajeria/', include('mensajeria.urls')),
     path('accounts/', include('allauth.urls')),
+    path('administrador/', include('administrador.urls')),
 ]
 
 # ═══════════════════════════════════════════
