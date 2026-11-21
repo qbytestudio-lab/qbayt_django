@@ -8,33 +8,77 @@ from django.utils import timezone
 from clase.models import Clase
 from .models import Conversacion, Mensaje
 from notificaciones.services import crear_notificacion
+
 DIAS_GRACIA = 5
+
 def _filtrar_clases_visibles_estudiante(queryset):
     limite = timezone.now().date() - timedelta(days=DIAS_GRACIA)
     return queryset.exclude(fecha_fin__lt=limite)
+
 @login_required
 def listar_conversaciones(request):
     usuario = request.user
-    if usuario.perfil.rol == 'docente': clases = Clase.objects.filter(docente=usuario)
-    else: clases = _filtrar_clases_visibles_estudiante(usuario.clases_estudiante.all())
+
+    # 1. Obtener las clases del usuario
+    if usuario.perfil.rol == 'docente':
+        clases = Clase.objects.filter(docente=usuario)
+    else:
+        clases = _filtrar_clases_visibles_estudiante(usuario.clases_estudiante.all())
+
+    items_clases = []
+    items_privados = []
+
+    # 2. Recorremos las clases y armamos los items de clase
     for clase in clases:
         conv, _ = Conversacion.objects.get_or_create(clase=clase, defaults={'tipo': 'clase'})
-        if conv.tipo != 'clase':
-            conv.tipo = 'clase'
-            conv.save(update_fields=['tipo'])
+
+        # Forzamos a que el usuario esté en la conversación
+        if usuario not in conv.participantes.all():
+            conv.participantes.add(usuario)
+
         participantes_ids = [clase.docente.id] + list(clase.estudiantes.values_list('id', flat=True))
         conv.participantes.set(participantes_ids)
-    conversaciones = Conversacion.objects.filter(participantes=usuario).annotate(num_participantes=Count('participantes')).filter(num_participantes__gte=2).distinct().order_by('-ultimo_mensaje', '-fecha_creacion')
-    items = []
-    for conv in conversaciones:
-        otro = conv.obtener_otro_participante(usuario)
+
         ultimo = conv.mensajes.order_by('-fecha_envio').first()
         no_leidos = conv.contar_no_leidos(usuario)
-        if conv.tipo == 'privada' and otro is None: continue
-        if usuario.perfil.rol == 'estudiante' and conv.tipo == 'clase' and conv.clase and conv.clase.esta_expirada: continue
-        items.append({'conversacion': conv, 'otro_participante': otro, 'ultimo_mensaje': ultimo, 'no_leidos': no_leidos, 'es_clase': conv.tipo == 'clase', 'clase': conv.clase if conv.tipo == 'clase' else None})
-    clases_sidebar = Clase.objects.filter(docente=usuario) if usuario.perfil.rol == 'docente' else _filtrar_clases_visibles_estudiante(usuario.clases_estudiante.all())
-    return render(request, 'mensajeria/lista_conversaciones.html', {'items': items, 'clases': clases_sidebar})
+
+        items_clases.append({
+            'conversacion': conv,
+            'otro_participante': None,
+            'ultimo_mensaje': ultimo,
+            'no_leidos': no_leidos,
+            'es_clase': True,
+            'clase': clase
+        })
+
+    # 3. Buscar chats privados
+    privadas = Conversacion.objects.filter(tipo='privada', participantes=usuario)
+    for conv in privadas:
+        otro = conv.obtener_otro_participante(usuario)
+        if otro:
+            ultimo = conv.mensajes.order_by('-fecha_envio').first()
+            no_leidos = conv.contar_no_leidos(usuario)
+            items_privados.append({
+                'conversacion': conv,
+                'otro_participante': otro,
+                'ultimo_mensaje': ultimo,
+                'no_leidos': no_leidos,
+                'es_clase': False,
+                'clase': None
+            })
+
+    # 4. Ordenar cada lista para que las más recientes salgan primero
+    items_clases.sort(key=lambda x: x['conversacion'].ultimo_mensaje or x['conversacion'].fecha_creacion, reverse=True)
+    items_privados.sort(key=lambda x: x['conversacion'].ultimo_mensaje or x['conversacion'].fecha_creacion, reverse=True)
+
+    clases_sidebar = clases
+
+    return render(request, 'mensajeria/lista_conversaciones.html', {
+        'items_clases': items_clases, 
+        'items_privados': items_privados,
+        'clases': clases_sidebar
+    })
+
 @login_required
 def contactos_clase(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -63,6 +107,7 @@ def contactos_clase(request, clase_id):
     conversacion_clase.participantes.set(participantes_ids)
     context = {'clase': clase, 'contactos': contactos, 'conversacion_clase': conversacion_clase}
     return render(request, 'mensajeria/contactos_clase.html', context)
+
 @login_required
 def iniciar_conversacion(request, usuario_id):
     otro_usuario = get_object_or_404(User, id=usuario_id)
@@ -80,6 +125,7 @@ def iniciar_conversacion(request, usuario_id):
         conversacion = Conversacion.objects.create(tipo='privada')
         conversacion.participantes.add(request.user, otro_usuario)
     return redirect('mensajeria:detalle', conversacion_id=conversacion.id)
+
 @login_required
 def detalle_conversacion(request, conversacion_id):
     conversacion = get_object_or_404(Conversacion, id=conversacion_id)

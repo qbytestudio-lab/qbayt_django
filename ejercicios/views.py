@@ -1,4 +1,4 @@
-```python
+from django.shortcuts import render
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
 import json
@@ -14,6 +14,7 @@ from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEst
 from clase.models import Clase
 from docente.models import RecursoMusical
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion, crear_notificacion
+from django.shortcuts import render, redirect, get_object_or_404
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
     tipo = request.GET.get('tipo', 'quiz')

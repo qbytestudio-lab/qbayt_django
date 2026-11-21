@@ -199,9 +199,6 @@ body::before {
 
 .logo-area:hover { transform: scale(1.03); }
 
-/* ============================================================
-   LOGO — tal cual tu imagen original
-   ============================================================ */
 .logo-box {
   width: 40px;
   height: 40px;
@@ -227,7 +224,6 @@ body::before {
   border-radius: 30%;
 }
 
-
 .logo-text {
     font-family: 'Syne', sans-serif;
     font-weight: 800;
@@ -247,7 +243,6 @@ body::before {
     50% { background-position: 100% 50%; }
 }
 
-/* Auth buttons */
 .auth-buttons {
     display: flex;
     align-items: center;
@@ -1703,137 +1698,119 @@ section {
 }
 
 /* ============================================================
-   RESPONSIVE — MOBILE
+   RESPONSIVE — MOBILE (CORREGIDO)
    ============================================================ */
 @media (max-width: 768px) {
-    .topbar { padding: 0.7rem 0; }
-
-    .logo-text { font-size: 1.15rem; }
-    .logo-box { width: 38px; height: 38px; padding: 2px; }
-
-    .btn-login,
-    .btn-register {
-        padding: 0.45rem 1rem;
-        font-size: 0.78rem;
+    /* 1. TOPBAR: Mantener ambos botones visibles */
+    .topbar { padding: 0.5rem 0; }
+    
+    .topbar-content {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
     }
 
-    .auth-buttons { gap: 0.4rem; }
-    .theme-toggle { width: 38px; height: 38px; font-size: 0.95rem; }
-
-    .main-nav { padding: 0.35rem 0; top: 58px; }
-    .main-nav .nav-link {
-        padding: 0.6rem 1rem !important;
-        font-size: 0.82rem;
-    }
-
-    .hero { padding: 4rem 1rem 5rem; }
-    .hero h1 { font-size: 2rem; }
-    .hero p { font-size: 0.95rem; margin-bottom: 2rem; }
-
-    .eyebrow { font-size: 0.7rem; padding: 0.4rem 0.85rem; }
-    .btn-hero-primary { padding: 0.85rem 1.75rem; font-size: 0.92rem; }
-
-    .music-banner { padding: 0 1rem 3rem; }
-    .banner-content { padding: 1.75rem 1.5rem; }
-    .banner-text h3 { font-size: 1.25rem; }
-    .banner-text p { font-size: 0.88rem; }
-
-    section { padding: 3.5rem 0; }
-    .sec-title { font-size: 1.6rem; }
-    .sec-sub { font-size: 0.9rem; margin-bottom: 2rem; }
-
-    .music-card,
-    .benefit-card { padding: 1.5rem; }
-    .music-card h2 { font-size: 1rem; }
-
-    .quienes-stats { gap: 1.5rem; }
-    .qstat-val { font-size: 1.5rem; }
-
-    .creador-nombre { font-size: 1.15rem; }
-    .creador-descripcion { font-size: 0.82rem; }
-    .creador-imagen-placeholder i { font-size: 4rem; }
-
-    .testimonial-card { padding: 1.5rem; }
-
-    .cta-section { padding: 3rem 1rem 4rem; }
-    .cta-box { padding: 3rem 1.5rem; }
-    .cta-buttons { flex-direction: column; }
-    .cta-buttons > * { width: 100%; justify-content: center; }
-
-    .footer { padding: 2.5rem 0 1.5rem; }
-}
-
-/* ============================================================
-   RESPONSIVE — MOBILE PEQUEÑO
-   ============================================================ */
-@media (max-width: 480px) {
     .logo-text { font-size: 1rem; }
-    .logo-box { width: 34px; height: 34px; padding: 2px; }
+    .logo-box { width: 32px; height: 32px; border-width: 1px; }
+    .logo-box img { width: 18px; height: 18px; }
 
+    .auth-buttons { gap: 0.3rem; }
+    
+    .theme-toggle { width: 34px; height: 34px; font-size: 0.85rem; }
+
+    /* Ajuste para que quepan ambos botones */
     .btn-login,
     .btn-register {
-        padding: 0.4rem 0.75rem;
-        font-size: 0.72rem;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.7rem;
+        gap: 0.2rem;
     }
 
+    /* 2. NAV: Ajustar altura */
+    .main-nav { top: 54px; padding: 0.25rem 0; }
+    .main-nav .nav-link { padding: 0.4rem 0.6rem !important; font-size: 0.78rem; }
+
+    /* 3. HERO: Ajustar textos y botón */
     .hero { padding: 3rem 1rem 4rem; }
-    .hero h1 { font-size: 1.65rem; letter-spacing: -0.5px; }
-    .hero p { font-size: 0.88rem; }
-    .btn-hero-primary { padding: 0.75rem 1.5rem; font-size: 0.85rem; }
+    .hero h1 { font-size: 1.75rem; line-height: 1.1; }
+    .hero p { font-size: 0.85rem; margin-bottom: 1.5rem; }
 
+    .eyebrow { font-size: 0.65rem; padding: 0.3rem 0.7rem; margin-bottom: 1rem; }
+    .btn-hero-primary { padding: 0.7rem 1.25rem; font-size: 0.8rem; width: 100%; justify-content: center; }
+
+    /* 4. CARRUSEL: Evitar que el texto se amontone */
+    .music-banner { padding: 0 0.5rem 3rem; margin-top: -1.5rem; }
+    .banner-content { 
+        padding: 1.25rem; 
+        border-radius: 20px; 
+        gap: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .banner-text h3 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+    .banner-text p { font-size: 0.8rem; line-height: 1.5; margin-bottom: 1rem; }
+    .btn-banner { width: 100%; justify-content: center; padding: 0.6rem 1rem; font-size: 0.8rem; }
+    
+    /* Ajuste de la imagen para que no se aplaste */
+    .banner-image {
+        width: 100%;
+        height: auto;
+        aspect-ratio: 16 / 9;
+        margin-top: 0.5rem;
+    }
+
+    /* 5. SECCIONES */
+    section { padding: 2.5rem 0; }
     .sec-title { font-size: 1.4rem; }
-    .sec-sub { font-size: 0.85rem; }
+    .sec-sub { font-size: 0.85rem; margin-bottom: 1.5rem; }
 
-    .banner-content { padding: 1.35rem 1.15rem; }
-    .banner-text h3 { font-size: 1.1rem; }
-    .banner-text p { font-size: 0.82rem; margin-bottom: 1rem; }
-    .carousel-indicators { justify-content: center; }
+    /* 6. TARJETAS (Programas y Beneficios) - Asegurar que no se monten */
+    .music-card, 
+    .benefit-card { 
+        padding: 1.25rem; 
+        border-radius: 16px;
+        margin-bottom: 1rem; /* Evita que se peguen unas a otras */
+        height: auto; /* Permite que crezcan si el texto es largo */
+    }
+    
+    .music-card h2 { font-size: 1rem; }
+    .music-card p { font-size: 0.8rem; }
+    .card-icon { width: 44px; height: 44px; font-size: 1.1rem; margin-bottom: 0.85rem; }
+    .section-number { font-size: 2.5rem; top: 1rem; right: 1rem; }
 
-    .music-card,
-    .benefit-card,
-    .qcard { padding: 1.25rem; }
+    /* 7. CTA Y FOOTER */
+    .cta-section { padding: 2rem 1rem 3rem; }
+    .cta-box { padding: 2rem 1.25rem; border-radius: 20px; }
+    .cta-box h2 { font-size: 1.25rem; }
+    .cta-box p { font-size: 0.85rem; }
+    .cta-buttons { flex-direction: column; gap: 0.5rem; }
+    
+    .footer { padding: 2rem 0 1rem; margin-top: 2rem; }
 
-    .card-icon { width: 52px; height: 52px; font-size: 1.35rem; }
-    .section-number { font-size: 2.75rem; }
-
-    .quienes-stats { gap: 1rem; }
-    .qstat-val { font-size: 1.35rem; }
-    .qstat-label { font-size: 0.72rem; }
-
-    .creador-body { padding: 1.25rem; }
-    .creador-nombre { font-size: 1.05rem; }
-    .creador-rol { font-size: 0.68rem; padding: 0.2rem 0.65rem; }
-    .creador-redes { gap: 0.5rem; }
-    .creador-red { width: 34px; height: 34px; font-size: 0.9rem; }
-
-    .cta-box { padding: 2.25rem 1.25rem; border-radius: 20px; }
-    .cta-box h2 { font-size: 1.35rem; }
-    .cta-box p { font-size: 0.9rem; }
-    .cta-icon { font-size: 2rem; }
-
-    .faq-btn { padding: 1rem 1.15rem; font-size: 0.9rem; }
-    .faq-body { padding: 0 1.15rem 1.25rem; }
-    .faq-body p { font-size: 0.85rem; }
-
-    #btnTop {
-        bottom: 1rem;
-        right: 1rem;
-        width: 42px;
-        height: 42px;
-        font-size: 1rem;
+    /* 8. TESTIMONIOS: Asegurar que no se superpongan */
+    .testimonial-card {
+        padding: 1.5rem;
+        margin-bottom: 1rem; /* Espacio entre tarjetas */
+        height: auto;
+    }
+    
+    .testimonial-text {
+        font-size: 0.85rem;
+        line-height: 1.6;
     }
 }
 
-/* ============================================================
-   REDUCED MOTION
-   ============================================================ */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+@media (max-width: 480px) {
+    /* Ajustes extra para pantallas muy pequeñas */
+    .logo-text { display: none; } /* Ocultar texto del logo para ganar espacio */
+    
+    /* Mantener ambos botones pero más pequeños */
+    .btn-login,
+    .btn-register {
+        padding: 0.3rem 0.5rem;
+        font-size: 0.65rem;
     }
-    html { scroll-behavior: auto; }
+    
+    .hero h1 { font-size: 1.5rem; }
+    .banner-content { padding: 1rem; }
+    .banner-text h3 { font-size: 1rem; }
 }

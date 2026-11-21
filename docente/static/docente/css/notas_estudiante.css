@@ -1,5 +1,5 @@
 /* ============================================ */
-/*   NOTAS ESTUDIANTE - QBYT (FIX DEFINITIVO)   */
+/*   NOTAS ESTUDIANTE - QBYT (RESPONSIVE FIX)   */
 /* ============================================ */
 
 :root {
@@ -40,12 +40,13 @@
   --warning: #d97706;
 }
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
   background: var(--bg-body) !important;
   color: var(--text-primary) !important;
   font-family: 'DM Sans', sans-serif;
+  overflow-x: hidden;
 }
 
 /* ═══════════════════════════════════════════ */
@@ -147,6 +148,7 @@ body {
   font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.85rem;
   color: #ffffff; margin: 0 0 0.5rem;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  word-break: break-word;
 }
 
 .student-hero-meta {
@@ -235,6 +237,7 @@ body {
   padding: 1.75rem;
   position: relative;
   overflow: hidden;
+  margin-top: 1.5rem;
 }
 
 .notas-section::before {
@@ -260,7 +263,7 @@ body {
 .section-title i { color: var(--accent-primary); font-size: 1.15rem; }
 
 /* ═══════════════════════════════════════════ */
-/* TABLA DE NOTAS - A PLUEBA DE BALAS          */
+/* TABLA DE NOTAS - A PRUEBA DE BALAS          */
 /* ═══════════════════════════════════════════ */
 
 .notas-table-wrapper {
@@ -270,7 +273,6 @@ body {
   background: var(--bg-input);
 }
 
-/* 💥 ESPECIFICIDAD MÁXIMA - GANA A TODO */
 html body .notas-table,
 html body table.notas-table {
   width: 100% !important;
@@ -295,11 +297,11 @@ html body .notas-table thead tr th {
   text-transform: uppercase !important;
   letter-spacing: 0.6px !important;
   white-space: nowrap !important;
-  text-align: left !important;   /* 💥 HEADER IZQUIERDA POR DEFECTO */
+  text-align: left !important;
 }
 
 html body .notas-table thead tr th.text-center {
-  text-align: center !important;   /* 💥 SOLO .text-center SE CENTRA */
+  text-align: center !important;
 }
 
 html body .notas-table tbody tr {
@@ -319,49 +321,31 @@ html body .notas-table tbody tr td {
   padding: 1rem 1.1rem !important;
   color: var(--text-primary) !important;
   vertical-align: middle !important;
-  text-align: left !important;   /* 💥 CELDAS IZQUIERDA POR DEFECTO */
+  text-align: left !important;
 }
 
 html body .notas-table tbody tr td.text-center {
-  text-align: center !important;   /* 💥 SOLO .text-center SE CENTRA */
+  text-align: center !important;
 }
 
-/* 💥 FORZAR COLUMNA POR COLUMNA CON ESPECIFICIDAD MÁXIMA */
+/* Forzar ancho y alineación por columna */
 html body .notas-table thead tr th:nth-child(1),
-html body .notas-table tbody tr td:nth-child(1) {
-  text-align: left !important;
-  min-width: 160px !important;
-}
+html body .notas-table tbody tr td:nth-child(1) { text-align: left !important; min-width: 160px !important; }
 
 html body .notas-table thead tr th:nth-child(2),
-html body .notas-table tbody tr td:nth-child(2) {
-  text-align: left !important;
-  min-width: 140px !important;
-}
+html body .notas-table tbody tr td:nth-child(2) { text-align: left !important; min-width: 140px !important; }
 
 html body .notas-table thead tr th:nth-child(3),
-html body .notas-table tbody tr td:nth-child(3) {
-  text-align: center !important;
-  width: 90px !important;
-}
+html body .notas-table tbody tr td:nth-child(3) { text-align: center !important; width: 90px !important; }
 
 html body .notas-table thead tr th:nth-child(4),
-html body .notas-table tbody tr td:nth-child(4) {
-  text-align: center !important;
-  width: 130px !important;
-}
+html body .notas-table tbody tr td:nth-child(4) { text-align: center !important; width: 130px !important; }
 
 html body .notas-table thead tr th:nth-child(5),
-html body .notas-table tbody tr td:nth-child(5) {
-  text-align: center !important;
-  width: 140px !important;
-}
+html body .notas-table tbody tr td:nth-child(5) { text-align: center !important; width: 140px !important; }
 
 html body .notas-table thead tr th:nth-child(6),
-html body .notas-table tbody tr td:nth-child(6) {
-  text-align: center !important;
-  width: 110px !important;
-}
+html body .notas-table tbody tr td:nth-child(6) { text-align: center !important; width: 110px !important; }
 
 /* ═══════════════════════════════════════════ */
 /* ELEMENTOS INTERNOS                          */
@@ -507,7 +491,7 @@ html body .notas-table tbody tr td:nth-child(6) {
 }
 
 /* ═══════════════════════════════════════════ */
-/* RESPONSIVE                                  */
+/* RESPONSIVE PARA DISPOSITIVOS MÓVILES        */
 /* ═══════════════════════════════════════════ */
 
 @media (max-width: 900px) {
@@ -521,8 +505,68 @@ html body .notas-table tbody tr td:nth-child(6) {
   .student-hero-info h1 { font-size: 1.4rem; }
   .student-hero-meta { justify-content: center; }
   .btn-send-message { width: 100%; justify-content: center; }
+  
   .notas-section { padding: 1.25rem 1rem; }
-  .notas-table { font-size: 0.82rem; }
-  html body .notas-table thead tr th,
-  html body .notas-table tbody tr td { padding: 0.75rem 0.7rem !important; }
+  
+  /* Transformar la tabla tradicional en tarjetas responsivas en móviles */
+  .notas-table-wrapper {
+    background: transparent;
+    border: none;
+  }
+
+  html body .notas-table,
+  html body table.notas-table,
+  html body .notas-table thead,
+  html body .notas-table tbody,
+  html body .notas-table tr,
+  html body .notas-table th,
+  html body .notas-table td {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+    min-width: 0 !important;
+  }
+
+  html body .notas-table thead {
+    display: none !important; /* Ocultar cabecera de tabla en móviles */
+  }
+
+  html body .notas-table tbody tr {
+    background: var(--bg-card);
+    border: 1.5px solid var(--border-color);
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  }
+
+  html body .notas-table tbody tr td {
+    padding: 0.4rem 0 !important;
+    border: none !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  /* Etiquetas dinámicas para simular las columnas en modo tarjeta móvil */
+  html body .notas-table tbody tr td:nth-child(1)::before { content: "Ejercicio:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+  html body .notas-table tbody tr td:nth-child(2)::before { content: "Tipo:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+  html body .notas-table tbody tr td:nth-child(3)::before { content: "Intentos:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+  html body .notas-table tbody tr td:nth-child(4)::before { content: "Calificación:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+  html body .notas-table tbody tr td:nth-child(5)::before { content: "Estado:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+  html body .notas-table tbody tr td:nth-child(6)::before { content: "Fecha de Envío:"; font-weight: 700; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; }
+
+  /* Destacar el título principal del ejercicio arriba */
+  html body .notas-table tbody tr td:nth-child(1) {
+    font-size: 1rem;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    padding-bottom: 0.7rem !important;
+    margin-bottom: 0.5rem !important;
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.2rem;
+  }
+  html body .notas-table tbody tr td:nth-child(1)::before {
+    font-size: 0.65rem;
+  }
 }

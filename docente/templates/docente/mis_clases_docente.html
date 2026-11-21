@@ -119,10 +119,10 @@
         </div>
       </div>
       <div class="solicitud-actions">
-        <a href="{% url 'aceptar_solicitud' sol.id %}" class="btn-accept">
+        <a href="{% url 'docente:aceptar_solicitud' sol.id %}" class="btn-accept">
           <i class="bi bi-check-lg"></i> Aceptar
         </a>
-        <a href="{% url 'rechazar_solicitud' sol.id %}" class="btn-reject">
+        <a href="{% url 'docente:rechazar_solicitud' sol.id %}" class="btn-reject">
           <i class="bi bi-x-lg"></i> Rechazar
         </a>
       </div>

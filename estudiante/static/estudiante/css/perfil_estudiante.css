@@ -9,7 +9,6 @@
 /* ═══════════════════════════════════════════ */
 
 :root {
-  /* Tema oscuro */
   --spotify-black: #121212;
   --spotify-dark: #181818;
   --spotify-gray: #282828;
@@ -73,13 +72,14 @@ body {
 }
 
 /* ═══════════════════════════════════════════ */
-/* ⭐ CONTENEDOR PRINCIPAL — 4 ESQUINAS REDONDAS */
+/* ⭐ CONTENEDOR PRINCIPAL (4 ESQUINAS REDONDAS) */
 /* ═══════════════════════════════════════════ */
 
 .profile-container {
   max-width: 1200px;
   margin: 1.5rem auto;
-  border-radius: 24px;
+  /* 4 ESQUINAS REDONDAS */
+  border-radius: 24px; 
   overflow: hidden;
   background: var(--bg-card);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
@@ -99,7 +99,8 @@ body {
   position: relative;
   min-height: 350px;
   overflow: hidden;
-  border-radius: 24px;
+  /* 4 ESQUINAS REDONDAS AQUÍ TAMBIÉN */
+  border-radius: 24px; 
 }
 
 .profile-banner {
@@ -110,6 +111,8 @@ body {
   bottom: 0;
   z-index: 0;
   pointer-events: none;
+  border-radius: 24px;
+  overflow: hidden;
 }
 
 .banner-image {
@@ -459,29 +462,22 @@ body {
 /* ═══════════════════════════════════════════ */
 
 .profile-tabs-bar {
-  /* Flotante y separada */
   position: sticky;
   top: 90px;
   z-index: 100;
   margin: 2rem auto 1.75rem;
   width: fit-content;
   max-width: calc(100% - 3rem);
-
-  /* Contenedor glass con padding interno */
   padding: 0.4rem;
   border-radius: 16px;
-
-  /* Fondo glass — se adapta a cada tema */
   background: rgba(28, 20, 52, 0.85);
   backdrop-filter: blur(20px) saturate(180%);
   -webkit-backdrop-filter: blur(20px) saturate(180%);
-
   border: 1px solid rgba(124, 111, 255, 0.25);
   box-shadow:
     0 10px 40px rgba(0, 0, 0, 0.4),
     0 0 0 1px rgba(124, 111, 255, 0.08),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-
   transition: box-shadow 0.3s ease;
 }
 
@@ -493,7 +489,6 @@ body {
     0 0 0 1px rgba(255, 255, 255, 0.8) inset;
 }
 
-/* Contenedor de las tabs */
 .profile-tabs {
   display: flex;
   gap: 0;
@@ -504,7 +499,6 @@ body {
   position: relative;
 }
 
-/* Cada tab */
 .ptab {
   position: relative;
   z-index: 1;
@@ -529,7 +523,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* ⭐ TAB ACTIVO — Con gradiente */
 .ptab.active {
   color: #ffffff;
   background: linear-gradient(
@@ -565,7 +558,6 @@ body {
   animation: none;
 }
 
-/* Badge dentro de la tab */
 .ptab .badge-count,
 .ptab span.badge {
   display: inline-flex;
@@ -1099,22 +1091,24 @@ body {
 ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
 /* ═══════════════════════════════════════════ */
-/*         RESPONSIVE                          */
+/*         RESPONSIVE (CELULAR)                */
 /* ═══════════════════════════════════════════ */
 
 @media (max-width: 768px) {
   .profile-container {
     margin: 1rem;
-    border-radius: 20px;
+    /* En móvil también mantenemos las 4 esquinas redondeadas */
+    border-radius: 20px !important; 
+    overflow: hidden !important;
   }
 
   .profile-hero {
-    min-height: auto;
-    border-radius: 20px 20px 0 0;
+    border-radius: 20px 20px 0 0 !important;
   }
 
   .profile-body {
-    border-radius: 0 0 20px 20px;
+    border-radius: 0 0 20px 20px !important;
+    padding: 1rem;
   }
 
   .settings-btn {
@@ -1127,56 +1121,111 @@ body {
     min-width: 200px;
   }
 
+  /* 1. HERO CENTRADO Y AVATAR MÁS GRANDE */
   .profile-hero-content {
     flex-direction: column;
     align-items: center;
     text-align: center;
     padding: 40px 1rem 0;
-    gap: 0.8rem;
+    gap: 1rem;
   }
 
   .avatar-circle {
-    width: 90px;
-    height: 90px;
-    font-size: 2.2rem;
+    width: 110px;
+    height: 110px;
+    font-size: 2.8rem;
+    border-width: 4px;
   }
 
   .avatar-edit-badge {
-    width: 28px;
-    height: 28px;
-    bottom: 3px;
-    right: 3px;
+    width: 34px;
+    height: 34px;
+    bottom: 0px;
+    right: 0px;
+    border-width: 3px;
   }
 
   .avatar-edit-badge i {
-    font-size: 0.75rem;
+    font-size: 0.85rem;
   }
 
   .profile-username {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
   }
 
   .profile-meta {
     justify-content: center;
   }
 
+  /* 2. ESTADÍSTICAS AJUSTADAS */
   .quick-stats {
     padding: 1rem;
     justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .stat-pill {
-    flex: 0 1 auto;
-    min-width: 90px;
-    padding: 0.5rem 0.8rem;
+    flex: 1 1 100px;
+    min-width: 0;
+    padding: 0.5rem;
   }
 
-  .profile-body {
-    padding: 1rem;
+  .stat-pill i {
+    display: none;
   }
 
+  .stat-value {
+    font-size: 0.8rem;
+  }
+  
+  .stat-label {
+    font-size: 0.65rem;
+  }
+
+  /* 3. PESTAÑAS AJUSTADAS */
+  .profile-tabs-bar {
+    width: 100%;
+    max-width: 100%;
+    margin: 1.5rem 0;
+    padding: 0.3rem;
+    border-radius: 14px;
+  }
+
+  .profile-tabs {
+    justify-content: space-between;
+  }
+
+  .ptab {
+    flex: 1;
+    justify-content: center;
+    padding: 0.6rem 0.2rem;
+    font-size: 0.75rem;
+    gap: 0;
+  }
+
+  .ptab i {
+    display: none;
+  }
+
+  /* 4. FORMULARIO EN 2 COLUMNAS */
   .info-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.75rem;
+  }
+
+  .info-field {
+    padding: 0.75rem;
+    min-width: 0;
+    word-break: break-word;
+  }
+
+  .info-label {
+    font-size: 0.6rem;
+  }
+
+  .info-value {
+    font-size: 0.8rem;
   }
 
   .historial-item {
@@ -1186,37 +1235,13 @@ body {
   .historial-fecha {
     width: 100%;
     text-align: right;
-  }
-
-  /* Tabs responsive */
-  .profile-tabs-bar {
-    width: calc(100% - 2rem);
-    max-width: 100%;
-    margin: 1.5rem 1rem;
-    padding: 0.35rem;
-    border-radius: 14px;
-  }
-
-  .profile-tabs {
-    justify-content: stretch;
-  }
-
-  .ptab {
-    flex: 1;
-    justify-content: center;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.78rem;
-    gap: 0.35rem;
-  }
-
-  .ptab i {
-    font-size: 0.9rem;
+    margin-top: 0.3rem;
   }
 }
 
 @media (max-width: 480px) {
   .profile-username {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
 
   .section-card {
@@ -1224,9 +1249,9 @@ body {
   }
 
   .avatar-circle {
-    width: 70px;
-    height: 70px;
-    font-size: 1.8rem;
+    width: 90px;
+    height: 90px;
+    font-size: 2.2rem;
   }
 
   .settings-menu {
@@ -1235,34 +1260,12 @@ body {
   }
 
   .ptab {
-    padding: 0.6rem 0.5rem;
-    font-size: 0.72rem;
+    padding: 0.5rem 0.2rem;
+    font-size: 0.7rem;
   }
 
-  .ptab .badge-count,
-  .ptab span.badge {
-    min-width: 18px;
-    height: 18px;
-    font-size: 0.65rem;
+  .info-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 0.5rem;
   }
-}
-/* ═══════════════════════════════════════════ */
-/* FORZAR 4 ESQUINAS REDONDEADAS AL WRAPPER     */
-/* ═══════════════════════════════════════════ */
-
-/* Opción 1: si el fondo gris está en .profile-hero */
-.profile-hero,
-.profile-hero.estudiante,
-.profile-hero.docente {
-  border-radius: 24px !important;
-  overflow: hidden !important;
-}
-
-/* Opción 2: si el fondo gris está en un wrapper mayor */
-.profile-container,
-.profile-wrapper,
-.content,
-main {
-  border-radius: 24px !important;
-  overflow: hidden !important;
 }

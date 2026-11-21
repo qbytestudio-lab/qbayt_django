@@ -1,0 +1,33 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Registro en Mantenimiento — QBYT{% endblock %}
+
+{% block extra_css %}
+<!-- Asegúrate de cambiar la ruta por la ubicación real de tu archivo CSS -->
+<link rel="stylesheet" href="{% static 'web/css/mantenimiento_registro.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="maintenance-wrapper">
+    <div class="maintenance-card">
+        
+        <div class="maintenance-icon">
+            <i class="bi bi-tools"></i>
+        </div>
+
+        <h1 class="maintenance-title">
+            Registro temporalmente en mantenimiento
+        </h1>
+
+        <p class="maintenance-text">
+            Estamos optimizando y ajustando detalles en el módulo de registros para ofrecerte una mejor experiencia. Vuelve pronto para unirte a QBYT.
+        </p>
+
+        <a href="{% url 'inicio' %}" class="maintenance-btn">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
+
+    </div>
+</div>
+{% endblock %}

@@ -757,3 +757,136 @@ body {
         transition-duration: 0.01ms !important;
     }
 }
+/* ============================================================
+   RESPONSIVE PARA CELULARES (PROGRESO DETALLE)
+   ============================================================ */
+@media (max-width: 768px) {
+  /* 1. Ajustar el contenedor principal */
+  .progress-container {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  /* 2. HERO SECTION */
+  .hero-section {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.5rem 1.25rem;
+    border-radius: 18px;
+    gap: 1rem;
+  }
+
+  .hero-title {
+    font-size: 1.6rem;
+  }
+
+  .hero-subtitle {
+    font-size: 0.9rem;
+  }
+
+  .hero-icon-circle {
+    width: 70px;
+    height: 70px;
+    font-size: 1.8rem;
+  }
+
+  /* 3. RESUMEN RÁPIDO (Fechas, estudiantes, ejercicios) */
+  .quick-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .summary-item {
+    padding: 0.8rem 1rem;
+    width: 100%;
+  }
+
+  /* 4. ESTADÍSTICAS EN 2 COLUMNAS (Completados, Pendientes, Efectividad) */
+  .stats-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important; /* Fuerza 2 columnas */
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .stat-icon-wrapper {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+  }
+
+  /* 5. ACTIVIDAD RECIENTE EN CARRUSEL HORIZONTAL (Deslizable) */
+  .recent-exercises {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    gap: 1rem;
+    padding: 0 0.5rem 1rem 0.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -0.75rem 1rem -0.75rem;
+  }
+
+  .recent-exercises::-webkit-scrollbar {
+    display: none;
+  }
+
+  .exercise-item {
+    min-width: 240px !important;
+    max-width: 240px !important;
+    scroll-snap-align: start;
+    flex: 0 0 auto;
+    margin: 0 !important;
+  }
+
+  /* 6. GRÁFICA */
+  .chart-wrapper {
+    padding: 1rem;
+    height: 250px;
+  }
+}
+
+/* Ajustes extra para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.35rem;
+  }
+
+  .stats-grid {
+    gap: 0.5rem;
+  }
+
+  .stat-card {
+    padding: 0.8rem;
+  }
+
+  .stat-icon-wrapper {
+    width: 34px;
+    height: 34px;
+    font-size: 0.95rem;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+
+  .exercise-item {
+    min-width: 220px !important;
+    max-width: 220px !important;
+  }
+}

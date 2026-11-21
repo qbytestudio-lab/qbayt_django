@@ -25,7 +25,7 @@ def crear_clase(request):
     if request.method == 'POST':
         from datetime import datetime, date
         from django.core.exceptions import ValidationError
-        
+
         nombre = request.POST.get('nombre', '').strip()
         categoria_tema = request.POST.get('categoria_tema')
         descripcion = request.POST.get('descripcion', '').strip()
@@ -43,30 +43,30 @@ def crear_clase(request):
         clases_docente_count = Clase.objects.filter(docente=request.user).count()
         if clases_docente_count >= 3:
             messages.error(request, 'Has alcanzado el máximo de 3 clases permitidas.')
-            return redirect('mis_clases')
-        
+            return redirect('docente:mis_clases')
+
         # Validaciones de fechas
         hoy = date.today()
-        
+
         # Validar nombre
         if not nombre:
             messages.error(request, 'El nombre de la clase es obligatorio.')
             return redirect('mis_clases')
-        
+
         # Validar categoría
         if not categoria_tema:
             messages.error(request, 'La categoría del tema es obligatoria.')
             return redirect('mis_clases')
-        
+
         # Validar fechas obligatorias
         if not fecha_inicio:
             messages.error(request, 'La fecha de inicio es obligatoria.')
             return redirect('mis_clases')
-        
+
         if not fecha_fin:
             messages.error(request, 'La fecha de finalización es obligatoria.')
             return redirect('mis_clases')
-        
+
         # Convertir strings a objetos date
         try:
             fecha_inicio_date = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
@@ -74,31 +74,31 @@ def crear_clase(request):
         except (ValueError, TypeError):
             messages.error(request, 'Formato de fecha inválido.')
             return redirect('mis_clases')
-        
+
         # Validar que fecha de inicio no sea pasada
         if fecha_inicio_date < hoy:
             messages.error(request, 'No puedes usar una fecha de inicio pasada.')
             return redirect('mis_clases')
-        
+
         # Validar que fecha de fin no sea pasada
         if fecha_fin_date < hoy:
             messages.error(request, 'No puedes usar una fecha de finalización pasada.')
             return redirect('mis_clases')
-        
+
         # Validar que fecha fin sea posterior a inicio
         if fecha_fin_date <= fecha_inicio_date:
             messages.error(request, 'La fecha de finalización debe ser posterior a la fecha de inicio.')
             return redirect('mis_clases')
-        
+
         # Validar mínimo 5 días de duración
         diferencia_dias = (fecha_fin_date - fecha_inicio_date).days
         if diferencia_dias < 5:
             messages.error(
-                request, 
+                request,
                 f'La clase debe durar al menos 5 días. Actual: {diferencia_dias} día{"s" if diferencia_dias != 1 else ""}.'
             )
             return redirect('mis_clases')
-        
+
         try:
             # Crear la clase
             clase = Clase(
@@ -112,15 +112,15 @@ def crear_clase(request):
                 fecha_fin=fecha_fin_date,
                 nivel_previo=nivel_previo,
             )
-            
+
             #  Llamar a full_clean() que ejecuta el método clean() del modelo
             # Esto valida el límite de 3 clases por docente
             clase.full_clean()
-            
+
             # Si pasa la validación, guardar
             clase.save()
             messages.success(request, f'Clase "{clase.nombre}" creada exitosamente.')
-            
+
         except ValidationError as e:
             # Mostrar errores de validación del modelo
             if hasattr(e, 'message_dict'):
@@ -136,15 +136,16 @@ def crear_clase(request):
         except Exception as e:
             messages.error(request, f'Error al crear la clase: {str(e)}')
 
-    return redirect('mis_clases')
+    # En clase/views.py línea 139
+    return redirect('docente:mis_clases')
 
 
 @login_required
 def editar_clase(request, clase_id):
     from datetime import datetime
-    
+
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    
+
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         categoria_tema = request.POST.get('categoria_tema')
@@ -153,30 +154,30 @@ def editar_clase(request, clase_id):
         fecha_fin = request.POST.get('fecha_fin')
         max_estudiantes = request.POST.get('max_estudiantes', 35)
         imagen = request.FILES.get('imagen')
-        
+
         if not nombre:
             messages.error(request, 'El nombre es obligatorio.')
             return redirect(f'/clase/detalle/{clase.id}/')  # ✅ CORREGIDO
-        
+
         clase.nombre = nombre
         clase.categoria_tema = categoria_tema
         clase.descripcion = descripcion
         clase.max_estudiantes = max_estudiantes
-        
+
         if fecha_inicio:
             clase.fecha_inicio = datetime.strptime(fecha_inicio, '%Y-%m-%d').date()
-        
+
         if fecha_fin:
             clase.fecha_fin = datetime.strptime(fecha_fin, '%Y-%m-%d').date()
-        
+
         if imagen:
             clase.imagen = imagen
-        
+
         clase.save()
-        
+
         messages.success(request, f'Clase "{clase.nombre}" actualizada correctamente.')
         return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
-    
+
     return redirect(f'/clase/detalle/{clase.id}/')  # CORREGIDO
 
 
@@ -184,23 +185,23 @@ def editar_clase(request, clase_id):
 def eliminar_clase(request, clase_id):
     if request.user.perfil.rol != 'docente':
         return redirect('inicio')
-    
+
     # Buscar la clase - si no existe, redirige con mensaje
     clase = Clase.objects.filter(id=clase_id, docente=request.user).first()
-    
+
     if not clase:
         messages.error(
             request,
             f'No se encontró la clase con ID {clase_id} o no tienes permisos para eliminarla.'
         )
         return redirect('docente:mis_clases')
-    
+
     if request.method == 'POST':
         nombre = clase.nombre
         clase.delete()
         messages.success(request, f'Clase "{nombre}" eliminada correctamente.')
-        return redirect('mis_clases')
-    
+        return redirect('docente:mis_clases')
+
     # Si es GET, muestra confirmación o redirige
     return redirect('clase:detalle_clase', clase_id=clase.id)
 
@@ -278,15 +279,15 @@ def detalle_clase(request, clase_id):
 def toggle_estado_clase(request, clase_id):
     """Activa o desactiva una clase."""
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
-    
+
     clase.activa = not clase.activa
     clase.save(update_fields=['activa'])
-    
+
     if clase.activa:
         messages.success(request, f'Clase "{clase.nombre}" reactivada. Los estudiantes ya pueden acceder.')
     else:
         messages.warning(request, f'Clase "{clase.nombre}" desactivada. Los estudiantes no pueden acceder.')
-    
+
     return redirect('clase:detalle_clase', clase_id=clase.id)
 
 # ═══════════════════════════════════════════

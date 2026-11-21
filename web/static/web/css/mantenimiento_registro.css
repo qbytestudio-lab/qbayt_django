@@ -1,0 +1,108 @@
+/* ============================================ */
+/*   ESTILOS RESPONSIVOS - MANTENIMIENTO QBYT   */
+/* ============================================ */
+
+.maintenance-wrapper {
+    min-height: 75vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.maintenance-card {
+    background: var(--bg-card, #18181f);
+    border: 1.5px solid var(--border-color, rgba(255, 255, 255, 0.1));
+    border-radius: 24px;
+    padding: 3rem 2.5rem;
+    max-width: 480px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+    position: relative;
+    overflow: hidden;
+}
+
+.maintenance-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: rgba(245, 158, 11, 0.15);
+    border: 2px solid rgba(245, 158, 11, 0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f59e0b;
+    font-size: 2.2rem;
+    box-shadow: 0 8px 24px rgba(245, 158, 11, 0.2);
+}
+
+.maintenance-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--text-primary, #ffffff);
+    margin-bottom: 0.75rem;
+    line-height: 1.2;
+}
+
+.maintenance-text {
+    color: var(--text-secondary, #a8a8b3);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.maintenance-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: #fff;
+    border-radius: 14px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+}
+
+.maintenance-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(139, 92, 246, 0.5);
+    color: #fff;
+}
+
+/* 📱 Responsive para Celulares y Pantallas Pequeñas */
+@media (max-width: 576px) {
+    .maintenance-wrapper {
+        padding: 1rem;
+        min-height: 70vh;
+    }
+
+    .maintenance-card {
+        padding: 2rem 1.25rem;
+        border-radius: 18px;
+    }
+
+    .maintenance-icon {
+        width: 65px;
+        height: 65px;
+        font-size: 1.8rem;
+        margin-bottom: 1.2rem;
+    }
+
+    .maintenance-title {
+        font-size: 1.25rem;
+    }
+
+    .maintenance-text {
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+}

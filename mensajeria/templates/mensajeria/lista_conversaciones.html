@@ -12,22 +12,23 @@
 {% block content %}
 
 <div class="messenger-container">
-    
+
     <!-- COLUMNA IZQUIERDA: CLASES -->
     <div class="messenger-sidebar">
         <div class="sidebar-header">
             <h3><i class="bi bi-chat-dots-fill"></i> Mensajes</h3>
         </div>
-        
+
         <div class="clases-list">
             <a href="{% url 'mensajeria:lista' %}" class="clase-item active">
                 <i class="bi bi-chat-dots"></i>
                 <span>Todos los mensajes</span>
-                {% if items %}
-                <span class="badge-total">{{ items|length }}</span>
+                <!-- AQUÍ ESTABA EL ERROR: Cambiamos 'items' por la suma de las dos listas -->
+                {% if items_clases|length > 0 or items_privados|length > 0 %}
+                <span class="badge-total">{{ items_clases|length|add:items_privados|length }}</span>
                 {% endif %}
             </a>
-            
+
             {% for clase in clases %}
             <a href="{% url 'mensajeria:contactos_clase' clase.id %}" class="clase-item">
                 <i class="bi bi-journal-bookmark"></i>
@@ -45,39 +46,33 @@
             {% endfor %}
         </div>
     </div>
-    
+
     <!-- COLUMNA DERECHA: CONVERSACIONES -->
     <div class="messenger-main">
         <div class="main-header">
             <h3><i class="bi bi-chat-dots"></i> Conversaciones</h3>
         </div>
-        
-        {% if items %}
+
+        <!-- AQUÍ ESTABA EL OTRO ERROR: Evaluamos las dos listas -->
+        {% if items_clases|length > 0 or items_privados|length > 0 %}
         <div class="conversaciones-list">
 
             {# ─────────────────────────────────────── #}
             {# SECCIÓN: CHATS DE CLASE                #}
             {# ─────────────────────────────────────── #}
-            {% with hay_clases=False %}
-            {% for item in items %}
-                {% if item.es_clase and not hay_clases %}
-                    <div class="section-label">
-                        <i class="bi bi-people-fill"></i> Chats de clase
-                    </div>
-                    {% with hay_clases=True %}{% endwith %}
-                {% endif %}
-            {% endfor %}
-            {% endwith %}
+            {% if items_clases|length > 0 %}
+                <div class="section-label">
+                    <i class="bi bi-people-fill"></i> Chats de clase
+                </div>
 
-            {% for item in items %}
-                {% if item.es_clase %}
-                <a href="{% url 'mensajeria:detalle' item.conversacion.id %}" 
+                {% for item in items_clases %}
+                <a href="{% url 'mensajeria:detalle' item.conversacion.id %}"
                    class="conversacion-item es-clase {% if item.no_leidos > 0 %}no-leida{% endif %}">
-                    
+
                     <div class="conversacion-avatar avatar-clase">
                         <i class="bi bi-people-fill"></i>
                     </div>
-                    
+
                     <div class="conversacion-info">
                         <div class="conversacion-nombre">
                             {{ item.clase.nombre }}
@@ -100,7 +95,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="conversacion-meta">
                         {% if item.ultimo_mensaje %}
                         <div class="conversacion-fecha">
@@ -112,38 +107,31 @@
                         {% endif %}
                     </div>
                 </a>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            {% endif %}
 
             {# ─────────────────────────────────────── #}
             {# SECCIÓN: CHATS PRIVADOS                #}
             {# ─────────────────────────────────────── #}
-            {% with hay_privadas=False %}
-            {% for item in items %}
-                {% if not item.es_clase and not hay_privadas %}
-                    <div class="section-label" style="margin-top: 1rem;">
-                        <i class="bi bi-person-fill"></i> Mensajes directos
-                    </div>
-                    {% with hay_privadas=True %}{% endwith %}
-                {% endif %}
-            {% endfor %}
-            {% endwith %}
+            {% if items_privados|length > 0 %}
+                <div class="section-label" style="margin-top: 1rem;">
+                    <i class="bi bi-person-fill"></i> Mensajes directos
+                </div>
 
-            {% for item in items %}
-                {% if not item.es_clase %}
-                <a href="{% url 'mensajeria:detalle' item.conversacion.id %}" 
+                {% for item in items_privados %}
+                <a href="{% url 'mensajeria:detalle' item.conversacion.id %}"
                    class="conversacion-item {% if item.no_leidos > 0 %}no-leida{% endif %}">
-                    
+
                     <div class="conversacion-avatar">
                         {% if item.otro_participante.perfil.foto_perfil %}
-                            <img src="{{ item.otro_participante.perfil.foto_perfil.url }}" 
-                                 alt="{{ item.otro_participante.username }}" 
+                            <img src="{{ item.otro_participante.perfil.foto_perfil.url }}"
+                                 alt="{{ item.otro_participante.username }}"
                                  class="conversacion-avatar-img">
                         {% else %}
                             {{ item.otro_participante.username|first|upper }}
                         {% endif %}
                     </div>
-                    
+
                     <div class="conversacion-info">
                         <div class="conversacion-nombre">
                             {{ item.otro_participante.get_full_name|default:item.otro_participante.username }}
@@ -161,7 +149,7 @@
                         </div>
                         {% endif %}
                     </div>
-                    
+
                     <div class="conversacion-meta">
                         {% if item.ultimo_mensaje %}
                         <div class="conversacion-fecha">
@@ -173,20 +161,21 @@
                         {% endif %}
                     </div>
                 </a>
-                {% endif %}
-            {% endfor %}
+                {% endfor %}
+            {% endif %}
 
         </div>
         {% else %}
+        <!-- Mensaje de vacío si no hay ninguna conversación -->
         <div class="empty-state">
             <i class="bi bi-chat-dots"></i>
             <p>No tienes conversaciones</p>
             <p class="empty-hint">Entra a una clase para chatear con tus compañeros o empieza un chat grupal</p>
         </div>
         {% endif %}
-        
+
     </div>
-    
+
 </div>
 
 {% endblock %}

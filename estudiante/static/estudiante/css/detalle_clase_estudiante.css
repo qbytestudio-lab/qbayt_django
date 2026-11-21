@@ -292,7 +292,7 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
     width: 100%;
 }
 
-/* ─── BADGE INSCRITO (CORREGIDO: YA NO SE ESTIRA) ─── */
+/* ─── BADGE INSCRITO ─── */
 .class-hero-badge {
     display: inline-flex;
     align-items: center;
@@ -330,7 +330,7 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
     text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5), 0 4px 40px rgba(0, 0, 0, 0.35);
 }
 
-/* ─── CUADRO DE DESCRIPCIÓN CON BLUR (BOTÓN ABAJO A LA DERECHA) ─── */
+/* ─── CUADRO DE DESCRIPCIÓN CON BLUR ─── */
 .class-hero-description-box {
     position: relative;
     display: flex;
@@ -478,20 +478,21 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
 }
 
 /* ============================================================
-   🔽 BOTONES DE ACCIÓN (ABAJO A LA DERECHA, ANCLADOS) 🔽
+   BOTONES DE ACCIÓN (CALIFICACIONES / ELIMINAR)
    ============================================================ */
 .class-hero-actions {
     position: absolute;
     bottom: 1.5rem;
     right: 2.25rem;
     display: flex;
-    gap: 0.55rem;
+    gap: 0.6rem;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-end;
     z-index: 5;
 }
 
+/* En tablet/celular, los botones bajan al flujo normal */
 @media (max-width: 992px) {
     .class-hero-actions {
         position: static;
@@ -501,31 +502,35 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
     }
 }
 
+/* Estilo base de píldora para ambos botones */
 .btn-calificaciones,
 .btn-leave-class {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    height: 44px;
-    padding: 0 1.15rem;
-    border-radius: 100px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    justify-content: center;
+    gap: 0.45rem;
+    height: 42px;
+    padding: 0 1.25rem;
+    border-radius: 100px; /* Bolitas */
+    font-size: 0.82rem;
+    font-weight: 700;
     text-decoration: none;
     cursor: pointer;
     transition: all 0.3s var(--dc-transition);
     white-space: nowrap;
-    border: 1px solid transparent;
+    border: 1.5px solid transparent;
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     position: relative;
     overflow: hidden;
     flex-shrink: 0;
+    width: auto;
 }
 
+/* Botón Calificaciones */
 .btn-calificaciones {
-    background: rgba(255, 255, 255, 0.14);
-    border-color: rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
     color: #fff;
     text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
 }
@@ -541,9 +546,10 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
     text-shadow: none;
 }
 
+/* Botón Eliminar */
 .btn-leave-class {
-    background: rgba(239, 68, 68, 0.18);
-    border-color: rgba(239, 68, 68, 0.45);
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
     color: #fecaca;
 }
 
@@ -553,6 +559,22 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
     color: #fff;
     transform: translateY(-2px);
     box-shadow: 0 0 28px rgba(239, 68, 68, 0.55);
+}
+
+/* En celular, los botones se centran y mantienen el tamaño píldora */
+@media (max-width: 480px) {
+    .class-hero-actions {
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .btn-calificaciones,
+    .btn-leave-class {
+        flex: 0 1 auto;
+        height: 38px;
+        padding: 0 1rem;
+        font-size: 0.75rem;
+    }
 }
 
 /* ============================================================
@@ -1199,7 +1221,7 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
 }
 
 /* ============================================================
-   MODAL DESCRIPCIÓN COMPLETA (BLUR TRANSPARENTE)
+   MODAL DESCRIPCIÓN COMPLETA
    ============================================================ */
 .desc-modal {
     position: fixed;
@@ -2066,9 +2088,8 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
         min-width: 0;
     }
 
-    .btn-calificaciones,
-    .btn-leave-class {
-        flex: 1;
+    /* En celular, los botones del hero se centran */
+    .class-hero-actions {
         justify-content: center;
     }
 }
@@ -2113,14 +2134,19 @@ body.clase-bloqueada-activa .clase-bloqueada-backdrop {
         margin-top: 0.35rem;
     }
 
+    /* En celular, los botones del hero se centran y toman su tamaño natural */
     .class-hero-actions {
-        flex-direction: column;
-        width: 100%;
+        justify-content: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
     }
 
     .btn-calificaciones,
     .btn-leave-class {
-        width: 100%;
+        flex: 0 1 auto;
+        height: 38px;
+        padding: 0 1rem;
+        font-size: 0.75rem;
     }
 
     .section-card { padding: 1rem; }

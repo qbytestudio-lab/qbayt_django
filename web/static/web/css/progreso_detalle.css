@@ -897,7 +897,7 @@ body {
 }
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE (CELULAR Y TABLET)
    ============================================================ */
 @media (max-width: 992px) {
     .hero-section {
@@ -907,14 +907,10 @@ body {
     }
     .hero-decoration { align-self: center; }
     .hero-icon-circle { width: 90px; height: 90px; font-size: 2.25rem; }
-
-    .quick-summary { grid-template-columns: 1fr; }
-
-    .stats-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-    .progress-container { padding: 1rem 1rem 2.5rem; }
+    .progress-container { padding: 1rem 0.75rem 2.5rem; }
 
     .hero-section {
         padding: 2rem 1.5rem;
@@ -924,16 +920,65 @@ body {
     .hero-title { font-size: 1.6rem; }
     .hero-subtitle { font-size: 0.92rem; }
     .hero-icon-circle { width: 76px; height: 76px; font-size: 1.95rem; }
-    .hero-icon-circle::before { inset: -6px; }
-    .hero-icon-circle::after { inset: -14px; }
+
+    /* 1. Resumen rápido en 2 columnas */
+    .quick-summary.stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem;
+    }
+
+    .summary-item {
+        padding: 0.85rem;
+        gap: 0.6rem;
+    }
+    .summary-item i { width: 34px; height: 34px; font-size: 0.95rem; border-radius: 10px; }
+    .summary-item strong { font-size: 0.95rem; }
+    .summary-item span { font-size: 0.65rem; }
+
+    /* 2. Estadísticas en 2 columnas */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+    .stat-icon-wrapper { width: 40px; height: 40px; font-size: 1.1rem; border-radius: 10px; }
+    .stat-value { font-size: 1.4rem; }
+    .stat-label { font-size: 0.7rem; }
+
+    /* 3. Carrusel horizontal para actividad reciente */
+    .recent-exercises {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        gap: 0.85rem;
+        padding: 0 0.5rem 1rem 0.5rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        margin: 0 -0.75rem 1rem -0.75rem;
+    }
+    .recent-exercises::-webkit-scrollbar { display: none; }
+
+    .exercise-item {
+        min-width: 250px !important;
+        max-width: 250px !important;
+        scroll-snap-align: start;
+        flex: 0 0 auto;
+        padding: 0.85rem 1rem;
+        gap: 0.75rem;
+    }
+    
+    .exercise-icon { width: 40px; height: 40px; font-size: 1.1rem; }
+    .exercise-info h4 { font-size: 0.88rem; }
 
     .overall-progress-card { padding: 1.35rem; }
-    .overall-progress-title { font-size: 0.98rem; }
+    .overall-progress-title { font-size: 0.95rem; }
     .overall-progress-percentage { font-size: 1.6rem; padding: 0.25rem 0.7rem; }
-
-    .stat-card { padding: 1.25rem; }
-    .stat-icon-wrapper { width: 48px; height: 48px; font-size: 1.3rem; }
-    .stat-value { font-size: 1.65rem; }
 
     .section-title { font-size: 1.1rem; }
     .section-title i { width: 34px; height: 34px; font-size: 0.9rem; }
@@ -943,10 +988,6 @@ body {
         height: 320px;
         min-height: 300px;
     }
-
-    .exercise-item { padding: 0.85rem 1rem; gap: 0.75rem; }
-    .exercise-icon { width: 40px; height: 40px; font-size: 1.1rem; }
-    .exercise-info h4 { font-size: 0.88rem; }
 
     .progress-details {
         flex-direction: column;
@@ -960,18 +1001,15 @@ body {
     .hero-title { font-size: 1.4rem; }
     .hero-subtitle { font-size: 0.85rem; }
     .hero-badge { font-size: 0.65rem; padding: 0.35rem 0.75rem; }
-
     .hero-icon-circle { width: 64px; height: 64px; font-size: 1.65rem; }
 
-    .summary-item { padding: 0.9rem 1rem; gap: 0.7rem; }
-    .summary-item i { width: 36px; height: 36px; font-size: 1rem; }
-    .summary-item strong { font-size: 0.98rem; }
-    .summary-item span { font-size: 0.68rem; }
+    .stat-value { font-size: 1.3rem; }
+    .stat-label { font-size: 0.65rem; }
 
-    .stat-value { font-size: 1.4rem; }
-    .stat-label { font-size: 0.7rem; }
-
-    .exercise-info h4 { font-size: 0.82rem; }
+    .exercise-item {
+        min-width: 220px !important;
+        max-width: 220px !important;
+    }
     .score-badge { font-size: 0.75rem; padding: 0.35rem 0.75rem; }
 
     .chart-wrapper { height: 280px; padding: 1rem; }
