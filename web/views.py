@@ -28,18 +28,33 @@ def inicio(request):
     clases_teoria = Clase.objects.filter(categoria_tema='armonia')
     clases_auditivo = Clase.objects.filter(categoria_tema='ritmo')
     clases_instrumento = Clase.objects.filter(categoria_tema='melodia')
-    if request.user.perfil.rol == 'estudiante':
+    
+    # 🛡️ VERIFICAMOS SI TIENE PERFIL PARA EVITAR EL ERROR
+    if hasattr(request.user, 'perfil'):
+        rol = request.user.perfil.rol
+    else:
+        # Si no tiene perfil, lo tratamos como admin por defecto (o lo mandas a crear perfil)
+        rol = 'administrador' 
+
+    if rol == 'estudiante':
         clases_activas = request.user.clases_estudiante.count()
         ejercicios_completados = IntentoEjercicio.objects.filter(estudiante=request.user, aprobado=True).values('ejercicio').distinct().count()
         ejercicios_pendientes = Ejercicio.objects.filter(clase__in=request.user.clases_estudiante.all()).exclude(intentos__estudiante=request.user, intentos__aprobado=True).count()
         total_ejercicios = Ejercicio.objects.filter(clase__in=request.user.clases_estudiante.all()).count()
         progreso_general = round((ejercicios_completados / total_ejercicios) * 100) if total_ejercicios > 0 else 0
-    elif request.user.perfil.rol == 'docente':
+        
+    elif rol == 'docente':
         clases_activas = Clase.objects.filter(docente=request.user).count()
         total_estudiantes = sum(c.estudiantes.count() for c in Clase.objects.filter(docente=request.user))
         ejercicios_completados, ejercicios_pendientes, progreso_general = 0, 0, 0
+        
+    elif rol == 'administrador' or request.user.is_staff:
+        # Si es admin, lo mandamos directo al panel de administrador
+        return redirect('administrador:panel_admin')
+        
     else:
         clases_activas, ejercicios_completados, ejercicios_pendientes, progreso_general = Clase.objects.count(), 0, 0, 0
+
     context = {'cursos_teoria': clases_teoria, 'cursos_auditivo': clases_auditivo, 'cursos_instrumento': clases_instrumento, 'clases_activas': clases_activas, 'ejercicios_completados': ejercicios_completados, 'ejercicios_pendientes': ejercicios_pendientes, 'progreso_general': progreso_general}
     return render(request, 'web/inicio.html', context)
 @login_required

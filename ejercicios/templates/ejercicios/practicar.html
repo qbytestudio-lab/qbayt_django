@@ -72,6 +72,23 @@
                 <label class="config-label">
                     <i class="bi bi-music-note-beamed"></i> ¿Qué quieres practicar?
                 </label>
+                <!-- Botón para las preguntas del Admin -->
+                <div class="mb-4">
+                    <a href="{% url 'ejercicios:practicar_personalizado' %}"
+                        style="display: block; text-decoration: none; background: linear-gradient(135deg, #7c6fff 0%, #b06fff 100%); padding: 1.5rem; border-radius: 20px; color: white; box-shadow: 0 10px 30px rgba(124, 111, 255, 0.3); transition: transform 0.3s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <div>
+                                <h3
+                                    style="margin: 0; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem;">
+                                    <i class="bi bi-star-fill" style="color: #fbbf24;"></i> Prácticas del Profesor
+                                    </h1>
+                                    <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.95rem;">Resuelve los
+                                        ejercicios personalizados con audio que ha subido tu administrador.</p>
+                            </div>
+                            <i class="bi bi-arrow-right-circle-fill" style="font-size: 2.5rem;"></i>
+                        </div>
+                    </a>
+                </div>
                 <div class="tipo-grid">
                     {% for value, label in tipos_disponibles %}
                     <label class="tipo-card {% if forloop.first %}active{% endif %}" data-tipo="{{ value }}">
@@ -265,69 +282,69 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
 
-    // ═══════════════════════════════════════════
-    // SELECCIÓN DE TIPO DE PRÁCTICA
-    // ═══════════════════════════════════════════
-    const subtipoGroup = document.getElementById('subtipoGroup');
+        // ═══════════════════════════════════════════
+        // SELECCIÓN DE TIPO DE PRÁCTICA
+        // ═══════════════════════════════════════════
+        const subtipoGroup = document.getElementById('subtipoGroup');
 
-    function actualizarSubtipo() {
-        const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked')?.value;
-        if (tipoSeleccionado === 'acordes') {
-            subtipoGroup.style.display = 'block';
-        } else {
-            subtipoGroup.style.display = 'none';
+        function actualizarSubtipo() {
+            const tipoSeleccionado = document.querySelector('input[name="tipo"]:checked')?.value;
+            if (tipoSeleccionado === 'acordes') {
+                subtipoGroup.style.display = 'block';
+            } else {
+                subtipoGroup.style.display = 'none';
+            }
         }
-    }
 
-    document.querySelectorAll('.tipo-card').forEach(card => {
-        card.addEventListener('click', function () {
-            document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            this.querySelector('input').checked = true;
+        document.querySelectorAll('.tipo-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('input').checked = true;
 
-            // Actualizar subtipo DESPUÉS de marcar el radio
-            actualizarSubtipo();
+                // Actualizar subtipo DESPUÉS de marcar el radio
+                actualizarSubtipo();
+            });
         });
-    });
 
-    // Estado inicial
-    actualizarSubtipo();
+        // Estado inicial
+        actualizarSubtipo();
 
-    // ═══════════════════════════════════════════
-    // SELECCIÓN DE SUBTIPO
-    // ═══════════════════════════════════════════
-    document.querySelectorAll('.subtipo-card').forEach(card => {
-        card.addEventListener('click', function () {
-            document.querySelectorAll('.subtipo-card').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            this.querySelector('input').checked = true;
+        // ═══════════════════════════════════════════
+        // SELECCIÓN DE SUBTIPO
+        // ═══════════════════════════════════════════
+        document.querySelectorAll('.subtipo-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.subtipo-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('input').checked = true;
+            });
         });
-    });
 
-    // ═══════════════════════════════════════════
-    // SELECCIÓN DE DIFICULTAD
-    // ═══════════════════════════════════════════
-    document.querySelectorAll('.dificultad-card').forEach(card => {
-        card.addEventListener('click', function () {
-            document.querySelectorAll('.dificultad-card').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            this.querySelector('input').checked = true;
+        // ═══════════════════════════════════════════
+        // SELECCIÓN DE DIFICULTAD
+        // ═══════════════════════════════════════════
+        document.querySelectorAll('.dificultad-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.dificultad-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('input').checked = true;
+            });
         });
-    });
 
-    // ═══════════════════════════════════════════
-    // SELECCIÓN DE NÚMERO DE PREGUNTAS
-    // ═══════════════════════════════════════════
-    document.querySelectorAll('.pregunta-card').forEach(card => {
-        card.addEventListener('click', function () {
-            document.querySelectorAll('.pregunta-card').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            this.querySelector('input').checked = true;
+        // ═══════════════════════════════════════════
+        // SELECCIÓN DE NÚMERO DE PREGUNTAS
+        // ═══════════════════════════════════════════
+        document.querySelectorAll('.pregunta-card').forEach(card => {
+            card.addEventListener('click', function () {
+                document.querySelectorAll('.pregunta-card').forEach(c => c.classList.remove('active'));
+                this.classList.add('active');
+                this.querySelector('input').checked = true;
+            });
         });
-    });
 
-});
+    });
 </script>
 {% endblock %}

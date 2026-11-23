@@ -1,0 +1,106 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Prácticas del Profesor | QBYT{% endblock %}
+
+{% block extra_css %}
+    <!-- Conectamos el CSS nuevo -->
+    <link rel="stylesheet" href="{% static 'ejercicios/css/practicar_personalizado.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    
+    <!-- Encabezado -->
+    <div class="d-flex justify-content-between align-items-center mb-4 practica-header">
+        <h2 class="fw-bold" style="font-family: 'Syne', sans-serif;">
+            <i class="bi bi-star-fill text-warning"></i> Prácticas Personalizadas
+        </h2>
+        <a href="{% url 'ejercicios:practicar' %}" class="btn btn-custom-back">
+            <i class="bi bi-arrow-left"></i> Volver
+        </a>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'ejercicios:calificar_practica_personalizada' %}">
+        {% csrf_token %}
+        
+        {% for pregunta in preguntas %}
+            <div class="card custom-card mb-4 border-0">
+                <div class="card-body p-4 p-md-5">
+                    <h5 class="card-title fw-bold mb-4">{{ forloop.counter }}. {{ pregunta.enunciado }}</h5>
+                    
+                    {% if pregunta.audio %}
+                        <div class="mb-4">
+                            <audio controls class="custom-audio-player">
+                                <source src="{{ pregunta.audio.url }}" type="audio/mpeg">
+                                Tu navegador no soporta el elemento de audio.
+                            </audio>
+                        </div>
+                    {% endif %}
+                    
+                    <div class="row mt-3 g-3">
+                        <!-- Opción 1 -->
+                        <div class="col-md-6">
+                            <div class="custom-option">
+                                <input type="radio" name="pregunta_{{ pregunta.id }}" id="p1_{{ pregunta.id }}" value="{{ pregunta.opcion_1 }}" required>
+                                <label for="p1_{{ pregunta.id }}">{{ pregunta.opcion_1 }}</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Opción 2 -->
+                        <div class="col-md-6">
+                            <div class="custom-option">
+                                <input type="radio" name="pregunta_{{ pregunta.id }}" id="p2_{{ pregunta.id }}" value="{{ pregunta.opcion_2 }}">
+                                <label for="p2_{{ pregunta.id }}">{{ pregunta.opcion_2 }}</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Opción 3 -->
+                        {% if pregunta.opcion_3 %}
+                        <div class="col-md-6">
+                            <div class="custom-option">
+                                <input type="radio" name="pregunta_{{ pregunta.id }}" id="p3_{{ pregunta.id }}" value="{{ pregunta.opcion_3 }}">
+                                <label for="p3_{{ pregunta.id }}">{{ pregunta.opcion_3 }}</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Opción 4 -->
+                        {% if pregunta.opcion_4 %}
+                        <div class="col-md-6">
+                            <div class="custom-option">
+                                <input type="radio" name="pregunta_{{ pregunta.id }}" id="p4_{{ pregunta.id }}" value="{{ pregunta.opcion_4 }}">
+                                <label for="p4_{{ pregunta.id }}">{{ pregunta.opcion_4 }}</label>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="alert alert-info text-center p-5 shadow-sm" style="border-radius: 20px;">
+                <i class="bi bi-emoji-smile text-success" style="font-size: 3rem;"></i>
+                <h4 class="mt-3 fw-bold">¡Aún no hay prácticas!</h4>
+                <p class="mb-0">El administrador todavía no ha subido preguntas personalizadas.</p>
+            </div>
+        {% endfor %}
+        
+        {% if preguntas %}
+            <div class="text-center mt-5 mb-5">
+                <button type="submit" class="btn btn-custom-submit">
+                    <i class="bi bi-check-circle-fill"></i> Enviar Respuestas
+                </button>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

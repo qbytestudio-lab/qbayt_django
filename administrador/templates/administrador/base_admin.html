@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QBYT - Admin | {% block title %}Panel{% endblock %}</title>
+    
+    <!-- Bootstrap y Fuentes -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- CSS del panel (RUTA CORREGIDA) -->
+    <link rel="stylesheet" href="{% static 'css/panel_admin.css' %}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR ADMIN -->
+    <nav class="admin-topbar">
+        <div class="admin-topbar-brand">
+            <i class="bi bi-shield-lock-fill"></i> Panel de Administración
+        </div>
+        
+        <!-- Botón hamburguesa (solo visible en móvil) -->
+        <button class="admin-menu-toggle" onclick="toggleAdminMenu()" aria-label="Menú">
+            <i class="bi bi-list"></i>
+        </button>
+
+        <div class="admin-nav-links" id="adminNavLinks">
+            <a href="{% url 'administrador:panel_admin' %}" class="{% if request.resolver_match.url_name == 'panel_admin' %}active{% endif %}">
+                <i class="bi bi-people-fill"></i> Usuarios
+            </a>
+            <a href="{% url 'administrador:gestionar_practicas' %}" class="{% if request.resolver_match.url_name == 'gestionar_practicas' %}active{% endif %}">
+                <i class="bi bi-music-note-beamed"></i> Práctica Libre
+            </a>
+            <a href="{% url 'administrador:crear_pregunta_practica' %}">
+                <i class="bi bi-plus-circle"></i> Crear Pregunta
+            </a>
+            
+            <button class="theme-toggle" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema">
+                <i class="bi bi-moon-fill" id="themeIconDark"></i>
+                <i class="bi bi-sun-fill" id="themeIconLight" style="display:none;"></i>
+            </button>
+
+            <a href="{% url 'logout' %}" class="btn-logout-admin">
+                <i class="bi bi-box-arrow-right"></i> Salir
+            </a>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO DEL PANEL -->
+    <div class="admin-content">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // --- Lógica del Menú Móvil ---
+        function toggleAdminMenu() {
+            const navLinks = document.getElementById('adminNavLinks');
+            navLinks.classList.toggle('show-mobile');
+        }
+
+        // --- Lógica del Modo Oscuro/Claro ---
+        function getTheme() {
+            return localStorage.getItem('theme') || 'dark';
+        }
+
+        function applyTheme(theme) {
+            if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+                document.getElementById('themeIconDark').style.display = 'none';
+                document.getElementById('themeIconLight').style.display = 'inline';
+            } else {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('themeIconDark').style.display = 'inline';
+                document.getElementById('themeIconLight').style.display = 'none';
+            }
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = getTheme();
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(newTheme);
+        }
+
+        // Aplicar el tema guardado apenas cargue la página
+        document.addEventListener('DOMContentLoaded', function () {
+            applyTheme(getTheme());
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,197 @@
+/* ==========================================
+   PRÁCTICAS PERSONALIZADAS - QBYT
+   ========================================== */
+
+:root {
+    /* Colores base para el modo claro */
+    --card-bg: #ffffff;
+    --card-border: rgba(34, 197, 94, 0.2);
+    --option-bg: #f8fafc;
+    --option-border: #e2e8f0;
+    --option-hover: #f1f5f9;
+    --text-main: #1c1917;
+    --text-soft: #44403c;
+}
+
+[data-theme="dark"] {
+    /* Colores base para el modo oscuro */
+    --card-bg: rgba(28, 20, 52, 0.6); /* Fondo tipo vidrio */
+    --card-border: rgba(124, 111, 255, 0.2);
+    --option-bg: rgba(255, 255, 255, 0.03);
+    --option-border: rgba(255, 255, 255, 0.1);
+    --option-hover: rgba(124, 111, 255, 0.1);
+    --text-main: #f5f3ff;
+    --text-soft: #c9c2e8;
+}
+
+/* Contenedor Principal */
+.practica-header h2 {
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Tarjeta de la Pregunta */
+.custom-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+[data-theme="dark"] .custom-card {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.custom-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(34, 197, 94, 0.1);
+}
+
+[data-theme="dark"] .custom-card:hover {
+    box-shadow: 0 12px 40px rgba(124, 111, 255, 0.15);
+}
+
+/* Título de la pregunta */
+.custom-card .card-title {
+    color: var(--text-main);
+    font-family: 'Syne', sans-serif;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+/* Reproductor de Audio */
+.custom-audio-player {
+    width: 100%;
+    max-width: 450px;
+    border-radius: 50px;
+    outline: none;
+}
+
+/* Opciones de Respuesta */
+.custom-option {
+    background: var(--option-bg);
+    border: 1.5px solid var(--option-border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    height: 100%;
+}
+
+.custom-option:hover {
+    background: var(--option-hover);
+    border-color: rgba(34, 197, 94, 0.5);
+    transform: translateX(4px);
+}
+
+[data-theme="dark"] .custom-option:hover {
+    border-color: rgba(124, 111, 255, 0.6);
+}
+
+/* Radio buttons estilizados */
+.custom-option input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--text-soft);
+    border-radius: 50%;
+    margin-right: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.custom-option input[type="radio"]:checked {
+    border-color: #16a34a;
+}
+
+[data-theme="dark"] .custom-option input[type="radio"]:checked {
+    border-color: #7c6fff;
+}
+
+.custom-option input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #16a34a;
+}
+
+[data-theme="dark"] .custom-option input[type="radio"]:checked::after {
+    background: #7c6fff;
+}
+
+.custom-option label {
+    color: var(--text-soft);
+    font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
+    width: 100%;
+    margin: 0;
+}
+
+.custom-option input[type="radio"]:checked + label {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* Botón de Enviar */
+.btn-custom-submit {
+    background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-custom-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(34, 197, 94, 0.5);
+    color: white;
+}
+
+[data-theme="dark"] .btn-custom-submit {
+    background: linear-gradient(135deg, #7c6fff 0%, #b06fff 100%);
+    box-shadow: 0 8px 25px rgba(124, 111, 255, 0.4);
+}
+
+[data-theme="dark"] .btn-custom-submit:hover {
+    box-shadow: 0 12px 35px rgba(124, 111, 255, 0.6);
+}
+
+/* Botón Volver */
+.btn-custom-back {
+    background: transparent;
+    border: 1.5px solid var(--option-border);
+    color: var(--text-soft);
+    border-radius: 10px;
+    padding: 0.5rem 1.2rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-custom-back:hover {
+    background: var(--option-bg);
+    color: var(--text-main);
+    border-color: var(--text-soft);
+}

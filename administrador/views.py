@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
+from .forms import PreguntaPersonalizadaForm 
+from ejercicios.models import PreguntaPersonalizada
 
 # 1. Login exclusivo para Admin
 def login_admin(request):
@@ -13,7 +15,7 @@ def login_admin(request):
         
         if user is not None and user.is_staff: 
             login(request, user)
-            return redirect('panel_admin')
+            return redirect('administrador:panel_admin')
         else:
             messages.error(request, 'Acceso denegado. Credenciales incorrectas o no tienes permisos de administrador.')
             
@@ -60,7 +62,7 @@ def suspender_usuario(request, user_id):
     
     estado = "activado" if usuario.is_active else "suspendido"
     messages.success(request, f'El usuario {usuario.username} ha sido {estado}.')
-    return redirect('panel_admin')
+    return redirect('administrador:panel_admin')
 
 # 4. Eliminar
 @login_required
@@ -73,3 +75,40 @@ def eliminar_usuario(request, user_id):
     usuario.delete()
     messages.success(request, f'El usuario {nombre} ha sido eliminado.')
     return redirect('panel_admin')
+
+@login_required
+def gestionar_practicas(request):
+    if not request.user.is_staff:
+        return redirect('inicio')
+    
+    preguntas = PreguntaPersonalizada.objects.all().order_by('-fecha_creacion')
+    
+    return render(request, 'administrador/gestionar_practicas.html', {
+        'preguntas': preguntas
+    })
+
+@login_required
+def crear_pregunta_practica(request):
+    if not request.user.is_staff:
+        return redirect('inicio')
+    
+    if request.method == 'POST':
+        form = PreguntaPersonalizadaForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '¡Pregunta con audio agregada correctamente!')
+            return redirect('administrador:gestionar_practicas')
+    else:
+        form = PreguntaPersonalizadaForm()
+    
+    return render(request, 'administrador/crear_pregunta_practica.html', {'form': form})
+
+@login_required
+def eliminar_practica(request, pregunta_id):
+    if not request.user.is_staff:
+        return redirect('inicio')
+    
+    pregunta = get_object_or_404(PreguntaPersonalizada, id=pregunta_id)
+    pregunta.delete()
+    messages.success(request, 'Pregunta eliminada correctamente.')
+    return redirect('administrador:gestionar_practicas')

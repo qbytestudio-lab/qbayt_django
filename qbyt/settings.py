@@ -131,6 +131,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'web' / 'static',
     BASE_DIR / 'static',
+    BASE_DIR / 'administrador' / 'static',
 ]
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 

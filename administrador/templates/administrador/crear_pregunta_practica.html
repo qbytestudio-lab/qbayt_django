@@ -1,0 +1,88 @@
+{% extends 'administrador/base_admin.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <!-- Conectamos el CSS nuevo -->
+    <link rel="stylesheet" href="{% static 'css/crear_pregunta.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    
+    <div class="form-card">
+        <!-- Encabezado -->
+        <div class="form-card-header">
+            <i class="bi bi-music-note-beamed" style="font-size: 1.5rem;"></i>
+            <h3>Nueva Pregunta con Audio</h3>
+        </div>
+
+        <!-- Formulario -->
+        <div class="form-card-body">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <!-- Tipo de Práctica -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label">Tipo de Práctica</label>
+                        {{ form.tipo_practica }}
+                    </div>
+                    
+                    <!-- Respuesta Correcta -->
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label">Respuesta Correcta (Texto exacto de la opción)</label>
+                        {{ form.respuesta_correcta }}
+                    </div>
+                </div>
+
+                <!-- Enunciado -->
+                <div class="mb-4">
+                    <label class="form-label">Enunciado / Pregunta</label>
+                    {{ form.enunciado }}
+                </div>
+
+                <!-- Audio -->
+                <div class="mb-4">
+                    <label class="form-label">Archivo de Audio (Opcional)</label>
+                    {{ form.audio }}
+                    <small style="color: var(--form-text-muted); display: block; margin-top: 0.5rem;">
+                        <i class="bi bi-info-circle"></i> Formatos aceptados: MP3, WAV. Máximo 10MB.
+                    </small>
+                </div>
+
+                <!-- Opciones -->
+                <h5 class="options-title">Opciones de Respuesta</h5>
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Opción 1</label>
+                        {{ form.opcion_1 }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Opción 2</label>
+                        {{ form.opcion_2 }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Opción 3 (Opcional)</label>
+                        {{ form.opcion_3 }}
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Opción 4 (Opcional)</label>
+                        {{ form.opcion_4 }}
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="form-actions">
+                    <a href="{% url 'administrador:gestionar_practicas' %}" class="btn-cancel">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="bi bi-save"></i> Guardar Pregunta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

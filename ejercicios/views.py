@@ -10,11 +10,14 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.colors import HexColor
-from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante, PracticaAuditiva, PracticaLibre)
+from django.shortcuts import render, redirect, get_object_or_404
+
+from .models import (Ejercicio, Pregunta, Opcion, IntentoEjercicio, RespuestaEstudiante, PracticaAuditiva, PracticaLibre, PreguntaPersonalizada)
 from clase.models import Clase
 from docente.models import RecursoMusical
 from notificaciones.services import notificar_nuevo_ejercicio, notificar_calificacion, crear_notificacion
 from django.shortcuts import render, redirect, get_object_or_404
+
 def crear_ejercicio(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
     tipo = request.GET.get('tipo', 'quiz')
@@ -33,6 +36,7 @@ def crear_ejercicio(request, clase_id):
     elif tipo == 'entrenamiento_auditivo':
         return redirect('ejercicios:crear_entrenamiento_auditivo', clase_id=clase.id)
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase})
+
 @login_required
 def toggle_estado_ejercicio(request, ejercicio_id):
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id)
@@ -44,6 +48,7 @@ def toggle_estado_ejercicio(request, ejercicio_id):
     estado_texto = "activado" if ejercicio.activo else "desactivado"
     messages.success(request, f"El ejercicio ha sido {estado_texto} correctamente.")
     return redirect('docente:editar_ejercicio', clase_id=ejercicio.clase.id, ejercicio_id=ejercicio.id)
+
 @login_required
 def crear_ejercicio_acordes(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -76,6 +81,7 @@ def crear_ejercicio_acordes(request, clase_id):
         messages.success(request, '¡Ejercicio de acordes creado con éxito!')
         return redirect('clase:detalle_clase', clase_id=clase.id)
     return render(request, 'ejercicios/crear_acordes.html', {'clase': clase})
+
 @login_required
 def crear_ejercicio_intervalos(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -100,6 +106,7 @@ def crear_ejercicio_intervalos(request, clase_id):
         messages.success(request, '¡Ejercicio de intervalos creado exitosamente!')
         return redirect('clase:detalle_clase', clase_id=clase.id)
     return render(request, 'ejercicios/crear_intervalos.html', {'clase': clase})
+
 @login_required
 def crear_ejercicio_escalas(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -116,6 +123,7 @@ def crear_ejercicio_escalas(request, clase_id):
         messages.success(request, '¡Ejercicio de escalas creado con éxito!')
         return redirect('clase:detalle_clase', clase_id=clase.id)
     return render(request, 'ejercicios/crear_escalas.html', {'clase': clase})
+
 @login_required
 def crear_quiz(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
@@ -177,6 +185,7 @@ def crear_quiz(request, clase_id):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_quiz.html', {'clase': clase, 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 def crear_juego(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -197,6 +206,7 @@ def crear_juego(request, clase_id):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_juego.html', {'clase': clase, 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 def crear_texto(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -217,6 +227,7 @@ def crear_texto(request, clase_id):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_texto.html', {'clase': clase, 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 def crear_completar(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -236,6 +247,7 @@ def crear_completar(request, clase_id):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_completar.html', {'clase': clase, 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 def editar_ejercicio(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
@@ -279,6 +291,7 @@ def editar_ejercicio(request, clase_id, ejercicio_id):
     recursos_seleccionados = ejercicio.recursos.all().values_list('id', flat=True)
     context = {'clase': clase, 'ejercicio': ejercicio, 'recursos_disponibles': recursos_disponibles, 'recursos_seleccionados': recursos_seleccionados}
     return render(request, 'docente/editar_ejercicio.html', context)
+
 @login_required
 def calificar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)
@@ -341,6 +354,7 @@ def calificar_ejercicio(request, intento_id):
                     clase.estudiantes.remove(estudiante)
         return redirect('ejercicios:detalle_ejercicio_docente', clase_id=clase.id, ejercicio_id=ejercicio.id)
     return render(request, 'ejercicios/calificar_ejercicio.html', {'intento': intento, 'respuestas': respuestas, 'practica_auditiva': practica_auditiva, 'ejercicio': ejercicio, 'clase': ejercicio.clase})
+
 @login_required
 def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id)
@@ -348,6 +362,7 @@ def detalle_ejercicio_docente(request, clase_id, ejercicio_id):
     intentos = IntentoEjercicio.objects.filter(ejercicio=ejercicio).select_related('estudiante').order_by('-fecha_envio')
     recursos = ejercicio.recursos.all()
     return render(request, 'ejercicios/detalle_ejercicio_docente.html', {'clase': clase, 'ejercicio': ejercicio, 'intentos': intentos, 'recursos': recursos})
+
 @login_required
 def eliminar_ejercicio(request, clase_id, ejercicio_id):
     if request.user.perfil.rol != 'docente':
@@ -356,6 +371,7 @@ def eliminar_ejercicio(request, clase_id, ejercicio_id):
     ejercicio.delete()
     messages.success(request, 'Ejercicio eliminado con éxito.')
     return redirect(f'/clase/detalle/{clase_id}/')
+
 @login_required
 def reenviar_ejercicio(request, intento_id):
     intento = get_object_or_404(IntentoEjercicio, id=intento_id)
@@ -365,6 +381,7 @@ def reenviar_ejercicio(request, intento_id):
     intento.delete()
     messages.warning(request, "El intento ha sido rechazado. El estudiante ya puede volver a realizar el ejercicio.")
     return redirect('ejercicios:detalle_ejercicio_docente', clase_id=clase_id, ejercicio_id=ejercicio_id)
+
 @login_required
 def crear_entrenamiento_auditivo(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
@@ -398,6 +415,7 @@ def crear_entrenamiento_auditivo(request, clase_id):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_entrenamiento_auditivo.html', {'clase': clase, 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 @require_POST
 def guardar_practica_auditiva(request, ejercicio_id):
@@ -428,11 +446,13 @@ def guardar_practica_auditiva(request, ejercicio_id):
         import logging
         logging.getLogger(__name__).warning(f'Error guardando PracticaAuditiva: {e}')
     return JsonResponse({'success': True, 'nota': float(nota), 'aprobado': aprobado, 'aciertos': aciertos, 'total': total})
+
 @login_required
 def resolver_entrenamiento_auditivo(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase, tipo='entrenamiento_auditivo')
     return render(request, 'ejercicios/resolver_entrenamiento_auditivo.html', {'ejercicio': ejercicio, 'clase': clase})
+
 @login_required
 def reporte_debilidades(request, clase_id):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
@@ -540,6 +560,7 @@ def reporte_debilidades(request, clase_id):
         estudiantes_unicos.add(intento.estudiante_id)
     context = {'clase': clase, 'practicas_total': len(practicas) + len(intentos_interactivos), 'estudiantes_total': len(estudiantes_unicos), 'resumen_tipos': resumen_tipos, 'a_reforzar': a_reforzar, 'dominadas': dominadas, 'sugerencias': sugerencias, 'tipo_filtro': tipo_filtro, 'tipos_disponibles': PracticaAuditiva.TIPO_CHOICES, 'estudiantes_detalle': estudiantes_detalle}
     return render(request, 'ejercicios/reporte_debilidades.html', context)
+
 @login_required
 def debilidades_global(request):
     from datetime import timedelta
@@ -642,6 +663,7 @@ def debilidades_global(request):
     top_estudiantes = top_estudiantes[:5]
     context = {'mis_clases': mis_clases, 'practicas_total': len(practicas) + intentos_interactivos_qs.count(), 'estudiantes_total': len(estudiantes_unicos), 'clases_total': len(clases_unicas), 'promedio_global': promedio_global, 'top_debilidades': top_debilidades, 'dominadas': dominadas, 'top_estudiantes': top_estudiantes, 'clase_filtro': clase_filtro, 'tipo_filtro': tipo_filtro, 'rango_filtro': rango_filtro, 'tipos_disponibles': PracticaAuditiva.TIPO_CHOICES}
     return render(request, 'ejercicios/debilidades_global.html', context)
+
 @login_required
 def exportar_debilidades_pdf(request):
     from datetime import timedelta
@@ -896,6 +918,7 @@ def exportar_debilidades_pdf(request):
     p.showPage()
     p.save()
     return response
+
 @login_required
 def practicar(request):
     if request.user.perfil.rol != 'estudiante':
@@ -920,6 +943,7 @@ def practicar(request):
             stats_por_tipo.append({'tipo': tipo_value, 'label': tipo_label, 'practicas': tipo_practicas.count(), 'porcentaje': pct})
     context = {'total_practicas': total_practicas, 'promedio': promedio, 'total_aciertos': total_aciertos, 'total_preguntas': total_preguntas, 'ultimas_practicas': ultimas_practicas, 'stats_por_tipo': stats_por_tipo, 'tipos_disponibles': PracticaLibre.TIPO_CHOICES}
     return render(request, 'ejercicios/practicar.html', context)
+
 @login_required
 def practicar_sesion(request):
     if request.user.perfil.rol != 'estudiante':
@@ -931,6 +955,7 @@ def practicar_sesion(request):
     num_preguntas = max(3, min(30, num_preguntas))
     config = {'tipo_practica': tipo, 'dificultad': dificultad, 'num_preguntas': num_preguntas, 'instrumento': instrumento}
     return render(request, 'ejercicios/practicar_sesion.html', {'config': config, 'config_json': json.dumps(config)})
+
 @login_required
 @require_POST
 def guardar_practica_libre(request):
@@ -940,6 +965,7 @@ def guardar_practica_libre(request):
         return JsonResponse({'success': True, 'practica_id': practica.id, 'porcentaje': practica.porcentaje})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
 @login_required
 def crear_entrenamiento_avanzado(request, clase_id, subtipo):
     clase = get_object_or_404(Clase, id=clase_id, docente=request.user)
@@ -988,11 +1014,13 @@ def crear_entrenamiento_avanzado(request, clase_id, subtipo):
         return redirect('clase:detalle_clase', clase_id=clase.id)
     recursos_disponibles = RecursoMusical.objects.filter(docente=request.user)
     return render(request, 'ejercicios/crear_entrenamiento_avanzado.html', {'clase': clase, 'subtipo': subtipo, 'subtipo_label': SUBTIPO_LABELS[subtipo], 'recursos_disponibles': recursos_disponibles})
+
 @login_required
 def resolver_entrenamiento_avanzado(request, clase_id, ejercicio_id):
     clase = get_object_or_404(Clase, id=clase_id)
     ejercicio = get_object_or_404(Ejercicio, id=ejercicio_id, clase=clase, tipo='entrenamiento_avanzado')
     return render(request, 'ejercicios/resolver_entrenamiento_avanzado.html', {'ejercicio': ejercicio, 'clase': clase})
+
 @login_required
 @require_POST
 def guardar_practica_avanzada(request, ejercicio_id):

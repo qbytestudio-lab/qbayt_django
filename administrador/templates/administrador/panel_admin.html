@@ -1,19 +1,13 @@
-{% extends 'web/base.html' %}
+{% extends 'administrador/base_admin.html' %}
 {% load static %}
-
-<!-- Cargamos el CSS AQUÍ AFUERA del block para que no sea sobrescrito -->
-<link rel="stylesheet" href="{% static 'administrador/css/panel_admin.css' %}">
 
 {% block content %}
 
-<div class="admin-container" style="padding: 2rem 3rem;">
+<div class="admin-container">
     
     <!-- Encabezado -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-        <h1 class="admin-title" style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 2.2rem; margin: 0;">Panel de Administración</h1>
-        <a href="{% url 'inicio' %}" class="btn-exit" style="text-decoration: none; padding: 0.6rem 1.2rem; border: 1.5px solid #16a34a; border-radius: 50px; color: #1c1917; font-weight: 600; transition: all 0.3s;">
-            <i class="bi bi-box-arrow-right"></i> Salir del panel
-        </a>
+    <div class="admin-header">
+        <h1 class="admin-title">Panel de Administración</h1>
     </div>
 
     {% if messages %}
@@ -26,49 +20,49 @@
     {% endif %}
 
     <!-- TABLA DE DOCENTES -->
-    <div class="admin-card" style="background: rgba(255,255,255,0.85); border-radius: 20px; box-shadow: 0 10px 40px rgba(34,197,94,0.08); margin-bottom: 3rem; overflow: hidden; border: 1px solid rgba(34,197,94,0.2);">
-        <div class="admin-card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.1);">
-            <h2 style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin: 0; color: #1c1917; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="bi bi-person-video3" style="color: #16a34a;"></i> Docentes
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>
+                <i class="bi bi-person-video3"></i> Docentes
             </h2>
         </div>
         <div class="table-responsive">
-            <table class="table-custom" style="width: 100%; margin: 0; border-collapse: collapse;">
-                <thead style="background: rgba(34,197,94,0.05);">
+            <table class="table-custom">
+                <thead>
                     <tr>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Usuario</th>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Email</th>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Estado</th>
-                        <th style="padding: 1rem 2rem; text-align: right; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Acciones</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for docente in docentes %}
                     <tr>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);"><strong>{{ docente.username }}</strong></td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);">{{ docente.email }}</td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);">
+                        <td data-label="Usuario"><strong>{{ docente.username }}</strong></td>
+                        <td data-label="Email">{{ docente.email }}</td>
+                        <td data-label="Estado">
                             {% if docente.is_active %}
-                                <span class="badge-status" style="padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(34,197,94,0.15); color: #16a34a;">Activo</span>
+                                <span class="badge-status badge-activo">Activo</span>
                             {% else %}
-                                <span class="badge-status" style="padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(239,68,68,0.15); color: #ef4444;">Suspendido</span>
+                                <span class="badge-status badge-suspendido">Suspendido</span>
                             {% endif %}
                         </td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05); text-align: right;">
-                            <a href="{% url 'suspender_usuario' docente.id %}" class="btn-action {% if docente.is_active %}btn-suspender{% else %}btn-activar{% endif %}" style="padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; {% if docente.is_active %}background: rgba(245,158,11,0.15); color: #d97706;{% else %}background: rgba(34,197,94,0.15); color: #16a34a;{% endif %}">
+                        <td data-label="Acciones" class="text-end">
+                            <a href="{% url 'administrador:suspender_usuario' docente.id %}" class="btn-action {% if docente.is_active %}btn-suspender{% else %}btn-activar{% endif %}">
                                 {% if docente.is_active %}
                                     <i class="bi bi-pause-circle"></i> Suspender
                                 {% else %}
                                     <i class="bi bi-play-circle"></i> Activar
                                 {% endif %}
                             </a>
-                            <a href="{% url 'eliminar_usuario' docente.id %}" class="btn-action btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar a este docente?');" style="padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.15); color: #ef4444; margin-left: 0.5rem;">
+                            <a href="{% url 'administrador:eliminar_usuario' docente.id %}" class="btn-action btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar a este docente?');">
                                 <i class="bi bi-trash3"></i> Eliminar
                             </a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" style="text-align: center; padding: 2rem;">No hay docentes registrados.</td></tr>
+                    <tr><td colspan="4" class="text-center py-4">No hay docentes registrados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -76,49 +70,49 @@
     </div>
 
     <!-- TABLA DE ESTUDIANTES -->
-    <div class="admin-card" style="background: rgba(255,255,255,0.85); border-radius: 20px; box-shadow: 0 10px 40px rgba(34,197,94,0.08); margin-bottom: 3rem; overflow: hidden; border: 1px solid rgba(34,197,94,0.2);">
-        <div class="admin-card-header" style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.1);">
-            <h2 style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin: 0; color: #1c1917; display: flex; align-items: center; gap: 0.5rem;">
-                <i class="bi bi-mortarboard" style="color: #16a34a;"></i> Estudiantes
+    <div class="admin-card">
+        <div class="admin-card-header">
+            <h2>
+                <i class="bi bi-mortarboard"></i> Estudiantes
             </h2>
         </div>
         <div class="table-responsive">
-            <table class="table-custom" style="width: 100%; margin: 0; border-collapse: collapse;">
-                <thead style="background: rgba(34,197,94,0.05);">
+            <table class="table-custom">
+                <thead>
                     <tr>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Usuario</th>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Email</th>
-                        <th style="padding: 1rem 2rem; text-align: left; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Estado</th>
-                        <th style="padding: 1rem 2rem; text-align: right; font-size: 0.85rem; color: #78716c; text-transform: uppercase; border-bottom: 1px solid rgba(34,197,94,0.1);">Acciones</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Estado</th>
+                        <th class="text-end">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for estudiante in estudiantes %}
                     <tr>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);"><strong>{{ estudiante.username }}</strong></td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);">{{ estudiante.email }}</td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05);">
+                        <td data-label="Usuario"><strong>{{ estudiante.username }}</strong></td>
+                        <td data-label="Email">{{ estudiante.email }}</td>
+                        <td data-label="Estado">
                             {% if estudiante.is_active %}
-                                <span class="badge-status" style="padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(34,197,94,0.15); color: #16a34a;">Activo</span>
+                                <span class="badge-status badge-activo">Activo</span>
                             {% else %}
-                                <span class="badge-status" style="padding: 0.4rem 0.8rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: rgba(239,68,68,0.15); color: #ef4444;">Suspendido</span>
+                                <span class="badge-status badge-suspendido">Suspendido</span>
                             {% endif %}
                         </td>
-                        <td style="padding: 1.2rem 2rem; border-bottom: 1px solid rgba(34,197,94,0.05); text-align: right;">
-                            <a href="{% url 'suspender_usuario' estudiante.id %}" class="btn-action {% if estudiante.is_active %}btn-suspender{% else %}btn-activar{% endif %}" style="padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; {% if estudiante.is_active %}background: rgba(245,158,11,0.15); color: #d97706;{% else %}background: rgba(34,197,94,0.15); color: #16a34a;{% endif %}">
+                        <td data-label="Acciones" class="text-end">
+                            <a href="{% url 'administrador:suspender_usuario' estudiante.id %}" class="btn-action {% if estudiante.is_active %}btn-suspender{% else %}btn-activar{% endif %}">
                                 {% if estudiante.is_active %}
                                     <i class="bi bi-pause-circle"></i> Suspender
                                 {% else %}
                                     <i class="bi bi-play-circle"></i> Activar
                                 {% endif %}
                             </a>
-                            <a href="{% url 'eliminar_usuario' estudiante.id %}" class="btn-action btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar a este estudiante?');" style="padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.85rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.15); color: #ef4444; margin-left: 0.5rem;">
+                            <a href="{% url 'administrador:eliminar_usuario' estudiante.id %}" class="btn-action btn-eliminar" onclick="return confirm('¿Estás seguro de eliminar a este estudiante?');">
                                 <i class="bi bi-trash3"></i> Eliminar
                             </a>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" style="text-align: center; padding: 2rem;">No hay estudiantes registrados.</td></tr>
+                    <tr><td colspan="4" class="text-center py-4">No hay estudiantes registrados.</td></tr>
                     {% endfor %}
                 </tbody>
             </table>

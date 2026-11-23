@@ -341,9 +341,37 @@ class PracticaLibre(models.Model):
         ('cifrado', 'Cifrado americano'),
         ('progresiones', 'Progresiones armónicas'),
     ]
+       # ... (tus campos de PracticaLibre) ...
+
     subtipo = models.CharField(
         max_length=30,
         choices=SUBTIPO_CHOICES,
         default='basico',
         help_text="Subtipo para acordes avanzados"
     )
+
+# ==========================================
+# AQUÍ TERMINA PracticaLibre Y EMPIEZA LA NUEVA CLASE (SIN ESPACIOS)
+# ==========================================
+
+class PreguntaPersonalizada(models.Model):
+    TIPO_CHOICES = [
+        ('intervalos', 'Intervalos'),
+        ('acordes', 'Acordes'),
+        ('notas', 'Notas individuales'),
+        ('ritmo', 'Ritmo'),
+        ('melodia', 'Melodía'),
+    ]
+    
+    tipo_practica = models.CharField(max_length=30, choices=TIPO_CHOICES, default='intervalos')
+    enunciado = models.TextField(verbose_name="Enunciado o pregunta")
+    audio = models.FileField(upload_to='practicas_audio/', blank=True, null=True, verbose_name="Audio (MP3, WAV)")
+    opcion_1 = models.CharField(max_length=100)
+    opcion_2 = models.CharField(max_length=100)
+    opcion_3 = models.CharField(max_length=100, blank=True, null=True)
+    opcion_4 = models.CharField(max_length=100, blank=True, null=True)
+    respuesta_correcta = models.CharField(max_length=100, verbose_name="Respuesta correcta (debe coincidir con una opción)")
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_tipo_practica_display()} - {self.enunciado[:30]}"

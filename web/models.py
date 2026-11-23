@@ -88,3 +88,13 @@ class Certificado(models.Model):
                 f"CERT-{año}-{self.clase.id:04d}-{self.estudiante.id:04d}"
             )
         super().save(*args, **kwargs)
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.auth.models import User
+
+@receiver(post_save, sender=User)
+def crear_perfil_automatico(sender, instance, created, **kwargs):
+    if created:
+        # Por defecto, los usuarios nuevos son estudiantes
+        Perfil.objects.create(user=instance, rol='estudiante')
